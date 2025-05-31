@@ -1,0 +1,82 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Module System Standards
+
+## Description
+This rule provides guidance on using ES Modules (ESM) as the preferred module system for JavaScript/TypeScript projects.
+
+## Applies To
+- JavaScript files (*.js)
+- TypeScript files (*.ts)
+- Package.json files
+
+## Guidance
+1. Use ES Modules (ESM) as the primary module system:
+   - Use `import`/`export` syntax instead of `require`/`module.exports`
+   - Add `"type": "module"` to package.json for pure ESM projects
+   - Use `.mjs` extension for ESM files if mixing with CommonJS
+
+2. For TypeScript projects:
+   - Set `"module": "ESNext"` in tsconfig.json
+   - Use `"moduleResolution": "bundler"` or `"node16"`/`"nodenext"` for modern Node.js compatibility
+
+3. When migrating from CommonJS:
+   - Convert `require()` to `import`
+   - Convert `module.exports` to `export`
+   - Update file extensions to `.mjs` if needed
+   - Update package.json with `"type": "module"`
+   - Use dynamic `import()` for conditional imports
+
+4. For dual ESM/CommonJS packages:
+   - Use `"exports"` field in package.json
+   - Provide both `.mjs` and `.cjs` files
+   - Use conditional exports for different environments
+
+5. Best Practices:
+   - Use named exports for better tree-shaking
+   - Avoid default exports when possible
+   - Use explicit file extensions in imports
+   - Keep module dependencies explicit and minimal
+
+## Examples
+
+```javascript
+// ✅ Good: ES Modules
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+export const config = { port: 3000 };
+
+// ❌ Bad: CommonJS
+const http = require('http');
+const fs = require('fs');
+module.exports = { port: 3000 };
+```
+
+## Package.json Configuration
+
+```json
+{
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  }
+}
+```
+
+## TypeScript Configuration
+
+```json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ESNext"
+  }
+}
+```

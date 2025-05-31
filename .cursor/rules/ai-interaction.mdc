@@ -1,0 +1,103 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# AI Interaction Guidelines
+
+## Development Workflow
+
+1. **Granular Changes**
+   - Request small, focused changes
+   - Review each change before proceeding
+   - Make atomic commits for each change
+   - Break down large tasks into smaller, manageable steps
+
+2. **Clear Communication**
+   - Be specific about requirements
+   - Ask for clarification when needed
+   - Review AI suggestions before implementation
+   - Provide context when asking questions
+
+3. **Iterative Development**
+   - Work in small steps
+   - Test changes before proceeding
+   - Document decisions and changes
+   - Use version control effectively
+
+4. **Version Control Best Practices**
+   - Make frequent, small commits
+   - Write clear commit messages
+   - Review changes before committing
+   - Keep commits focused and atomic
+
+## Commit Message Conventions
+
+1. **Subject Line (First Line)**
+   - Keep under 50 characters
+   - Start with present tense verb (Add, Fix, Update, Remove)
+   - No period at end
+   - Example: `Add user authentication middleware`
+
+2. **Message Body (If Needed)**
+   - Separate from subject with blank line
+   - Wrap at 72 characters
+   - Explain what and why, not how
+   - Use bullet points for multiple changes
+   - Example:
+     ```
+     Add user authentication middleware
+
+     - Implement JWT token validation
+     - Add error handling for invalid tokens
+     - Update user model with auth fields
+     ```
+
+3. **Message Footer (If Needed)**
+   - Reference issue numbers
+   - Note breaking changes
+   - Example:
+     ```
+     Add user authentication middleware
+
+     - Implement JWT token validation
+     - Add error handling for invalid tokens
+     - Update user model with auth fields
+
+     Closes #123
+     BREAKING CHANGE: Auth middleware now required
+     ```
+
+## AI Interaction Principles
+
+1. **Prompt Engineering**
+   - Be specific and clear in requests
+   - Provide necessary context
+   - Break down complex tasks
+   - Ask for clarification when needed
+
+2. **Code Review**
+   - Review AI-generated code carefully
+   - Understand the changes before applying
+   - Test changes in isolation
+   - Document significant decisions
+
+3. **Learning and Improvement**
+   - Note effective prompts and approaches
+   - Document patterns that work well
+   - Share learnings with future self
+   - Iterate on interaction patterns
+
+## Editor-Specific Guidelines
+
+1. **Cursor Usage**
+   - Use inline edit (⌘K) for small changes
+   - Use chat for complex discussions
+   - Leverage codebase context effectively
+   - Keep rules focused and modular
+
+2. **VSCode Integration**
+   - Use appropriate extensions
+   - Maintain consistent settings
+   - Follow project conventions
+   - Keep configurations version controlled

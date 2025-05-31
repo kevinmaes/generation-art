@@ -1,0 +1,40 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Commit Message Generation Guidelines
+
+When generating commit messages:
+
+1. **Keep it Concise**
+   - First line should be under 50 characters
+   - Focus on the most important change
+   - Use present tense verbs
+   - No period at the end
+
+2. **Structure**
+   - Start with a verb (Add, Fix, Update, Remove)
+   - Follow with a brief description
+   - Use body only if more detail is needed
+   - Reference issues when relevant
+
+3. **Examples**
+   ```
+   Add user auth middleware
+   Fix login form validation
+   Update README with new instructions
+   Remove deprecated API endpoints
+   ```
+
+4. **When to Add Body**
+   - Multiple related changes
+   - Breaking changes
+   - Complex changes needing explanation
+   - References to issues or tickets
+
+5. **Body Format**
+   - Blank line after subject
+   - Bullet points for multiple changes
+   - Wrap at 72 characters
+   - Focus on what and why, not how

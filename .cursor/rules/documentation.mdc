@@ -1,0 +1,46 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 📚 Documentation & README Best Practices
+
+## Automatic Documentation Updates
+- Always offer to update the README and other documentation files when:
+  - New features are added
+  - Scripts or commands are introduced or changed
+  - Dependencies are added, removed, or updated
+  - Project structure changes
+  - Usage instructions change
+
+## Visual Formatting
+- Use relevant emojis/icons in section headers and lists for clarity and engagement
+- Use tables for structured data (e.g., features, dependencies, scripts)
+- Use bold, italics, and blockquotes for emphasis and callouts
+- Add horizontal rules to break up content
+
+## Documentation Consistency
+- Ensure all major sections (Overview, Getting Started, Usage, Structure, License, etc.) are present in the README
+- Keep documentation in sync with code and scripts
+- Encourage clear, concise, and friendly language
+
+## Changelog and Versioning
+- Update a `changelog.md` or release notes when significant changes are made
+- Document breaking changes and migration steps
+
+## Contribution Guidelines
+- If the repo is ever made public, include a `contributing.md` with clear instructions for contributors
+
+## Badges and Shields
+- Add badges for build status, license, version, etc. (if relevant)
+
+## AI-Specific Prompts
+- Always suggest documentation updates as part of any code or feature change
+- Propose visual improvements to documentation (emojis, formatting, etc.)
+- Offer to generate or update usage examples and code snippets
+- Remind the user to keep documentation up to date with project changes
+
+## Markdown File Naming Conventions
+- All markdown files should use **kebab-case** (e.g., `readme.md`, `project-overview.md`)
+- Do **not** use uppercase or snake_case for markdown file names
+- All instructions and examples should use kebab-case markdown file names
