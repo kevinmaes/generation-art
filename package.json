@@ -1,0 +1,19 @@
+{
+	"name": "generation-art",
+	"version": "0.1.0",
+	"description": "Generative art based on GEDCOM data",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"generative",
+		"art",
+		"gedcom",
+		"family",
+		"tree"
+	],
+	"author": "John Doe",
+	"license": "ISC",
+	"dependencies": {}
+}
