@@ -11,15 +11,17 @@ GEDCOM (Genealogical Data Communication) is a standard file format for genealogi
 ## 🛠️ Technology Stack
 
 - TypeScript
+- React + Vite
+- Tailwind CSS
 - Canvas API
-- Existing GEDCOM parser
-- Modern build tools (Vite/Webpack)
-- Testing framework (Jest/Vitest)
+- Existing GEDCOM parser (gedcom-ts)
+- Modern build tools (Vite)
+- Testing framework (Vitest)
 
 ## 📝 Technical Notes
 
 - Use TypeScript for type safety and better development experience
-- Consider using `gedcom.js` or similar library for parsing
+- Using `gedcom-ts` for GEDCOM parsing
 - Focus on Canvas API for visualization
 - Consider using Web Workers for data processing
 - Implement proper error handling for malformed GEDCOM files
@@ -27,9 +29,32 @@ GEDCOM (Genealogical Data Communication) is a standard file format for genealogi
 ## 🔍 Research & Resources
 
 - Existing GEDCOM parser libraries:
-  - gedcom.js
+  - gedcom-ts
   - gedcom-parse
   - family-tree-parser
 - Canvas API documentation
 - TypeScript best practices
 - Generative art algorithms and patterns
+
+## 🚀 Development Setup
+
+This project uses Vite for fast development and building. To get started:
+
+1. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+2. Start the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+3. Build for production:
+   ```bash
+   pnpm build
+   ```
+
+The project uses ESLint for code quality. The configuration includes type-aware rules and React-specific linting.
