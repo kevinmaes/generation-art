@@ -12,7 +12,10 @@
 		"test:watch": "vitest watch",
 		"test:coverage": "vitest run --coverage",
 		"parse": "tsx src/scripts/parseGedcom.ts",
+		"augment": "pnpm tsx src/tasks/augmentIndividuals.ts",
 		"parse:kennedy": "tsx src/scripts/parseGedcom.ts public/gedcom-public/kennedy/kennedy.ged",
+		"augment:kennedy": "pnpm tsx src/tasks/augmentIndividuals.ts public/gedcom-public/kennedy/kennedy.json",
+		"pipeline:kennedy": "pnpm parse:kennedy && pnpm augment:kennedy",
 		"task:parse": "tsx src/tasks/parseGedcom.ts",
 		"task:augment": "tsx src/tasks/augmentData.ts",
 		"task:output": "tsx src/tasks/outputJson.ts"
