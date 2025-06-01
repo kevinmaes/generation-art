@@ -26,7 +26,6 @@ GEDCOM (Genealogical Data Communication) is a standard file format for genealogi
 
 ## 🔍 Research & Resources
 
-- GEDCOM 5.5.1 specification (stored in docs/)
 - Existing GEDCOM parser libraries:
   - gedcom.js
   - gedcom-parse
