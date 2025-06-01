@@ -99,5 +99,7 @@ const augmented: AugmentedIndividual[] = data.individuals.map((ind) => ({
 	siblings: Array.from(siblingsMap[ind.id] || []),
 }));
 
+console.time('Execution Time');
 writeFileSync(outputPath, JSON.stringify(augmented, null, 2));
 console.log(`Augmented data written to ${outputPath}`);
+console.timeEnd('Execution Time');
