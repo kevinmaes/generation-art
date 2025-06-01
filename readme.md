@@ -4,7 +4,11 @@ A web application that generates artistic visualizations from GEDCOM (Genealogic
 
 ![Generated graph visualization](images/graph1.png)
 
-## 🛠️ Technology Stack
+## 📚 About GEDCOM
+
+GEDCOM (Genealogical Data Communication) is a standard file format for genealogical data. It's used to exchange genealogical data between different genealogy software. This project aims to be compatible with GEDCOM version 5.5.1, created by [Family Search](http://familysearch.org/). The published spec for version 5.5.1 is available, along with other official specifications, on the [Family Search site](https://www.familysearch.org/en/developers/docs/gedcom/) and has also been copied to this project's documentation folder [here](documents/ged551-5bac5e57fe88dd37df0e153d9c515335.pdf).
+
+## ��️ Technology Stack
 
 - TypeScript
 - Canvas API
