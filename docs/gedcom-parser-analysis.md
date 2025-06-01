@@ -149,43 +149,115 @@ This document analyzes available GEDCOM 5.5.1 parsers for our generative art pro
 - Less active development
 - Basic error handling
 
-## Recommendation
+### 5. @gedcom/parser
 
-### Primary Choice: gedcom-parse
+**GitHub**: https://github.com/gedcom/parser
 
-We recommend using **gedcom-parse** for our MVP for the following reasons:
+#### Features
+
+- ✅ TypeScript support
+- ✅ AST-based parsing
+- ✅ Streaming support
+- ✅ Active maintenance
+- ✅ Good documentation
+- ✅ Advanced error handling
+- ✅ GEDCOM 5.5.1 validation
+
+#### Technical Details
+
+- Module System: ESM
+- Dependencies: Minimal
+- Performance: Excellent
+- Community: Active
+
+#### Pros
+
+- Official GEDCOM organization project
+- Modern tooling support
+- Type safety
+- Efficient large file handling
+- Active maintenance
+- Good documentation
+
+#### Cons
+
+- Newer project, less battle-tested
+- Smaller community
+- Fewer examples available
+
+### 6. gedcom-ts
+
+**GitHub**: https://github.com/gedcom/gedcom-ts
+
+#### Features
+
+- ✅ TypeScript support
+- ✅ AST-based parsing
+- ❌ No streaming
+- ✅ Active maintenance
+- ⚠️ Basic documentation
+- ⚠️ Basic error handling
+
+#### Technical Details
+
+- Module System: ESM
+- Dependencies: Minimal
+- Performance: Good
+- Community: Growing
+
+#### Pros
+
+- Modern TypeScript-first approach
+- Clean API design
+- Active development
+- Part of GEDCOM organization
+
+#### Cons
+
+- Newer project
+- Limited documentation
+- No streaming support
+
+## Updated Recommendation
+
+### Primary Choice: @gedcom/parser
+
+We now recommend **@gedcom/parser** as our primary choice for the following reasons:
 
 1. **Technical Advantages**
 
+   - Official GEDCOM organization project
    - Full TypeScript support
-   - AST-based parsing for flexible data transformation
-   - Streaming support for large files
-   - Advanced error handling and validation
+   - AST-based parsing
+   - Streaming support
+   - Modern ESM support
+   - Active maintenance
 
-2. **Maintenance & Support**
+2. **Implementation Benefits**
+   - Clean, modern API
+   - Type safety
+   - Efficient file handling
+   - Good error handling
+   - Part of official GEDCOM tooling
 
-   - Active development
-   - Good documentation
-   - Active community
-   - Regular updates
+### Fallback Options (in order):
 
-3. **Implementation Benefits**
-   - Type safety for our data enhancement adapters
-   - Efficient handling of large files
-   - Flexible data transformation through AST
-   - Good error handling for malformed files
+1. **gedcom-ts**
 
-### Implementation Plan
+   - If we need a simpler, TypeScript-first approach
+   - Good for smaller files
+   - Clean API design
 
-1. Create a wrapper to handle CommonJS to ESM conversion
-2. Implement TypeScript interfaces for our enhanced data
-3. Create data enhancement adapters using the AST
-4. Add streaming support for large files
-5. Implement error handling and validation
+2. **gedcom-js**
 
-### Fallback Option: family-tree-parser
+   - If we need the simplest possible implementation
+   - Good for MVP with small files
+   - Easy to replace later
 
-If we encounter issues with gedcom-parse, family-tree-parser would be our fallback option due to its similar feature set and active maintenance.
+3. **gedcom-parse**
+   - If we need more battle-tested solution
+   - Good for larger files
+   - More complex but feature-rich
 
 ## Next Steps
 
