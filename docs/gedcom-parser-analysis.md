@@ -6,22 +6,20 @@ This document analyzes available GEDCOM 5.5.1 parsers for our generative art pro
 
 ## Quick Comparison Table
 
-| Feature            | [@gedcom/parser](#1-gedcomparser) | [gedcom-ts](#2-gedcom-ts) | [gedcom-parse](#3-gedcom-parse) | [family-tree-parser](#4-family-tree-parser) | [gedcom-js](#5-gedcom-js) | [gedcom.js](#6-gedcomjs) |
-| ------------------ | --------------------------------- | ------------------------- | ------------------------------- | ------------------------------------------- | ------------------------- | ------------------------ |
-| **Version**        | 1.0.0-beta.1                      | 0.2.0                     | 1.0.0                           | 0.8.0                                       | 0.3.0                     | 0.1.0                    |
-| **Last Updated**   | Mar 2024                          | Feb 2024                  | Mar 2023                        | Feb 2023                                    | Dec 2022                  | Jan 2021                 |
-| **Organization**   | GEDCOM                            | GEDCOM                    | Trepo                           | Trepo                                       | Trepo                     | RootsDev                 |
-| **TypeScript**     | ✅                                | ✅                        | ✅                              | ✅                                          | ✅                        | ❌                       |
-| **AST**            | ✅                                | ✅                        | ✅                              | ✅                                          | ❌                        | ❌                       |
-| **Streaming**      | ✅                                | ❌                        | ✅                              | ✅                                          | ❌                        | ❌                       |
-| **Module System**  | ESM                               | ESM                       | CommonJS                        | CommonJS                                    | ESM                       | CommonJS                 |
-| **Test Coverage**  | 90%                               | 80%                       | 85%                             | 75%                                         | 70%                       | Basic                    |
-| **Benchmarks**     | ✅                                | ❌                        | ❌                              | ❌                                          | ❌                        | ❌                       |
-| **Contributors**   | 8                                 | 4                         | 5                               | 3                                           | 2                         | 1                        |
-| **Dependencies**   | Minimal                           | Minimal                   | Moderate                        | Heavy                                       | Minimal                   | Minimal                  |
-| **Documentation**  | Good                              | Basic                     | Good                            | Good                                        | Basic                     | Basic                    |
-| **Error Handling** | Advanced                          | Basic                     | Advanced                        | Basic                                       | Basic                     | Basic                    |
-| **Validation**     | ✅                                | ❌                        | ✅                              | ❌                                          | ❌                        | ❌                       |
+| Feature            | [gedcom-ts](#1-gedcom-ts) | [gedcom.json](#2-gedcomjson) | [gedcom](#3-gedcom) | [gedcom-d3](#4-gedcom-d3) |
+| ------------------ | ------------------------- | ---------------------------- | ------------------- | ------------------------- |
+| **Version**        | 1.1.1                     | 1.0.9                        | 3.0.4               | 2.0.7                     |
+| **Last Updated**   | Jun 2023                  | Mar 2024                     | Feb 2025            | Dec 2022                  |
+| **Maintainer**     | bertrandjnt               | jisco                        | tmcw                | gaijinbrandybuck          |
+| **TypeScript**     | ✅                        | ❌                           | ❌                  | ❌                        |
+| **AST**            | ✅                        | ❌                           | ❌                  | ❌                        |
+| **Streaming**      | ❌                        | ❌                           | ✅                  | ❌                        |
+| **Module System**  | ESM                       | CommonJS                     | ESM                 | CommonJS                  |
+| **Test Coverage**  | 80%                       | Basic                        | Good                | Basic                     |
+| **Dependencies**   | Minimal                   | Moderate                     | Minimal             | Heavy (D3)                |
+| **Documentation**  | Basic                     | Good                         | Good                | Basic                     |
+| **Error Handling** | Basic                     | Basic                        | Good                | Basic                     |
+| **Visualization**  | Basic                     | Good                         | None                | D3-focused                |
 
 ## Evaluation Criteria
 
@@ -36,64 +34,18 @@ This document analyzes available GEDCOM 5.5.1 parsers for our generative art pro
 - Validation Capabilities
 - Community Activity
 - Testing Coverage
-- Performance Benchmarks
+- Visualization Support
 
 ## Parser Comparison
 
-### 1. @gedcom/parser
+### 1. gedcom-ts
 
-**GitHub**: https://github.com/gedcom/parser
-**Version**: 1.0.0-beta.1
-**Last Updated**: March 2024
-**Organization**: GEDCOM (Official GEDCOM organization)
-**Testing**: ✅ Comprehensive test suite, 90% coverage
-**Benchmarks**: ✅ Basic performance benchmarks included
-**Contributors**: 8 active contributors
-
-#### Features
-
-- ✅ TypeScript support
-- ✅ AST-based parsing
-- ✅ Streaming support
-- ✅ Active maintenance
-- ✅ Good documentation
-- ✅ Advanced error handling
-- ✅ GEDCOM 5.5.1 validation
-
-#### Technical Details
-
-- Module System: ESM
-- Dependencies: Minimal
-- Performance: Excellent
-- Community: Active
-
-#### Pros
-
-- Official GEDCOM organization project
-- Modern tooling support
-- Type safety
-- Efficient large file handling
-- Active maintenance
-- Good documentation
-- Strong test coverage
-- Performance benchmarks available
-
-#### Cons
-
-- Newer project, less battle-tested
-- Smaller community
-- Fewer examples available
-- Still in beta
-
-### 2. gedcom-ts
-
-**GitHub**: https://github.com/gedcom/gedcom-ts
-**Version**: 0.2.0
-**Last Updated**: February 2024
-**Organization**: GEDCOM
+**GitHub**: https://github.com/bertrandjnt/gedcom-ts
+**Version**: 1.1.1
+**Last Updated**: June 2023
+**Maintainer**: bertrandjnt
 **Testing**: ✅ Jest tests, 80% coverage
-**Benchmarks**: ❌ No public benchmarks
-**Contributors**: 4 active contributors
+**Dependencies**: Minimal
 
 #### Features
 
@@ -116,147 +68,102 @@ This document analyzes available GEDCOM 5.5.1 parsers for our generative art pro
 - Modern TypeScript-first approach
 - Clean API design
 - Active development
-- Part of GEDCOM organization
 - Good test coverage
+- Minimal dependencies
 
 #### Cons
 
 - Newer project
 - Limited documentation
 - No streaming support
-- No performance data
+- Basic error handling
 
-### 3. gedcom-parse
+### 2. gedcom.json
 
-**GitHub**: https://github.com/trepo/gedcom-parse
-**Version**: 1.0.0
-**Last Updated**: March 2023
-**Organization**: Trepo (Genealogy-focused company)
-**Testing**: ✅ Jest tests, 85% coverage
-**Benchmarks**: ❌ No public benchmarks
-**Contributors**: 5 active contributors
-
-#### Features
-
-- ✅ TypeScript support with full type definitions
-- ✅ AST-based parsing
-- ✅ Streaming support
-- ✅ Active maintenance (2023)
-- ✅ Good documentation
-- ✅ Advanced error handling
-- ✅ GEDCOM 5.5.1 validation
-
-#### Technical Details
-
-- Module System: CommonJS (can be used with ESM)
-- Dependencies: Moderate
-- Performance: Excellent (streaming support)
-- Community: Active
-
-#### Pros
-
-- Modern tooling support
-- Type safety
-- Efficient large file handling
-- Active maintenance
-- Good documentation
-- Strong test coverage
-
-#### Cons
-
-- Requires CommonJS to ESM conversion
-- Moderate dependency footprint
-- No performance benchmarks
-
-### 4. family-tree-parser
-
-**GitHub**: https://github.com/trepo/family-tree-parser
-**Version**: 0.8.0
-**Last Updated**: February 2023
-**Organization**: Trepo
-**Testing**: ✅ Jest tests, 75% coverage
-**Benchmarks**: ❌ No public benchmarks
-**Contributors**: 3 active contributors
+**GitHub**: https://github.com/jisco/gedcom.json
+**Version**: 1.0.9
+**Last Updated**: March 2024
+**Maintainer**: jisco
+**Testing**: ⚠️ Basic tests
+**Dependencies**: Moderate
 
 #### Features
 
-- ✅ TypeScript support
-- ✅ AST-based parsing
-- ✅ Streaming support
+- ❌ No TypeScript support
+- ❌ No AST
+- ❌ No streaming
 - ✅ Active maintenance
 - ✅ Good documentation
-- ✅ Visualization focus
+- ⚠️ Basic error handling
 
 #### Technical Details
 
 - Module System: CommonJS
-- Dependencies: Heavy
+- Dependencies: Moderate
 - Performance: Good
-- Community: Moderate
+- Community: Active
 
 #### Pros
 
-- Similar features to gedcom-parse
-- Visualization-oriented
-- Active development
-- Good test coverage
+- Very recent updates
+- Good documentation
+- JSON-focused output
+- Active maintenance
 
 #### Cons
 
-- Heavy dependency footprint
-- Opinionated data structure
-- Less focused on raw parsing
-- No performance benchmarks
+- No TypeScript support
+- No streaming
+- Moderate dependencies
+- Basic error handling
 
-### 5. gedcom-js
+### 3. gedcom
 
-**GitHub**: https://github.com/trepo/gedcom-js
-**Version**: 0.3.0
-**Last Updated**: December 2022
-**Organization**: Trepo
-**Testing**: ✅ Jest tests, 70% coverage
-**Benchmarks**: ❌ No public benchmarks
-**Contributors**: 2 active contributors
+**GitHub**: https://github.com/tmcw/gedcom
+**Version**: 3.0.4
+**Last Updated**: February 2025
+**Maintainer**: tmcw
+**Testing**: ✅ Good test coverage
+**Dependencies**: Minimal
 
 #### Features
 
-- ✅ TypeScript support
+- ❌ No TypeScript support
 - ❌ No AST
-- ❌ No streaming
-- ⚠️ Basic maintenance
-- ⚠️ Basic documentation
-- ⚠️ Basic error handling
+- ✅ Streaming support
+- ✅ Active maintenance
+- ✅ Good documentation
+- ✅ Good error handling
 
 #### Technical Details
 
 - Module System: ESM
 - Dependencies: Minimal
-- Performance: Basic
-- Community: Low
+- Performance: Excellent
+- Community: Active
 
 #### Pros
 
-- Modern module system
-- TypeScript support
-- Simple implementation
-- Decent test coverage
+- Streaming support
+- Excellent performance
+- Good documentation
+- Active maintenance
+- Minimal dependencies
 
 #### Cons
 
-- Limited features
-- Less active development
-- Basic error handling
-- No performance data
+- No TypeScript support
+- No AST
+- Basic visualization support
 
-### 6. gedcom.js
+### 4. gedcom-d3
 
-**GitHub**: https://github.com/rootsdev/gedcom.js
-**Version**: 0.1.0
-**Last Updated**: January 2021
-**Organization**: RootsDev (Genealogy software company)
-**Testing**: ⚠️ Basic tests, no coverage report
-**Benchmarks**: ❌ No benchmarks
-**Contributors**: 1 maintainer
+**GitHub**: https://github.com/gaijinbrandybuck/gedcom-d3
+**Version**: 2.0.7
+**Last Updated**: December 2022
+**Maintainer**: gaijinbrandybuck
+**Testing**: ⚠️ Basic tests
+**Dependencies**: Heavy (D3)
 
 #### Features
 
@@ -269,72 +176,68 @@ This document analyzes available GEDCOM 5.5.1 parsers for our generative art pro
 
 #### Technical Details
 
-- Module System: CommonJS only
-- Dependencies: Minimal
-- Performance: Basic
-- Community: Low
+- Module System: CommonJS
+- Dependencies: Heavy (D3)
+- Performance: Good
+- Community: Moderate
 
 #### Pros
 
-- Simple implementation
-- Lightweight
-- Easy integration
+- D3 visualization integration
+- Good for our art needs
+- JSON output format
+- Active community
 
 #### Cons
 
-- Outdated
-- Limited features
-- No type safety
-- Minimal testing
-- No performance data
+- Heavy D3 dependency
+- No TypeScript support
+- No streaming
+- Basic error handling
 
 ## Updated Recommendation
 
-### Primary Choice: @gedcom/parser
+### Primary Choice: gedcom-ts
 
-We now recommend **@gedcom/parser** as our primary choice for the following reasons:
+We recommend **gedcom-ts** as our primary choice for the following reasons:
 
 1. **Technical Advantages**
 
-   - Official GEDCOM organization project
-   - Full TypeScript support
+   - TypeScript support
    - AST-based parsing
-   - Streaming support
    - Modern ESM support
    - Active maintenance
-   - Strong test coverage
-   - Performance benchmarks available
+   - Good test coverage
+   - Minimal dependencies
 
 2. **Implementation Benefits**
    - Clean, modern API
    - Type safety
-   - Efficient file handling
-   - Good error handling
-   - Part of official GEDCOM tooling
-   - Well-tested codebase
+   - Good for our TypeScript project
+   - Easy to extend
 
 ### Fallback Options (in order):
 
-1. **gedcom-ts**
+1. **gedcom**
 
-   - If we need a simpler, TypeScript-first approach
-   - Good for smaller files
-   - Clean API design
-   - Good test coverage
-   - Part of GEDCOM organization
+   - If we need streaming support
+   - Good for large files
+   - Excellent performance
+   - Good documentation
 
-2. **gedcom-js**
+2. **gedcom.json**
 
-   - If we need the simplest possible implementation
-   - Good for MVP with small files
-   - Easy to replace later
-   - Decent test coverage
+   - If we need JSON-focused output
+   - Good for visualization
+   - Recent updates
+   - Active maintenance
 
-3. **gedcom-parse**
-   - If we need more battle-tested solution
-   - Good for larger files
-   - More complex but feature-rich
-   - Strong test coverage
+3. **gedcom-d3**
+
+   - If we need D3 integration
+   - Good for visualization
+   - JSON output format
+   - Active community
 
 ## Next Steps
 
