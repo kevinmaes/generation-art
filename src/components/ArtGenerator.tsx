@@ -50,6 +50,7 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 					p.noStroke();
 					// Use relativeGenerationValue for opacity (default to 100 if missing)
 					const opacity = ind.relativeGenerationValue ?? 100;
+					// const opacity = 100;
 					// console.log(
 					// 	'relativeGenerationValue',
 					// 	ind.relativeGenerationValue,
@@ -66,7 +67,14 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 					color.setAlpha(opacity);
 
 					p.fill(color);
-					p.circle(x, y, 10);
+
+					const maxSize = 20;
+					const size = Math.min(
+						maxSize,
+						10 + (ind.relativeGenerationValue ?? 0) * 5
+					);
+
+					p.circle(x, y, size);
 
 					// Uncomment to show names
 					// p.fill(0);
