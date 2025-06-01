@@ -99,6 +99,55 @@ const augmented: AugmentedIndividual[] = data.individuals.map((ind) => ({
 	siblings: Array.from(siblingsMap[ind.id] || []),
 }));
 
+// Assign generation numbers to individuals
+function assignGenerations(
+	individuals: AugmentedIndividual[],
+	primaryId: string
+): void {
+	const genMap: Record<string, number> = {};
+	const queue: string[] = [];
+	genMap[primaryId] = 0;
+	queue.push(primaryId);
+	const individualsById: Record<string, AugmentedIndividual> = {};
+	individuals.forEach((ind) => {
+		individualsById[ind.id] = ind;
+	});
+
+	while (queue.length > 0) {
+		const id = queue.shift()!;
+		const gen = genMap[id];
+		const ind = individualsById[id];
+		if (!ind) continue;
+		for (const parentId of ind.parents) {
+			if (!(parentId in genMap)) {
+				genMap[parentId] = gen - 1;
+				queue.push(parentId);
+			}
+		}
+		for (const childId of ind.children) {
+			if (!(childId in genMap)) {
+				genMap[childId] = gen + 1;
+				queue.push(childId);
+			}
+		}
+		for (const spouseId of ind.spouses) {
+			if (!(spouseId in genMap)) {
+				genMap[spouseId] = gen;
+				queue.push(spouseId);
+			}
+		}
+	}
+	// Assign generation to each individual
+	for (const ind of individuals) {
+		(ind as any).generation = genMap[ind.id] ?? null;
+	}
+}
+
+// After augmenting individuals, assign generations
+// You may want to set this to the ID of John F Kennedy or another primary individual
+const PRIMARY_ID = 'I1'; // TODO: Set to the actual primary individual's ID
+assignGenerations(augmented, PRIMARY_ID);
+
 console.time('Execution Time');
 writeFileSync(outputPath, JSON.stringify(augmented, null, 2));
 console.log(`Augmented data written to ${outputPath}`);
