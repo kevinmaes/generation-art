@@ -49,7 +49,7 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 					const { x, y } = getIndividualCoord(ind.id, width, height);
 					p.noStroke();
 					p.fill(0, 0, 255, 100);
-					p.circle(x, y, 30);
+					p.circle(x, y, 10);
 					// Uncomment to show names
 					// p.fill(0);
 					// p.textSize(12);
