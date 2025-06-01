@@ -10,8 +10,8 @@
 
 ## 2. Documentation & Research 📚
 
-- [ ] Create docs folder
-- [ ] Add GEDCOM 5.5.1 specification
+- [x] Create docs folder
+- [x] Add GEDCOM 5.5.1 specification
 - [ ] Research and select GEDCOM parser library
 - [ ] Document parser library integration approach
 - [ ] Create initial API documentation
