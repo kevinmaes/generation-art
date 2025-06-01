@@ -1,4 +1,5 @@
 import { ReadGed } from 'gedcom-ts';
+import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
 
 // Define specific types for individuals and families
 export interface Individual {
@@ -55,13 +56,45 @@ export class GedcomTsParserFacade implements GedcomParserFacade {
 	}
 }
 
+// Concrete Implementation for SimpleGedcomParser
+export class SimpleGedcomParserFacade implements GedcomParserFacade {
+	async parse(gedcomText: string): Promise<GedcomData> {
+		const parser = new SimpleGedcomParser();
+		const parsedData = parser.parse(gedcomText);
+
+		// Convert the parsed data to match our GedcomData interface
+		const individuals: Individual[] = parsedData.individuals.map((ind) => ({
+			id: ind.id,
+			name: ind.name,
+			birth: ind.birth,
+			death: ind.death,
+		}));
+
+		const families: Family[] = parsedData.families.map((fam) => ({
+			id: fam.id,
+			husband: fam.husband
+				? individuals.find((ind) => ind.id === fam.husband)
+				: undefined,
+			wife: fam.wife
+				? individuals.find((ind) => ind.id === fam.wife)
+				: undefined,
+			children: fam.children
+				.map((childId) => individuals.find((ind) => ind.id === childId))
+				.filter((ind): ind is Individual => ind !== undefined),
+		}));
+
+		return { individuals, families };
+	}
+}
+
 // Factory to instantiate the appropriate facade
 export class GedcomParserFactory {
 	static createParser(type: string): GedcomParserFacade {
 		switch (type) {
 			case 'gedcom-ts':
 				return new GedcomTsParserFacade();
-			// Add cases for other parser libraries
+			case 'simple':
+				return new SimpleGedcomParserFacade();
 			default:
 				throw new Error(`Unsupported parser type: ${type}`);
 		}

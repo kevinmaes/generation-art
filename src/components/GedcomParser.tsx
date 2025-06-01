@@ -1,85 +1,57 @@
-import { useState, useEffect } from 'react';
-import { ReadGed } from 'gedcom-ts';
+import { useState } from 'react';
+import { GedcomParserFactory } from '../facades/GedcomParserFacade';
 
 export function GedcomParserComponent() {
-	const [status, setStatus] = useState<
-		'idle' | 'loading' | 'success' | 'error'
-	>('idle');
+	const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>(
+		'idle'
+	);
 	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		async function loadAndParseGedcom() {
-			try {
-				setStatus('loading');
-				setError(null);
+	const loadGedcom = async () => {
+		setState('loading');
+		setError(null);
 
-				// Fetch the GEDCOM file
-				const response = await fetch('/gedcom-public/kennedy/kennedy.ged');
-				if (!response.ok) {
-					throw new Error(
-						`Failed to fetch GEDCOM file: ${response.statusText}`
-					);
-				}
-				const gedcomText = await response.text();
-
-				// Log the GEDCOM text length and a sample
-				console.log('GEDCOM text length:', gedcomText.length);
-				console.log('GEDCOM text sample:', gedcomText.substring(0, 200));
-
-				// Check if the GEDCOM text starts with the expected header
-				if (!gedcomText.startsWith('0 HEAD')) {
-					throw new Error(
-						'GEDCOM file does not start with the expected header.'
-					);
-				}
-
-				// Preprocess the GEDCOM text to ensure it's formatted correctly
-				const preprocessedGedcomText = gedcomText
-					.split('\n')
-					.map((line) => line.trim())
-					.filter((line) => line.length > 0)
-					.join('\n');
-
-				// Parse the GEDCOM file
-				let parser;
-				try {
-					parser = new ReadGed(preprocessedGedcomText);
-					parser.peoples = []; // Initialize peoples as an empty array
-					console.log('Parser after construction:', parser);
-					console.log('Parser properties:', {
-						peoples: parser.peoples,
-						partnersMap: parser.partnersMap,
-						childsMap: parser.childsMap,
-					});
-				} catch (parserError) {
-					console.error('Error during parser construction:', parserError);
-					throw parserError;
-				}
-
-				// Call import() and log the return value
-				try {
-					const importedData = parser.import();
-					console.log('Imported data:', importedData);
-				} catch (importError) {
-					console.error('Error during import:', importError);
-					throw importError;
-				}
-
-				setStatus('success');
-			} catch (err) {
-				setError(err instanceof Error ? err.message : 'An error occurred');
-				setStatus('error');
+		try {
+			// Fetch the GEDCOM file
+			const response = await fetch('/gedcom-public/kennedy/kennedy.ged');
+			if (!response.ok) {
+				throw new Error(`Failed to fetch GEDCOM file: ${response.statusText}`);
 			}
+
+			const gedcomText = await response.text();
+			console.log('GEDCOM text length:', gedcomText.length);
+			console.log('GEDCOM text sample:', gedcomText.substring(0, 200));
+
+			// Create parser using the factory
+			const parser = GedcomParserFactory.createParser('simple');
+
+			// Parse the GEDCOM data
+			const data = await parser.parse(gedcomText);
+			console.log('Parsed data:', data);
+
+			setState('success');
+		} catch (err) {
+			console.error('Error loading GEDCOM:', err);
+			setError(
+				err instanceof Error ? err.message : 'An unknown error occurred'
+			);
+			setState('error');
 		}
+	};
 
-		loadAndParseGedcom();
-	}, []);
+	return (
+		<div>
+			<button onClick={loadGedcom} disabled={state === 'loading'}>
+				{state === 'loading' ? 'Loading...' : 'Load GEDCOM'}
+			</button>
 
-	if (status === 'loading')
-		return <div>Loading and parsing GEDCOM file...</div>;
-	if (status === 'error') return <div>Error: {error}</div>;
-	if (status === 'success')
-		return <div>GEDCOM file parsed! Check the console for output.</div>;
+			{state === 'error' && error && (
+				<div style={{ color: 'red' }}>Error: {error}</div>
+			)}
 
-	return null;
+			{state === 'success' && (
+				<div style={{ color: 'green' }}>GEDCOM loaded successfully!</div>
+			)}
+		</div>
+	);
 }
