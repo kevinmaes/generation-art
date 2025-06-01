@@ -4,9 +4,9 @@
 
 - [ ] Set up the Vite TypeScript React project
 - [ ] Configure ESLint and Prettier
-- [ ] Set up testing environment (Jest/Vitest)
+- [ ] Set up testing environment with Vitest
 - [ ] Create basic project structure
-- [ ] Set up Git hooks (husky)
+- [ ] Set up any GitHub Actions
 
 ## 2. Documentation & Research 📚
 
