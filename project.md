@@ -2,8 +2,7 @@
 
 ## 1. Project Setup 🏗️
 
-- [ ] Initialize TypeScript project
-- [ ] Set up Vite/Webpack configuration
+- [ ] Set up the Vite TypeScript React project
 - [ ] Configure ESLint and Prettier
 - [ ] Set up testing environment (Jest/Vitest)
 - [ ] Create basic project structure
