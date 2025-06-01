@@ -6,4 +6,17 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    dependencies:
+      gedcom-ts:
+        specifier: ^1.1.1
+        version: 1.1.1
+
+packages:
+
+  gedcom-ts@1.1.1:
+    resolution: {integrity: sha512-jd1HUhVM22yjcJCMotc47dir8Jk1qlNibD41hGBcm+/kFG02cEtudYPkq+p4aHfWblWq5ecm5D91Rjglghq5hw==}
+
+snapshots:
+
+  gedcom-ts@1.1.1: {}
