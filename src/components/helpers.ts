@@ -13,6 +13,7 @@ export interface AugmentedIndividual {
 	spouses: string[];
 	children: string[];
 	siblings: string[];
+	relativeGenerationValue?: number;
 }
 
 export interface ArtGeneratorProps {

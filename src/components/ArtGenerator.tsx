@@ -48,8 +48,26 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 				for (const ind of data) {
 					const { x, y } = getIndividualCoord(ind.id, width, height);
 					p.noStroke();
-					p.fill(0, 0, 255, 30);
+					// Use relativeGenerationValue for opacity (default to 100 if missing)
+					const opacity = ind.relativeGenerationValue ?? 100;
+					// console.log(
+					// 	'relativeGenerationValue',
+					// 	ind.relativeGenerationValue,
+					// 	opacity
+					// );
+
+					const colors = ['#0000ff', '#ffff00'];
+					const lerpAmount = (ind.relativeGenerationValue ?? 100) / 100;
+					const color = p.lerpColor(
+						p.color(colors[0]),
+						p.color(colors[1]),
+						lerpAmount
+					);
+					color.setAlpha(opacity);
+
+					p.fill(color);
 					p.circle(x, y, 10);
+
 					// Uncomment to show names
 					// p.fill(0);
 					// p.textSize(12);

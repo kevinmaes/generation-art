@@ -15,7 +15,9 @@
       "I86600477",
       "I250074776",
       "I2787447794"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I850917258",
@@ -37,7 +39,9 @@
     ],
     "siblings": [
       "I980023486"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I532301466",
@@ -56,7 +60,9 @@
       "I1117654209",
       "I2376640496",
       "I2893086329"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I68504516",
@@ -70,7 +76,9 @@
     "children": [
       "I38382778"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I2376640496",
@@ -87,7 +95,9 @@
       "I1117654209",
       "I532301466",
       "I2893086329"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I3534818542",
@@ -107,7 +117,9 @@
       "I3195365840",
       "I1657070254"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I611915",
@@ -121,7 +133,9 @@
     "children": [
       "I88530019"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -4,
+    "relativeGenerationValue": 40
   },
   {
     "id": "I3976230404",
@@ -143,7 +157,9 @@
       "I2947692513",
       "I2597304544",
       "I3024815352"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I38382778",
@@ -160,7 +176,9 @@
     "children": [
       "I498959425"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I2597304544",
@@ -188,7 +206,9 @@
       "I2999169688",
       "I2947692513",
       "I3024815352"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I91309799",
@@ -213,7 +233,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I2510004048",
@@ -238,7 +260,9 @@
       "I20736370",
       "I68205156"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I2947692513",
@@ -274,7 +298,9 @@
       "I2999169688",
       "I2597304544",
       "I3024815352"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I3498360064",
@@ -292,7 +318,9 @@
       "I2376640496",
       "I2893086329"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I1037615584",
@@ -310,7 +338,9 @@
       "I850917258",
       "I980023486"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I1077433589",
@@ -340,7 +370,9 @@
       "I2947692513",
       "I2597304544",
       "I3024815352"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I1883974741",
@@ -365,7 +397,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I22704103",
@@ -379,7 +413,9 @@
     "children": [
       "I38358467"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I69814556",
@@ -393,7 +429,9 @@
     "children": [
       "I98406224"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -6,
+    "relativeGenerationValue": 10
   },
   {
     "id": "I5835159",
@@ -418,7 +456,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I86600477",
@@ -435,7 +475,9 @@
       "I1355708042",
       "I250074776",
       "I2787447794"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I66258184",
@@ -452,7 +494,9 @@
       "I332898108",
       "I3195365840",
       "I1657070254"
-    ]
+    ],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I980023486",
@@ -466,7 +510,9 @@
     "children": [],
     "siblings": [
       "I850917258"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I95316018",
@@ -480,7 +526,9 @@
     "children": [
       "I46743064"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I38989037",
@@ -494,7 +542,9 @@
     "children": [
       "I5159712"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I21976599",
@@ -508,7 +558,9 @@
     "children": [
       "I8771558"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I56418209",
@@ -522,7 +574,9 @@
     "children": [
       "I5159712"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I459729883",
@@ -538,7 +592,9 @@
       "I4246762280",
       "I3345830456",
       "I1056536072"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I2787447794",
@@ -555,7 +611,9 @@
       "I86600477",
       "I1355708042",
       "I250074776"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I2922355333",
@@ -572,7 +630,9 @@
       "I532301466",
       "I2376640496",
       "I2893086329"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I1422040608",
@@ -587,7 +647,9 @@
       "I3047769720",
       "I3648363167"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I8442357",
@@ -601,7 +663,9 @@
     "children": [
       "I611335210"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I27594348",
@@ -615,7 +679,9 @@
     "children": [
       "I14271859"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I4246762280",
@@ -631,7 +697,9 @@
       "I3345830456",
       "I459729883",
       "I1056536072"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I10720765",
@@ -648,7 +716,9 @@
     "children": [
       "I1037615584"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I88012405",
@@ -662,7 +732,9 @@
     "children": [
       "I38382778"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I2435028768",
@@ -685,7 +757,9 @@
       "I3821997576",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I3648363167",
@@ -700,7 +774,9 @@
     "siblings": [
       "I599733909",
       "I3047769720"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I3124430248",
@@ -717,7 +793,9 @@
     "children": [
       "I3200081440"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I2141191832",
@@ -740,7 +818,9 @@
       "I1197484624",
       "I1664203802"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I42583784",
@@ -754,7 +834,9 @@
     "children": [
       "I14271859"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I46009385",
@@ -771,7 +853,9 @@
     "children": [
       "I3534818542"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I3631707996",
@@ -797,7 +881,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I86442814",
@@ -814,7 +900,9 @@
     "children": [
       "I3124430248"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I27819842",
@@ -839,7 +927,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I5159712",
@@ -856,7 +946,9 @@
     "children": [
       "I8771558"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I58093581",
@@ -870,7 +962,9 @@
     "children": [
       "I34414010"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I2377167551",
@@ -893,7 +987,9 @@
       "I3821997576",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I305439758",
@@ -904,7 +1000,9 @@
       "I1882987274"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I2574143542",
@@ -919,7 +1017,9 @@
       "I1833153168",
       "I770583960"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I96937008",
@@ -933,7 +1033,9 @@
     "children": [
       "I67063727"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -5,
+    "relativeGenerationValue": 25
   },
   {
     "id": "I3024815352",
@@ -960,7 +1062,9 @@
       "I2999169688",
       "I2947692513",
       "I2597304544"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I3047769720",
@@ -975,7 +1079,9 @@
     "siblings": [
       "I599733909",
       "I3648363167"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I92297942",
@@ -992,7 +1098,9 @@
     "children": [
       "I3200081440"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I2841407858",
@@ -1004,7 +1112,9 @@
       "I423620047"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I52249134",
@@ -1016,7 +1126,9 @@
       "I250074776"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I61184448",
@@ -1028,7 +1140,9 @@
       "I3124430248"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I1664203802",
@@ -1051,7 +1165,9 @@
       "I2377167551",
       "I3821997576",
       "I1197484624"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I37964436",
@@ -1064,7 +1180,9 @@
     "children": [
       "I10019568"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I422450937",
@@ -1087,7 +1205,9 @@
       "I3821997576",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I3200081440",
@@ -1112,7 +1232,9 @@
       "I2597304544",
       "I3024815352"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I22022338",
@@ -1126,7 +1248,9 @@
     "children": [
       "I86442814"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I340219094",
@@ -1141,7 +1265,9 @@
     "siblings": [
       "I1833153168",
       "I770583960"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I4120355596",
@@ -1164,7 +1290,9 @@
       "I3821997576",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I1657070254",
@@ -1182,7 +1310,9 @@
       "I332898108",
       "I66258184",
       "I3195365840"
-    ]
+    ],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I77055520",
@@ -1196,7 +1326,9 @@
     "children": [
       "I46009385"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I3693690742",
@@ -1207,7 +1339,9 @@
       "I1657070254"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I472153466",
@@ -1218,7 +1352,9 @@
       "I3631707996"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I3308994112",
@@ -1250,7 +1386,9 @@
       "I91309799",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I2999169688",
@@ -1279,7 +1417,9 @@
       "I2947692513",
       "I2597304544",
       "I3024815352"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I1117654209",
@@ -1296,7 +1436,9 @@
       "I532301466",
       "I2376640496",
       "I2893086329"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I67063727",
@@ -1313,7 +1455,9 @@
     "children": [
       "I88530019"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -4,
+    "relativeGenerationValue": 40
   },
   {
     "id": "I72505263",
@@ -1327,7 +1471,9 @@
     "children": [
       "I10720765"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I8771558",
@@ -1344,7 +1490,9 @@
     "children": [
       "I3124430248"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I374867",
@@ -1369,7 +1517,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I65222066",
@@ -1382,7 +1532,9 @@
     "children": [
       "I46009385"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I770583960",
@@ -1397,7 +1549,9 @@
     "siblings": [
       "I340219094",
       "I1833153168"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I3805468730",
@@ -1420,7 +1574,9 @@
       "I3821997576",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I46743064",
@@ -1437,7 +1593,9 @@
     "children": [
       "I1037615584"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I75028805",
@@ -1451,7 +1609,9 @@
     "children": [
       "I10720765"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I1833153168",
@@ -1466,7 +1626,9 @@
     "siblings": [
       "I340219094",
       "I770583960"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I35717902",
@@ -1480,7 +1642,9 @@
     "children": [
       "I34414010"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I14271859",
@@ -1497,7 +1661,9 @@
     "children": [
       "I92297942"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I2731161184",
@@ -1519,7 +1685,9 @@
       "I2947692513",
       "I2597304544",
       "I3024815352"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I20736370",
@@ -1544,7 +1712,9 @@
       "I91309799",
       "I3308994112",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I2689750112",
@@ -1567,7 +1737,9 @@
       "I3821997576",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I332898108",
@@ -1596,7 +1768,9 @@
       "I66258184",
       "I3195365840",
       "I1657070254"
-    ]
+    ],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I2893086329",
@@ -1613,7 +1787,9 @@
       "I1117654209",
       "I532301466",
       "I2376640496"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I22245222",
@@ -1627,7 +1803,9 @@
     "children": [
       "I98406224"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -6,
+    "relativeGenerationValue": 10
   },
   {
     "id": "I611335210",
@@ -1655,7 +1833,9 @@
       "I20736370",
       "I68205156"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I498959425",
@@ -1674,7 +1854,9 @@
       "I850917258",
       "I980023486"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I3345830456",
@@ -1690,7 +1872,9 @@
       "I4246762280",
       "I459729883",
       "I1056536072"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I580180667",
@@ -1713,7 +1897,9 @@
       "I3821997576",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I840495740",
@@ -1724,7 +1910,9 @@
       "I532301466"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I1882987274",
@@ -1750,7 +1938,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I1518731094",
@@ -1773,7 +1963,9 @@
       "I3821997576",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I67863976",
@@ -1798,7 +1990,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I1752846256",
@@ -1810,7 +2004,9 @@
       "I498959425"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I98406224",
@@ -1827,7 +2023,9 @@
     "children": [
       "I67063727"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -5,
+    "relativeGenerationValue": 25
   },
   {
     "id": "I34414010",
@@ -1844,7 +2042,9 @@
     "children": [
       "I92297942"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I2856280178",
@@ -1855,7 +2055,9 @@
       "I2455834610"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I2455834610",
@@ -1881,7 +2083,9 @@
       "I3308994112",
       "I20736370",
       "I68205156"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I38358467",
@@ -1898,7 +2102,9 @@
     "children": [
       "I611335210"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I2683236",
@@ -1911,7 +2117,9 @@
     "children": [
       "I10019568"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I1197484624",
@@ -1934,7 +2142,9 @@
       "I2377167551",
       "I3821997576",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I3018044044",
@@ -1951,7 +2161,9 @@
       "I459729883",
       "I1056536072"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I39716672",
@@ -1965,7 +2177,9 @@
     "children": [
       "I86442814"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I1056536072",
@@ -1981,7 +2195,9 @@
       "I4246762280",
       "I3345830456",
       "I459729883"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I61274809",
@@ -1995,7 +2211,9 @@
     "children": [
       "I498959425"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I88530019",
@@ -2012,7 +2230,9 @@
     "children": [
       "I38358467"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I68205156",
@@ -2037,7 +2257,9 @@
       "I91309799",
       "I3308994112",
       "I20736370"
-    ]
+    ],
+    "generation": 0,
+    "relativeGenerationValue": 100
   },
   {
     "id": "I250074776",
@@ -2056,7 +2278,9 @@
       "I86600477",
       "I1355708042",
       "I2787447794"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I87363030",
@@ -2070,7 +2294,9 @@
     "children": [
       "I46743064"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I3195365840",
@@ -2086,7 +2312,9 @@
       "I332898108",
       "I66258184",
       "I1657070254"
-    ]
+    ],
+    "generation": 1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I3821997576",
@@ -2109,7 +2337,9 @@
       "I2377167551",
       "I1197484624",
       "I1664203802"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I10019568",
@@ -2126,7 +2356,9 @@
     "children": [
       "I3534818542"
     ],
-    "siblings": []
+    "siblings": [],
+    "generation": -1,
+    "relativeGenerationValue": 85
   },
   {
     "id": "I423620047",
@@ -2150,7 +2382,9 @@
       "I2947692513",
       "I2597304544",
       "I3024815352"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "I599733909",
@@ -2165,7 +2399,9 @@
     "siblings": [
       "I3047769720",
       "I3648363167"
-    ]
+    ],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "I530030595",
@@ -2194,7 +2430,9 @@
       "I2947692513",
       "I2597304544",
       "I3024815352"
-    ]
+    ],
+    "generation": 2,
+    "relativeGenerationValue": 70
   },
   {
     "id": "95500157",
@@ -2206,7 +2444,9 @@
       "I1355708042"
     ],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": 3,
+    "relativeGenerationValue": 55
   },
   {
     "id": "34070618",
@@ -2216,7 +2456,9 @@
     "parents": [],
     "spouses": [],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": null,
+    "relativeGenerationValue": 10
   },
   {
     "id": "59057007",
@@ -2226,7 +2468,9 @@
     "parents": [],
     "spouses": [],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": null,
+    "relativeGenerationValue": 10
   },
   {
     "id": "35510330",
@@ -2236,6 +2480,8 @@
     "parents": [],
     "spouses": [],
     "children": [],
-    "siblings": []
+    "siblings": [],
+    "generation": null,
+    "relativeGenerationValue": 10
   }
 ]
