@@ -66,8 +66,8 @@ export class SimpleGedcomParserFacade implements GedcomParserFacade {
 		const individuals: Individual[] = parsedData.individuals.map((ind) => ({
 			id: ind.id,
 			name: ind.name,
-			birth: ind.birth,
-			death: ind.death,
+			birth: { date: ind.birthDate },
+			death: { date: ind.deathDate },
 		}));
 
 		const families: Family[] = parsedData.families.map((fam) => ({
