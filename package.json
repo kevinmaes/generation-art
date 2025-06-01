@@ -19,7 +19,9 @@
 	},
 	"dependencies": {
 		"@types/node": "^22.15.29",
+		"@types/p5": "^1.7.6",
 		"gedcom-ts": "^1.1.1",
+		"p5": "^2.0.3",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"tsx": "^4.19.4"
