@@ -39,7 +39,7 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 				for (const [id1, id2] of edges) {
 					const coord1 = getIndividualCoord(id1, width, height);
 					const coord2 = getIndividualCoord(id2, width, height);
-					p.stroke(100, 100, 255, 80);
+					p.stroke(100, 100, 255, 20);
 					p.strokeWeight(2);
 					p.line(coord1.x, coord1.y, coord2.x, coord2.y);
 				}
@@ -48,7 +48,7 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 				for (const ind of data) {
 					const { x, y } = getIndividualCoord(ind.id, width, height);
 					p.noStroke();
-					p.fill(0, 0, 255, 100);
+					p.fill(0, 0, 255, 30);
 					p.circle(x, y, 10);
 					// Uncomment to show names
 					// p.fill(0);
