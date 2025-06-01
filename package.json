@@ -11,6 +11,7 @@
 		"test": "vitest",
 		"test:watch": "vitest watch",
 		"test:coverage": "vitest run --coverage",
+		"parse": "tsx src/scripts/parseGedcom.ts",
 		"task:parse": "tsx src/tasks/parseGedcom.ts",
 		"task:augment": "tsx src/tasks/augmentData.ts",
 		"task:output": "tsx src/tasks/outputJson.ts"
