@@ -26,7 +26,7 @@ try {
   // Print summary
   console.log('\nParsing complete!');
   console.log(
-    `Found ${result.individuals.length.toString()} individuals and ${result.families.length.toString()} families`,
+    `Found ${result.individuals.length} individuals and ${result.families.length} families`,
   );
 } catch (error) {
   console.error('Error:', error);
