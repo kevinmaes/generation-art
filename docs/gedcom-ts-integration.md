@@ -18,22 +18,22 @@ npm install gedcom-ts
 import { GedcomParser } from 'gedcom-ts';
 
 async function parseGedcomFile(filePath: string) {
-	const parser = new GedcomParser();
-	const result = await parser.parseFile(filePath);
+  const parser = new GedcomParser();
+  const result = await parser.parseFile(filePath);
 
-	// Access individuals
-	result.individuals.forEach((individual) => {
-		console.log(`Name: ${individual.name}`);
-		console.log(`Birth: ${individual.birth?.date}`);
-		console.log(`Death: ${individual.death?.date}`);
-	});
+  // Access individuals
+  result.individuals.forEach((individual) => {
+    console.log(`Name: ${individual.name}`);
+    console.log(`Birth: ${individual.birth?.date}`);
+    console.log(`Death: ${individual.death?.date}`);
+  });
 
-	// Access families
-	result.families.forEach((family) => {
-		console.log(`Husband: ${family.husband?.name}`);
-		console.log(`Wife: ${family.wife?.name}`);
-		console.log(`Children: ${family.children.length}`);
-	});
+  // Access families
+  result.families.forEach((family) => {
+    console.log(`Husband: ${family.husband?.name}`);
+    console.log(`Wife: ${family.wife?.name}`);
+    console.log(`Children: ${family.children.length}`);
+  });
 }
 ```
 
@@ -42,32 +42,32 @@ async function parseGedcomFile(filePath: string) {
 ```typescript
 // Custom types for enhanced data structure
 interface EnhancedIndividual {
-	id: string;
-	name: string;
-	birth?: {
-		date?: string;
-		place?: string;
-	};
-	death?: {
-		date?: string;
-		place?: string;
-	};
-	families: {
-		asSpouse: string[];
-		asChild: string[];
-	};
-	notes: string[];
+  id: string;
+  name: string;
+  birth?: {
+    date?: string;
+    place?: string;
+  };
+  death?: {
+    date?: string;
+    place?: string;
+  };
+  families: {
+    asSpouse: string[];
+    asChild: string[];
+  };
+  notes: string[];
 }
 
 interface EnhancedFamily {
-	id: string;
-	husband?: EnhancedIndividual;
-	wife?: EnhancedIndividual;
-	children: EnhancedIndividual[];
-	marriage?: {
-		date?: string;
-		place?: string;
-	};
+  id: string;
+  husband?: EnhancedIndividual;
+  wife?: EnhancedIndividual;
+  children: EnhancedIndividual[];
+  marriage?: {
+    date?: string;
+    place?: string;
+  };
 }
 ```
 
@@ -77,58 +77,58 @@ interface EnhancedFamily {
 import { GedcomParser, Individual, Family } from 'gedcom-ts';
 
 class GedcomTransformer {
-	private individuals: Map<string, EnhancedIndividual> = new Map();
-	private families: Map<string, EnhancedFamily> = new Map();
+  private individuals: Map<string, EnhancedIndividual> = new Map();
+  private families: Map<string, EnhancedFamily> = new Map();
 
-	transform(parser: GedcomParser) {
-		// Transform individuals
-		parser.individuals.forEach((individual) => {
-			this.individuals.set(individual.id, this.transformIndividual(individual));
-		});
+  transform(parser: GedcomParser) {
+    // Transform individuals
+    parser.individuals.forEach((individual) => {
+      this.individuals.set(individual.id, this.transformIndividual(individual));
+    });
 
-		// Transform families
-		parser.families.forEach((family) => {
-			this.families.set(family.id, this.transformFamily(family));
-		});
+    // Transform families
+    parser.families.forEach((family) => {
+      this.families.set(family.id, this.transformFamily(family));
+    });
 
-		return {
-			individuals: Array.from(this.individuals.values()),
-			families: Array.from(this.families.values()),
-		};
-	}
+    return {
+      individuals: Array.from(this.individuals.values()),
+      families: Array.from(this.families.values()),
+    };
+  }
 
-	private transformIndividual(ind: Individual): EnhancedIndividual {
-		return {
-			id: ind.id,
-			name: ind.name,
-			birth: {
-				date: ind.birth?.date,
-				place: ind.birth?.place,
-			},
-			death: {
-				date: ind.death?.date,
-				place: ind.death?.place,
-			},
-			families: {
-				asSpouse: ind.familiesAsSpouse.map((f) => f.id),
-				asChild: ind.familiesAsChild.map((f) => f.id),
-			},
-			notes: ind.notes,
-		};
-	}
+  private transformIndividual(ind: Individual): EnhancedIndividual {
+    return {
+      id: ind.id,
+      name: ind.name,
+      birth: {
+        date: ind.birth?.date,
+        place: ind.birth?.place,
+      },
+      death: {
+        date: ind.death?.date,
+        place: ind.death?.place,
+      },
+      families: {
+        asSpouse: ind.familiesAsSpouse.map((f) => f.id),
+        asChild: ind.familiesAsChild.map((f) => f.id),
+      },
+      notes: ind.notes,
+    };
+  }
 
-	private transformFamily(fam: Family): EnhancedFamily {
-		return {
-			id: fam.id,
-			husband: fam.husband ? this.individuals.get(fam.husband.id) : undefined,
-			wife: fam.wife ? this.individuals.get(fam.wife.id) : undefined,
-			children: fam.children.map((child) => this.individuals.get(child.id)!),
-			marriage: {
-				date: fam.marriage?.date,
-				place: fam.marriage?.place,
-			},
-		};
-	}
+  private transformFamily(fam: Family): EnhancedFamily {
+    return {
+      id: fam.id,
+      husband: fam.husband ? this.individuals.get(fam.husband.id) : undefined,
+      wife: fam.wife ? this.individuals.get(fam.wife.id) : undefined,
+      children: fam.children.map((child) => this.individuals.get(child.id)!),
+      marriage: {
+        date: fam.marriage?.date,
+        place: fam.marriage?.place,
+      },
+    };
+  }
 }
 ```
 
@@ -138,23 +138,23 @@ class GedcomTransformer {
 import { GedcomParser, GedcomError } from 'gedcom-ts';
 
 async function parseWithErrorHandling(filePath: string) {
-	const parser = new GedcomParser();
+  const parser = new GedcomParser();
 
-	try {
-		const result = await parser.parseFile(filePath);
-		return result;
-	} catch (error) {
-		if (error instanceof GedcomError) {
-			console.error('GEDCOM parsing error:', {
-				line: error.line,
-				message: error.message,
-				code: error.code,
-			});
-		} else {
-			console.error('Unexpected error:', error);
-		}
-		throw error;
-	}
+  try {
+    const result = await parser.parseFile(filePath);
+    return result;
+  } catch (error) {
+    if (error instanceof GedcomError) {
+      console.error('GEDCOM parsing error:', {
+        line: error.line,
+        message: error.message,
+        code: error.code,
+      });
+    } else {
+      console.error('Unexpected error:', error);
+    }
+    throw error;
+  }
 }
 ```
 
@@ -173,20 +173,20 @@ async function parseWithErrorHandling(filePath: string) {
 
 ```typescript
 async function processLargeFile(filePath: string) {
-	const parser = new GedcomParser();
-	const transformer = new GedcomTransformer();
+  const parser = new GedcomParser();
+  const transformer = new GedcomTransformer();
 
-	// Track progress
-	let processed = 0;
-	const total = await getFileLineCount(filePath);
+  // Track progress
+  let processed = 0;
+  const total = await getFileLineCount(filePath);
 
-	parser.on('progress', (progress) => {
-		processed = progress;
-		console.log(`Processing: ${((processed / total) * 100).toFixed(2)}%`);
-	});
+  parser.on('progress', (progress) => {
+    processed = progress;
+    console.log(`Processing: ${((processed / total) * 100).toFixed(2)}%`);
+  });
 
-	const result = await parser.parseFile(filePath);
-	return transformer.transform(result);
+  const result = await parser.parseFile(filePath);
+  return transformer.transform(result);
 }
 ```
 
@@ -228,9 +228,9 @@ async function processLargeFile(filePath: string) {
    ```typescript
    // config/gedcom.ts
    export const gedcomConfig = {
-   	maxFileSize: 10 * 1024 * 1024, // 10MB
-   	supportedVersions: ['5.5.1'],
-   	encoding: 'UTF-8',
+     maxFileSize: 10 * 1024 * 1024, // 10MB
+     supportedVersions: ['5.5.1'],
+     encoding: 'UTF-8',
    };
    ```
 
@@ -242,19 +242,19 @@ async function processLargeFile(filePath: string) {
    import { gedcomConfig } from '../config/gedcom';
 
    export class GedcomService {
-   	private parser: GedcomParser;
+     private parser: GedcomParser;
 
-   	constructor() {
-   		this.parser = new GedcomParser();
-   	}
+     constructor() {
+       this.parser = new GedcomParser();
+     }
 
-   	async parseFile(filePath: string) {
-   		// Implementation
-   	}
+     async parseFile(filePath: string) {
+       // Implementation
+     }
 
-   	async validateFile(filePath: string) {
-   		// Implementation
-   	}
+     async validateFile(filePath: string) {
+       // Implementation
+     }
    }
    ```
 
@@ -265,11 +265,11 @@ async function processLargeFile(filePath: string) {
    import { GedcomService } from '../services/gedcom.service';
 
    export class GedcomController {
-   	constructor(private gedcomService: GedcomService) {}
+     constructor(private gedcomService: GedcomService) {}
 
-   	async uploadFile(req: Request, res: Response) {
-   		// Implementation
-   	}
+     async uploadFile(req: Request, res: Response) {
+       // Implementation
+     }
    }
    ```
 
@@ -280,23 +280,23 @@ async function processLargeFile(filePath: string) {
 import { GedcomParser } from 'gedcom-ts';
 
 describe('GedcomParser', () => {
-	let parser: GedcomParser;
+  let parser: GedcomParser;
 
-	beforeEach(() => {
-		parser = new GedcomParser();
-	});
+  beforeEach(() => {
+    parser = new GedcomParser();
+  });
 
-	it('should parse valid GEDCOM file', async () => {
-		const result = await parser.parseFile('test/fixtures/valid.ged');
-		expect(result.individuals).toBeDefined();
-		expect(result.families).toBeDefined();
-	});
+  it('should parse valid GEDCOM file', async () => {
+    const result = await parser.parseFile('test/fixtures/valid.ged');
+    expect(result.individuals).toBeDefined();
+    expect(result.families).toBeDefined();
+  });
 
-	it('should handle invalid GEDCOM file', async () => {
-		await expect(
-			parser.parseFile('test/fixtures/invalid.ged')
-		).rejects.toThrow();
-	});
+  it('should handle invalid GEDCOM file', async () => {
+    await expect(
+      parser.parseFile('test/fixtures/invalid.ged'),
+    ).rejects.toThrow();
+  });
 });
 ```
 
