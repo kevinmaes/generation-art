@@ -6,6 +6,8 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview",
 		"test": "vitest",
@@ -25,6 +27,7 @@
 		"@types/p5": "^1.7.6",
 		"gedcom-ts": "^1.1.1",
 		"p5": "^2.0.3",
+		"prettier": "^3.5.3",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"tsx": "^4.19.4"

@@ -1,0 +1,11 @@
+# Ignore artifacts:
+build/
+dist/
+node_modules/
+coverage/
+.next/
+.out/
+public/
+.env
+*.log
+*.tmp 
