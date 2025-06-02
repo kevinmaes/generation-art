@@ -7,7 +7,10 @@ import {
 	getIndividualCoord,
 } from './helpers';
 
-export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
+export function ArtGenerator({
+	width = 1000,
+	height = 800,
+}: ArtGeneratorProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [data, setData] = useState<AugmentedIndividual[] | null>(null);
 
@@ -39,8 +42,9 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 				for (const [id1, id2] of edges) {
 					const coord1 = getIndividualCoord(id1, width, height);
 					const coord2 = getIndividualCoord(id2, width, height);
-					p.stroke(100, 100, 255, 20);
-					p.strokeWeight(2);
+					const strokeColor = p.color('#ccc');
+					p.stroke(strokeColor);
+					p.strokeWeight(0.2);
 					p.line(coord1.x, coord1.y, coord2.x, coord2.y);
 				}
 
@@ -50,13 +54,6 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 					p.noStroke();
 					// Use relativeGenerationValue for opacity (default to 100 if missing)
 					const opacity = ind.relativeGenerationValue ?? 100;
-					// const opacity = 100;
-					// console.log(
-					// 	'relativeGenerationValue',
-					// 	ind.relativeGenerationValue,
-					// 	opacity
-					// );
-
 					const colors = ['#0000ff', '#ffff00'];
 					const lerpAmount = (ind.relativeGenerationValue ?? 100) / 100;
 					const color = p.lerpColor(
@@ -68,7 +65,7 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 
 					p.fill(color);
 
-					const maxSize = 20;
+					const maxSize = 10;
 					const size = Math.min(
 						maxSize,
 						10 + (ind.relativeGenerationValue ?? 0) * 5
@@ -77,10 +74,10 @@ export function ArtGenerator({ width = 800, height = 600 }: ArtGeneratorProps) {
 					p.circle(x, y, size);
 
 					// Uncomment to show names
-					// p.fill(0);
-					// p.textSize(12);
-					// p.textAlign(p.CENTER);
-					// p.text(ind.name, x, y + 25);
+					p.fill(0);
+					p.textSize(5);
+					p.textAlign(p.CENTER);
+					p.text(ind.name, x, y + 25);
 				}
 			};
 		};
