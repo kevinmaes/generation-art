@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import p5 from 'p5';
-import {
-  type ArtGeneratorProps,
-  type AugmentedIndividual,
-  getUniqueEdges,
-  getIndividualCoord,
-} from './helpers';
+import { getUniqueEdges, getIndividualCoord } from './helpers';
+import type { ArtGeneratorProps, AugmentedIndividual } from './types';
 
 const DEFAULT_WIDTH = 1000;
 const DEFAULT_HEIGHT = 800;
