@@ -10,7 +10,7 @@ import {
 export function ArtGenerator({
   width = 1000,
   height = 800,
-}: ArtGeneratorProps) {
+}: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<AugmentedIndividual[] | null>(null);
 
@@ -20,9 +20,11 @@ export function ArtGenerator({
       .then((res) => res.json())
       .then((jsonData) => {
         console.log('Loaded augmented data:', jsonData);
-        setData(jsonData);
+        setData(jsonData as AugmentedIndividual[]);
       })
-      .catch((err) => console.error('Error loading data:', err));
+      .catch((err: unknown) => {
+        console.error('Error loading data:', err);
+      });
   }, []);
 
   useEffect(() => {

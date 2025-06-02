@@ -42,7 +42,7 @@ if (!inputPath) {
 }
 
 const raw = readFileSync(inputPath, 'utf-8');
-const data: GedcomData = JSON.parse(raw);
+const data = JSON.parse(raw) as GedcomData;
 
 // Build lookup for individuals
 const individualsById: Record<string, Individual> = {};
@@ -58,24 +58,24 @@ const spousesMap: Record<string, Set<string>> = {};
 for (const fam of data.families) {
   // Children
   for (const childId of fam.children) {
-    if (!parentsMap[childId]) parentsMap[childId] = new Set();
-    if (fam.husband) parentsMap[childId].add(fam.husband);
-    if (fam.wife) parentsMap[childId].add(fam.wife);
+    parentsMap[childId] = new Set();
+    parentsMap[childId].add(fam.husband);
+    parentsMap[childId].add(fam.wife);
   }
   // Parents
   if (fam.husband) {
-    if (!childrenMap[fam.husband]) childrenMap[fam.husband] = new Set();
+    childrenMap[fam.husband] ??= new Set();
     fam.children.forEach((childId) => childrenMap[fam.husband].add(childId));
     if (fam.wife) {
-      if (!spousesMap[fam.husband]) spousesMap[fam.husband] = new Set();
+      spousesMap[fam.husband] ??= new Set();
       spousesMap[fam.husband].add(fam.wife);
     }
   }
   if (fam.wife) {
-    if (!childrenMap[fam.wife]) childrenMap[fam.wife] = new Set();
+    childrenMap[fam.wife] ??= new Set();
     fam.children.forEach((childId) => childrenMap[fam.wife].add(childId));
     if (fam.husband) {
-      if (!spousesMap[fam.wife]) spousesMap[fam.wife] = new Set();
+      spousesMap[fam.wife] ??= new Set();
       spousesMap[fam.wife].add(fam.husband);
     }
   }
@@ -85,7 +85,7 @@ for (const fam of data.families) {
 const siblingsMap: Record<string, Set<string>> = {};
 for (const fam of data.families) {
   for (const childId of fam.children) {
-    if (!siblingsMap[childId]) siblingsMap[childId] = new Set();
+    siblingsMap[childId] ??= new Set();
     fam.children.forEach((sibId) => {
       if (sibId !== childId) siblingsMap[childId].add(sibId);
     });
@@ -95,10 +95,10 @@ for (const fam of data.families) {
 // Augment individuals
 const augmented: AugmentedIndividual[] = data.individuals.map((ind) => ({
   ...ind,
-  parents: Array.from(parentsMap[ind.id] || []),
-  spouses: Array.from(spousesMap[ind.id] || []),
-  children: Array.from(childrenMap[ind.id] || []),
-  siblings: Array.from(siblingsMap[ind.id] || []),
+  parents: Array.from(parentsMap[ind.id] ?? new Set()),
+  spouses: Array.from(spousesMap[ind.id] ?? new Set()),
+  children: Array.from(childrenMap[ind.id] ?? new Set()),
+  siblings: Array.from(siblingsMap[ind.id] ?? new Set()),
 }));
 
 // Assign generation numbers to individuals
@@ -116,10 +116,9 @@ function assignGenerations(
   });
 
   while (queue.length > 0) {
-    const id = queue.shift()!;
+    const id = queue.shift() ?? '';
     const gen = genMap[id];
     const ind = individualsById[id];
-    if (!ind) continue;
     for (const parentId of ind.parents) {
       if (!(parentId in genMap)) {
         genMap[parentId] = gen - 1;
@@ -155,7 +154,7 @@ function assignRelativeGenerationValue(individuals: AugmentedIndividual[]) {
   // Filter out individuals without a generation
   const gens = individuals
     .map((ind) => ind.generation)
-    .filter((g) => g !== null && g !== undefined) as number[];
+    .filter((g) => g !== null && g !== undefined);
   if (gens.length === 0) return;
   const minGen = Math.min(...gens);
   const maxGen = Math.max(...gens);

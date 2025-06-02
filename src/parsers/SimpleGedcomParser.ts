@@ -21,8 +21,8 @@ interface Family {
 }
 
 export class SimpleGedcomParser {
-  private individuals: Map<string, Individual> = new Map();
-  private families: Map<string, Family> = new Map();
+  private individuals = new Map<string, Individual>();
+  private families = new Map<string, Family>();
   private currentIndividual?: Individual;
   private currentFamily?: Family;
   private currentEvent?: 'BIRT' | 'DEAT' | 'MARR';
@@ -100,7 +100,7 @@ export class SimpleGedcomParser {
     if (!line) return null;
 
     // Updated regex to handle more GEDCOM line formats
-    const match = line.match(/^(\d+)\s+(?:@([^@]+)@\s+)?(\w+)(?:\s+(.+))?$/);
+    const match = /^(\d+)\s+(?:@([^@]+)@\s+)?(\w+)(?:\s+(.+))?$/.exec(line);
     if (!match) {
       console.log('Failed to parse line:', line);
       return null;

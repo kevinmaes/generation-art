@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { GedcomParserFactory } from '../facades/GedcomParserFacade';
+import { createGedcomParser } from '../facades/GedcomParserFacade';
 
-export function GedcomParserComponent() {
+export function GedcomParserComponent(): React.ReactElement {
   const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>(
     'idle',
   );
@@ -23,14 +23,14 @@ export function GedcomParserComponent() {
       console.log('GEDCOM text sample:', gedcomText.substring(0, 200));
 
       // Create parser using the factory
-      const parser = GedcomParserFactory.createParser('simple');
+      const parser = createGedcomParser('simple');
 
       // Parse the GEDCOM data
-      const data = await parser.parse(gedcomText);
+      const data = parser.parse(gedcomText);
       console.log('Parsed data:', data);
 
       setState('success');
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error loading GEDCOM:', err);
       setError(
         err instanceof Error ? err.message : 'An unknown error occurred',
@@ -41,7 +41,7 @@ export function GedcomParserComponent() {
 
   return (
     <div>
-      <button onClick={loadGedcom} disabled={state === 'loading'}>
+      <button onClick={() => void loadGedcom()} disabled={state === 'loading'}>
         {state === 'loading' ? 'Loading...' : 'Load GEDCOM'}
       </button>
 

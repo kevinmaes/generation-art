@@ -24,12 +24,12 @@ export interface GedcomData {
 
 // Facade Interface
 export interface GedcomParserFacade {
-  parse(gedcomText: string): Promise<GedcomData>;
+  parse(gedcomText: string): GedcomData;
 }
 
 // Concrete Implementation for gedcom-ts
 export class GedcomTsParserFacade implements GedcomParserFacade {
-  async parse(gedcomText: string): Promise<GedcomData> {
+  parse(gedcomText: string): GedcomData {
     const parser = new ReadGed(gedcomText);
     parser.peoples = []; // Initialize peoples as an empty array
     const importedData = parser.import() as unknown as Record<
@@ -58,7 +58,7 @@ export class GedcomTsParserFacade implements GedcomParserFacade {
 
 // Concrete Implementation for SimpleGedcomParser
 export class SimpleGedcomParserFacade implements GedcomParserFacade {
-  async parse(gedcomText: string): Promise<GedcomData> {
+  parse(gedcomText: string): GedcomData {
     const parser = new SimpleGedcomParser();
     const parsedData = parser.parse(gedcomText);
 
@@ -88,15 +88,13 @@ export class SimpleGedcomParserFacade implements GedcomParserFacade {
 }
 
 // Factory to instantiate the appropriate facade
-export class GedcomParserFactory {
-  static createParser(type: string): GedcomParserFacade {
-    switch (type) {
-      case 'gedcom-ts':
-        return new GedcomTsParserFacade();
-      case 'simple':
-        return new SimpleGedcomParserFacade();
-      default:
-        throw new Error(`Unsupported parser type: ${type}`);
-    }
+export function createGedcomParser(type: string): GedcomParserFacade {
+  switch (type) {
+    case 'gedcom-ts':
+      return new GedcomTsParserFacade();
+    case 'simple':
+      return new SimpleGedcomParserFacade();
+    default:
+      throw new Error(`Unsupported parser type: ${type}`);
   }
 }

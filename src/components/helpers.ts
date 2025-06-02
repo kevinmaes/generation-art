@@ -22,7 +22,11 @@ export interface ArtGeneratorProps {
 }
 
 // Pure function to calculate coordinates for an individual
-export function getIndividualCoord(id: string, width: number, height: number) {
+export function getIndividualCoord(
+  id: string,
+  width: number,
+  height: number,
+): { x: number; y: number } {
   let hash = 5381;
   for (let i = 0; i < id.length; i++) {
     hash = (hash << 5) + hash + id.charCodeAt(i);
