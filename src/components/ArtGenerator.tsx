@@ -7,9 +7,12 @@ import {
   getIndividualCoord,
 } from './helpers';
 
+const DEFAULT_WIDTH = 1000;
+const DEFAULT_HEIGHT = 800;
+
 export function ArtGenerator({
-  width = 1000,
-  height = 800,
+  width = DEFAULT_WIDTH,
+  height = DEFAULT_HEIGHT,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<AugmentedIndividual[] | null>(null);
