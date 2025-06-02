@@ -1,3 +1,7 @@
+/**
+ * Augmented individual data type
+ * Includes additional fields for graph visualization or art generation
+ */
 export interface AugmentedIndividual {
   id: string;
   name: string;
@@ -14,9 +18,4 @@ export interface AugmentedIndividual {
   children: string[];
   siblings: string[];
   relativeGenerationValue?: number;
-}
-
-export interface ArtGeneratorProps {
-  width?: number;
-  height?: number;
 }
