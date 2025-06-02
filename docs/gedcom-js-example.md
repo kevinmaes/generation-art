@@ -7,48 +7,48 @@ import { Gedcom } from 'gedcom-js';
 
 // Basic file parsing
 async function parseGedcomFile(file: File): Promise<Gedcom> {
-	const text = await file.text();
-	const gedcom = new Gedcom();
-	await gedcom.parse(text);
-	return gedcom;
+  const text = await file.text();
+  const gedcom = new Gedcom();
+  await gedcom.parse(text);
+  return gedcom;
 }
 
 // Example of accessing data
 function processGedcomData(gedcom: Gedcom) {
-	// Get all individuals
-	const individuals = gedcom.getIndividualRecords();
+  // Get all individuals
+  const individuals = gedcom.getIndividualRecords();
 
-	// Get all families
-	const families = gedcom.getFamilyRecords();
+  // Get all families
+  const families = gedcom.getFamilyRecords();
 
-	// Example of accessing specific data
-	individuals.forEach((individual) => {
-		const name = individual.getName();
-		const birth = individual.getBirth();
-		const death = individual.getDeath();
+  // Example of accessing specific data
+  individuals.forEach((individual) => {
+    const name = individual.getName();
+    const birth = individual.getBirth();
+    const death = individual.getDeath();
 
-		// Add our derived properties
-		const enhancedData = {
-			...individual,
-			// Example derived properties
-			generationDepth: calculateGenerationDepth(individual, families),
-			relationshipCount: countRelationships(individual, families),
-			// Add more derived properties as needed
-		};
-	});
+    // Add our derived properties
+    const enhancedData = {
+      ...individual,
+      // Example derived properties
+      generationDepth: calculateGenerationDepth(individual, families),
+      relationshipCount: countRelationships(individual, families),
+      // Add more derived properties as needed
+    };
+  });
 }
 
 // Example of data enhancement
 function calculateGenerationDepth(individual: any, families: any[]): number {
-	// Implementation of generation depth calculation
-	// This would be part of our data enhancement system
-	return 0; // Placeholder
+  // Implementation of generation depth calculation
+  // This would be part of our data enhancement system
+  return 0; // Placeholder
 }
 
 function countRelationships(individual: any, families: any[]): number {
-	// Implementation of relationship counting
-	// This would be part of our data enhancement system
-	return 0; // Placeholder
+  // Implementation of relationship counting
+  // This would be part of our data enhancement system
+  return 0; // Placeholder
 }
 ```
 
@@ -57,35 +57,35 @@ function countRelationships(individual: any, families: any[]): number {
 ```typescript
 // types/gedcom.ts
 export interface EnhancedIndividual {
-	// Original GEDCOM data
-	id: string;
-	name: string;
-	birth?: {
-		date?: string;
-		place?: string;
-	};
-	death?: {
-		date?: string;
-		place?: string;
-	};
+  // Original GEDCOM data
+  id: string;
+  name: string;
+  birth?: {
+    date?: string;
+    place?: string;
+  };
+  death?: {
+    date?: string;
+    place?: string;
+  };
 
-	// Our enhanced properties
-	generationDepth: number;
-	relationshipCount: number;
-	// Add more enhanced properties as needed
+  // Our enhanced properties
+  generationDepth: number;
+  relationshipCount: number;
+  // Add more enhanced properties as needed
 }
 
 export interface EnhancedFamily {
-	// Original GEDCOM data
-	id: string;
-	husband?: string;
-	wife?: string;
-	children: string[];
+  // Original GEDCOM data
+  id: string;
+  husband?: string;
+  wife?: string;
+  children: string[];
 
-	// Our enhanced properties
-	generation: number;
-	size: number;
-	// Add more enhanced properties as needed
+  // Our enhanced properties
+  generation: number;
+  size: number;
+  // Add more enhanced properties as needed
 }
 ```
 
