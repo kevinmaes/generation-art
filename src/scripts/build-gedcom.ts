@@ -254,7 +254,9 @@ async function buildGedcomFiles(
     return;
   }
 
-  console.log(`Found ${allGedcomFiles.length} GEDCOM files to process:`);
+  console.log(
+    `Found ${String(allGedcomFiles.length)} GEDCOM files to process:`,
+  );
   allGedcomFiles.forEach(({ file, inputDir }) => {
     console.log(`  - ${inputDir}/${file}`);
   });
@@ -277,7 +279,7 @@ async function buildGedcomFiles(
       // Write parsed JSON
       await writeFile(outputPath, JSON.stringify(parsedData, null, 2));
       console.log(
-        `  ✓ Generated ${baseName}.json (${parsedData.individuals.length} individuals, ${parsedData.families.length} families)`,
+        `  ✓ Generated ${baseName}.json (${String(parsedData.individuals.length)} individuals, ${String(parsedData.families.length)} families)`,
       );
 
       // Generate augmented data
