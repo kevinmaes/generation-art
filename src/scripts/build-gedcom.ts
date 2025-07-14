@@ -1,4 +1,11 @@
-import { readdir, readFile, writeFile, mkdir, access } from 'fs/promises';
+import {
+  readdir,
+  readFile,
+  writeFile,
+  mkdir,
+  access,
+  copyFile,
+} from 'fs/promises';
 import { join, basename, extname } from 'path';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
 
@@ -291,7 +298,20 @@ async function buildGedcomFiles(
       const foundMediaDir = await findMediaDirectory(inputDir, baseName);
       if (foundMediaDir) {
         console.log(`  ℹ Found media directory: ${foundMediaDir}`);
-        // TODO: Copy media files to generated/media if needed
+        // Copy media files to generated/media/<baseName>/
+        const destMediaDir = join(mediaDir, baseName);
+        await mkdir(destMediaDir, { recursive: true });
+        const mediaFiles = await readdir(foundMediaDir, {
+          withFileTypes: true,
+        });
+        for (const entry of mediaFiles) {
+          if (entry.isFile()) {
+            const src = join(foundMediaDir, entry.name);
+            const dest = join(destMediaDir, entry.name);
+            await copyFile(src, dest);
+            console.log(`    ✓ Copied media: ${entry.name}`);
+          }
+        }
       } else {
         console.log(`  ℹ No media directory found for ${baseName}`);
       }
