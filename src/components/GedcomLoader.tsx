@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import type { AugmentedIndividual } from './types';
 
 interface GedcomLoaderProps {
-  familyName: string;
+  jsonFile: string;
   onDataLoaded: (data: AugmentedIndividual[]) => void;
   onError?: (error: string) => void;
 }
 
 export function GedcomLoader({
-  familyName,
+  jsonFile,
   onDataLoaded,
   onError,
 }: GedcomLoaderProps): React.ReactElement {
@@ -36,20 +36,10 @@ export function GedcomLoader({
 
       try {
         // Try to load from generated directory first (private files)
-        const response = await fetch(
-          `/generated/parsed/${familyName}-augmented.json`,
-        );
+        const response = await fetch(jsonFile);
 
         if (!response.ok) {
-          // Fallback to public directory for demo data
-          const fallbackResponse = await fetch(
-            `/gedcom-public/${familyName}/${familyName}-augmented.json`,
-          );
-          if (!fallbackResponse.ok) {
-            throw new Error(`Family data not found: ${familyName}`);
-          }
-          const data = (await fallbackResponse.json()) as AugmentedIndividual[];
-          stableOnDataLoaded(data);
+          throw new Error(`Family data not found: ${jsonFile}`);
         } else {
           const data = (await response.json()) as AugmentedIndividual[];
           stableOnDataLoaded(data);
@@ -64,10 +54,10 @@ export function GedcomLoader({
       }
     };
 
-    if (familyName) {
+    if (jsonFile) {
       void loadFamilyData();
     }
-  }, [familyName, stableOnDataLoaded, stableOnError]);
+  }, [jsonFile, stableOnDataLoaded, stableOnError]);
 
   if (loading) return <div>Loading family data...</div>;
   if (error) return <div>Error: {error}</div>;

@@ -10,13 +10,13 @@ const DEFAULT_HEIGHT = 800;
 interface ArtGeneratorProps {
   width?: number;
   height?: number;
-  familyName?: string;
+  jsonFile?: string;
 }
 
 export function ArtGenerator({
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
-  familyName = 'kennedy',
+  jsonFile,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<AugmentedIndividual[] | null>(null);
@@ -104,14 +104,18 @@ export function ArtGenerator({
     };
   }, [width, height, data]);
 
+  if (!jsonFile) {
+    return <div>No JSON file provided</div>;
+  }
+
   return (
     <div>
       <GedcomLoader
-        familyName={familyName}
+        jsonFile={jsonFile}
         onDataLoaded={handleDataLoaded}
         onError={handleError}
       />
-      {data && <div key={`p5-container-${familyName}`} ref={containerRef} />}
+      {data && <div key={`p5-container-${jsonFile}`} ref={containerRef} />}
     </div>
   );
 }

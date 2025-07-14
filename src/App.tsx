@@ -8,7 +8,11 @@ function App(): React.ReactElement {
       <h1 className="text-3xl font-bold mb-8">Generation Art</h1>
 
       <div className="bg-white rounded-lg shadow-lg p-4">
-        <ArtGenerator width={1000} height={800} familyName={'kennedy'} />
+        <ArtGenerator
+          width={1000}
+          height={800}
+          jsonFile={'generated/parsed/kennedy-augmented.json'}
+        />
       </div>
     </div>
   );
