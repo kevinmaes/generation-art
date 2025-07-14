@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import p5 from 'p5';
 import { getUniqueEdges, getIndividualCoord } from './helpers';
 import type { AugmentedIndividual } from './types';
+import { GedcomLoader } from './GedcomLoader';
 
 const DEFAULT_WIDTH = 1000;
 const DEFAULT_HEIGHT = 800;
@@ -9,30 +10,35 @@ const DEFAULT_HEIGHT = 800;
 interface ArtGeneratorProps {
   width?: number;
   height?: number;
+  familyName?: string;
 }
 
 export function ArtGenerator({
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
+  familyName = 'kennedy',
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<AugmentedIndividual[] | null>(null);
+  const p5InstanceRef = useRef<p5 | null>(null);
 
-  useEffect(() => {
-    // Load the augmented JSON data
-    fetch('/gedcom-public/kennedy/kennedy-augmented.json')
-      .then((res) => res.json())
-      .then((jsonData) => {
-        console.log('Loaded augmented data:', jsonData);
-        setData(jsonData as AugmentedIndividual[]);
-      })
-      .catch((err: unknown) => {
-        console.error('Error loading data:', err);
-      });
+  // Stabilize the callback to prevent infinite loops
+  const handleDataLoaded = useCallback((newData: AugmentedIndividual[]) => {
+    setData(newData);
+  }, []);
+
+  const handleError = useCallback((error: string) => {
+    console.error('Failed to load family data:', error);
   }, []);
 
   useEffect(() => {
     if (!containerRef.current || !data) return;
+
+    // Clean up previous instance
+    if (p5InstanceRef.current) {
+      p5InstanceRef.current.remove();
+      p5InstanceRef.current = null;
+    }
 
     const sketch = (p: p5) => {
       p.setup = () => {
@@ -88,11 +94,24 @@ export function ArtGenerator({
       };
     };
 
-    const p5Instance = new p5(sketch, containerRef.current);
+    p5InstanceRef.current = new p5(sketch, containerRef.current);
+
     return () => {
-      p5Instance.remove();
+      if (p5InstanceRef.current) {
+        p5InstanceRef.current.remove();
+        p5InstanceRef.current = null;
+      }
     };
   }, [width, height, data]);
 
-  return <div ref={containerRef} />;
+  return (
+    <div>
+      <GedcomLoader
+        familyName={familyName}
+        onDataLoaded={handleDataLoaded}
+        onError={handleError}
+      />
+      {data && <div key={`p5-container-${familyName}`} ref={containerRef} />}
+    </div>
+  );
 }
