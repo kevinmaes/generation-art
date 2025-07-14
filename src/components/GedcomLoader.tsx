@@ -16,13 +16,17 @@ export function GedcomLoader({
   const [error, setError] = useState<string | null>(null);
 
   // Stabilize the callbacks to prevent infinite loops
-  const stableOnDataLoaded = useCallback(onDataLoaded, []);
+  const stableOnDataLoaded = useCallback(
+    (data: AugmentedIndividual[]) => {
+      onDataLoaded(data);
+    },
+    [onDataLoaded],
+  );
   const stableOnError = useCallback(
-    onError ??
-      (() => {
-        // Default error handler
-      }),
-    [],
+    (error: string) => {
+      onError?.(error);
+    },
+    [onError],
   );
 
   useEffect(() => {
