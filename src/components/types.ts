@@ -1,10 +1,10 @@
+import type { Individual } from '../facades/GedcomParserFacade';
+
 /**
- * Augmented individual data type
+ * Augmented individual data type, extends the Individual type from the GedcomParserFacade
  * Includes additional fields for graph visualization or art generation
  */
-export interface AugmentedIndividual {
-  id: string;
-  name: string;
+export interface AugmentedIndividual extends Individual {
   birth: {
     date?: string;
     place?: string;
