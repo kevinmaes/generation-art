@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build:gedcom": "tsx src/scripts/build-gedcom.ts",
-    "build:example": "pnpm build:gedcom ./examples/kennedy/kennedy.ged",
+    "build:gedcom:example": "pnpm build:gedcom ./examples/kennedy/kennedy.ged",
     "prebuild": "pnpm build:gedcom",
     "dev:with-gedcom": "pnpm build:gedcom && pnpm dev",
     "format": "prettier --write .",
@@ -20,8 +20,7 @@
     "test:coverage": "vitest run --coverage",
     "task:parse": "tsx src/tasks/parseGedcom.ts",
     "task:augment": "tsx src/tasks/augmentData.ts",
-    "task:output": "tsx src/tasks/outputJson.ts",
-    "build:gedcom:example": "tsx src/scripts/build-gedcom.ts kennedy.ged"
+    "task:output": "tsx src/tasks/outputJson.ts"
   },
   "dependencies": {
     "@types/node": "^22.15.29",
