@@ -25,3 +25,6 @@ dist-ssr
 
 # GEDCOM files
 gedcom/*
+
+# Generated files derived from GEDCOM files
+generated/*
