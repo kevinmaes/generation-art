@@ -170,7 +170,7 @@ function augmentIndividuals(data: GedcomData): AugmentedIndividual[] {
   // Find a primary individual (first one with children or first one available)
   const primaryIndividual =
     augmented.find((ind) => ind.children.length > 0) ?? augmented[0];
-  const PRIMARY_ID = primaryIndividual?.id ?? 'I1';
+  const PRIMARY_ID = primaryIndividual.id || 'I1';
 
   assignGenerations(augmented, PRIMARY_ID);
   assignRelativeGenerationValue(augmented);
