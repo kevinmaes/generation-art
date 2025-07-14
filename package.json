@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build:gedcom": "tsx src/scripts/build-gedcom.ts",
-    "build:kennedy": "pnpm build:gedcom kennedy.ged",
+    "build:example": "pnpm build:gedcom ./examples/kennedy/kennedy.ged",
     "prebuild": "pnpm build:gedcom",
     "dev:with-gedcom": "pnpm build:gedcom && pnpm dev",
     "format": "prettier --write .",
