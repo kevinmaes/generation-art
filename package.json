@@ -20,7 +20,8 @@
     "test:coverage": "vitest run --coverage",
     "task:parse": "tsx src/tasks/parseGedcom.ts",
     "task:augment": "tsx src/tasks/augmentData.ts",
-    "task:output": "tsx src/tasks/outputJson.ts"
+    "task:output": "tsx src/tasks/outputJson.ts",
+    "build:gedcom:example": "tsx src/scripts/build-gedcom.ts kennedy.ged"
   },
   "dependencies": {
     "@types/node": "^22.15.29",

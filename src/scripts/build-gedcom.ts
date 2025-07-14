@@ -32,7 +32,7 @@ interface AugmentedIndividual extends Individual {
 }
 
 interface BuildConfig {
-  inputDir: string;
+  inputDirs: string[];
   outputDir: string;
   mediaDir: string;
 }
@@ -135,7 +135,7 @@ function augmentIndividuals(data: GedcomData): AugmentedIndividual[] {
     }
     // Assign generation to each individual
     for (const ind of individuals) {
-      ind.generation = genMap[ind.id] ?? null;
+      ind.generation = genMap[ind.id] || null;
     }
   }
 
@@ -178,105 +178,140 @@ function augmentIndividuals(data: GedcomData): AugmentedIndividual[] {
   return augmented;
 }
 
+// Helper function to find media directory
+async function findMediaDirectory(
+  inputDir: string,
+  baseName: string,
+): Promise<string | null> {
+  const possibleMediaDirs = [
+    join(inputDir, 'media'),
+    join(inputDir, 'Media'),
+    join(inputDir, `${baseName} media`),
+    join(inputDir, `${baseName} Media`),
+  ];
+
+  for (const mediaDir of possibleMediaDirs) {
+    try {
+      await access(mediaDir);
+      return mediaDir;
+    } catch {
+      // Directory doesn't exist, try next one
+    }
+  }
+  return null;
+}
+
 async function buildGedcomFiles(
   config: BuildConfig,
-  singleFile?: string,
+  singleFilePath?: string,
 ): Promise<void> {
-  const { inputDir, outputDir, mediaDir } = config;
+  const { inputDirs, outputDir, mediaDir } = config;
 
   // Ensure output directories exist
   await mkdir(outputDir, { recursive: true });
   await mkdir(mediaDir, { recursive: true });
 
-  try {
-    // Check if input directory exists
+  let allGedcomFiles: { file: string; inputDir: string }[] = [];
+
+  // Collect GEDCOM files from all input directories
+  for (const inputDir of inputDirs) {
     try {
       await access(inputDir);
-    } catch {
-      console.log(`Input directory ${inputDir} does not exist. Creating it...`);
-      await mkdir(inputDir, { recursive: true });
-      console.log(
-        `Created ${inputDir}. Please add your GEDCOM files to this directory.`,
-      );
-      return;
-    }
-
-    let gedcomFiles: string[] = [];
-    if (singleFile) {
-      // Only process the specified file
-      gedcomFiles = [singleFile];
-      console.log(`Processing single GEDCOM file: ${singleFile}`);
-    } else {
-      // Process all .ged files
       const files = await readdir(inputDir);
-      gedcomFiles = files.filter((file) => extname(file) === '.ged');
-      if (gedcomFiles.length === 0) {
-        console.log(`No GEDCOM files found in ${inputDir}`);
-        console.log(`Please add .ged files to the ${inputDir} directory`);
+      const gedcomFiles = files.filter((file) => extname(file) === '.ged');
+      allGedcomFiles.push(...gedcomFiles.map((file) => ({ file, inputDir })));
+    } catch {
+      console.log(`Input directory ${inputDir} does not exist.`);
+    }
+  }
+
+  if (singleFilePath) {
+    // Check if the specified file exists at the full path
+    try {
+      await access(singleFilePath);
+      const fileName = basename(singleFilePath);
+      const inputDir = singleFilePath.replace(`/${fileName}`, '');
+
+      // Verify it's a .ged file
+      if (extname(fileName) !== '.ged') {
+        console.log(`File ${singleFilePath} is not a .ged file`);
         return;
       }
-      console.log(`Found ${gedcomFiles.length} GEDCOM files to process:`);
-      gedcomFiles.forEach((file) => console.log(`  - ${file}`));
-      console.log('');
+
+      allGedcomFiles = [{ file: fileName, inputDir }];
+      console.log(`Processing single GEDCOM file: ${singleFilePath}`);
+    } catch {
+      console.log(`File ${singleFilePath} not found`);
+      return;
     }
-
-    for (const file of gedcomFiles) {
-      const baseName = basename(file, '.ged');
-      const inputPath = join(inputDir, file);
-      const outputPath = join(outputDir, `${baseName}.json`);
-      const augmentedPath = join(outputDir, `${baseName}-augmented.json`);
-
-      console.log(`Processing ${file}...`);
-
-      try {
-        // Read and parse GEDCOM
-        const gedcomText = await readFile(inputPath, 'utf-8');
-        const parser = new SimpleGedcomParser();
-        const parsedData = parser.parse(gedcomText);
-
-        // Write parsed JSON
-        await writeFile(outputPath, JSON.stringify(parsedData, null, 2));
-        console.log(
-          `  ✓ Generated ${baseName}.json (${parsedData.individuals.length} individuals, ${parsedData.families.length} families)`,
-        );
-
-        // Generate augmented data
-        const augmentedData = augmentIndividuals(parsedData);
-        await writeFile(augmentedPath, JSON.stringify(augmentedData, null, 2));
-        console.log(`  ✓ Generated ${baseName}-augmented.json`);
-
-        // Check for media directory
-        const mediaDirPath = join(inputDir, `${baseName} Media`);
-        try {
-          await access(mediaDirPath);
-          console.log(`  ℹ Found media directory: ${baseName} Media`);
-          // TODO: Copy media files to generated/media if needed
-        } catch {
-          // No media directory, that's fine
-        }
-      } catch (error) {
-        console.error(`  ✗ Error processing ${file}:`, error);
-      }
-    }
-
-    console.log('\nGEDCOM build complete!');
-    console.log(`Generated files are in: ${outputDir}`);
-  } catch (error) {
-    console.error('Error building GEDCOM files:', error);
-    process.exit(1);
   }
+
+  if (allGedcomFiles.length === 0) {
+    console.log('No GEDCOM files found in any input directory');
+    console.log(
+      'Please add .ged files to the examples/ or gedcom/ directories',
+    );
+    return;
+  }
+
+  console.log(`Found ${allGedcomFiles.length} GEDCOM files to process:`);
+  allGedcomFiles.forEach(({ file, inputDir }) => {
+    console.log(`  - ${inputDir}/${file}`);
+  });
+  console.log('');
+
+  for (const { file, inputDir } of allGedcomFiles) {
+    const baseName = basename(file, '.ged');
+    const inputPath = join(inputDir, file);
+    const outputPath = join(outputDir, `${baseName}.json`);
+    const augmentedPath = join(outputDir, `${baseName}-augmented.json`);
+
+    console.log(`Processing ${inputDir}/${file}...`);
+
+    try {
+      // Read and parse GEDCOM
+      const gedcomText = await readFile(inputPath, 'utf-8');
+      const parser = new SimpleGedcomParser();
+      const parsedData = parser.parse(gedcomText);
+
+      // Write parsed JSON
+      await writeFile(outputPath, JSON.stringify(parsedData, null, 2));
+      console.log(
+        `  ✓ Generated ${baseName}.json (${parsedData.individuals.length} individuals, ${parsedData.families.length} families)`,
+      );
+
+      // Generate augmented data
+      const augmentedData = augmentIndividuals(parsedData);
+      await writeFile(augmentedPath, JSON.stringify(augmentedData, null, 2));
+      console.log(`  ✓ Generated ${baseName}-augmented.json`);
+
+      // Check for media directory with flexible naming
+      const foundMediaDir = await findMediaDirectory(inputDir, baseName);
+      if (foundMediaDir) {
+        console.log(`  ℹ Found media directory: ${foundMediaDir}`);
+        // TODO: Copy media files to generated/media if needed
+      } else {
+        console.log(`  ℹ No media directory found for ${baseName}`);
+      }
+    } catch (error) {
+      console.error(`  ✗ Error processing ${file}:`, error);
+    }
+  }
+
+  console.log('\nGEDCOM build complete!');
+  console.log(`Generated files are in: ${outputDir}`);
 }
 
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   const config: BuildConfig = {
-    inputDir: 'gedcom',
+    inputDirs: ['examples', 'gedcom'],
     outputDir: 'generated/parsed',
     mediaDir: 'generated/media',
   };
   // Accept an optional filename argument
   const singleFile = process.argv[2];
-  buildGedcomFiles(config, singleFile);
+  void buildGedcomFiles(config, singleFile);
 }
 
 export { buildGedcomFiles };
