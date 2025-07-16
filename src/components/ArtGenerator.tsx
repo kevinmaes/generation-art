@@ -10,12 +10,14 @@ interface ArtGeneratorProps {
   width?: number;
   height?: number;
   jsonFile?: string;
+  onExportReady?: (p5Instance: p5) => void;
 }
 
 export function ArtGenerator({
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
   jsonFile,
+  onExportReady,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
@@ -94,13 +96,18 @@ export function ArtGenerator({
 
     p5InstanceRef.current = new p5(sketch, containerRef.current);
 
+    // Call onExportReady with the p5 instance once it's created
+    if (onExportReady && p5InstanceRef.current) {
+      onExportReady(p5InstanceRef.current);
+    }
+
     return () => {
       if (p5InstanceRef.current) {
         p5InstanceRef.current.remove();
         p5InstanceRef.current = null;
       }
     };
-  }, [width, height, data]);
+  }, [width, height, data, onExportReady]);
 
   if (!jsonFile) {
     return (
