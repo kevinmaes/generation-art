@@ -42,7 +42,16 @@ export function ArtGenerator({
 
     const sketch = (p: p5) => {
       p.setup = () => {
-        p.createCanvas(width, height);
+        // Debug: Log the intended dimensions
+        console.log(`🎨 Intended canvas dimensions: ${width} × ${height}`);
+
+        // Create canvas with explicit renderer and pixel density
+        p.createCanvas(width, height, p.P2D);
+        p.pixelDensity(1);
+
+        // Debug: Log the actual canvas dimensions
+        console.log(`🎨 Actual canvas dimensions: ${p.width} × ${p.height}`);
+
         p.background(255);
       };
 

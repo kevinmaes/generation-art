@@ -44,6 +44,9 @@ export function FramedArtwork({
     console.log('🖼️ Export PNG clicked!');
     if (p5InstanceRef.current) {
       console.log('✅ Calling saveCanvas for web export...');
+      console.log(
+        `📏 Web export canvas dimensions: ${p5InstanceRef.current.width} × ${p5InstanceRef.current.height}`,
+      );
       p5InstanceRef.current.saveCanvas(
         PRINT_SETTINGS.WEB_FILENAME,
         EXPORT_FORMATS.PNG,
@@ -65,6 +68,9 @@ export function FramedArtwork({
     }
 
     console.log('✅ Creating high-resolution print version...');
+    console.log(
+      `📏 Print canvas dimensions: ${CANVAS_DIMENSIONS.PRINT.WIDTH} × ${CANVAS_DIMENSIONS.PRINT.HEIGHT}`,
+    );
 
     // Create a temporary container for the high-res canvas
     const tempContainer = document.createElement('div');
@@ -76,10 +82,29 @@ export function FramedArtwork({
     // Create a new p5 instance for high-resolution export
     const printSketch = (p: p5) => {
       p.setup = () => {
-        p.createCanvas(
+        console.log(
+          `🎨 Print setup - intended: ${CANVAS_DIMENSIONS.PRINT.WIDTH} × ${CANVAS_DIMENSIONS.PRINT.HEIGHT}`,
+        );
+
+        // Set pixel density BEFORE creating canvas
+        p.pixelDensity(1);
+
+        // Create canvas with explicit renderer
+        const canvas = p.createCanvas(
           CANVAS_DIMENSIONS.PRINT.WIDTH,
           CANVAS_DIMENSIONS.PRINT.HEIGHT,
+          p.P2D,
         );
+
+        // Force the canvas buffer to be exactly the size we want
+        canvas.width = CANVAS_DIMENSIONS.PRINT.WIDTH;
+        canvas.height = CANVAS_DIMENSIONS.PRINT.HEIGHT;
+
+        console.log(
+          `🎨 Print setup - canvas buffer: ${canvas.width} × ${canvas.height}`,
+        );
+        console.log(`🎨 Print setup - p5 dimensions: ${p.width} × ${p.height}`);
+
         p.background(255);
       };
 
@@ -149,7 +174,39 @@ export function FramedArtwork({
 
     // Wait for the sketch to render, then save
     setTimeout(() => {
-      printP5.saveCanvas(PRINT_SETTINGS.PRINT_FILENAME, EXPORT_FORMATS.PNG);
+      console.log(
+        `📏 Final print canvas dimensions: ${printP5.width} × ${printP5.height}`,
+      );
+
+      // Create a separate canvas with exact dimensions for export
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = CANVAS_DIMENSIONS.PRINT.WIDTH;
+      exportCanvas.height = CANVAS_DIMENSIONS.PRINT.HEIGHT;
+
+      const exportCtx = exportCanvas.getContext('2d');
+      if (exportCtx) {
+        // Get the p5 canvas and draw it onto our export canvas
+        const p5Canvas = tempContainer.querySelector(
+          'canvas',
+        ) as HTMLCanvasElement;
+        exportCtx.drawImage(
+          p5Canvas,
+          0,
+          0,
+          CANVAS_DIMENSIONS.PRINT.WIDTH,
+          CANVAS_DIMENSIONS.PRINT.HEIGHT,
+        );
+
+        console.log(
+          `📏 Export canvas dimensions: ${exportCanvas.width} × ${exportCanvas.height}`,
+        );
+
+        const dataURL = exportCanvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `${PRINT_SETTINGS.PRINT_FILENAME}.png`;
+        link.href = dataURL;
+        link.click();
+      }
 
       // Clean up
       printP5.remove();
