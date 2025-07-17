@@ -19,7 +19,6 @@ export interface CanvasInfo {
  */
 export function createCanvas(
   container: HTMLElement,
-  config: CanvasConfig,
   sketch: (p: p5) => void,
 ): CanvasInfo {
   // Create p5 instance
@@ -42,7 +41,7 @@ export function createCanvas(
 /**
  * Create a temporary canvas for export purposes
  */
-export function createTemporaryCanvas(config: CanvasConfig): HTMLElement {
+export function createTemporaryCanvas(): HTMLElement {
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'absolute';
   tempContainer.style.left = '-9999px';

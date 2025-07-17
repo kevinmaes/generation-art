@@ -4,7 +4,7 @@ import {
   PRINT_SETTINGS,
   EXPORT_FORMATS,
 } from '../constants';
-import { createSketch } from '../sketches/FamilyTreeSketch';
+import { createPrintSketch } from '../sketches/FamilyTreeSketch';
 import {
   createTemporaryCanvas,
   createExportCanvas,
@@ -56,10 +56,6 @@ export function exportPrintCanvas(
   const {
     format = EXPORT_FORMATS.PNG,
     filename = PRINT_SETTINGS.PRINT_FILENAME,
-    showNames = true,
-    strokeWeight = 0.5,
-    textSize = 12,
-    nodeSize = 24,
   } = options;
 
   return new Promise((resolve, reject) => {
@@ -69,23 +65,14 @@ export function exportPrintCanvas(
     );
 
     // Create temporary container using factory
-    const tempContainer = createTemporaryCanvas({
-      width: CANVAS_DIMENSIONS.PRINT.WIDTH,
-      height: CANVAS_DIMENSIONS.PRINT.HEIGHT,
-    });
+    const tempContainer = createTemporaryCanvas();
 
     // Create print sketch using the factory
-    const printSketch = createSketch({
-      config: {
-        width: CANVAS_DIMENSIONS.PRINT.WIDTH,
-        height: CANVAS_DIMENSIONS.PRINT.HEIGHT,
-        showNames,
-        strokeWeight,
-        textSize,
-        nodeSize,
-      },
+    const printSketch = createPrintSketch(
       familyData,
-    });
+      CANVAS_DIMENSIONS.PRINT.WIDTH,
+      CANVAS_DIMENSIONS.PRINT.HEIGHT,
+    );
 
     // Create the high-res p5 instance
     const printP5 = new p5(printSketch, tempContainer);

@@ -20,7 +20,7 @@ export interface SketchOptions {
 /**
  * Create a sketch function for the given configuration
  */
-export function createSketch(options: SketchOptions): (p: p5) => void {
+function createSketch(options: SketchOptions): (p: p5) => void {
   const { config, familyData } = options;
   const {
     width,
