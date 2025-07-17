@@ -6,6 +6,8 @@ import {
   PRINT_SETTINGS,
   EXPORT_FORMATS,
 } from '../constants';
+import { getUniqueEdges, getIndividualCoord } from './helpers';
+import { useGedcomData } from '../hooks/useGedcomData';
 
 interface FramedArtworkProps {
   title: string;
@@ -25,13 +27,18 @@ export function FramedArtwork({
   className = '',
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
+  const [exportStatus, setExportStatus] = React.useState<string>('');
+
+  // Get the family data for print export
+  const { data: familyData } = useGedcomData({
+    jsonFile: jsonFile ?? '',
+    onError: () => {},
+  });
 
   const handleExport = useCallback((p5Instance: p5) => {
     console.log('🎨 p5 instance received:', p5Instance);
     p5InstanceRef.current = p5Instance;
   }, []);
-
-  const [exportStatus, setExportStatus] = React.useState<string>('');
 
   const handleExportClick = useCallback(() => {
     console.log('🖼️ Export PNG clicked!');
@@ -51,23 +58,107 @@ export function FramedArtwork({
 
   const handlePrintClick = useCallback(() => {
     console.log('🖨️ Print Ready clicked!');
-    if (p5InstanceRef.current) {
-      console.log('✅ Creating high-resolution print version...');
+    if (!familyData) {
+      console.log('❌ No family data available for print export');
+      setExportStatus('Error: No family data available');
+      return;
+    }
 
-      // For now, just save with a different filename to indicate print version
-      // TODO: Implement proper high-resolution export
-      p5InstanceRef.current.saveCanvas(
-        PRINT_SETTINGS.PRINT_FILENAME,
-        EXPORT_FORMATS.PNG,
-      );
+    console.log('✅ Creating high-resolution print version...');
+
+    // Create a temporary container for the high-res canvas
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '-9999px';
+    document.body.appendChild(tempContainer);
+
+    // Create a new p5 instance for high-resolution export
+    const printSketch = (p: p5) => {
+      p.setup = () => {
+        p.createCanvas(
+          CANVAS_DIMENSIONS.PRINT.WIDTH,
+          CANVAS_DIMENSIONS.PRINT.HEIGHT,
+        );
+        p.background(255);
+      };
+
+      p.draw = () => {
+        // Redraw the artwork at print resolution
+        p.background(255);
+
+        // Draw edges (lines between connected individuals)
+        const edges = getUniqueEdges(familyData);
+        for (const [id1, id2] of edges) {
+          const coord1 = getIndividualCoord(
+            id1,
+            CANVAS_DIMENSIONS.PRINT.WIDTH,
+            CANVAS_DIMENSIONS.PRINT.HEIGHT,
+          );
+          const coord2 = getIndividualCoord(
+            id2,
+            CANVAS_DIMENSIONS.PRINT.WIDTH,
+            CANVAS_DIMENSIONS.PRINT.HEIGHT,
+          );
+          const strokeColor = p.color('#ccc');
+          p.stroke(strokeColor);
+          p.strokeWeight(0.5); // Slightly thicker for print
+          p.line(coord1.x, coord1.y, coord2.x, coord2.y);
+        }
+
+        // Draw nodes (individuals)
+        for (const ind of familyData) {
+          const { x, y } = getIndividualCoord(
+            ind.id,
+            CANVAS_DIMENSIONS.PRINT.WIDTH,
+            CANVAS_DIMENSIONS.PRINT.HEIGHT,
+          );
+          p.noStroke();
+          // Use relativeGenerationValue for opacity (default to 100 if missing)
+          const opacity = ind.relativeGenerationValue ?? 100;
+          const colors = ['#0000ff', '#ffff00'];
+          const lerpAmount = (ind.relativeGenerationValue ?? 100) / 100;
+          const color = p.lerpColor(
+            p.color(colors[0]),
+            p.color(colors[1]),
+            lerpAmount,
+          );
+          color.setAlpha(opacity);
+
+          p.fill(color);
+
+          const maxSize = 24; // Larger for print
+          const size = Math.min(
+            maxSize,
+            24 + (ind.relativeGenerationValue ?? 0) * 12,
+          );
+
+          p.circle(x, y, size);
+
+          // Show names for print version
+          p.fill(0);
+          p.textSize(12); // Larger text for print
+          p.textAlign(p.CENTER);
+          p.text(ind.name, x, y + 35);
+        }
+      };
+    };
+
+    // Create the high-res p5 instance
+    const printP5 = new p5(printSketch, tempContainer);
+
+    // Wait for the sketch to render, then save
+    setTimeout(() => {
+      printP5.saveCanvas(PRINT_SETTINGS.PRINT_FILENAME, EXPORT_FORMATS.PNG);
+
+      // Clean up
+      printP5.remove();
+      document.body.removeChild(tempContainer);
 
       console.log('✅ Print export completed');
       setExportStatus('Print-ready export completed!');
-    } else {
-      console.log('❌ No p5 instance available');
-      setExportStatus('Error: No canvas available');
-    }
-  }, []);
+    }, 100);
+  }, [familyData]);
 
   return (
     <div
