@@ -47,7 +47,7 @@ export function useCanvasExport(): UseCanvasExportReturn {
           error: null,
         });
 
-        exportWebCanvas(p5Instance, options);
+        exportWebCanvasService(p5Instance, options);
 
         updateState({
           isExporting: false,
@@ -79,7 +79,7 @@ export function useCanvasExport(): UseCanvasExportReturn {
           error: null,
         });
 
-        await exportPrintCanvas(familyData, options);
+        await exportPrintCanvasService(familyData, options);
 
         updateState({
           isExporting: false,
