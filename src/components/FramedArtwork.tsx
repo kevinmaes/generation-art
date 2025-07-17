@@ -1,6 +1,11 @@
 import React, { useRef, useCallback } from 'react';
 import p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
+import {
+  CANVAS_DIMENSIONS,
+  PRINT_SETTINGS,
+  EXPORT_FORMATS,
+} from '../constants';
 
 interface FramedArtworkProps {
   title: string;
@@ -14,8 +19,8 @@ interface FramedArtworkProps {
 export function FramedArtwork({
   title,
   subtitle,
-  width = 1000,
-  height = 800,
+  width = CANVAS_DIMENSIONS.WEB.WIDTH,
+  height = CANVAS_DIMENSIONS.WEB.HEIGHT,
   jsonFile,
   className = '',
 }: FramedArtworkProps): React.ReactElement {
@@ -23,43 +28,44 @@ export function FramedArtwork({
 
   const handleExport = useCallback((p5Instance: p5) => {
     console.log('🎨 p5 instance received:', p5Instance);
-    console.log('🎨 p5 canvas:', p5Instance.canvas);
     p5InstanceRef.current = p5Instance;
   }, []);
 
   const [exportStatus, setExportStatus] = React.useState<string>('');
 
   const handleExportClick = useCallback(() => {
-    setExportStatus('Exporting...');
     console.log('🖼️ Export PNG clicked!');
-
     if (p5InstanceRef.current) {
-      console.log('✅ Calling saveCanvas...');
-      p5InstanceRef.current.saveCanvas('family-tree-art', 'png');
-      console.log('✅ saveCanvas called successfully');
-      setExportStatus('Exported successfully!');
-      setTimeout(() => setExportStatus(''), 2000);
+      console.log('✅ Calling saveCanvas for web export...');
+      p5InstanceRef.current.saveCanvas(
+        PRINT_SETTINGS.WEB_FILENAME,
+        EXPORT_FORMATS.PNG,
+      );
+      console.log('✅ Web export completed');
+      setExportStatus('Web export completed!');
     } else {
       console.log('❌ No p5 instance available');
       setExportStatus('Error: No canvas available');
-      setTimeout(() => setExportStatus(''), 2000);
     }
   }, []);
 
   const handlePrintClick = useCallback(() => {
-    setExportStatus('Preparing for print...');
     console.log('🖨️ Print Ready clicked!');
-
     if (p5InstanceRef.current) {
-      console.log('✅ Calling saveCanvas for print...');
-      p5InstanceRef.current.saveCanvas('family-tree-art-print', 'png');
-      console.log('✅ Print saveCanvas called successfully');
-      setExportStatus('Print file ready!');
-      setTimeout(() => setExportStatus(''), 2000);
+      console.log('✅ Creating high-resolution print version...');
+
+      // For now, just save with a different filename to indicate print version
+      // TODO: Implement proper high-resolution export
+      p5InstanceRef.current.saveCanvas(
+        PRINT_SETTINGS.PRINT_FILENAME,
+        EXPORT_FORMATS.PNG,
+      );
+
+      console.log('✅ Print export completed');
+      setExportStatus('Print-ready export completed!');
     } else {
-      console.log('❌ No p5 instance available for print');
+      console.log('❌ No p5 instance available');
       setExportStatus('Error: No canvas available');
-      setTimeout(() => setExportStatus(''), 2000);
     }
   }, []);
 

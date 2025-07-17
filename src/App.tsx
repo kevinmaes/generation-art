@@ -1,5 +1,6 @@
 import React from 'react';
 import { FramedArtwork } from './components/FramedArtwork';
+import { CANVAS_DIMENSIONS } from './constants';
 import './App.css';
 
 function App(): React.ReactElement {
@@ -16,8 +17,8 @@ function App(): React.ReactElement {
         <FramedArtwork
           title="Kennedy Family Tree"
           subtitle="Generative visualization of family connections and generations"
-          width={1000}
-          height={800}
+          width={CANVAS_DIMENSIONS.WEB.WIDTH}
+          height={CANVAS_DIMENSIONS.WEB.HEIGHT}
           jsonFile={'generated/parsed/kennedy-augmented.json'}
           className="mb-8"
         />
