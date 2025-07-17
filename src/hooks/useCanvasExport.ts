@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react';
-import p5 from 'p5';
-import type {
-  ExportOptions,
-  PrintExportOptions,
+import type p5 from 'p5';
+import {
+  exportWebCanvas as exportWebCanvasService,
+  exportPrintCanvas as exportPrintCanvasService,
+  type ExportOptions,
+  type PrintExportOptions,
 } from '../services/ExportService';
 import type { AugmentedIndividual } from '../components/types';
 
