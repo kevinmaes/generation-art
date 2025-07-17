@@ -22,20 +22,44 @@ export function FramedArtwork({
   const p5InstanceRef = useRef<p5 | null>(null);
 
   const handleExport = useCallback((p5Instance: p5) => {
+    console.log('🎨 p5 instance received:', p5Instance);
+    console.log('🎨 p5 canvas:', p5Instance.canvas);
     p5InstanceRef.current = p5Instance;
   }, []);
 
+  const [exportStatus, setExportStatus] = React.useState<string>('');
+
   const handleExportClick = useCallback(() => {
+    setExportStatus('Exporting...');
+    console.log('🖼️ Export PNG clicked!');
+
     if (p5InstanceRef.current) {
+      console.log('✅ Calling saveCanvas...');
       p5InstanceRef.current.saveCanvas('family-tree-art', 'png');
+      console.log('✅ saveCanvas called successfully');
+      setExportStatus('Exported successfully!');
+      setTimeout(() => setExportStatus(''), 2000);
+    } else {
+      console.log('❌ No p5 instance available');
+      setExportStatus('Error: No canvas available');
+      setTimeout(() => setExportStatus(''), 2000);
     }
   }, []);
 
   const handlePrintClick = useCallback(() => {
+    setExportStatus('Preparing for print...');
+    console.log('🖨️ Print Ready clicked!');
+
     if (p5InstanceRef.current) {
-      // For printing, we can use the browser's print functionality
-      // or save as high-res PNG for printing
+      console.log('✅ Calling saveCanvas for print...');
       p5InstanceRef.current.saveCanvas('family-tree-art-print', 'png');
+      console.log('✅ Print saveCanvas called successfully');
+      setExportStatus('Print file ready!');
+      setTimeout(() => setExportStatus(''), 2000);
+    } else {
+      console.log('❌ No p5 instance available for print');
+      setExportStatus('Error: No canvas available');
+      setTimeout(() => setExportStatus(''), 2000);
     }
   }, []);
 
@@ -111,6 +135,9 @@ export function FramedArtwork({
             </button>
           </div>
         </div>
+        {exportStatus && (
+          <div className="text-sm text-gray-600 mt-2">{exportStatus}</div>
+        )}
       </div>
     </div>
   );
