@@ -1,43 +1,5 @@
 import p5 from 'p5';
 
-export interface CanvasConfig {
-  width: number;
-  height: number;
-  renderer?: 'P2D' | 'WEBGL';
-  pixelDensity?: number;
-}
-
-export interface CanvasInfo {
-  canvas: HTMLCanvasElement;
-  width: number;
-  height: number;
-  p5Instance: p5;
-}
-
-/**
- * Create a p5 canvas with the specified configuration
- */
-export function createCanvas(
-  container: HTMLElement,
-  sketch: (p: p5) => void,
-): CanvasInfo {
-  // Create p5 instance
-  const p5Instance = new p5(sketch, container);
-
-  // Get the canvas element
-  const canvas = container.querySelector('canvas') as HTMLCanvasElement;
-  if (!canvas) {
-    throw new Error('Canvas element not found after p5 initialization');
-  }
-
-  return {
-    canvas,
-    width: p5Instance.width,
-    height: p5Instance.height,
-    p5Instance,
-  };
-}
-
 /**
  * Create a temporary canvas for export purposes
  */
