@@ -45,7 +45,7 @@ export function ArtGenerator({
     p5InstanceRef.current = new p5(sketch, containerRef.current);
 
     // Call onExportReady with the p5 instance once it's created
-    if (onExportReady && p5InstanceRef.current) {
+    if (onExportReady) {
       onExportReady(p5InstanceRef.current);
     }
 

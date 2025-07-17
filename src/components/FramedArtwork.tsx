@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from 'react';
-import p5 from 'p5';
+import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { CANVAS_DIMENSIONS } from '../constants';
 import { useGedcomData } from '../hooks/useGedcomData';
@@ -27,7 +27,6 @@ export function FramedArtwork({
   // Get the family data for print export
   const { data: familyData } = useGedcomData({
     jsonFile: jsonFile ?? '',
-    onError: () => {},
   });
 
   // Use the export hook
@@ -52,7 +51,7 @@ export function FramedArtwork({
       return;
     }
 
-    exportPrintCanvas(familyData);
+    void exportPrintCanvas(familyData);
   }, [familyData, exportPrintCanvas]);
 
   return (
