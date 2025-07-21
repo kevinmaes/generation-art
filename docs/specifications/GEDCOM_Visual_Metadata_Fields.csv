@@ -1,0 +1,25 @@
+Category,Metadata Field,Derived From,Contains PII,Mapped Data Type,Example Value
+Individual,Lifespan,Years between BIRT and DEAT,Yes,Float (0-1 normalized lifespan relative to max lifespan),"e.g., 0.75"
+Individual,Age at Marriage,Years between BIRT and MARR,Yes,Float (normalized),"e.g., 0.35"
+Individual,Is Alive,Based on absence of DEAT,Yes,Boolean,True/False
+Individual,Gender,SEX field,Yes,"Enum: ['M', 'F', 'U']",F
+Individual,Birth Month,Month from BIRT date,Yes,Integer (1–12),6
+Individual,Zodiac Sign (Western),Derived from birth date,No,String,Gemini
+Individual,Zodiac Sign (Chinese),Derived from birth year,No,String,Rat
+Individual,Birth Country Frequency,Relative freq. of birth country in GEDCOM,Yes,Float (0–1),0.23
+Individual,Similarity to Root (Age),Abs diff from root age,Yes,Float (0–1 normalized),0.18
+Individual,Similarity to Root (Nationality),Same country of birth as root?,Yes,Boolean,True
+Family,Number of Children,Count of CHIL records,No,Integer,3
+Family,Sibling Age Gap,Average age diff between siblings,Yes,Float (normalized),0.12
+Family,Parents' Age at First Child,Parent BIRT to first CHIL BIRT,Yes,Float (normalized),0.42
+Family,Number of Marriages,Number of FAM records per individual,Yes,Integer,2
+Relationship,Generation Distance from Root,Shortest path from individual to root,No,Integer,3
+Relationship,Blood Relationship,Direct lineage?,No,Boolean,True
+Relationship,Siblings,Shared FAMC record,No,Boolean,True
+Cluster,Individuals per Country,Count per country,No,Float (0–1 per cluster),0.14
+Cluster,Average Lifespan,Avg lifespan of individuals in cluster,Yes,Float (0–1 normalized),0.65
+Cluster,Most Common Zodiac Sign,Mode of signs in cluster,No,String,Leo
+Tree,Total Individuals,Count of INDI records,No,Integer,1523
+Tree,Depth of Tree,Max generation distance,No,Integer,7
+Tree,Birth Countries Distribution,Proportion per country,Yes,Dict of Floats,"{'US': 0.45, 'FR': 0.21}"
+Tree,Number of Root Descendants,How many individuals from root,No,Integer,1423
