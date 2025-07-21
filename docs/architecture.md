@@ -175,16 +175,23 @@ export function createPrintSketch(data: ArtData): p5;
 
 ### 4. UI Layer
 
-#### `GedcomLoader.tsx`
+#### CLI Build Process
 
-**Location**: `src/components/GedcomLoader.tsx`
-**Purpose**: File upload and loading component
+**Location**: `src/scripts/build-gedcom.ts`
+**Purpose**: Process GEDCOM files locally via CLI to generate safe JSON output
 **Responsibilities**:
 
-- Handle file selection
-- Validate file format
-- Show loading states
-- Display error messages
+- GEDCOM file processing and validation
+- PII masking and metadata extraction
+- JSON generation to git-ignored directory
+- Error handling and validation
+
+**Key Features**:
+
+- Local-only processing (no PII sent to remote)
+- Comprehensive metadata extraction
+- PII masking for privacy
+- Output to git-ignored `generated/` directory
 
 #### `FramedArtwork.tsx`
 
@@ -237,7 +244,7 @@ export function createPrintSketch(data: ArtData): p5;
 ### 1. Unidirectional Data Flow
 
 ```
-File Upload → Parser → Data Enhancement → Metadata → Art Generation → Display
+CLI Build → Parser → Data Enhancement → Metadata → JSON Output → Art Generation → Display
 ```
 
 ### 2. Component Communication

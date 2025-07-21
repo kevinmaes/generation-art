@@ -8,7 +8,7 @@ This diagram shows the complete data flow from GEDCOM file upload to final rende
 
 ```mermaid
 graph TD
-    A["📁 GEDCOM File<br/>.ged format"] --> B["📤 File Upload<br/>GedcomLoader.tsx"]
+    A["📁 GEDCOM File<br/>.ged format"] --> B["🖥️ CLI Build Process<br/>build-gedcom.ts"]
     B --> C["🔍 File Validation<br/>Error handling"]
     C --> D["📝 Raw GEDCOM Text<br/>String content"]
     D --> E["🔧 Parser Selection<br/>GedcomParserFacade"]
@@ -17,11 +17,12 @@ graph TD
     G --> H["🔄 Data Enhancement<br/>build-gedcom.ts"]
     H --> I["📈 Metadata Extraction<br/>metadata-extraction-config.ts"]
     I --> J["🔒 PII Masking<br/>transformation-pipeline.ts"]
-    J --> K["🎨 Art Generation<br/>FamilyTreeSketch.ts"]
-    K --> L["🖼️ Canvas Rendering<br/>P5.js instance"]
-    L --> M["💻 Web Display<br/>ArtGenerator.tsx"]
-    L --> N["📥 Export PNG<br/>useCanvasExport.ts"]
-    L --> O["🖨️ Print Export<br/>ExportService.ts"]
+    J --> K["💾 Generated JSON<br/>generated/parsed/ (git ignored)"]
+    K --> L["🎨 Art Generation<br/>FamilyTreeSketch.ts"]
+    L --> M["🖼️ Canvas Rendering<br/>P5.js instance"]
+    M --> N["💻 Web Display<br/>ArtGenerator.tsx"]
+    M --> O["📥 Export PNG<br/>useCanvasExport.ts"]
+    M --> P["🖨️ Print Export<br/>ExportService.ts"]
 
     style A fill:#e1f5fe
     style M fill:#c8e6c9
@@ -33,8 +34,8 @@ graph TD
 
 ```mermaid
 graph LR
-    subgraph "Input Layer"
-        A1[File Upload]
+    subgraph "CLI Build Layer"
+        A1[CLI Build Process]
         A2[File Validation]
         A3[Text Extraction]
     end
@@ -59,9 +60,10 @@ graph LR
     end
 
     subgraph "Output Layer"
-        E1[Web Display]
-        E2[PNG Export]
-        E3[Print Export]
+        E1[Generated JSON]
+        E2[Web Display]
+        E3[PNG Export]
+        E4[Print Export]
     end
 
     A1 --> A2 --> A3
@@ -71,20 +73,21 @@ graph LR
     B2 --> C1
     B3 --> C1
     C1 --> C2 --> C3 --> C4
-    C4 --> D1 --> D2 --> D3
-    D3 --> E1
+    C4 --> E1
+    E1 --> D1 --> D2 --> D3
     D3 --> E2
     D3 --> E3
+    D3 --> E4
 ```
 
 ## Data Transformation Stages
 
-### Stage 1: File Input
+### Stage 1: CLI Build Process
 
 - **Input**: GEDCOM file (.ged format)
-- **Process**: File upload, validation, text extraction
+- **Process**: CLI build, validation, text extraction
 - **Output**: Raw GEDCOM text string
-- **Components**: `GedcomLoader.tsx`, file validation logic
+- **Components**: `build-gedcom.ts`, file validation logic
 
 ### Stage 2: Parsing
 

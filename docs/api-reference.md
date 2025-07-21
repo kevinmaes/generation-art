@@ -380,21 +380,30 @@ interface ArtGeneratorProps {
 - `data`: Array of augmented individuals
 - `onError`: Optional error callback
 
-### `GedcomLoader`
+### CLI Build Process
 
-File upload and loading component.
+Process GEDCOM files locally via CLI to generate safe JSON output.
 
-```typescript
-interface GedcomLoaderProps {
-  onDataLoaded?: (data: AugmentedIndividual[]) => void;
-  onError?: (error: string) => void;
-}
+**Usage**:
+
+```bash
+# Build all GEDCOM files in examples/ and gedcom/ directories
+pnpm build:gedcom
+
+# Build a specific GEDCOM file
+pnpm build:gedcom:example
+
+# Build with custom file
+pnpm build:gedcom ./path/to/file.ged
 ```
 
-**Props**:
+**Output**: Generated JSON files in `generated/parsed/` (git-ignored)
 
-- `onDataLoaded`: Callback when data is loaded
-- `onError`: Callback for errors
+**Security Features**:
+
+- Local-only processing (no PII sent to remote)
+- PII masking in metadata
+- Output to git-ignored directory
 
 ### `FramedArtwork`
 
