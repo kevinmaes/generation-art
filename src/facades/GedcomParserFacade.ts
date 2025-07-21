@@ -1,26 +1,6 @@
 import { ReadGed } from 'gedcom-ts';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
-
-// Define specific types for individuals and families
-export interface Individual {
-  id: string;
-  name: string;
-  birth?: { date?: string; place?: string };
-  death?: { date?: string; place?: string };
-}
-
-export interface Family {
-  id: string;
-  husband?: Individual;
-  wife?: Individual;
-  children: Individual[];
-}
-
-// Define a type for the parsed GEDCOM data
-export interface GedcomData {
-  individuals: Individual[];
-  families: Family[];
-}
+import type { Individual, Family, GedcomData } from '../types';
 
 // Facade Interface
 export interface GedcomParserFacade {
@@ -43,6 +23,18 @@ export class GedcomTsParserFacade implements GedcomParserFacade {
       name: person.name as string,
       birth: person.birth as { date?: string; place?: string },
       death: person.death as { date?: string; place?: string },
+      parents: Array.isArray(person.parents)
+        ? (person.parents as string[])
+        : [],
+      spouses: Array.isArray(person.spouses)
+        ? (person.spouses as string[])
+        : [],
+      children: Array.isArray(person.children)
+        ? (person.children as string[])
+        : [],
+      siblings: Array.isArray(person.siblings)
+        ? (person.siblings as string[])
+        : [],
     }));
 
     const families: Family[] = importedData.map((person) => ({
@@ -68,6 +60,10 @@ export class SimpleGedcomParserFacade implements GedcomParserFacade {
       name: ind.name,
       birth: { date: ind.birthDate },
       death: { date: ind.deathDate },
+      parents: [], // SimpleGedcomParser doesn't track parents
+      spouses: [], // SimpleGedcomParser doesn't track spouses
+      children: [], // SimpleGedcomParser doesn't track children
+      siblings: [], // SimpleGedcomParser doesn't track siblings
     }));
 
     const families: Family[] = parsedData.families.map((fam) => ({

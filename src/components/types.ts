@@ -1,21 +1,7 @@
-import type { Individual } from '../facades/GedcomParserFacade';
+import type { AugmentedIndividual as BaseAugmentedIndividual } from '../types';
 
 /**
- * Augmented individual data type, extends the Individual type from the GedcomParserFacade
- * Includes additional fields for graph visualization or art generation
+ * Augmented individual data type for components
+ * Re-exports the shared type for consistency
  */
-export interface AugmentedIndividual extends Individual {
-  birth: {
-    date?: string;
-    place?: string;
-  };
-  death: {
-    date?: string;
-    place?: string;
-  };
-  parents: string[];
-  spouses: string[];
-  children: string[];
-  siblings: string[];
-  relativeGenerationValue?: number;
-}
+export type AugmentedIndividual = BaseAugmentedIndividual;
