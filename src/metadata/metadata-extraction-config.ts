@@ -1,4 +1,4 @@
-import type { Family, AugmentedIndividual } from '../types';
+import type { Family, Individual } from '../types';
 
 /**
  * Configuration for extracting and transforming metadata from GEDCOM data
@@ -50,11 +50,11 @@ export interface MetadataFieldConfig {
 }
 
 export interface TransformationContext {
-  individual?: AugmentedIndividual;
+  individual?: Individual;
   family?: Family;
-  allIndividuals?: AugmentedIndividual[];
+  allIndividuals?: Individual[];
   allFamilies?: Family[];
-  rootIndividual?: AugmentedIndividual;
+  rootIndividual?: Individual;
 }
 
 /**
@@ -77,7 +77,7 @@ export const calculateLifespan = (
  */
 export const normalizeLifespan = (
   lifespan: number,
-  allIndividuals: AugmentedIndividual[],
+  allIndividuals: Individual[],
 ): number => {
   const maxLifespan = Math.max(
     ...allIndividuals
@@ -97,7 +97,7 @@ export const normalizeLifespan = (
 /**
  * Pure function to determine if individual is alive
  */
-export const isIndividualAlive = (individual: AugmentedIndividual): boolean => {
+export const isIndividualAlive = (individual: Individual): boolean => {
   return !individual.death?.date;
 };
 
@@ -166,24 +166,6 @@ export const calculateZodiacSign = (birthDate: string): string | null => {
  */
 export const countFamilyChildren = (family: Family): number => {
   return family.children.length;
-};
-
-/**
- * Pure function to calculate tree depth from generations
- */
-export const calculateTreeDepth = (
-  individuals: AugmentedIndividual[],
-): number => {
-  const generations = individuals
-    .map((ind) => ind.generation)
-    .filter((gen): gen is number => gen !== null && gen !== undefined);
-
-  if (generations.length === 0) return 0;
-
-  const minGen = Math.min(...generations);
-  const maxGen = Math.max(...generations);
-
-  return maxGen - minGen + 1;
 };
 
 /**
@@ -313,8 +295,10 @@ export const metadataExtractionConfig: Record<string, MetadataFieldConfig> = {
     requiresMasking: false,
     exampleValue: 7,
     transform: (context: TransformationContext) => {
+      // For now, return a simple calculation based on number of individuals
+      // This will be enhanced when generation calculation is implemented
       if (!context.allIndividuals) return 0;
-      return calculateTreeDepth(context.allIndividuals);
+      return Math.ceil(Math.log2(context.allIndividuals.length + 1));
     },
   },
 };

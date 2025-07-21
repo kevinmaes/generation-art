@@ -6,7 +6,6 @@ import {
   extractBirthMonth,
   calculateZodiacSign,
   countFamilyChildren,
-  calculateTreeDepth,
   getMetadataFieldsByScope,
   getMetadataFieldsRequiringMasking,
 } from './metadata-extraction-config';
@@ -175,69 +174,6 @@ describe('metadataExtractionConfig - Pure Functions', () => {
     it('should handle undefined children', () => {
       const family = { id: 'F1', children: [] };
       expect(countFamilyChildren(family)).toBe(0);
-    });
-  });
-
-  describe('calculateTreeDepth', () => {
-    it('should calculate tree depth correctly', () => {
-      const individuals = [
-        {
-          id: '1',
-          name: 'Person 1',
-          generation: 0,
-          parents: [],
-          spouses: [],
-          children: [],
-          siblings: [],
-        },
-        {
-          id: '2',
-          name: 'Person 2',
-          generation: 1,
-          parents: [],
-          spouses: [],
-          children: [],
-          siblings: [],
-        },
-        {
-          id: '3',
-          name: 'Person 3',
-          generation: 2,
-          parents: [],
-          spouses: [],
-          children: [],
-          siblings: [],
-        },
-        {
-          id: '4',
-          name: 'Person 4',
-          generation: -1,
-          parents: [],
-          spouses: [],
-          children: [],
-          siblings: [],
-        },
-      ];
-      expect(calculateTreeDepth(individuals)).toBe(4); // -1 to 2 = 4 levels
-    });
-
-    it('should return 0 for empty array', () => {
-      expect(calculateTreeDepth([])).toBe(0);
-    });
-
-    it('should handle single generation', () => {
-      const individuals = [
-        {
-          id: '1',
-          name: 'Person',
-          generation: 0,
-          parents: [],
-          spouses: [],
-          children: [],
-          siblings: [],
-        },
-      ];
-      expect(calculateTreeDepth(individuals)).toBe(1);
     });
   });
 

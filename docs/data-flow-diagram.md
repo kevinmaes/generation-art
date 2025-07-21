@@ -138,14 +138,14 @@ The data transformation pipeline uses these key types:
 
 - **Input**: `string` (Raw GEDCOM text)
 - **Parsed**: `Individual`, `Family` (Structured GEDCOM data)
-- **Enhanced**: `AugmentedIndividual` (With computed properties)
-- **Output**: `IndividualWithMetadata` (With art generation metadata)
+- **Enhanced**: `AugmentedIndividual` (With metadata property containing non-PII computed data)
+- **Output**: `AugmentedIndividual` (With art generation metadata)
 
 ### Key Transformations
 
 1. **Raw GEDCOM** → **Parsed Objects**: GEDCOM tags mapped to TypeScript properties
-2. **Parsed Objects** → **Augmented Objects**: Computed properties added (generation, relationships)
-3. **Augmented Objects** → **Metadata Objects**: Art-specific metadata extracted
+2. **Parsed Objects** → **Augmented Objects**: Metadata property added with computed/transformed data
+3. **Augmented Objects** → **LLM-Safe Data**: Only metadata property sent to external systems
 
 See **[Types Documentation](types.md)** for detailed interface definitions and GEDCOM property mappings.
 

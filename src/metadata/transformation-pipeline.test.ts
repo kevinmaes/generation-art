@@ -4,10 +4,10 @@ import {
   maskLifespan,
   maskBirthMonth,
 } from './transformation-pipeline';
-import type { AugmentedIndividual, Family } from '../types';
+import type { Individual, Family } from '../types';
 
 describe('MetadataTransformationPipeline - Functional', () => {
-  const mockIndividuals: AugmentedIndividual[] = [
+  const mockIndividuals: Individual[] = [
     {
       id: 'I1',
       name: 'John Doe',
@@ -17,8 +17,6 @@ describe('MetadataTransformationPipeline - Functional', () => {
       spouses: [],
       children: [],
       siblings: [],
-      generation: 0,
-      relativeGenerationValue: 100,
     },
     {
       id: 'I2',
@@ -29,8 +27,6 @@ describe('MetadataTransformationPipeline - Functional', () => {
       spouses: [],
       children: [],
       siblings: [],
-      generation: 0,
-      relativeGenerationValue: 100,
     },
   ];
 
@@ -115,7 +111,7 @@ describe('MetadataTransformationPipeline - Functional', () => {
 
       expect(result.metadata).toBeDefined();
       expect(result.metadata.totalIndividuals).toBe(2);
-      expect(result.metadata.depthOfTree).toBe(1); // Only one generation
+      expect(result.metadata.depthOfTree).toBe(2); // Based on number of individuals: Math.ceil(Math.log2(2 + 1)) = 2
     });
 
     it('should be pure - same input produces same output', () => {
@@ -183,7 +179,7 @@ describe('MetadataTransformationPipeline - Functional', () => {
 
   describe('Edge Cases', () => {
     it('should handle individuals without birth dates', () => {
-      const individualsWithoutBirth: AugmentedIndividual[] = [
+      const individualsWithoutBirth: Individual[] = [
         {
           id: 'I3',
           name: 'Unknown Person',
@@ -193,8 +189,6 @@ describe('MetadataTransformationPipeline - Functional', () => {
           spouses: [],
           children: [],
           siblings: [],
-          generation: 0,
-          relativeGenerationValue: 100,
         },
       ];
 
@@ -219,7 +213,7 @@ describe('MetadataTransformationPipeline - Functional', () => {
     });
 
     it('should handle invalid dates gracefully', () => {
-      const individualsWithInvalidDates: AugmentedIndividual[] = [
+      const individualsWithInvalidDates: Individual[] = [
         {
           id: 'I4',
           name: 'Invalid Date Person',
@@ -229,8 +223,6 @@ describe('MetadataTransformationPipeline - Functional', () => {
           spouses: [],
           children: [],
           siblings: [],
-          generation: 0,
-          relativeGenerationValue: 100,
         },
       ];
 

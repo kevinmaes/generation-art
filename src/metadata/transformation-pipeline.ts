@@ -3,21 +3,23 @@
  * Pure functions for extracting and transforming metadata from GEDCOM data
  */
 
-import { getMetadataFieldsByScope } from './metadata-extraction-config';
 import type {
-  MetadataFieldConfig,
-  TransformationContext,
-} from './metadata-extraction-config';
-import type {
+  Individual,
+  Family,
   IndividualMetadata,
   FamilyMetadata,
   TreeMetadata,
-  IndividualWithMetadata,
+  AugmentedIndividual,
   FamilyWithMetadata,
   GedcomDataWithMetadata,
-  Family,
-  Individual,
 } from '../types';
+import {
+  metadataExtractionConfig,
+  getMetadataFieldsByScope,
+  type MetadataFieldConfig,
+  type TransformationContext,
+} from './metadata-extraction-config';
+import { isNumber, isBoolean, isBirthMonth } from '../types';
 
 /**
  * PII Masking utilities - pure functions
@@ -170,13 +172,15 @@ export const extractIndividualMetadata = (
 };
 
 /**
- * Pure function to extract metadata for a family
+ * Pure function to extract family metadata
  */
 export const extractFamilyMetadata = (
   family: Family,
   context: Omit<TransformationContext, 'family'>,
 ): FamilyMetadata => {
-  const metadata: FamilyMetadata = {};
+  const metadata: FamilyMetadata = {
+    numberOfChildren: family.children.length,
+  };
 
   // Get family-level metadata fields
   const familyFields = getMetadataFieldsByScope('family');
@@ -280,7 +284,7 @@ export const extractTreeMetadata = (
 export const transformIndividualsWithMetadata = (
   individuals: Individual[],
   context: Omit<TransformationContext, 'individual' | 'family'>,
-): IndividualWithMetadata[] => {
+): AugmentedIndividual[] => {
   return individuals.map((individual) => {
     const metadata = extractIndividualMetadata(individual, context);
 
@@ -296,11 +300,11 @@ export const transformIndividualsWithMetadata = (
  */
 export const transformFamiliesWithMetadata = (
   families: Family[],
-  individualsWithMetadata: IndividualWithMetadata[],
+  individualsWithMetadata: AugmentedIndividual[],
   context: Omit<TransformationContext, 'individual' | 'family'>,
 ): FamilyWithMetadata[] => {
   // Create lookup for individuals with metadata
-  const individualsById = new Map<string, IndividualWithMetadata>();
+  const individualsById = new Map<string, AugmentedIndividual>();
   individualsWithMetadata.forEach((ind) => {
     individualsById.set(ind.id, ind);
   });
@@ -316,7 +320,7 @@ export const transformFamiliesWithMetadata = (
       wife: family.wife ? individualsById.get(family.wife.id) : undefined,
       children: family.children
         .map((child) => individualsById.get(child.id))
-        .filter((ind): ind is IndividualWithMetadata => ind !== undefined),
+        .filter((ind): ind is AugmentedIndividual => ind !== undefined),
       metadata,
     };
   });

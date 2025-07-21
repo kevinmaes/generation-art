@@ -8,15 +8,21 @@ import {
 } from 'fs/promises';
 import { join, basename, extname } from 'path';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
+import type {
+  Individual,
+  AugmentedIndividual,
+  IndividualMetadata,
+} from '../types';
 
-interface Individual {
+// Local interfaces that match SimpleGedcomParser output
+interface ParsedIndividual {
   id: string;
   name: string;
   birthDate?: string;
   deathDate?: string;
 }
 
-interface Family {
+interface ParsedFamily {
   id: string;
   husband: string;
   wife: string;
@@ -25,15 +31,12 @@ interface Family {
 }
 
 interface GedcomData {
-  individuals: Individual[];
-  families: Family[];
+  individuals: ParsedIndividual[];
+  families: ParsedFamily[];
 }
 
-interface AugmentedIndividual extends Individual {
-  parents: string[];
-  spouses: string[];
-  children: string[];
-  siblings: string[];
+// Temporary interface for individuals with relationships
+interface IndividualWithRelationships extends Individual {
   generation?: number | null;
   relativeGenerationValue?: number;
 }
@@ -46,9 +49,21 @@ interface BuildConfig {
 
 // Extract augmentation logic from the existing script
 function augmentIndividuals(data: GedcomData): AugmentedIndividual[] {
+  // Convert ParsedIndividual to Individual
+  const individuals: Individual[] = data.individuals.map((parsed) => ({
+    id: parsed.id,
+    name: parsed.name,
+    birth: parsed.birthDate ? { date: parsed.birthDate } : undefined,
+    death: parsed.deathDate ? { date: parsed.deathDate } : undefined,
+    parents: [],
+    spouses: [],
+    children: [],
+    siblings: [],
+  }));
+
   // Build lookup for individuals
   const individualsById: Record<string, Individual> = {};
-  data.individuals.forEach((ind) => {
+  individuals.forEach((ind) => {
     individualsById[ind.id] = ind;
   });
 
@@ -94,95 +109,112 @@ function augmentIndividuals(data: GedcomData): AugmentedIndividual[] {
     }
   }
 
-  // Augment individuals
-  const augmented: AugmentedIndividual[] = data.individuals.map((ind) => ({
-    ...ind,
-    parents: Array.from(parentsMap[ind.id] ?? new Set()),
-    spouses: Array.from(spousesMap[ind.id] ?? new Set()),
-    children: Array.from(childrenMap[ind.id] ?? new Set()),
-    siblings: Array.from(siblingsMap[ind.id] ?? new Set()),
-  }));
+  // Augment individuals with relationships
+  const individualsWithRelationships: IndividualWithRelationships[] =
+    individuals.map((ind) => ({
+      ...ind,
+      parents: Array.from(parentsMap[ind.id] ?? new Set()),
+      spouses: Array.from(spousesMap[ind.id] ?? new Set()),
+      children: Array.from(childrenMap[ind.id] ?? new Set()),
+      siblings: Array.from(siblingsMap[ind.id] ?? new Set()),
+    }));
 
-  // Assign generation numbers to individuals
-  function assignGenerations(
-    individuals: AugmentedIndividual[],
-    primaryId: string,
-  ): void {
-    const genMap: Record<string, number> = {};
-    const queue: string[] = [];
-    genMap[primaryId] = 0;
-    queue.push(primaryId);
-    const individualsById: Record<string, AugmentedIndividual> = {};
-    individuals.forEach((ind) => {
-      individualsById[ind.id] = ind;
-    });
+  // Assign generations
+  assignGenerations(
+    individualsWithRelationships,
+    individualsWithRelationships[0]?.id || '',
+  );
 
-    while (queue.length > 0) {
-      const id = queue.shift() ?? '';
-      const gen = genMap[id];
-      const ind = individualsById[id];
-      for (const parentId of ind.parents) {
-        if (!(parentId in genMap)) {
-          genMap[parentId] = gen - 1;
-          queue.push(parentId);
-        }
-      }
-      for (const childId of ind.children) {
-        if (!(childId in genMap)) {
-          genMap[childId] = gen + 1;
-          queue.push(childId);
-        }
-      }
-      for (const spouseId of ind.spouses) {
-        if (!(spouseId in genMap)) {
-          genMap[spouseId] = gen;
-          queue.push(spouseId);
-        }
-      }
-    }
-    // Assign generation to each individual
-    for (const ind of individuals) {
-      ind.generation = genMap[ind.id] || null;
-    }
-  }
+  // Assign relative generation values
+  assignRelativeGenerationValue(individualsWithRelationships);
 
-  // Assign relativeGenerationValue (opacity) based on generation distance
-  function assignRelativeGenerationValue(
-    individuals: AugmentedIndividual[],
-  ): void {
-    // Filter out individuals without a generation
-    const gens = individuals
-      .map((ind) => ind.generation)
-      .filter((g) => g !== null && g !== undefined);
-    if (gens.length === 0) return;
-    const minGen = Math.min(...gens);
-    const maxGen = Math.max(...gens);
-    const maxAbsGen = Math.max(Math.abs(minGen), Math.abs(maxGen));
+  // Create metadata for each individual
+  const augmented: AugmentedIndividual[] = individualsWithRelationships.map(
+    (ind) => {
+      const metadata: IndividualMetadata = {
+        generation: ind.generation,
+        relativeGenerationValue: ind.relativeGenerationValue,
+      };
 
-    for (const ind of individuals) {
-      if (ind.generation === null || ind.generation === undefined) {
-        ind.relativeGenerationValue = 10;
-        continue;
-      }
-      if (maxAbsGen === 0) {
-        ind.relativeGenerationValue = 100;
-      } else {
-        // Linear interpolation: 0 -> 100, farthest -> 10
-        const rel = Math.abs(ind.generation) / maxAbsGen;
-        ind.relativeGenerationValue = Math.round(100 - rel * 90);
-      }
-    }
-  }
-
-  // Find a primary individual (first one with children or first one available)
-  const primaryIndividual =
-    augmented.find((ind) => ind.children.length > 0) ?? augmented[0];
-  const PRIMARY_ID = primaryIndividual.id || 'I1';
-
-  assignGenerations(augmented, PRIMARY_ID);
-  assignRelativeGenerationValue(augmented);
+      return {
+        ...ind,
+        metadata,
+      };
+    },
+  );
 
   return augmented;
+}
+
+// Assign generation numbers to individuals
+function assignGenerations(
+  individuals: IndividualWithRelationships[],
+  primaryId: string,
+): void {
+  const genMap: Record<string, number> = {};
+  const queue: string[] = [];
+  genMap[primaryId] = 0;
+  queue.push(primaryId);
+  const individualsById: Record<string, IndividualWithRelationships> = {};
+  individuals.forEach((ind) => {
+    individualsById[ind.id] = ind;
+  });
+
+  while (queue.length > 0) {
+    const id = queue.shift() ?? '';
+    const gen = genMap[id];
+    const ind = individualsById[id];
+    for (const parentId of ind.parents) {
+      if (!(parentId in genMap)) {
+        genMap[parentId] = gen - 1;
+        queue.push(parentId);
+      }
+    }
+    for (const childId of ind.children) {
+      if (!(childId in genMap)) {
+        genMap[childId] = gen + 1;
+        queue.push(childId);
+      }
+    }
+    for (const spouseId of ind.spouses) {
+      if (!(spouseId in genMap)) {
+        genMap[spouseId] = gen;
+        queue.push(spouseId);
+      }
+    }
+  }
+  // Assign generation to each individual
+  for (const ind of individuals) {
+    ind.generation = genMap[ind.id] || null;
+  }
+}
+
+// Assign relativeGenerationValue (opacity) based on generation distance
+function assignRelativeGenerationValue(
+  individuals: IndividualWithRelationships[],
+): void {
+  // Filter out individuals without a generation
+  const gens = individuals
+    .map((ind) => ind.generation)
+    .filter((g) => g !== null && g !== undefined);
+  if (gens.length === 0) return;
+  const minGen = Math.min(...gens);
+  const maxGen = Math.max(...gens);
+  const maxAbsGen = Math.max(Math.abs(minGen), Math.abs(maxGen));
+
+  for (const ind of individuals) {
+    if (ind.generation === null || ind.generation === undefined) {
+      ind.relativeGenerationValue = 10;
+      continue;
+    }
+    if (maxAbsGen === 0) {
+      ind.relativeGenerationValue = 100;
+    } else {
+      // Linear interpolation: 0 -> 100, farthest -> 10
+      const rel = Math.abs(ind.generation) / maxAbsGen;
+      ind.relativeGenerationValue = Math.round(100 - rel * 90);
+    }
+  }
 }
 
 // Helper function to find media directory

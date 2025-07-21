@@ -5,7 +5,7 @@
 
 import { transformGedcomDataWithMetadata } from './transformation-pipeline';
 import { isNumber } from '../types';
-import type { Individual, Family, IndividualWithMetadata } from '../types';
+import type { Individual, Family, AugmentedIndividual } from '../types';
 
 /**
  * Pure function to add metadata to already augmented individuals
@@ -15,7 +15,7 @@ export const addMetadataToAugmentedIndividuals = (
   augmentedIndividuals: Individual[],
   families: Family[],
   rootIndividual?: Individual,
-): IndividualWithMetadata[] => {
+): AugmentedIndividual[] => {
   const result = transformGedcomDataWithMetadata(
     augmentedIndividuals,
     families,
@@ -29,7 +29,7 @@ export const addMetadataToAugmentedIndividuals = (
  * Useful for debugging or quick inspection
  */
 export const createMetadataSummary = (
-  individual: IndividualWithMetadata,
+  individual: AugmentedIndividual,
 ): Record<string, unknown> => {
   const summary: Record<string, unknown> = {
     id: individual.id,
@@ -47,13 +47,13 @@ export const createMetadataSummary = (
  * Example: find all living individuals, or individuals born in a specific month
  */
 export const filterIndividualsByMetadata = (
-  individuals: IndividualWithMetadata[],
-  criteria: Partial<Record<keyof IndividualWithMetadata['metadata'], unknown>>,
-): IndividualWithMetadata[] => {
+  individuals: AugmentedIndividual[],
+  criteria: Partial<Record<keyof AugmentedIndividual['metadata'], unknown>>,
+): AugmentedIndividual[] => {
   return individuals.filter((individual) => {
     return Object.entries(criteria).every(([key, value]) => {
       return (
-        individual.metadata[key as keyof IndividualWithMetadata['metadata']] ===
+        individual.metadata[key as keyof AugmentedIndividual['metadata']] ===
         value
       );
     });
@@ -64,7 +64,7 @@ export const filterIndividualsByMetadata = (
  * Pure function to get metadata statistics across all individuals
  */
 export const getMetadataStatistics = (
-  individuals: IndividualWithMetadata[],
+  individuals: AugmentedIndividual[],
 ): Record<string, unknown> => {
   const stats: Record<string, unknown> = {};
 

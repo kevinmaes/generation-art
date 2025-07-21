@@ -1,26 +1,16 @@
 /**
  * Shared metadata types used across the application
- * These types represent metadata structures for individuals, families, and trees
+ * These types represent metadata structures for families and trees
+ * Individual metadata is now part of the AugmentedIndividual type
  */
 
-import type { Individual, Family } from './gedcom';
-
-/**
- * Individual metadata fields
- */
-export interface IndividualMetadata {
-  lifespan?: number;
-  isAlive?: boolean;
-  birthMonth?: number;
-  zodiacSign?: string;
-  // Add more individual metadata fields as needed
-}
+import type { Family, AugmentedIndividual } from './gedcom';
 
 /**
  * Family metadata fields
  */
 export interface FamilyMetadata {
-  numberOfChildren?: number;
+  numberOfChildren: number;
   // Add more family metadata fields as needed
 }
 
@@ -34,13 +24,6 @@ export interface TreeMetadata {
 }
 
 /**
- * Individual with metadata attached
- */
-export interface IndividualWithMetadata extends Individual {
-  metadata: IndividualMetadata;
-}
-
-/**
  * Family with metadata attached
  */
 export interface FamilyWithMetadata extends Family {
@@ -51,7 +34,7 @@ export interface FamilyWithMetadata extends Family {
  * Complete GEDCOM data with metadata
  */
 export interface GedcomDataWithMetadata {
-  individuals: IndividualWithMetadata[];
+  individuals: AugmentedIndividual[];
   families: FamilyWithMetadata[];
   metadata: TreeMetadata;
 }

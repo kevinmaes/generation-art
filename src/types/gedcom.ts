@@ -4,7 +4,8 @@
  */
 
 /**
- * Base individual type - used across parsing, augmentation, and metadata
+ * Base individual type - contains only raw GEDCOM data
+ * All properties are directly extracted from GEDCOM tags
  */
 export interface Individual {
   id: string;
@@ -36,9 +37,23 @@ export interface GedcomData {
 }
 
 /**
- * Augmented individual with additional computed fields
+ * Augmented individual with metadata
+ * Extends Individual with a metadata property containing all computed/transformed data
+ * The metadata property contains no PII and is safe for external systems like LLMs
  */
 export interface AugmentedIndividual extends Individual {
+  metadata: IndividualMetadata;
+}
+
+/**
+ * Individual metadata - contains only non-PII computed/transformed data
+ * Safe for external systems like LLMs
+ */
+export interface IndividualMetadata {
+  lifespan?: number;
+  isAlive?: boolean;
+  birthMonth?: number;
+  zodiacSign?: string;
   generation?: number | null;
   relativeGenerationValue?: number;
 }

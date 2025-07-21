@@ -8,7 +8,7 @@ This document contains all the core type definitions used throughout the generat
 
 ### Individual
 
-Base individual type representing a person in the family tree.
+Base individual type representing a person in the family tree. Contains only raw GEDCOM data.
 
 ```typescript
 interface Individual {
@@ -74,39 +74,21 @@ interface GedcomData {
 
 ### AugmentedIndividual
 
-Extended individual with computed properties for art generation.
+Extended individual with metadata. Contains all raw GEDCOM data plus computed/transformed metadata that is safe for external systems like LLMs.
 
 ```typescript
 interface AugmentedIndividual extends Individual {
-  generation?: number | null; // GEDCOM: Computed from FAMC hierarchy
-  relativeGenerationValue?: number; // GEDCOM: Computed position in tree
-}
-```
-
-**Additional Properties:**
-
-- `generation`: Generation depth from root (computed from FAMC hierarchy)
-- `relativeGenerationValue`: Relative position within the tree (0-1 scale)
-
-### IndividualWithMetadata
-
-Individual with extracted metadata for art generation.
-
-```typescript
-interface IndividualWithMetadata extends AugmentedIndividual {
   metadata: IndividualMetadata;
 }
 ```
 
 **Additional Properties:**
 
-- `metadata`: Art-specific metadata extracted from individual data
-
-## Metadata Types
+- `metadata`: Non-PII computed/transformed data safe for external systems
 
 ### IndividualMetadata
 
-Art-specific metadata extracted from individual data.
+Art-specific metadata extracted from individual data. Contains only non-PII computed/transformed data safe for external systems like LLMs.
 
 ```typescript
 interface IndividualMetadata {
@@ -114,6 +96,8 @@ interface IndividualMetadata {
   isAlive?: boolean; // GEDCOM: Derived from presence/absence of DEAT tag
   birthMonth?: number; // GEDCOM: Derived from BIRT.DATE
   zodiacSign?: string; // GEDCOM: Derived from BIRT.DATE
+  generation?: number | null; // GEDCOM: Computed from FAMC hierarchy
+  relativeGenerationValue?: number; // GEDCOM: Computed position in tree
 }
 ```
 
@@ -123,6 +107,8 @@ interface IndividualMetadata {
 - `isAlive`: Living status based on presence of DEAT tag
 - `birthMonth`: Birth month (1-12) extracted from birth date
 - `zodiacSign`: Western zodiac sign calculated from birth date
+- `generation`: Generation depth from root (computed from FAMC hierarchy)
+- `relativeGenerationValue`: Relative position within the tree (0-1 scale)
 
 ### FamilyMetadata
 
@@ -342,7 +328,7 @@ interface ValidationError {
 ```typescript
 function isValidIndividual(item: unknown): item is Individual;
 function isAugmentedIndividual(item: unknown): item is AugmentedIndividual;
-function hasMetadata(item: unknown): item is IndividualWithMetadata;
+function hasMetadata(item: unknown): item is AugmentedIndividual;
 ```
 
 ### Family Type Guards
@@ -359,6 +345,7 @@ function isCompleteFamily(family: Family): boolean;
 function hasValidMetadata(individual: Individual): boolean;
 function hasLifespanData(individual: Individual): boolean;
 function hasBirthData(individual: Individual): boolean;
+function isMetadataSafeForLLM(metadata: IndividualMetadata): boolean;
 ```
 
 ## Usage Examples
@@ -384,7 +371,23 @@ const individual: Individual = {
 };
 ```
 
-### Creating Metadata
+### Creating an Augmented Individual
+
+```typescript
+const augmentedIndividual: AugmentedIndividual = {
+  ...individual,
+  metadata: {
+    lifespan: 0.75, // 30 years normalized
+    isAlive: false, // Has death date
+    birthMonth: 6, // June
+    zodiacSign: 'Gemini', // June 15
+    generation: 2, // Generation depth
+    relativeGenerationValue: 0.5, // Position in tree
+  },
+};
+```
+
+### Creating Metadata Only (Safe for LLMs)
 
 ```typescript
 const metadata: IndividualMetadata = {
@@ -392,6 +395,8 @@ const metadata: IndividualMetadata = {
   isAlive: false, // Has death date
   birthMonth: 6, // June
   zodiacSign: 'Gemini', // June 15
+  generation: 2, // Generation depth
+  relativeGenerationValue: 0.5, // Position in tree
 };
 ```
 

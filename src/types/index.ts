@@ -1,6 +1,6 @@
 /**
- * Shared types index
- * Export all shared types from a single location
+ * Centralized type exports
+ * This file provides a single import point for all types used across the application
  */
 
 // Core GEDCOM types
@@ -9,27 +9,16 @@ export type {
   Family,
   GedcomData,
   AugmentedIndividual,
+  IndividualMetadata,
 } from './gedcom';
 
 // Metadata types
 export type {
-  IndividualMetadata,
   FamilyMetadata,
   TreeMetadata,
-  IndividualWithMetadata,
   FamilyWithMetadata,
   GedcomDataWithMetadata,
 } from './metadata';
 
 // Type predicates
-export {
-  isNumber,
-  isString,
-  isBoolean,
-  isNonNullNumber,
-  isBirthMonth,
-  isLifespan,
-  isNormalizedLifespan,
-  isIndividualId,
-  isDateString,
-} from './type-predicates';
+export { isNumber, isString, isBoolean, isBirthMonth } from './type-predicates';

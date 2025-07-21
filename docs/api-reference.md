@@ -12,11 +12,10 @@ For detailed type definitions with GEDCOM property mappings, see **[Types Docume
 
 The following core types are used throughout the system:
 
-- `Individual` - Base individual type representing a person in the family tree
+- `Individual` - Base individual type containing only raw GEDCOM data
 - `Family` - Represents a family unit with parents and children
-- `AugmentedIndividual` - Extended individual with computed properties
-- `IndividualWithMetadata` - Individual with extracted metadata for art generation
-- `IndividualMetadata` - Art-specific metadata extracted from individual data
+- `AugmentedIndividual` - Individual with metadata property containing non-PII computed data
+- `IndividualMetadata` - Non-PII computed/transformed data safe for external systems like LLMs
 - `FamilyMetadata` - Metadata for family relationships
 - `TreeMetadata` - Overall tree statistics and metadata
 

@@ -5,7 +5,7 @@
 
 import { addMetadataToAugmentedIndividuals } from './integration';
 import { isNumber, isBoolean, isBirthMonth } from '../types';
-import type { Individual, Family, IndividualWithMetadata } from '../types';
+import type { Individual, Family, AugmentedIndividual } from '../types';
 
 /**
  * Example: How to add metadata to the existing augmentIndividuals function
@@ -14,7 +14,7 @@ import type { Individual, Family, IndividualWithMetadata } from '../types';
 export const exampleAddMetadataToExistingPipeline = (
   augmentedIndividuals: Individual[],
   families: Family[],
-): IndividualWithMetadata[] => {
+): AugmentedIndividual[] => {
   console.log('Adding metadata to individuals...');
 
   // Add metadata to individuals
@@ -45,7 +45,7 @@ export const exampleAddMetadataToExistingPipeline = (
  * This could be integrated into the FamilyTreeSketch
  */
 export const exampleUseMetadataInArtGeneration = (
-  individualsWithMetadata: IndividualWithMetadata[],
+  individualsWithMetadata: AugmentedIndividual[],
 ) => {
   // Example: Use lifespan for node size
   const nodeSizes = individualsWithMetadata.map((individual) => {
@@ -87,7 +87,7 @@ export const exampleUseMetadataInArtGeneration = (
  * Example: How to filter individuals by metadata
  */
 export const exampleFilterByMetadata = (
-  individualsWithMetadata: IndividualWithMetadata[],
+  individualsWithMetadata: AugmentedIndividual[],
 ) => {
   // Find all living individuals
   const livingIndividuals = individualsWithMetadata.filter(
