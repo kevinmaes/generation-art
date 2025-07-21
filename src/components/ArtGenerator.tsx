@@ -2,9 +2,10 @@ import { useEffect, useRef, useCallback } from 'react';
 import p5 from 'p5';
 import { createWebSketch } from '../sketches/FamilyTreeSketch';
 import { useGedcomData } from '../hooks/useGedcomData';
+import { CANVAS_DIMENSIONS } from '../constants';
 
-const DEFAULT_WIDTH = 1000;
-const DEFAULT_HEIGHT = 800;
+const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
+const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
 
 interface ArtGeneratorProps {
   width?: number;
@@ -59,7 +60,13 @@ export function ArtGenerator({
 
   if (!jsonFile) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+      <div
+        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        style={{
+          width: `${String(width || DEFAULT_WIDTH)}px`,
+          height: `${String(height || DEFAULT_HEIGHT)}px`,
+        }}
+      >
         <div className="text-center">
           <div className="text-gray-500 text-lg mb-2">
             No JSON file provided
@@ -74,7 +81,13 @@ export function ArtGenerator({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+      <div
+        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        style={{
+          width: `${String(width || DEFAULT_WIDTH)}px`,
+          height: `${String(height || DEFAULT_HEIGHT)}px`,
+        }}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <div className="text-gray-600">Loading family data...</div>
@@ -85,7 +98,13 @@ export function ArtGenerator({
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+      <div
+        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        style={{
+          width: `${String(width || DEFAULT_WIDTH)}px`,
+          height: `${String(height || DEFAULT_HEIGHT)}px`,
+        }}
+      >
         <div className="text-center max-w-md">
           <div className="text-red-500 text-lg mb-2">Failed to load data</div>
           <p className="text-gray-600 text-sm mb-4">{error}</p>
@@ -102,7 +121,13 @@ export function ArtGenerator({
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+      <div
+        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        style={{
+          width: `${String(width || DEFAULT_WIDTH)}px`,
+          height: `${String(height || DEFAULT_HEIGHT)}px`,
+        }}
+      >
         <div className="text-center">
           <div className="text-gray-500 text-lg">No data available</div>
         </div>
@@ -110,5 +135,14 @@ export function ArtGenerator({
     );
   }
 
-  return <div key={`p5-container-${jsonFile}`} ref={containerRef} />;
+  return (
+    <div
+      key={`p5-container-${jsonFile}`}
+      ref={containerRef}
+      style={{
+        width: `${String(width || DEFAULT_WIDTH)}px`,
+        height: `${String(height || DEFAULT_HEIGHT)}px`,
+      }}
+    />
+  );
 }
