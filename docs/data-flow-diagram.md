@@ -14,7 +14,7 @@ graph TD
     D --> E["🔧 Parser Selection<br/>GedcomParserFacade"]
     E --> F["⚙️ Parser Implementation<br/>gedcom-ts or SimpleGedcomParser"]
     F --> G["📊 Structured Data<br/>Individual and Family objects"]
-    G --> H["🔄 Data Enhancement<br/>augmentIndividuals.ts"]
+    G --> H["🔄 Data Enhancement<br/>build-gedcom.ts"]
     H --> I["📈 Metadata Extraction<br/>metadata-extraction-config.ts"]
     I --> J["🔒 PII Masking<br/>transformation-pipeline.ts"]
     J --> K["🎨 Art Generation<br/>FamilyTreeSketch.ts"]
@@ -98,7 +98,7 @@ graph LR
 - **Input**: Basic Individual/Family objects
 - **Process**: Add computed properties (generation, relationships)
 - **Output**: `AugmentedIndividual[]` with additional metadata
-- **Components**: `augmentIndividuals.ts`, relationship calculators
+- **Components**: `build-gedcom.ts`, relationship calculators
 
 ### Stage 4: Metadata Extraction
 

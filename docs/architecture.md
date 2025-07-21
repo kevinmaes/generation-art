@@ -82,24 +82,24 @@ interface GedcomParserFacade {
 
 ### 2. Data Processing Layer
 
-#### `augmentIndividuals.ts`
+#### Data Enhancement (within `build-gedcom.ts`)
 
-**Location**: `src/tasks/augmentIndividuals.ts`
-**Purpose**: Enhance parsed data with computed properties
+**Location**: `src/scripts/build-gedcom.ts` (convertAndBuildRelationships function)
+**Purpose**: Convert parsed GEDCOM data to shared types and build family relationships
 **Responsibilities**:
 
-- Calculate generation depth
-- Compute relationship metrics
-- Add derived properties
-- Validate data integrity
+- Convert parser output to shared types
+- Build parent/child/spouse relationships
+- Calculate sibling relationships
+- Prepare data for metadata extraction
 
 **Key Functions**:
 
 ```typescript
-export function augmentIndividuals(
-  individuals: Individual[],
-  families: Family[],
-): AugmentedIndividual[];
+function convertAndBuildRelationships(data: ParsedGedcomData): {
+  individuals: Individual[];
+  families: Family[];
+};
 ```
 
 #### `metadata-extraction-config.ts`

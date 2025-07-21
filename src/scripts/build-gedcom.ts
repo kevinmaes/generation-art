@@ -8,11 +8,8 @@ import {
 } from 'fs/promises';
 import { join, basename, extname } from 'path';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
-import type {
-  Individual,
-  AugmentedIndividual,
-  IndividualMetadata,
-} from '../types';
+import { transformGedcomDataWithMetadata } from '../metadata/transformation-pipeline';
+import type { Individual, Family } from '../types';
 
 // Local interfaces that match SimpleGedcomParser output
 interface ParsedIndividual {
@@ -30,15 +27,9 @@ interface ParsedFamily {
   marriageDate?: string;
 }
 
-interface GedcomData {
+interface ParsedGedcomData {
   individuals: ParsedIndividual[];
   families: ParsedFamily[];
-}
-
-// Temporary interface for individuals with relationships
-interface IndividualWithRelationships extends Individual {
-  generation?: number | null;
-  relativeGenerationValue?: number;
 }
 
 interface BuildConfig {
@@ -47,8 +38,11 @@ interface BuildConfig {
   mediaDir: string;
 }
 
-// Extract augmentation logic from the existing script
-function augmentIndividuals(data: GedcomData): AugmentedIndividual[] {
+// Convert parsed data to our shared types and build relationships
+function convertAndBuildRelationships(data: ParsedGedcomData): {
+  individuals: Individual[];
+  families: Family[];
+} {
   // Convert ParsedIndividual to Individual
   const individuals: Individual[] = data.individuals.map((parsed) => ({
     id: parsed.id,
@@ -110,111 +104,25 @@ function augmentIndividuals(data: GedcomData): AugmentedIndividual[] {
   }
 
   // Augment individuals with relationships
-  const individualsWithRelationships: IndividualWithRelationships[] =
-    individuals.map((ind) => ({
-      ...ind,
-      parents: Array.from(parentsMap[ind.id] ?? new Set()),
-      spouses: Array.from(spousesMap[ind.id] ?? new Set()),
-      children: Array.from(childrenMap[ind.id] ?? new Set()),
-      siblings: Array.from(siblingsMap[ind.id] ?? new Set()),
-    }));
+  const individualsWithRelationships: Individual[] = individuals.map((ind) => ({
+    ...ind,
+    parents: Array.from(parentsMap[ind.id] ?? new Set()),
+    spouses: Array.from(spousesMap[ind.id] ?? new Set()),
+    children: Array.from(childrenMap[ind.id] ?? new Set()),
+    siblings: Array.from(siblingsMap[ind.id] ?? new Set()),
+  }));
 
-  // Assign generations
-  assignGenerations(
-    individualsWithRelationships,
-    individualsWithRelationships[0]?.id || '',
-  );
+  // Convert families to our shared Family type
+  const families: Family[] = data.families.map((fam) => ({
+    id: fam.id,
+    husband: fam.husband ? individualsById[fam.husband] : undefined,
+    wife: fam.wife ? individualsById[fam.wife] : undefined,
+    children: fam.children
+      .map((childId) => individualsById[childId])
+      .filter(Boolean),
+  }));
 
-  // Assign relative generation values
-  assignRelativeGenerationValue(individualsWithRelationships);
-
-  // Create metadata for each individual
-  const augmented: AugmentedIndividual[] = individualsWithRelationships.map(
-    (ind) => {
-      const metadata: IndividualMetadata = {
-        generation: ind.generation,
-        relativeGenerationValue: ind.relativeGenerationValue,
-      };
-
-      return {
-        ...ind,
-        metadata,
-      };
-    },
-  );
-
-  return augmented;
-}
-
-// Assign generation numbers to individuals
-function assignGenerations(
-  individuals: IndividualWithRelationships[],
-  primaryId: string,
-): void {
-  const genMap: Record<string, number> = {};
-  const queue: string[] = [];
-  genMap[primaryId] = 0;
-  queue.push(primaryId);
-  const individualsById: Record<string, IndividualWithRelationships> = {};
-  individuals.forEach((ind) => {
-    individualsById[ind.id] = ind;
-  });
-
-  while (queue.length > 0) {
-    const id = queue.shift() ?? '';
-    const gen = genMap[id];
-    const ind = individualsById[id];
-    for (const parentId of ind.parents) {
-      if (!(parentId in genMap)) {
-        genMap[parentId] = gen - 1;
-        queue.push(parentId);
-      }
-    }
-    for (const childId of ind.children) {
-      if (!(childId in genMap)) {
-        genMap[childId] = gen + 1;
-        queue.push(childId);
-      }
-    }
-    for (const spouseId of ind.spouses) {
-      if (!(spouseId in genMap)) {
-        genMap[spouseId] = gen;
-        queue.push(spouseId);
-      }
-    }
-  }
-  // Assign generation to each individual
-  for (const ind of individuals) {
-    ind.generation = genMap[ind.id] || null;
-  }
-}
-
-// Assign relativeGenerationValue (opacity) based on generation distance
-function assignRelativeGenerationValue(
-  individuals: IndividualWithRelationships[],
-): void {
-  // Filter out individuals without a generation
-  const gens = individuals
-    .map((ind) => ind.generation)
-    .filter((g) => g !== null && g !== undefined);
-  if (gens.length === 0) return;
-  const minGen = Math.min(...gens);
-  const maxGen = Math.max(...gens);
-  const maxAbsGen = Math.max(Math.abs(minGen), Math.abs(maxGen));
-
-  for (const ind of individuals) {
-    if (ind.generation === null || ind.generation === undefined) {
-      ind.relativeGenerationValue = 10;
-      continue;
-    }
-    if (maxAbsGen === 0) {
-      ind.relativeGenerationValue = 100;
-    } else {
-      // Linear interpolation: 0 -> 100, farthest -> 10
-      const rel = Math.abs(ind.generation) / maxAbsGen;
-      ind.relativeGenerationValue = Math.round(100 - rel * 90);
-    }
-  }
+  return { individuals: individualsWithRelationships, families };
 }
 
 // Helper function to find media directory
@@ -322,8 +230,16 @@ async function buildGedcomFiles(
       );
 
       // Generate augmented data
-      const augmentedData = augmentIndividuals(parsedData);
-      await writeFile(augmentedPath, JSON.stringify(augmentedData, null, 2));
+      const { individuals, families } =
+        convertAndBuildRelationships(parsedData);
+      const augmentedData = transformGedcomDataWithMetadata(
+        individuals,
+        families,
+      );
+      await writeFile(
+        augmentedPath,
+        JSON.stringify(augmentedData.individuals, null, 2),
+      );
       console.log(`  ✓ Generated ${baseName}-augmented.json`);
 
       // Check for media directory with flexible naming
