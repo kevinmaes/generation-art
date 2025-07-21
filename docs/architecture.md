@@ -298,42 +298,26 @@ File Upload → Parser → Data Enhancement → Metadata → Art Generation → 
 
 ## Type System
 
-### Core Types
+For complete type definitions with GEDCOM property mappings, see **[Types Documentation](types.md)**.
 
-```typescript
-// Base data structures
-interface Individual {
-  id: string; // GEDCOM: @XREF@ (Individual ID)
-  name: string; // GEDCOM: NAME tag
-  birth?: { date?: string; place?: string }; // GEDCOM: BIRT.DATE, BIRT.PLAC
-  death?: { date?: string; place?: string }; // GEDCOM: DEAT.DATE, DEAT.PLAC
-  parents: string[]; // GEDCOM: FAMC (Family as Child) references
-  spouses: string[]; // GEDCOM: FAMS (Family as Spouse) references
-  children: string[]; // GEDCOM: CHIL tags in FAM records
-  siblings: string[]; // GEDCOM: Derived from FAMC siblings
-}
+### Core Types Overview
 
-// Enhanced data structures
-interface AugmentedIndividual extends Individual {
-  generation?: number | null; // GEDCOM: Computed from FAMC hierarchy
-  relativeGenerationValue?: number; // GEDCOM: Computed position in tree
-}
+The system uses a hierarchical type system:
 
-// Metadata structures
-interface IndividualMetadata {
-  lifespan?: number; // GEDCOM: Derived from BIRT.DATE and DEAT.DATE
-  isAlive?: boolean; // GEDCOM: Derived from presence/absence of DEAT tag
-  birthMonth?: number; // GEDCOM: Derived from BIRT.DATE
-  zodiacSign?: string; // GEDCOM: Derived from BIRT.DATE
-}
-```
+- **Base Types**: `Individual`, `Family`, `GedcomData`
+- **Enhanced Types**: `AugmentedIndividual`, `IndividualWithMetadata`
+- **Metadata Types**: `IndividualMetadata`, `FamilyMetadata`, `TreeMetadata`
+- **Configuration Types**: `MetadataFieldConfig`, `TransformationContext`
+- **Utility Types**: Type predicates, error types, canvas configuration
 
 ### Type Safety Features
 
-- **Strict TypeScript**: Full type checking enabled
-- **Interface Contracts**: Clear data structure definitions
-- **Type Predicates**: Runtime type validation
-- **Generic Types**: Reusable type definitions
+1. **Type Predicates**: Runtime type checking functions
+2. **Strict Interfaces**: All properties are strictly typed
+3. **GEDCOM Compliance**: Direct mapping to GEDCOM 5.5.1 specification
+4. **Validation**: Built-in validation for data integrity
+
+See **[Types Documentation](types.md)** for detailed interface definitions and usage examples.
 
 ## Configuration Management
 

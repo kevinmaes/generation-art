@@ -6,94 +6,21 @@ This document provides a comprehensive reference for all public APIs, functions,
 
 ## Core Types
 
+For detailed type definitions with GEDCOM property mappings, see **[Types Documentation](types.md)**.
+
 ### Data Structures
 
-#### `Individual`
+The following core types are used throughout the system:
 
-Base individual type representing a person in the family tree.
+- `Individual` - Base individual type representing a person in the family tree
+- `Family` - Represents a family unit with parents and children
+- `AugmentedIndividual` - Extended individual with computed properties
+- `IndividualWithMetadata` - Individual with extracted metadata for art generation
+- `IndividualMetadata` - Art-specific metadata extracted from individual data
+- `FamilyMetadata` - Metadata for family relationships
+- `TreeMetadata` - Overall tree statistics and metadata
 
-```typescript
-interface Individual {
-  id: string; // GEDCOM: @XREF@ (Individual ID)
-  name: string; // GEDCOM: NAME tag
-  birth?: { date?: string; place?: string }; // GEDCOM: BIRT.DATE, BIRT.PLAC
-  death?: { date?: string; place?: string }; // GEDCOM: DEAT.DATE, DEAT.PLAC
-  parents: string[]; // GEDCOM: FAMC (Family as Child) references
-  spouses: string[]; // GEDCOM: FAMS (Family as Spouse) references
-  children: string[]; // GEDCOM: CHIL tags in FAM records
-  siblings: string[]; // GEDCOM: Derived from FAMC siblings
-}
-```
-
-#### `Family`
-
-Represents a family unit with parents and children.
-
-```typescript
-interface Family {
-  id: string; // GEDCOM: @XREF@ (Family ID)
-  husband?: Individual; // GEDCOM: HUSB tag
-  wife?: Individual; // GEDCOM: WIFE tag
-  children: Individual[]; // GEDCOM: CHIL tags
-}
-```
-
-#### `AugmentedIndividual`
-
-Extended individual with computed properties.
-
-```typescript
-interface AugmentedIndividual extends Individual {
-  generation?: number | null; // Generation depth
-  relativeGenerationValue?: number; // Relative position in tree
-}
-```
-
-#### `IndividualWithMetadata`
-
-Individual with extracted metadata for art generation.
-
-```typescript
-interface IndividualWithMetadata extends AugmentedIndividual {
-  metadata: IndividualMetadata;
-}
-```
-
-### Metadata Types
-
-#### `IndividualMetadata`
-
-Art-specific metadata extracted from individual data.
-
-```typescript
-interface IndividualMetadata {
-  lifespan?: number; // GEDCOM: Derived from BIRT.DATE and DEAT.DATE
-  isAlive?: boolean; // GEDCOM: Derived from presence/absence of DEAT tag
-  birthMonth?: number; // GEDCOM: Derived from BIRT.DATE
-  zodiacSign?: string; // GEDCOM: Derived from BIRT.DATE
-}
-```
-
-#### `FamilyMetadata`
-
-Metadata for family relationships.
-
-```typescript
-interface FamilyMetadata {
-  numberOfChildren: number; // GEDCOM: Count of CHIL tags
-}
-```
-
-#### `TreeMetadata`
-
-Overall tree statistics.
-
-```typescript
-interface TreeMetadata {
-  totalIndividuals: number; // Total individuals in tree
-  depthOfTree: number; // Maximum generation depth
-}
-```
+See **[Types Documentation](types.md)** for complete interface definitions and GEDCOM property mappings.
 
 ## Parser Layer
 

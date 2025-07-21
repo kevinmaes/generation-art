@@ -4,6 +4,8 @@
 
 This document provides a comprehensive mapping between our TypeScript data structures and the GEDCOM 5.5.1 specification properties. This mapping shows the direct 1-1 relationships between our application's data model and the underlying GEDCOM format.
 
+**Note**: For complete type definitions and interface details, see **[Types Documentation](types.md)**.
+
 ## Individual Properties
 
 ### Core Individual Fields

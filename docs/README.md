@@ -11,11 +11,12 @@ Welcome to the generation-art documentation! This project transforms GEDCOM fami
 - **[Project Overview](project.md)** - High-level project checklist and progress tracking
 - **[Quick Start Guide](quick-start.md)** - How to get up and running quickly
 
-### 🏗️ Architecture & Design
+### 📚 Core Documentation
 
-- **[Data Flow Diagram](data-flow-diagram.md)** - Visual representation of data flow from GEDCOM to artwork
-- **[Architecture Overview](architecture.md)** - Detailed system architecture and component design
+- **[Architecture](architecture.md)** - System architecture and component design
 - **[API Reference](api-reference.md)** - Comprehensive API documentation
+- **[Data Flow](data-flow-diagram.md)** - Data transformation pipeline visualization
+- **[Types](types.md)** - Centralized type definitions with GEDCOM mappings
 
 ### 🔧 Technical Implementation
 

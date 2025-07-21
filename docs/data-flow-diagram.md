@@ -128,53 +128,26 @@ graph LR
 - **Output**: Interactive web display or static image
 - **Components**: `ArtGenerator.tsx`, `useCanvasExport.ts`
 
-## Key Data Structures
+## Data Structures
 
-### Input Data
+For complete type definitions with GEDCOM property mappings, see **[Types Documentation](types.md)**.
 
-```typescript
-// Raw GEDCOM text
-string;
+### Data Flow Types
 
-// Parsed individual
-interface Individual {
-  id: string; // GEDCOM: @XREF@ (Individual ID)
-  name: string; // GEDCOM: NAME tag
-  birth?: { date?: string; place?: string }; // GEDCOM: BIRT.DATE, BIRT.PLAC
-  death?: { date?: string; place?: string }; // GEDCOM: DEAT.DATE, DEAT.PLAC
-  parents: string[]; // GEDCOM: FAMC (Family as Child) references
-  spouses: string[]; // GEDCOM: FAMS (Family as Spouse) references
-  children: string[]; // GEDCOM: CHIL tags in FAM records
-  siblings: string[]; // GEDCOM: Derived from FAMC siblings
-}
-```
+The data transformation pipeline uses these key types:
 
-### Enhanced Data
+- **Input**: `string` (Raw GEDCOM text)
+- **Parsed**: `Individual`, `Family` (Structured GEDCOM data)
+- **Enhanced**: `AugmentedIndividual` (With computed properties)
+- **Output**: `IndividualWithMetadata` (With art generation metadata)
 
-```typescript
-// Augmented individual
-interface AugmentedIndividual extends Individual {
-  generation?: number | null; // GEDCOM: Computed from FAMC hierarchy
-  relativeGenerationValue?: number; // GEDCOM: Computed position in tree
-}
+### Key Transformations
 
-// With metadata
-interface IndividualWithMetadata extends AugmentedIndividual {
-  metadata: IndividualMetadata;
-}
-```
+1. **Raw GEDCOM** → **Parsed Objects**: GEDCOM tags mapped to TypeScript properties
+2. **Parsed Objects** → **Augmented Objects**: Computed properties added (generation, relationships)
+3. **Augmented Objects** → **Metadata Objects**: Art-specific metadata extracted
 
-### Visual Data
-
-```typescript
-// Art generation context
-interface ArtContext {
-  individuals: IndividualWithMetadata[];
-  families: FamilyWithMetadata[];
-  canvasDimensions: { width: number; height: number };
-  visualSettings: VisualSettings;
-}
-```
+See **[Types Documentation](types.md)** for detailed interface definitions and GEDCOM property mappings.
 
 ## Error Handling Flow
 
