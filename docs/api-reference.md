@@ -14,14 +14,14 @@ Base individual type representing a person in the family tree.
 
 ```typescript
 interface Individual {
-  id: string; // Unique identifier
-  name: string; // Full name
-  birth?: { date?: string; place?: string }; // Birth information
-  death?: { date?: string; place?: string }; // Death information
-  parents: string[]; // Parent IDs
-  spouses: string[]; // Spouse IDs
-  children: string[]; // Child IDs
-  siblings: string[]; // Sibling IDs
+  id: string; // GEDCOM: @XREF@ (Individual ID)
+  name: string; // GEDCOM: NAME tag
+  birth?: { date?: string; place?: string }; // GEDCOM: BIRT.DATE, BIRT.PLAC
+  death?: { date?: string; place?: string }; // GEDCOM: DEAT.DATE, DEAT.PLAC
+  parents: string[]; // GEDCOM: FAMC (Family as Child) references
+  spouses: string[]; // GEDCOM: FAMS (Family as Spouse) references
+  children: string[]; // GEDCOM: CHIL tags in FAM records
+  siblings: string[]; // GEDCOM: Derived from FAMC siblings
 }
 ```
 
@@ -31,10 +31,10 @@ Represents a family unit with parents and children.
 
 ```typescript
 interface Family {
-  id: string; // Unique identifier
-  husband?: Individual; // Husband (optional)
-  wife?: Individual; // Wife (optional)
-  children: Individual[]; // Children array
+  id: string; // GEDCOM: @XREF@ (Family ID)
+  husband?: Individual; // GEDCOM: HUSB tag
+  wife?: Individual; // GEDCOM: WIFE tag
+  children: Individual[]; // GEDCOM: CHIL tags
 }
 ```
 
@@ -67,10 +67,10 @@ Art-specific metadata extracted from individual data.
 
 ```typescript
 interface IndividualMetadata {
-  lifespan?: number; // Normalized lifespan (0-1)
-  isAlive?: boolean; // Living status
-  birthMonth?: number; // Birth month (1-12)
-  zodiacSign?: string; // Western zodiac sign
+  lifespan?: number; // GEDCOM: Derived from BIRT.DATE and DEAT.DATE
+  isAlive?: boolean; // GEDCOM: Derived from presence/absence of DEAT tag
+  birthMonth?: number; // GEDCOM: Derived from BIRT.DATE
+  zodiacSign?: string; // GEDCOM: Derived from BIRT.DATE
 }
 ```
 
@@ -80,7 +80,7 @@ Metadata for family relationships.
 
 ```typescript
 interface FamilyMetadata {
-  numberOfChildren: number; // Count of children
+  numberOfChildren: number; // GEDCOM: Count of CHIL tags
 }
 ```
 
@@ -607,156 +607,6 @@ interface MetadataFieldConfig {
 
 Checks if value is a valid number.
 
-```typescript
-function isNumber(value: unknown): value is number;
 ```
 
-### `isString`
-
-Checks if value is a string.
-
-```typescript
-function isString(value: unknown): value is string;
 ```
-
-### `isBoolean`
-
-Checks if value is a boolean.
-
-```typescript
-function isBoolean(value: unknown): value is boolean;
-```
-
-### `isBirthMonth`
-
-Checks if value is a valid birth month.
-
-```typescript
-function isBirthMonth(value: unknown): value is number;
-```
-
-## Error Handling
-
-### Error Types
-
-#### `GedcomError`
-
-GEDCOM parsing errors.
-
-```typescript
-interface GedcomError {
-  line: number;
-  message: string;
-  code: string;
-}
-```
-
-### Error Boundaries
-
-#### `ErrorBoundary`
-
-React error boundary component.
-
-```typescript
-interface ErrorBoundaryProps {
-  children: React.ReactNode;
-  fallback?: React.ComponentType<{ error: Error }>;
-}
-```
-
-## Testing Utilities
-
-### Test Helpers
-
-#### `createMockIndividual`
-
-Creates mock individual for testing.
-
-```typescript
-function createMockIndividual(overrides?: Partial<Individual>): Individual;
-```
-
-#### `createMockFamily`
-
-Creates mock family for testing.
-
-```typescript
-function createMockFamily(overrides?: Partial<Family>): Family;
-```
-
-## Performance APIs
-
-### Memory Management
-
-#### `cleanupP5Instance`
-
-Cleans up P5.js instance to prevent memory leaks.
-
-```typescript
-function cleanupP5Instance(p5Instance: p5): void;
-```
-
-### Caching
-
-#### `cacheParsedData`
-
-Caches parsed GEDCOM data.
-
-```typescript
-function cacheParsedData(key: string, data: GedcomData): void;
-```
-
-#### `getCachedData`
-
-Retrieves cached data.
-
-```typescript
-function getCachedData(key: string): GedcomData | null;
-```
-
-## Migration Guide
-
-### Breaking Changes
-
-#### v1.0.0 to v2.0.0
-
-- `GedcomParser` renamed to `GedcomParserFacade`
-- `transform` function signature changed
-- Metadata extraction API updated
-
-#### Migration Steps
-
-1. Update import statements
-2. Update function calls with new signatures
-3. Update type definitions
-4. Test thoroughly
-
-## Best Practices
-
-### Performance
-
-1. **Use appropriate parser**: Choose parser based on file size
-2. **Cache parsed data**: Avoid re-parsing large files
-3. **Clean up resources**: Properly dispose P5.js instances
-4. **Batch operations**: Group related operations
-
-### Security
-
-1. **Validate inputs**: Check all user inputs
-2. **Mask PII**: Apply privacy transformations
-3. **Sanitize exports**: Remove sensitive data
-4. **Limit file sizes**: Prevent oversized uploads
-
-### Error Handling
-
-1. **Use error boundaries**: Catch React errors
-2. **Provide fallbacks**: Graceful degradation
-3. **Log errors**: Comprehensive logging
-4. **User feedback**: Clear error messages
-
-### Testing
-
-1. **Unit test functions**: Test individual functions
-2. **Integration test**: Test component interactions
-3. **Visual test**: Test rendering output
-4. **Performance test**: Test with large datasets

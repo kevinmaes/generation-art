@@ -22,6 +22,7 @@ Welcome to the generation-art documentation! This project transforms GEDCOM fami
 - **[GEDCOM Integration](gedcom-ts-integration.md)** - How to integrate and use GEDCOM parsers
 - **[Parser Analysis](gedcom-parser-analysis.md)** - Comparison of available GEDCOM parsers
 - **[GEDCOM Resources](gedcom-resources.md)** - Sources for GEDCOM files and testing data
+- **[GEDCOM Property Mapping](gedcom-property-mapping.md)** - Direct mapping between TypeScript types and GEDCOM tags
 
 ### 📖 Specifications & Standards
 

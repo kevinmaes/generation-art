@@ -8,20 +8,20 @@ This diagram shows the complete data flow from GEDCOM file upload to final rende
 
 ```mermaid
 graph TD
-    A[📁 GEDCOM File<br/>.ged format] --> B[📤 File Upload<br/>GedcomLoader.tsx]
-    B --> C[🔍 File Validation<br/>Error handling]
-    C --> D[📝 Raw GEDCOM Text<br/>String content]
-    D --> E[🔧 Parser Selection<br/>GedcomParserFacade]
-    E --> F[⚙️ Parser Implementation<br/>gedcom-ts or SimpleGedcomParser]
-    F --> G[📊 Structured Data<br/>Individual[] & Family[]]
-    G --> H[🔄 Data Enhancement<br/>augmentIndividuals.ts]
-    H --> I[📈 Metadata Extraction<br/>metadata-extraction-config.ts]
-    I --> J[🔒 PII Masking<br/>transformation-pipeline.ts]
-    J --> K[🎨 Art Generation<br/>FamilyTreeSketch.ts]
-    K --> L[🖼️ Canvas Rendering<br/>P5.js instance]
-    L --> M[💻 Web Display<br/>ArtGenerator.tsx]
-    L --> N[📥 Export PNG<br/>useCanvasExport.ts]
-    L --> O[🖨️ Print Export<br/>ExportService.ts]
+    A["📁 GEDCOM File<br/>.ged format"] --> B["📤 File Upload<br/>GedcomLoader.tsx"]
+    B --> C["🔍 File Validation<br/>Error handling"]
+    C --> D["📝 Raw GEDCOM Text<br/>String content"]
+    D --> E["🔧 Parser Selection<br/>GedcomParserFacade"]
+    E --> F["⚙️ Parser Implementation<br/>gedcom-ts or SimpleGedcomParser"]
+    F --> G["📊 Structured Data<br/>Individual and Family objects"]
+    G --> H["🔄 Data Enhancement<br/>augmentIndividuals.ts"]
+    H --> I["📈 Metadata Extraction<br/>metadata-extraction-config.ts"]
+    I --> J["🔒 PII Masking<br/>transformation-pipeline.ts"]
+    J --> K["🎨 Art Generation<br/>FamilyTreeSketch.ts"]
+    K --> L["🖼️ Canvas Rendering<br/>P5.js instance"]
+    L --> M["💻 Web Display<br/>ArtGenerator.tsx"]
+    L --> N["📥 Export PNG<br/>useCanvasExport.ts"]
+    L --> O["🖨️ Print Export<br/>ExportService.ts"]
 
     style A fill:#e1f5fe
     style M fill:#c8e6c9
@@ -138,14 +138,14 @@ string;
 
 // Parsed individual
 interface Individual {
-  id: string;
-  name: string;
-  birth?: { date?: string; place?: string };
-  death?: { date?: string; place?: string };
-  parents: string[];
-  spouses: string[];
-  children: string[];
-  siblings: string[];
+  id: string; // GEDCOM: @XREF@ (Individual ID)
+  name: string; // GEDCOM: NAME tag
+  birth?: { date?: string; place?: string }; // GEDCOM: BIRT.DATE, BIRT.PLAC
+  death?: { date?: string; place?: string }; // GEDCOM: DEAT.DATE, DEAT.PLAC
+  parents: string[]; // GEDCOM: FAMC (Family as Child) references
+  spouses: string[]; // GEDCOM: FAMS (Family as Spouse) references
+  children: string[]; // GEDCOM: CHIL tags in FAM records
+  siblings: string[]; // GEDCOM: Derived from FAMC siblings
 }
 ```
 
@@ -154,8 +154,8 @@ interface Individual {
 ```typescript
 // Augmented individual
 interface AugmentedIndividual extends Individual {
-  generation?: number | null;
-  relativeGenerationValue?: number;
+  generation?: number | null; // GEDCOM: Computed from FAMC hierarchy
+  relativeGenerationValue?: number; // GEDCOM: Computed position in tree
 }
 
 // With metadata

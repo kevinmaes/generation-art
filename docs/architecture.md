@@ -303,28 +303,28 @@ File Upload → Parser → Data Enhancement → Metadata → Art Generation → 
 ```typescript
 // Base data structures
 interface Individual {
-  id: string;
-  name: string;
-  birth?: { date?: string; place?: string };
-  death?: { date?: string; place?: string };
-  parents: string[];
-  spouses: string[];
-  children: string[];
-  siblings: string[];
+  id: string; // GEDCOM: @XREF@ (Individual ID)
+  name: string; // GEDCOM: NAME tag
+  birth?: { date?: string; place?: string }; // GEDCOM: BIRT.DATE, BIRT.PLAC
+  death?: { date?: string; place?: string }; // GEDCOM: DEAT.DATE, DEAT.PLAC
+  parents: string[]; // GEDCOM: FAMC (Family as Child) references
+  spouses: string[]; // GEDCOM: FAMS (Family as Spouse) references
+  children: string[]; // GEDCOM: CHIL tags in FAM records
+  siblings: string[]; // GEDCOM: Derived from FAMC siblings
 }
 
 // Enhanced data structures
 interface AugmentedIndividual extends Individual {
-  generation?: number | null;
-  relativeGenerationValue?: number;
+  generation?: number | null; // GEDCOM: Computed from FAMC hierarchy
+  relativeGenerationValue?: number; // GEDCOM: Computed position in tree
 }
 
 // Metadata structures
 interface IndividualMetadata {
-  lifespan?: number;
-  isAlive?: boolean;
-  birthMonth?: number;
-  zodiacSign?: string;
+  lifespan?: number; // GEDCOM: Derived from BIRT.DATE and DEAT.DATE
+  isAlive?: boolean; // GEDCOM: Derived from presence/absence of DEAT tag
+  birthMonth?: number; // GEDCOM: Derived from BIRT.DATE
+  zodiacSign?: string; // GEDCOM: Derived from BIRT.DATE
 }
 ```
 
