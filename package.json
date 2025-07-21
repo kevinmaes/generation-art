@@ -11,6 +11,7 @@
     "build:gedcom:example": "pnpm build:gedcom ./examples/kennedy/kennedy.ged",
     "prebuild": "pnpm build:gedcom",
     "dev:with-gedcom": "pnpm build:gedcom && pnpm dev",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
