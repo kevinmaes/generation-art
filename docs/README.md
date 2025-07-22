@@ -28,8 +28,8 @@ Welcome to the generation-art documentation! This project transforms GEDCOM fami
 
 ### 📖 Specifications & Standards
 
-- **[GEDCOM 5.5.1 Specification](ged551-5bac5e57fe88dd37df0e153d9c515335.pdf)** - Official GEDCOM specification
-- **[GEDCOM Visual Metadata Fields](GEDCOM_Visual_Metadata_Fields.csv)** - Metadata field definitions
+- **[GEDCOM 5.5.1 Specification](specifications/gedcom-5.5.1.pdf)** - Official GEDCOM specification
+- **[GEDCOM Visual Metadata Fields](specifications/GEDCOM_Visual_Metadata_Fields.csv)** - Metadata field definitions
 
 ## 🚀 Quick Navigation
 
