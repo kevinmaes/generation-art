@@ -1,6 +1,6 @@
 import { ReadGed } from 'gedcom-ts';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
-import type { Individual, Family, GedcomData } from '../types';
+import type { Individual, Family, GedcomData } from '../../shared/types';
 
 // Facade Interface
 export interface GedcomParserFacade {

@@ -9,7 +9,7 @@ import {
 import { join, basename, extname } from 'path';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
 import { transformGedcomDataWithMetadata } from '../metadata/transformation-pipeline';
-import type { Individual, Family } from '../types';
+import type { Individual, Family } from '../../shared/types';
 
 // Local interfaces that match SimpleGedcomParser output
 interface ParsedIndividual {
@@ -264,7 +264,10 @@ async function buildGedcomFiles(
         console.log(`  ℹ No media directory found for ${baseName}`);
       }
     } catch (error) {
-      console.error(`  ✗ Error processing ${file}:`, error);
+      console.error(
+        `  ✗ Error processing ${file}:`,
+        error instanceof Error ? error.message : String(error),
+      );
     }
   }
 

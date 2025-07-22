@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { AugmentedIndividual } from '../components/types';
+import type { AugmentedIndividual } from '../../../shared/types';
 
 interface UseGedcomDataOptions {
   jsonFile: string;

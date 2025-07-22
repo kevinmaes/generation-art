@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:gedcom": "tsx src/scripts/build-gedcom.ts",
+    "build:gedcom": "tsx src/cli/import/build-gedcom.ts",
     "build:gedcom:reset": "rm -rf ./generated",
     "build:gedcom:example": "pnpm build:gedcom ./examples/kennedy/kennedy.ged",
     "prebuild": "pnpm build:gedcom",
@@ -16,6 +16,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
+    "checks": "pnpm lint && pnpm typecheck && pnpm format",
     "preview": "vite preview",
     "test": "vitest",
     "test:watch": "vitest watch",

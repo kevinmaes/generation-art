@@ -14,23 +14,23 @@ This file outlines patterns found in GEDCOM data that can be translated into abs
 
 ## 🧬 Visual Patterns Derived from GEDCOM Data
 
-| Pattern | Frequency | Hook | Visual Treatment |
-|--------|-----------|------|------------------|
-| **Multi-generational Longevity** | Rare-ish | Continuity across time | Tall unbroken vine or thread with blossoms |
-| **High Child Mortality in One Family** | Historically common | Rhythm + emotional weight | Flickering particles that extinguish early |
-| **Multiple Marriages of One Individual** | Uncommon | Relationship expansion | Orbiting partners or layered arcs |
-| **Tightly Packed Sibling Births** | Common | Temporal rhythm | Dense floral tiling or hexagonal petals |
-| **Mixed Birth Countries in One Gen** | Uncommon | Cultural patchwork | Geo-displaced or noise-shifted clusters |
-| **Generational Migration** | Detectable via PLAC | Directional movement | Animated morph or swirl between locations |
-| **Endogamy (Inbreeding)** | Rare | Recursive structure | Feedback spirals or Möbius-strip forms |
-| **Early Parenthood** | Common (historically) | Temporal proximity | Overlapped node visuals (child near parent) |
-| **Twins / Multiples** | Rare but visible | Symmetry | Mirrored shapes or butterfly wing forms |
-| **Name Repetition** | Frequent | Echo over time | Faded ghost names or duplicate forms |
-| **Death Date Clusters (Epidemics)** | Historic clusters | Synchronicity of loss | Group fade-outs or synchronized collapse |
-| **Unlinked Individuals** | Data anomalies | Isolation | Orbiting fragments, floating from core |
-| **Large Sibling Sets (7+ children)** | Visible in big trees | Explosion of life | Dandelion bursts, radial fan |
-| **Missing Generations** | Common | Data void | Irregular grid or negative space |
-| **Ancestor Loops (Duplication)** | Rare | Recursive paradox | Self-intersecting spiral or Möbius-style path |
+| Pattern                                  | Frequency             | Hook                      | Visual Treatment                              |
+| ---------------------------------------- | --------------------- | ------------------------- | --------------------------------------------- |
+| **Multi-generational Longevity**         | Rare-ish              | Continuity across time    | Tall unbroken vine or thread with blossoms    |
+| **High Child Mortality in One Family**   | Historically common   | Rhythm + emotional weight | Flickering particles that extinguish early    |
+| **Multiple Marriages of One Individual** | Uncommon              | Relationship expansion    | Orbiting partners or layered arcs             |
+| **Tightly Packed Sibling Births**        | Common                | Temporal rhythm           | Dense floral tiling or hexagonal petals       |
+| **Mixed Birth Countries in One Gen**     | Uncommon              | Cultural patchwork        | Geo-displaced or noise-shifted clusters       |
+| **Generational Migration**               | Detectable via PLAC   | Directional movement      | Animated morph or swirl between locations     |
+| **Endogamy (Inbreeding)**                | Rare                  | Recursive structure       | Feedback spirals or Möbius-strip forms        |
+| **Early Parenthood**                     | Common (historically) | Temporal proximity        | Overlapped node visuals (child near parent)   |
+| **Twins / Multiples**                    | Rare but visible      | Symmetry                  | Mirrored shapes or butterfly wing forms       |
+| **Name Repetition**                      | Frequent              | Echo over time            | Faded ghost names or duplicate forms          |
+| **Death Date Clusters (Epidemics)**      | Historic clusters     | Synchronicity of loss     | Group fade-outs or synchronized collapse      |
+| **Unlinked Individuals**                 | Data anomalies        | Isolation                 | Orbiting fragments, floating from core        |
+| **Large Sibling Sets (7+ children)**     | Visible in big trees  | Explosion of life         | Dandelion bursts, radial fan                  |
+| **Missing Generations**                  | Common                | Data void                 | Irregular grid or negative space              |
+| **Ancestor Loops (Duplication)**         | Rare                  | Recursive paradox         | Self-intersecting spiral or Möbius-style path |
 
 ---
 
@@ -99,4 +99,4 @@ Each of these can be scaled between 0–1 and used to control attributes like:
 ---
 
 **Creative Lead:** _[Your Name]_  
-**Spec generated with ChatGPT, adapted for generative art with GEDCOM data._
+\*\*Spec generated with ChatGPT, adapted for generative art with GEDCOM data.\_

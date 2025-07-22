@@ -1,4 +1,4 @@
-import type { Family, Individual } from '../types';
+import type { Family, Individual } from '../../shared/types';
 
 /**
  * Configuration for extracting and transforming metadata from GEDCOM data

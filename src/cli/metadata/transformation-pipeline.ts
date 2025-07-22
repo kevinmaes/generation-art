@@ -12,14 +12,12 @@ import type {
   AugmentedIndividual,
   FamilyWithMetadata,
   GedcomDataWithMetadata,
-} from '../types';
+} from '../../shared/types';
 import {
-  metadataExtractionConfig,
   getMetadataFieldsByScope,
   type MetadataFieldConfig,
   type TransformationContext,
 } from './metadata-extraction-config';
-import { isNumber, isBoolean, isBirthMonth } from '../types';
 
 /**
  * PII Masking utilities - pure functions
@@ -158,7 +156,9 @@ export const extractIndividualMetadata = (
 
       // Store the value
       if (value !== null && value !== undefined) {
-        (metadata as Record<string, unknown>)[fieldConfig.fieldName] = value;
+        (metadata as unknown as Record<string, unknown>)[
+          fieldConfig.fieldName
+        ] = value;
       }
     } catch (error) {
       console.warn(
@@ -216,7 +216,9 @@ export const extractFamilyMetadata = (
 
       // Store the value
       if (value !== null && value !== undefined) {
-        (metadata as Record<string, unknown>)[fieldConfig.fieldName] = value;
+        (metadata as unknown as Record<string, unknown>)[
+          fieldConfig.fieldName
+        ] = value;
       }
     } catch (error) {
       console.warn(
@@ -265,7 +267,9 @@ export const extractTreeMetadata = (
 
       // Store the value
       if (value !== null && value !== undefined) {
-        (metadata as Record<string, unknown>)[fieldConfig.fieldName] = value;
+        (metadata as unknown as Record<string, unknown>)[
+          fieldConfig.fieldName
+        ] = value;
       }
     } catch (error) {
       console.warn(

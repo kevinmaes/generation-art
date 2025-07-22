@@ -1,6 +1,6 @@
-import p5 from 'p5';
-import { getUniqueEdges, getIndividualCoord } from '../components/helpers';
-import type { AugmentedIndividual } from '../components/types';
+import type p5 from 'p5';
+import { getUniqueEdges, getIndividualCoord } from './components/helpers';
+import type { AugmentedIndividual } from '../../shared/types';
 
 export interface SketchConfig {
   width: number;
@@ -34,7 +34,9 @@ function createSketch(options: SketchOptions): (p: p5) => void {
 
   return (p: p5) => {
     p.setup = () => {
-      console.log(`🎨 Sketch setup - dimensions: ${width} × ${height}`);
+      console.log(
+        `🎨 Sketch setup - dimensions: ${String(width)} × ${String(height)}`,
+      );
 
       p.createCanvas(width, height, p.P2D);
       p.pixelDensity(1);
@@ -61,8 +63,8 @@ function createSketch(options: SketchOptions): (p: p5) => void {
         const { x, y } = getIndividualCoord(ind.id, width, height);
 
         p.noStroke();
-        const opacity = ind.relativeGenerationValue ?? 100;
-        const lerpAmount = (ind.relativeGenerationValue ?? 100) / 100;
+        const opacity = ind.metadata.relativeGenerationValue ?? 100;
+        const lerpAmount = (ind.metadata.relativeGenerationValue ?? 100) / 100;
         const color = p.lerpColor(
           p.color(colors[0]),
           p.color(colors[1]),
@@ -73,7 +75,8 @@ function createSketch(options: SketchOptions): (p: p5) => void {
 
         const size = Math.min(
           nodeSize,
-          nodeSize + (ind.relativeGenerationValue ?? 0) * (nodeSize / 2),
+          nodeSize +
+            (ind.metadata.relativeGenerationValue ?? 0) * (nodeSize / 2),
         );
         p.circle(x, y, size);
 

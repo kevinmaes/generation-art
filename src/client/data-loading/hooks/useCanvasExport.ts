@@ -5,8 +5,8 @@ import {
   exportPrintCanvas as exportPrintCanvasService,
   type ExportOptions,
   type PrintExportOptions,
-} from '../services/ExportService';
-import type { AugmentedIndividual } from '../components/types';
+} from '../../services/ExportService';
+import type { AugmentedIndividual } from '../../../shared/types';
 
 export interface ExportState {
   isExporting: boolean;

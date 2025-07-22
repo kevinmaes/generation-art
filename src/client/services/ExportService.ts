@@ -3,14 +3,14 @@ import {
   CANVAS_DIMENSIONS,
   PRINT_SETTINGS,
   EXPORT_FORMATS,
-} from '../constants';
-import { createPrintSketch } from '../sketches/FamilyTreeSketch';
+} from '../../shared/constants';
+import { createPrintSketch } from '../display/FamilyTreeSketch';
 import {
   createTemporaryCanvas,
   createExportCanvas,
   cleanupTemporaryCanvas,
-} from '../utils/CanvasFactory';
-import type { AugmentedIndividual } from '../components/types';
+} from '../../shared/utils/CanvasFactory';
+import type { AugmentedIndividual } from '../../shared/types';
 
 export interface ExportOptions {
   format?: 'png' | 'jpg';
@@ -39,7 +39,7 @@ export function exportWebCanvas(
 
   console.log('🖼️ Exporting web canvas...');
   console.log(
-    `📏 Canvas dimensions: ${p5Instance.width} × ${p5Instance.height}`,
+    `📏 Canvas dimensions: ${String(p5Instance.width)} × ${String(p5Instance.height)}`,
   );
 
   p5Instance.saveCanvas(filename, format);
@@ -61,7 +61,7 @@ export function exportPrintCanvas(
   return new Promise((resolve, reject) => {
     console.log('🖨️ Creating high-resolution print version...');
     console.log(
-      `📏 Print dimensions: ${CANVAS_DIMENSIONS.PRINT.WIDTH} × ${CANVAS_DIMENSIONS.PRINT.HEIGHT}`,
+      `📏 Print dimensions: ${String(CANVAS_DIMENSIONS.PRINT.WIDTH)} × ${String(CANVAS_DIMENSIONS.PRINT.HEIGHT)}`,
     );
 
     // Create temporary container using factory
@@ -81,7 +81,7 @@ export function exportPrintCanvas(
     setTimeout(() => {
       try {
         console.log(
-          `📏 Final print canvas dimensions: ${printP5.width} × ${printP5.height}`,
+          `📏 Final print canvas dimensions: ${String(printP5.width)} × ${String(printP5.height)}`,
         );
 
         // Create export canvas with exact dimensions using factory
@@ -92,26 +92,26 @@ export function exportPrintCanvas(
 
         const exportCtx = exportCanvas.getContext('2d');
         if (exportCtx) {
-          const p5Canvas = tempContainer.querySelector(
-            'canvas',
-          ) as HTMLCanvasElement;
-          exportCtx.drawImage(
-            p5Canvas,
-            0,
-            0,
-            CANVAS_DIMENSIONS.PRINT.WIDTH,
-            CANVAS_DIMENSIONS.PRINT.HEIGHT,
-          );
+          const p5Canvas = tempContainer.querySelector('canvas');
+          if (p5Canvas) {
+            exportCtx.drawImage(
+              p5Canvas,
+              0,
+              0,
+              CANVAS_DIMENSIONS.PRINT.WIDTH,
+              CANVAS_DIMENSIONS.PRINT.HEIGHT,
+            );
 
-          console.log(
-            `📏 Export canvas dimensions: ${exportCanvas.width} × ${exportCanvas.height}`,
-          );
+            console.log(
+              `📏 Export canvas dimensions: ${String(exportCanvas.width)} × ${String(exportCanvas.height)}`,
+            );
 
-          const dataURL = exportCanvas.toDataURL(`image/${format}`);
-          const link = document.createElement('a');
-          link.download = `${filename}.${format}`;
-          link.href = dataURL;
-          link.click();
+            const dataURL = exportCanvas.toDataURL(`image/${format}`);
+            const link = document.createElement('a');
+            link.download = `${filename}.${format}`;
+            link.href = dataURL;
+            link.click();
+          }
         }
 
         // Clean up using factory
@@ -119,9 +119,14 @@ export function exportPrintCanvas(
 
         console.log('✅ Print export completed');
         resolve();
-      } catch (error) {
-        console.error('❌ Print export failed:', error);
-        reject(error);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('❌ Print export failed:', error.message);
+          reject(error);
+        } else {
+          console.error('❌ Print export failed:', error);
+          reject(new Error('Unknown error occurred'));
+        }
       }
     }, 100);
   });

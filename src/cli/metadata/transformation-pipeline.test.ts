@@ -4,7 +4,7 @@ import {
   maskLifespan,
   maskBirthMonth,
 } from './transformation-pipeline';
-import type { Individual, Family } from '../types';
+import type { Individual, Family } from '../../shared/types';
 
 describe('MetadataTransformationPipeline - Functional', () => {
   const mockIndividuals: Individual[] = [

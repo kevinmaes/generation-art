@@ -4,8 +4,12 @@
  */
 
 import { transformGedcomDataWithMetadata } from './transformation-pipeline';
-import { isNumber } from '../types';
-import type { Individual, Family, AugmentedIndividual } from '../types';
+import { isNumber } from '../../shared/types';
+import type {
+  Individual,
+  Family,
+  AugmentedIndividual,
+} from '../../shared/types';
 
 /**
  * Pure function to add metadata to already augmented individuals

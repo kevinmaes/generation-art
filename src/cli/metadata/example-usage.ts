@@ -4,8 +4,12 @@
  */
 
 import { addMetadataToAugmentedIndividuals } from './integration';
-import { isNumber, isBoolean, isBirthMonth } from '../types';
-import type { Individual, Family, AugmentedIndividual } from '../types';
+import { isNumber, isBoolean, isBirthMonth } from '../../shared/types';
+import type {
+  Individual,
+  Family,
+  AugmentedIndividual,
+} from '../../shared/types';
 
 /**
  * Example: How to add metadata to the existing augmentIndividuals function

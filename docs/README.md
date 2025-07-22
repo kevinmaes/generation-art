@@ -13,6 +13,7 @@ Welcome to the generation-art documentation! This project transforms GEDCOM fami
 
 ### 📚 Core Documentation
 
+- **[Data Flow Stages](data-flow-stages.md)** - **NEW**: 3-stage data flow with security boundaries
 - **[Architecture](architecture.md)** - System architecture and component design
 - **[API Reference](api-reference.md)** - Comprehensive API documentation
 - **[Data Flow](data-flow-diagram.md)** - Data transformation pipeline visualization
@@ -34,8 +35,8 @@ Welcome to the generation-art documentation! This project transforms GEDCOM fami
 
 ### For New Developers
 
-1. Start with **[Project Overview](project.md)** to understand the project scope
-2. Review **[Data Flow Diagram](data-flow-diagram.md)** to see how data moves through the system
+1. Start with **[Data Flow Stages](data-flow-stages.md)** to understand the 3-stage architecture and security boundaries
+2. Review **[Project Overview](project.md)** to understand the project scope
 3. Read **[Architecture Overview](architecture.md)** for component details
 4. Use **[API Reference](api-reference.md)** as your coding reference
 
