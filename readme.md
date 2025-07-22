@@ -9,13 +9,13 @@
 [![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
 [![GEDCOM](https://img.shields.io/badge/GEDCOM-5.5.1-2C3E50?style=for-the-badge)](https://www.familysearch.org/en/developers/docs/gedcom/)
 
-A web application that generates artistic visualizations from GEDCOM (Genealogical Data Communication) files, focusing on data enhancement and creative visualization rather than parsing. The project uses existing GEDCOM parsers and focuses on deriving meaningful numerical properties for generative art creation.
+Generation Art is a web application and set of developer tools to generate abstract artistic visualizations from GEDCOM (Genealogical Data Communication) files.
 
 ![Generated graph visualization](images/graph1.png)
 
 ## 📚 About GEDCOM
 
-GEDCOM (Genealogical Data Communication) is a standard file format for genealogical data. It's used to exchange genealogical data between different genealogy software. This project aims to be compatible with GEDCOM version 5.5.1, created by [Family Search](http://familysearch.org/). The published spec for version 5.5.1 is available, along with other official specifications, on the [Family Search site](https://www.familysearch.org/en/developers/docs/gedcom/) and has also been copied to this project's documentation folder [here](documents/ged551-5bac5e57fe88dd37df0e153d9c515335.pdf).
+GEDCOM (Genealogical Data Communication) is a standard file format for genealogical data. It's used to exchange genealogical data between different genealogy software. This project aims to be compatible with [GEDCOM version 5.5.1](documents/gedcom-5.5.1.pdf), created by [Family Search](http://familysearch.org/). This document's original source is available, along with other official specifications, on the [Family Search site](https://www.familysearch.org/en/developers/docs/gedcom/).
 
 ## 🛠️ Technology Stack
 
