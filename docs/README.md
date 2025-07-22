@@ -6,11 +6,6 @@ Welcome to the generation-art documentation! This project transforms GEDCOM fami
 
 ## 📚 Documentation Structure
 
-### 🎯 Getting Started
-
-- **[Project Overview](project.md)** - High-level project checklist and progress tracking
-- **[Quick Start Guide](quick-start.md)** - How to get up and running quickly
-
 ### 📚 Core Documentation
 
 - **[Data Flow Stages](data-flow-stages.md)** - **NEW**: 3-stage data flow with security boundaries
@@ -36,22 +31,22 @@ Welcome to the generation-art documentation! This project transforms GEDCOM fami
 ### For New Developers
 
 1. Start with **[Data Flow Stages](data-flow-stages.md)** to understand the 3-stage architecture and security boundaries
-2. Review **[Project Overview](project.md)** to understand the project scope
+2. Review **[Project Overview](../project.md)** to understand the project scope
 3. Read **[Architecture Overview](architecture.md)** for component details
 4. Use **[API Reference](api-reference.md)** as your coding reference
 
 ### For Contributors
 
-1. Check **[Project Overview](project.md)** for current status and tasks
+1. Check **[Project Overview](../project.md)** for current status and tasks
 2. Review **[Architecture Overview](architecture.md)** for design patterns
 3. Use **[API Reference](api-reference.md)** for implementation details
 4. Reference **[GEDCOM Integration](gedcom-ts-integration.md)** for parser work
 
 ### For Users
 
-1. Read **[Quick Start Guide](quick-start.md)** to get started
+1. Read **[Quick Start Guide](../readme.md#-development-setup)** to get started
 2. Check **[GEDCOM Resources](gedcom-resources.md)** for sample data
-3. Review **[Project Overview](project.md)** for feature status
+3. Review **[Project Overview](../project.md)** for feature status
 
 ## 🔍 System Overview
 
@@ -138,7 +133,7 @@ generation-art/
 
 ### Internal References
 
-- **[Project Checklist](project.md)** - Development progress tracking
+- **[Project Checklist](../project.md)** - Development progress tracking
 - **[Parser Analysis](gedcom-parser-analysis.md)** - Parser comparison and selection
 - **[Integration Guide](gedcom-ts-integration.md)** - Implementation details
 
