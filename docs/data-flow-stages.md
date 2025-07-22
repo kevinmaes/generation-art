@@ -4,17 +4,13 @@ This document clearly explains the **3-stage data flow** and **security boundari
 
 ## 🛡️ Security Overview
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        SECURITY BOUNDARIES                      │
-├─────────────────────────────────────────────────────────────────┤
-│  🖥️  STAGE 1: CLI-ONLY (LOCAL, PRIVATE)                        │
-│  └─ Never leaves developer machine                              │
-│                                                                 │
-│  🎨  STAGE 2 & 3: CLIENT-SIDE (PUBLIC)                         │
-│  └─ Loads pre-processed, PII-safe data                         │
-└─────────────────────────────────────────────────────────────────┘
-```
+> **🛡️ SECURITY BOUNDARIES**
+>
+> **🖥️ STAGE 1: CLI-ONLY (LOCAL, PRIVATE)**  
+> └─ Never leaves developer machine
+>
+> **🎨 STAGE 2 & 3: CLIENT-SIDE (PUBLIC)**  
+> └─ Loads pre-processed, PII-safe data
 
 ## 📊 Three-Stage Data Flow
 
@@ -111,18 +107,14 @@ graph LR
 
 ### **Stage 1: CLI-Only Zone** 🖥️
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        CLI-ONLY ZONE                            │
-│                    (LOCAL, PRIVATE, SECURE)                     │
-├─────────────────────────────────────────────────────────────────┤
-│  📁 Raw GEDCOM files (contain PII)                             │
-│  🖥️ CLI build process (local processing)                       │
-│  🔒 PII masking (privacy protection)                           │
-│  📈 Metadata extraction (PII-safe computed data)               │
-│  💾 Generated JSON (git-ignored, local only)                   │
-└─────────────────────────────────────────────────────────────────┘
-```
+> **🖥️ CLI-ONLY ZONE**  
+> **(LOCAL, PRIVATE, SECURE)**
+>
+> 📁 Raw GEDCOM files (contain PII)  
+> 🖥️ CLI build process (local processing)  
+> 🔒 PII masking (privacy protection)  
+> 📈 Metadata extraction (PII-safe computed data)  
+> 💾 Generated JSON (git-ignored, local only)
 
 **Security Features:**
 
@@ -133,18 +125,14 @@ graph LR
 
 ### **Stage 2 & 3: Client-Side Zone** 🎨
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      CLIENT-SIDE ZONE                           │
-│                    (PUBLIC, SAFE DATA)                          │
-├─────────────────────────────────────────────────────────────────┤
-│  💾 Pre-processed JSON (PII masked)                            │
-│  🎨 React app (public interface)                               │
-│  📊 Data loading & validation                                  │
-│  🎯 Display data transformation                                │
-│  🖼️ Canvas rendering (final artwork)                           │
-└─────────────────────────────────────────────────────────────────┘
-```
+> **🎨 CLIENT-SIDE ZONE**  
+> **(PUBLIC, SAFE DATA)**
+>
+> 💾 Pre-processed JSON (PII masked)  
+> 🎨 React app (public interface)  
+> 📊 Data loading & validation  
+> 🎯 Display data transformation  
+> 🖼️ Canvas rendering (final artwork)
 
 **Security Features:**
 
