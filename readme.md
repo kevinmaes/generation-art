@@ -17,13 +17,22 @@ Generation Art is a web application and set of developer tools to generate abstr
 
 GEDCOM (Genealogical Data Communication) is a standard file format for genealogical data. It's used to exchange genealogical data between different genealogy software. This project aims to be compatible with [GEDCOM version 5.5.1](documents/gedcom-5.5.1.pdf), created by [Family Search](http://familysearch.org/). This document's original source is available, along with other official specifications, on the [Family Search site](https://www.familysearch.org/en/developers/docs/gedcom/).
 
+## 📚 Documentation
+
+- **[Full Documentation](docs/README.md)** - Complete project documentation and navigation
+- **[Architecture](docs/architecture.md)** - System design and component architecture
+- **[API Reference](docs/api-reference.md)** - Comprehensive developer reference
+- **[Data Flow](docs/data-flow-stages.md)** - How data moves through the system
+- **[Types](docs/types.md)** - TypeScript type definitions and GEDCOM mappings
+- **[GEDCOM Integration](docs/gedcom-ts-integration.md)** - Parser implementation details
+
 ## 🛠️ Technology Stack
 
 - TypeScript
 - React + Vite
 - Tailwind CSS
 - Canvas API
-- Existing GEDCOM parser (gedcom-ts)
+- Custom GEDCOM parser (SimpleGedcomParser)
 - Modern build tools (Vite)
 - Testing framework (Vitest)
 
