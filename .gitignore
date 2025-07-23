@@ -28,4 +28,4 @@ gedcom/*
 
 # Generated files derived from GEDCOM files
 generated/*
-client/public/generated/*
+# client/public/generated/*
