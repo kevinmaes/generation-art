@@ -1,4 +1,4 @@
-import type { AugmentedIndividual } from '../../../shared/types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 
 // Pure function to calculate coordinates for an individual
 export function getIndividualCoord(

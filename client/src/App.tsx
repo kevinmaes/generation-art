@@ -1,6 +1,6 @@
 import React from 'react';
-import { FramedArtwork } from './client/display/components/FramedArtwork';
-import { CANVAS_DIMENSIONS } from './shared/constants';
+import { FramedArtwork } from './display/components/FramedArtwork';
+import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import './App.css';
 
 function App(): React.ReactElement {

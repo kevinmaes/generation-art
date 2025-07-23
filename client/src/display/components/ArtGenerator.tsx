@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import p5 from 'p5';
 import { createWebSketch } from '../FamilyTreeSketch';
-import { CANVAS_DIMENSIONS } from '../../../shared/constants';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import { useGedcomData } from '../../data-loading/hooks/useGedcomData';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;

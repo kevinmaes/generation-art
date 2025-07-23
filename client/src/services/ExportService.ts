@@ -3,14 +3,14 @@ import {
   CANVAS_DIMENSIONS,
   PRINT_SETTINGS,
   EXPORT_FORMATS,
-} from '../../shared/constants';
+} from '../../../shared/constants';
 import { createPrintSketch } from '../display/FamilyTreeSketch';
 import {
   createTemporaryCanvas,
   createExportCanvas,
   cleanupTemporaryCanvas,
-} from '../../shared/utils/CanvasFactory';
-import type { AugmentedIndividual } from '../../shared/types';
+} from '../../../shared/utils/CanvasFactory';
+import type { AugmentedIndividual } from '../../../shared/types';
 
 export interface ExportOptions {
   format?: 'png' | 'jpg';
