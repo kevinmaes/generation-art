@@ -63,7 +63,8 @@ pnpm build:gedcom ./examples/kennedy/kennedy.ged
 
 Generated files are saved to `generated/parsed/` (git-ignored) with the format:
 
-- `{filename}-augmented.json` - Contains both raw data and PII-safe metadata
+- `_{filename}-raw.json` - Raw parsed GEDCOM data (intermediate file)
+- `{filename}.json` - Enhanced data with metadata and relationships (main file)
 
 ## Security Features
 

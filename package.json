@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:gedcom": "tsx src/cli/import/build-gedcom.ts",
+    "build:gedcom": "tsx cli/import/build-gedcom.ts",
     "build:gedcom:reset": "rm -rf ./generated",
     "build:gedcom:example": "pnpm build:gedcom ./examples/kennedy/kennedy.ged",
     "prebuild": "pnpm build:gedcom",

@@ -1,0 +1,3315 @@
+[
+  {
+    "id": "I1355708042",
+    "name": "Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I530030595",
+      "I850917258"
+    ],
+    "spouses": [
+      "95500157"
+    ],
+    "children": [],
+    "siblings": [
+      "I86600477",
+      "I250074776",
+      "I2787447794"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I850917258",
+    "name": "Kennedy",
+    "birth": {
+      "date": "15 OCT 2024"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I1037615584",
+      "I498959425"
+    ],
+    "spouses": [
+      "I530030595"
+    ],
+    "children": [
+      "I86600477",
+      "I1355708042",
+      "I250074776",
+      "I2787447794"
+    ],
+    "siblings": [
+      "I980023486"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I532301466",
+    "name": "Maria Shriver",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3498360064",
+      "I1077433589"
+    ],
+    "spouses": [
+      "I840495740"
+    ],
+    "children": [],
+    "siblings": [
+      "I2922355333",
+      "I1117654209",
+      "I2376640496",
+      "I2893086329"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I68504516",
+    "name": "Mary Norton",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I88012405"
+    ],
+    "children": [
+      "I38382778"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2376640496",
+    "name": "Mark Kennedy Shriver",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3498360064",
+      "I1077433589"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I2922355333",
+      "I1117654209",
+      "I532301466",
+      "I2893086329"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I3534818542",
+    "name": "Mary Augusta Hickey",
+    "birth": {
+      "date": "02 AUG 2010"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I46009385",
+      "I10019568"
+    ],
+    "spouses": [
+      "I3308994112"
+    ],
+    "children": [
+      "I332898108",
+      "I66258184",
+      "I3195365840",
+      "I1657070254"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 1,
+      "isAlive": false,
+      "birthMonth": 8,
+      "zodiacSign": "Leo"
+    }
+  },
+  {
+    "id": "I611915",
+    "name": "Margaret Rowan",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I67063727"
+    ],
+    "children": [
+      "I88530019"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.038625386646220464,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I3976230404",
+    "name": "Joseph Patrick Kennedy",
+    "birth": {
+      "date": "15 OCT 2024"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I530030595",
+      "I2731161184",
+      "I423620047",
+      "I1077433589",
+      "I2999169688",
+      "I2947692513",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I38382778",
+    "name": "James Thomas Lee",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [
+      "I88012405",
+      "I68504516"
+    ],
+    "spouses": [
+      "I61274809"
+    ],
+    "children": [
+      "I498959425"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2597304544",
+    "name": "Jean Ann Kennedy",
+    "birth": {
+      "date": "15 OCT 2024"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [
+      "I1422040608"
+    ],
+    "children": [
+      "I599733909",
+      "I3047769720",
+      "I3648363167"
+    ],
+    "siblings": [
+      "I3976230404",
+      "I530030595",
+      "I2731161184",
+      "I423620047",
+      "I1077433589",
+      "I2999169688",
+      "I2947692513",
+      "I3024815352"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I91309799",
+    "name": "Frank Kennedy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2510004048",
+    "name": "Bridget Murphy",
+    "birth": {
+      "date": "02 AUG 2010"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I611335210"
+    ],
+    "children": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 1,
+      "isAlive": false,
+      "birthMonth": 8,
+      "zodiacSign": "Leo"
+    }
+  },
+  {
+    "id": "I2947692513",
+    "name": "Robert Francis Kennedy",
+    "birth": {
+      "date": "02 AUG 2010"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [
+      "I2141191832"
+    ],
+    "children": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "siblings": [
+      "I3976230404",
+      "I530030595",
+      "I2731161184",
+      "I423620047",
+      "I1077433589",
+      "I2999169688",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "metadata": {
+      "lifespan": 0.9955564947413402,
+      "isAlive": false,
+      "birthMonth": 8,
+      "zodiacSign": "Leo"
+    }
+  },
+  {
+    "id": "I3498360064",
+    "name": "Robert Sargent Shriver",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I1077433589"
+    ],
+    "children": [
+      "I2922355333",
+      "I1117654209",
+      "I532301466",
+      "I2376640496",
+      "I2893086329"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.49798317886345306,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I1037615584",
+    "name": "Black Jack",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I46743064",
+      "I10720765"
+    ],
+    "spouses": [
+      "I498959425"
+    ],
+    "children": [
+      "I850917258",
+      "I980023486"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.48898144278268907,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I1077433589",
+    "name": "Eunice Mary Kennedy",
+    "birth": {
+      "date": "08 JAN 2025"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [
+      "I3498360064"
+    ],
+    "children": [
+      "I2922355333",
+      "I1117654209",
+      "I532301466",
+      "I2376640496",
+      "I2893086329"
+    ],
+    "siblings": [
+      "I3976230404",
+      "I530030595",
+      "I2731161184",
+      "I423620047",
+      "I2999169688",
+      "I2947692513",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 1,
+      "zodiacSign": "Capricorn"
+    }
+  },
+  {
+    "id": "I1883974741",
+    "name": "John Kennedy",
+    "birth": {
+      "date": "28 MAY 2010"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "lifespan": 1,
+      "isAlive": false,
+      "birthMonth": 5,
+      "zodiacSign": "Gemini"
+    }
+  },
+  {
+    "id": "I22704103",
+    "name": "John Kennedy",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I88530019"
+    ],
+    "children": [
+      "I38358467"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I69814556",
+    "name": "Kennedy",
+    "birth": {
+      "date": "12 JUL 2019"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I22245222"
+    ],
+    "children": [
+      "I98406224"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 7,
+      "zodiacSign": "Cancer"
+    }
+  },
+  {
+    "id": "I5835159",
+    "name": "Mary Kennedy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I86600477",
+    "name": "Arabella Kennedy",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [
+      "I530030595",
+      "I850917258"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I1355708042",
+      "I250074776",
+      "I2787447794"
+    ],
+    "metadata": {
+      "lifespan": 0.04826064633029055,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I66258184",
+    "name": "Frances Benedict Kennedy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I3308994112",
+      "I3534818542"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I332898108",
+      "I3195365840",
+      "I1657070254"
+    ],
+    "metadata": {
+      "lifespan": 0.020474912676171964,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I980023486",
+    "name": "Caroline Lee Bouvier",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I1037615584",
+      "I498959425"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I850917258"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I95316018",
+    "name": "John Vernon Bonvier",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I87363030"
+    ],
+    "children": [
+      "I46743064"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.006918857913132692,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I38989037",
+    "name": "Bridget",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I56418209"
+    ],
+    "children": [
+      "I5159712"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.010590848268637633,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I21976599",
+    "name": "Michael Francis Fitzgerald",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I5159712"
+    ],
+    "children": [
+      "I8771558"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.03299985969502617,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I56418209",
+    "name": "Thomas Wilmouth",
+    "birth": {
+      "date": "05 FEB 2016"
+    },
+    "death": {
+      "date": "05 FEB 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I38989037"
+    ],
+    "children": [
+      "I5159712"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.009430847655067187,
+      "isAlive": false,
+      "birthMonth": 2,
+      "zodiacSign": "Aquarius"
+    }
+  },
+  {
+    "id": "I459729883",
+    "name": "Victoria Lawford",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3018044044",
+      "I2999169688"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I4246762280",
+      "I3345830456",
+      "I1056536072"
+    ],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I2787447794",
+    "name": "Patrick Bouvier Kennedy",
+    "birth": {
+      "date": "15 OCT 2024"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I530030595",
+      "I850917258"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I86600477",
+      "I1355708042",
+      "I250074776"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2922355333",
+    "name": "Timothy Shriver",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3498360064",
+      "I1077433589"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I1117654209",
+      "I532301466",
+      "I2376640496",
+      "I2893086329"
+    ],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I1422040608",
+    "name": "Stephen Edward Smith",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I2597304544"
+    ],
+    "children": [
+      "I599733909",
+      "I3047769720",
+      "I3648363167"
+    ],
+    "siblings": [],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I8442357",
+    "name": "Kennedy",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I38358467"
+    ],
+    "children": [
+      "I611335210"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.028643855260889195,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I27594348",
+    "name": "Linnehan ( Lenihan)",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I42583784"
+    ],
+    "children": [
+      "I14271859"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.04843857138301098,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I4246762280",
+    "name": "Christopher Lawford",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3018044044",
+      "I2999169688"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3345830456",
+      "I459729883",
+      "I1056536072"
+    ],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I10720765",
+    "name": "Maud Frances Sargeant",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [
+      "I75028805",
+      "I72505263"
+    ],
+    "spouses": [
+      "I46743064"
+    ],
+    "children": [
+      "I1037615584"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.03279211403096523,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I88012405",
+    "name": "James Lee",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I68504516"
+    ],
+    "children": [
+      "I38382778"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.028545926831768355,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2435028768",
+    "name": "Mary Kerry Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I3648363167",
+    "name": "William Kennedy Smith",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I1422040608",
+      "I2597304544"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I599733909",
+      "I3047769720"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I3124430248",
+    "name": "John F. Fitzgerald",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I8771558",
+      "I86442814"
+    ],
+    "spouses": [
+      "I92297942",
+      "I61184448"
+    ],
+    "children": [
+      "I3200081440"
+    ],
+    "siblings": [],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I2141191832",
+    "name": "Ethel Skakel",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I2947692513"
+    ],
+    "children": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "siblings": [],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I42583784",
+    "name": "Edmond ( Edward) Fitzgerald",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I27594348"
+    ],
+    "children": [
+      "I14271859"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.022040565430862104,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I46009385",
+    "name": "James Hickey",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [
+      "I77055520",
+      "I65222066"
+    ],
+    "spouses": [
+      "I10019568"
+    ],
+    "children": [
+      "I3534818542"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I3631707996",
+    "name": "Margaret Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [
+      "I472153466"
+    ],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I86442814",
+    "name": "Rose Anna Cox",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [
+      "I22022338",
+      "I39716672"
+    ],
+    "spouses": [
+      "I8771558"
+    ],
+    "children": [
+      "I3124430248"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I27819842",
+    "name": "Andrew Kennedy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "lifespan": 0.049350509858950245,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I5159712",
+    "name": "Ellen Wilmot",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [
+      "I56418209",
+      "I38989037"
+    ],
+    "spouses": [
+      "I21976599"
+    ],
+    "children": [
+      "I8771558"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I58093581",
+    "name": "John Hannon",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I35717902"
+    ],
+    "children": [
+      "I34414010"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.03967217273062223,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2377167551",
+    "name": "Christopher George Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I305439758",
+    "name": "Laurence Kane",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I1882987274"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I2574143542",
+    "name": "Virginia Joan Bennett",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I3024815352"
+    ],
+    "children": [
+      "I340219094",
+      "I1833153168",
+      "I770583960"
+    ],
+    "siblings": [],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I96937008",
+    "name": "Mary Willson",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I98406224"
+    ],
+    "children": [
+      "I67063727"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I3024815352",
+    "name": "Edward Moore Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [
+      "I2574143542"
+    ],
+    "children": [
+      "I340219094",
+      "I1833153168",
+      "I770583960"
+    ],
+    "siblings": [
+      "I3976230404",
+      "I530030595",
+      "I2731161184",
+      "I423620047",
+      "I1077433589",
+      "I2999169688",
+      "I2947692513",
+      "I2597304544"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I3047769720",
+    "name": "Stephen Smith",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I1422040608",
+      "I2597304544"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I599733909",
+      "I3648363167"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I92297942",
+    "name": "Mary Josephine HANNON",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I34414010",
+      "I14271859"
+    ],
+    "spouses": [
+      "I3124430248"
+    ],
+    "children": [
+      "I3200081440"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.017001427575384455,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2841407858",
+    "name": "William John Robert Cavendish",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I423620047"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.46207396865297656,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I52249134",
+    "name": "Carolyn BESSETTE",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I250074776"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I61184448",
+    "name": "Sarah J. Coffman",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I3124430248"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I1664203802",
+    "name": "Rory Elizabeth Katherine Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I37964436",
+    "name": "Patrick Field",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I2683236"
+    ],
+    "children": [
+      "I10019568"
+    ],
+    "siblings": [],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I422450937",
+    "name": "Robert Francis Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I3200081440",
+    "name": "Rose Elizabeth Fitzgerald",
+    "birth": {
+      "date": "02 AUG 2010"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3124430248",
+      "I92297942"
+    ],
+    "spouses": [
+      "I332898108"
+    ],
+    "children": [
+      "I3976230404",
+      "I530030595",
+      "I2731161184",
+      "I423620047",
+      "I1077433589",
+      "I2999169688",
+      "I2947692513",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 1,
+      "isAlive": false,
+      "birthMonth": 8,
+      "zodiacSign": "Leo"
+    }
+  },
+  {
+    "id": "I22022338",
+    "name": "Philip Cox",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I39716672"
+    ],
+    "children": [
+      "I86442814"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.03312845557970552,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I340219094",
+    "name": "Kara Ann Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3024815352",
+      "I2574143542"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I1833153168",
+      "I770583960"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I4120355596",
+    "name": "David Anthony Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I1657070254",
+    "name": "Margaret Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3308994112",
+      "I3534818542"
+    ],
+    "spouses": [
+      "I3693690742"
+    ],
+    "children": [],
+    "siblings": [
+      "I332898108",
+      "I66258184",
+      "I3195365840"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I77055520",
+    "name": "Michael Hickey",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I65222066"
+    ],
+    "children": [
+      "I46009385"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I3693690742",
+    "name": "Charles Burke",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I1657070254"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I472153466",
+    "name": "John T. Caulfield",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I3631707996"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I3308994112",
+    "name": "Patrick Joseph Kennedy",
+    "birth": {
+      "date": "02 AUG 2010"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [
+      "I3534818542"
+    ],
+    "children": [
+      "I332898108",
+      "I66258184",
+      "I3195365840",
+      "I1657070254"
+    ],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "lifespan": 1,
+      "isAlive": false,
+      "birthMonth": 8,
+      "zodiacSign": "Leo"
+    }
+  },
+  {
+    "id": "I2999169688",
+    "name": "Patricia Kennedy",
+    "birth": {
+      "date": "08 JAN 2025"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [
+      "I3018044044"
+    ],
+    "children": [
+      "I4246762280",
+      "I3345830456",
+      "I459729883",
+      "I1056536072"
+    ],
+    "siblings": [
+      "I3976230404",
+      "I530030595",
+      "I2731161184",
+      "I423620047",
+      "I1077433589",
+      "I2947692513",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 1,
+      "zodiacSign": "Capricorn"
+    }
+  },
+  {
+    "id": "I1117654209",
+    "name": "Robert Sargent Shriver",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3498360064",
+      "I1077433589"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I2922355333",
+      "I532301466",
+      "I2376640496",
+      "I2893086329"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I67063727",
+    "name": "John Kennedy",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [
+      "I98406224",
+      "I96937008"
+    ],
+    "spouses": [
+      "I611915"
+    ],
+    "children": [
+      "I88530019"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.026788556541943433,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I72505263",
+    "name": "Edith Leaman",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I75028805"
+    ],
+    "children": [
+      "I10720765"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.04488890158597419,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I8771558",
+    "name": "Thomas Fitzgerald",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [
+      "I21976599",
+      "I5159712"
+    ],
+    "spouses": [
+      "I86442814"
+    ],
+    "children": [
+      "I3124430248"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.047464809566159685,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I374867",
+    "name": "Mich Kennedy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I65222066",
+    "name": "Catherine Hasset",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I77055520"
+    ],
+    "children": [
+      "I46009385"
+    ],
+    "siblings": [],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I770583960",
+    "name": "Patrick Joseph Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3024815352",
+      "I2574143542"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I340219094",
+      "I1833153168"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I3805468730",
+    "name": "Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I46743064",
+    "name": "John Vernou Bouvier Jr.",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [
+      "I95316018",
+      "I87363030"
+    ],
+    "spouses": [
+      "I10720765"
+    ],
+    "children": [
+      "I1037615584"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.008593131855061387,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I75028805",
+    "name": "William Robert Sergeant",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I72505263"
+    ],
+    "children": [
+      "I10720765"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I1833153168",
+    "name": "Edward More Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3024815352",
+      "I2574143542"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I340219094",
+      "I770583960"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I35717902",
+    "name": "Eellen Noonan",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I58093581"
+    ],
+    "children": [
+      "I34414010"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.011409883719257819,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I14271859",
+    "name": "Mary Ann Fitzgerald",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I42583784",
+      "I27594348"
+    ],
+    "spouses": [
+      "I34414010"
+    ],
+    "children": [
+      "I92297942"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2731161184",
+    "name": "Rosemary Kennedy",
+    "birth": {
+      "date": "08 JAN 2025"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3976230404",
+      "I530030595",
+      "I423620047",
+      "I1077433589",
+      "I2999169688",
+      "I2947692513",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 1,
+      "zodiacSign": "Capricorn"
+    }
+  },
+  {
+    "id": "I20736370",
+    "name": "Thomas Kennedy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I68205156"
+    ],
+    "metadata": {
+      "lifespan": 0.027603822357350174,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2689750112",
+    "name": "Mary Courtney Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I332898108",
+    "name": "Joseph Patrick Kennedy",
+    "birth": {
+      "date": "02 AUG 2010"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3308994112",
+      "I3534818542"
+    ],
+    "spouses": [
+      "I3200081440"
+    ],
+    "children": [
+      "I3976230404",
+      "I530030595",
+      "I2731161184",
+      "I423620047",
+      "I1077433589",
+      "I2999169688",
+      "I2947692513",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "siblings": [
+      "I66258184",
+      "I3195365840",
+      "I1657070254"
+    ],
+    "metadata": {
+      "lifespan": 0.963632810383809,
+      "isAlive": false,
+      "birthMonth": 8,
+      "zodiacSign": "Leo"
+    }
+  },
+  {
+    "id": "I2893086329",
+    "name": "Anthony Paul Shriver",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3498360064",
+      "I1077433589"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I2922355333",
+      "I1117654209",
+      "I532301466",
+      "I2376640496"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I22245222",
+    "name": "Thomas Kennedy",
+    "birth": {
+      "date": "12 JUL 2019"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I69814556"
+    ],
+    "children": [
+      "I98406224"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 7,
+      "zodiacSign": "Cancer"
+    }
+  },
+  {
+    "id": "I611335210",
+    "name": "Patrick Kennedy",
+    "birth": {
+      "date": "02 AUG 2010"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I38358467",
+      "I8442357"
+    ],
+    "spouses": [
+      "I2510004048"
+    ],
+    "children": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 1,
+      "isAlive": false,
+      "birthMonth": 8,
+      "zodiacSign": "Leo"
+    }
+  },
+  {
+    "id": "I498959425",
+    "name": "Janet Norton Lee",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I38382778",
+      "I61274809"
+    ],
+    "spouses": [
+      "I1037615584",
+      "I1752846256"
+    ],
+    "children": [
+      "I850917258",
+      "I980023486"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.5043705934835927,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I3345830456",
+    "name": "Sydney Maleia Kennedy Lawford",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3018044044",
+      "I2999169688"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I4246762280",
+      "I459729883",
+      "I1056536072"
+    ],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I580180667",
+    "name": "Joseph Patrick Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I840495740",
+    "name": "Arnold Alois Schwarzenegger",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I532301466"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I1882987274",
+    "name": "Mary Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [
+      "I305439758"
+    ],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I1518731094",
+    "name": "Michael L. Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I67863976",
+    "name": "Mary Ann Kennedy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "lifespan": 0.04809517281419329,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I1752846256",
+    "name": "Hugh Dudley Achincloss",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I498959425"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.5160810571639001,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I98406224",
+    "name": "Thomas Kennedy",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [
+      "I22245222",
+      "I69814556"
+    ],
+    "spouses": [
+      "I96937008"
+    ],
+    "children": [
+      "I67063727"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.007639893970109313,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I34414010",
+    "name": "Michael Hannon",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I58093581",
+      "I35717902"
+    ],
+    "spouses": [
+      "I14271859"
+    ],
+    "children": [
+      "I92297942"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.02905950475259447,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2856280178",
+    "name": "Humphrey Mahoney",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I2455834610"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I2455834610",
+    "name": "Johanna Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [
+      "I2856280178"
+    ],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370",
+      "I68205156"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I38358467",
+    "name": "Patrick Kennedy",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [
+      "I88530019",
+      "I22704103"
+    ],
+    "spouses": [
+      "I8442357"
+    ],
+    "children": [
+      "I611335210"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I2683236",
+    "name": "Mary Sheehy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I37964436"
+    ],
+    "children": [
+      "I10019568"
+    ],
+    "siblings": [],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I1197484624",
+    "name": "Douglas Harriman Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I3821997576",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I3018044044",
+    "name": "Peter Lawford",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [],
+    "spouses": [
+      "I2999169688"
+    ],
+    "children": [
+      "I4246762280",
+      "I3345830456",
+      "I459729883",
+      "I1056536072"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.5240334207701807,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I39716672",
+    "name": "Mary",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I22022338"
+    ],
+    "children": [
+      "I86442814"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.047406626060087456,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I1056536072",
+    "name": "Robin Elizabeth Lawford",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3018044044",
+      "I2999169688"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I4246762280",
+      "I3345830456",
+      "I459729883"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I61274809",
+    "name": "Margaret A. Merritt",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I38382778"
+    ],
+    "children": [
+      "I498959425"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.01986507375454205,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I88530019",
+    "name": "John Kennedy",
+    "birth": {
+      "date": "26 SEP 2013"
+    },
+    "death": {
+      "date": "26 SEP 2013"
+    },
+    "parents": [
+      "I67063727",
+      "I611915"
+    ],
+    "spouses": [
+      "I22704103"
+    ],
+    "children": [
+      "I38358467"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I68205156",
+    "name": "William Kennedy",
+    "birth": {
+      "date": "01 OCT 2013"
+    },
+    "death": {
+      "date": "01 OCT 2013"
+    },
+    "parents": [
+      "I611335210",
+      "I2510004048"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I27819842",
+      "I67863976",
+      "I1882987274",
+      "I5835159",
+      "I2455834610",
+      "I374867",
+      "I1883974741",
+      "I3631707996",
+      "I91309799",
+      "I3308994112",
+      "I20736370"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I250074776",
+    "name": "John Fitzgerald Kennedy",
+    "birth": {
+      "date": "15 OCT 2024"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I530030595",
+      "I850917258"
+    ],
+    "spouses": [
+      "I52249134"
+    ],
+    "children": [],
+    "siblings": [
+      "I86600477",
+      "I1355708042",
+      "I2787447794"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I87363030",
+    "name": "Caroline Maslin Ewing",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [],
+    "spouses": [
+      "I95316018"
+    ],
+    "children": [
+      "I46743064"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I3195365840",
+    "name": "Loretta Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I3308994112",
+      "I3534818542"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I332898108",
+      "I66258184",
+      "I1657070254"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I3821997576",
+    "name": "Matthew Maxwell Taylor Kennedy",
+    "birth": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I2947692513",
+      "I2141191832"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3805468730",
+      "I580180667",
+      "I422450937",
+      "I4120355596",
+      "I2689750112",
+      "I1518731094",
+      "I2435028768",
+      "I2377167551",
+      "I1197484624",
+      "I1664203802"
+    ],
+    "metadata": {
+      "isAlive": true,
+      "birthMonth": 3,
+      "zodiacSign": "Pisces"
+    }
+  },
+  {
+    "id": "I10019568",
+    "name": "Margaret Martha Field",
+    "birth": {
+      "date": "27 SEP 2013"
+    },
+    "death": {
+      "date": "27 SEP 2013"
+    },
+    "parents": [
+      "I37964436",
+      "I2683236"
+    ],
+    "spouses": [
+      "I46009385"
+    ],
+    "children": [
+      "I3534818542"
+    ],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 9,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "I423620047",
+    "name": "Kick",
+    "birth": {
+      "date": "08 JAN 2025"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [
+      "I2841407858"
+    ],
+    "children": [],
+    "siblings": [
+      "I3976230404",
+      "I530030595",
+      "I2731161184",
+      "I1077433589",
+      "I2999169688",
+      "I2947692513",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 1,
+      "zodiacSign": "Capricorn"
+    }
+  },
+  {
+    "id": "I599733909",
+    "name": "Amanda Mary Smith",
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I1422040608",
+      "I2597304544"
+    ],
+    "spouses": [],
+    "children": [],
+    "siblings": [
+      "I3047769720",
+      "I3648363167"
+    ],
+    "metadata": {
+      "isAlive": false
+    }
+  },
+  {
+    "id": "I530030595",
+    "name": "John Fitzgerald Kennedy",
+    "birth": {
+      "date": "09 OCT 2013"
+    },
+    "death": {
+      "date": "02 MAR 2016"
+    },
+    "parents": [
+      "I332898108",
+      "I3200081440"
+    ],
+    "spouses": [
+      "I850917258"
+    ],
+    "children": [
+      "I86600477",
+      "I1355708042",
+      "I250074776",
+      "I2787447794"
+    ],
+    "siblings": [
+      "I3976230404",
+      "I2731161184",
+      "I423620047",
+      "I1077433589",
+      "I2999169688",
+      "I2947692513",
+      "I2597304544",
+      "I3024815352"
+    ],
+    "metadata": {
+      "lifespan": 0.48063581449525133,
+      "isAlive": false,
+      "birthMonth": 10,
+      "zodiacSign": "Libra"
+    }
+  },
+  {
+    "id": "95500157",
+    "name": "Ed Schlossberg",
+    "birth": {
+      "date": "26 NOV 2024"
+    },
+    "death": {
+      "date": "26 NOV 2024"
+    },
+    "parents": [],
+    "spouses": [
+      "I1355708042"
+    ],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.039669406389560985,
+      "isAlive": false,
+      "birthMonth": 11,
+      "zodiacSign": "Sagittarius"
+    }
+  },
+  {
+    "id": "34070618",
+    "name": "Harold Joseph Laski",
+    "birth": {
+      "date": "08 JAN 2025"
+    },
+    "death": {
+      "date": "08 JAN 2025"
+    },
+    "parents": [],
+    "spouses": [],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 1,
+      "zodiacSign": "Capricorn"
+    }
+  },
+  {
+    "id": "59057007",
+    "name": "Lem",
+    "birth": {
+      "date": "08 JAN 2025"
+    },
+    "death": {
+      "date": "08 JAN 2025"
+    },
+    "parents": [],
+    "spouses": [],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0.01301180336547554,
+      "isAlive": false,
+      "birthMonth": 1,
+      "zodiacSign": "Capricorn"
+    }
+  },
+  {
+    "id": "35510330",
+    "name": "Kennedy Family",
+    "birth": {
+      "date": "08 JAN 2025"
+    },
+    "death": {
+      "date": "26 NOV 2024"
+    },
+    "parents": [],
+    "spouses": [],
+    "children": [],
+    "siblings": [],
+    "metadata": {
+      "lifespan": 0,
+      "isAlive": false,
+      "birthMonth": 1,
+      "zodiacSign": "Capricorn"
+    }
+  }
+]
