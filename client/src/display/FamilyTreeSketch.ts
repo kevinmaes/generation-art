@@ -1,6 +1,6 @@
 import type p5 from 'p5';
 import { getUniqueEdges, getIndividualCoord } from './components/helpers';
-import type { AugmentedIndividual } from '../../shared/types';
+import type { AugmentedIndividual } from '../../../shared/types';
 
 export interface SketchConfig {
   width: number;

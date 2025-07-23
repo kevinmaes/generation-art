@@ -6,7 +6,7 @@ import {
   type ExportOptions,
   type PrintExportOptions,
 } from '../../services/ExportService';
-import type { AugmentedIndividual } from '../../../shared/types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 
 export interface ExportState {
   isExporting: boolean;

@@ -2,7 +2,7 @@ import React, { useRef, useCallback } from 'react';
 import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
-import { CANVAS_DIMENSIONS } from '../../../shared/constants';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import { useGedcomData } from '../../data-loading/hooks/useGedcomData';
 import { useCanvasExport } from '../../data-loading/hooks/useCanvasExport';
 

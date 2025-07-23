@@ -60,13 +60,16 @@ shared/
 
 ```typescript
 // Import types
-import type { AugmentedIndividual, IndividualMetadata } from '../shared/types';
+import type {
+  AugmentedIndividual,
+  IndividualMetadata,
+} from '../../shared/types';
 
 // Import utilities
-import { CanvasFactory } from '../shared/utils';
+import { CanvasFactory } from '../../shared/utils';
 
 // Import constants
-import { CANVAS_DIMENSIONS } from '../shared/constants';
+import { CANVAS_DIMENSIONS } from '../../shared/constants';
 ```
 
 ## Security Features

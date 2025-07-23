@@ -7,7 +7,7 @@
  * Security: This layer only works with PII-safe metadata, never raw GEDCOM data.
  */
 
-import type { AugmentedIndividual } from '../../../shared/types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 
 // Canvas-specific data structures
 export interface DisplayNode {

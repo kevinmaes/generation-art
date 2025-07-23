@@ -212,8 +212,8 @@ async function buildGedcomFiles(
   for (const { file, inputDir } of allGedcomFiles) {
     const baseName = basename(file, '.ged');
     const inputPath = join(inputDir, file);
-    const outputPath = join(outputDir, `${baseName}.json`);
-    const augmentedPath = join(outputDir, `${baseName}-augmented.json`);
+    const rawOutputPath = join(outputDir, `_${baseName}-raw.json`);
+    const finalOutputPath = join(outputDir, `${baseName}.json`);
 
     console.log(`Processing ${inputDir}/${file}...`);
 
@@ -223,10 +223,10 @@ async function buildGedcomFiles(
       const parser = new SimpleGedcomParser();
       const parsedData = parser.parse(gedcomText);
 
-      // Write parsed JSON
-      await writeFile(outputPath, JSON.stringify(parsedData, null, 2));
+      // Write raw parsed JSON (intermediate file)
+      await writeFile(rawOutputPath, JSON.stringify(parsedData, null, 2));
       console.log(
-        `  ✓ Generated ${baseName}.json (${String(parsedData.individuals.length)} individuals, ${String(parsedData.families.length)} families)`,
+        `  ✓ Generated _${baseName}-raw.json (${String(parsedData.individuals.length)} individuals, ${String(parsedData.families.length)} families)`,
       );
 
       // Generate augmented data
@@ -237,10 +237,10 @@ async function buildGedcomFiles(
         families,
       );
       await writeFile(
-        augmentedPath,
+        finalOutputPath,
         JSON.stringify(augmentedData.individuals, null, 2),
       );
-      console.log(`  ✓ Generated ${baseName}-augmented.json`);
+      console.log(`  ✓ Generated ${baseName}.json (enhanced with metadata)`);
 
       // Check for media directory with flexible naming
       const foundMediaDir = await findMediaDirectory(inputDir, baseName);
