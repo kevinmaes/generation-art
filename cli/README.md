@@ -66,10 +66,38 @@ Generated files are saved to `generated/parsed/` (git-ignored) with the format:
 - `_{filename}-raw.json` - Raw parsed GEDCOM data (intermediate file)
 - `{filename}.json` - Enhanced data with metadata and relationships (main file)
 
+## Development Workflow
+
+### **Automatic File Copying**
+
+The CLI outputs to the root `generated/` folder, but the React app needs files in `client/public/generated/` for Vite to serve them. This is handled automatically:
+
+```bash
+# Build GEDCOM files and copy to client/public
+pnpm build:gedcom && pnpm copy-generated
+
+# Or use the combined script
+pnpm dev:with-gedcom
+
+# Manual copy if needed
+pnpm copy-generated
+```
+
+> **Security Note**: Both `generated/` and `client/public/generated/` are git-ignored to prevent PII data from being committed to version control.
+
+### **Post-Build Script**
+
+The `postbuild` script automatically copies generated files after any build process:
+
+```bash
+# This will run: build:gedcom → copy-generated → build
+pnpm build
+```
+
 ## Security Features
 
 - ✅ **Local-only processing** - No network transmission
-- ✅ **Git-ignored output** - Generated files never committed
+- ✅ **Git-ignored output** - Generated files never committed (both `generated/` and `client/public/generated/`)
 - ✅ **PII masking** - Sensitive data transformed
 - ✅ **CLI-only access** - No web interface to raw data
 
