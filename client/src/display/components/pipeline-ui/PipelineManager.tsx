@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import ReactJson from 'react-json-view';
 import type { PipelineResult } from '../../../transformers/pipeline';
 import { transformers } from '../../../transformers/transformers';
 import type { GedcomDataWithMetadata } from '../../../../../shared/types';
@@ -40,10 +39,6 @@ export function PipelineManager({
   const availableTransformerIds = Object.keys(transformers).filter(
     (id) => !activeTransformerIds.includes(id),
   );
-
-  const formatMetadata = (data: unknown): string => {
-    return JSON.stringify(data, null, 2);
-  };
 
   // Construct the complete PipelineInput object
   const pipelineInput =
@@ -162,22 +157,22 @@ export function PipelineManager({
                   maxHeight: '180px',
                 }}
               >
-                <SyntaxHighlighter
-                  language="json"
-                  style={docco}
-                  customStyle={{
-                    margin: 0,
-                    fontSize: '11px',
-                    padding: '8px',
+                <ReactJson
+                  src={pipelineInput}
+                  theme="rjv-default"
+                  style={{
                     backgroundColor: 'transparent',
+                    fontSize: '11px',
                     textAlign: 'left',
-                    whiteSpace: 'pre',
+                    padding: '8px',
                   }}
-                  showLineNumbers={false}
-                  wrapLines={true}
-                >
-                  {formatMetadata(pipelineInput)}
-                </SyntaxHighlighter>
+                  name={null}
+                  collapsed={2}
+                  enableClipboard={false}
+                  displayDataTypes={false}
+                  displayObjectSize={true}
+                  indentWidth={2}
+                />
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
@@ -252,22 +247,22 @@ export function PipelineManager({
                   maxHeight: '180px',
                 }}
               >
-                <SyntaxHighlighter
-                  language="json"
-                  style={docco}
-                  customStyle={{
-                    margin: 0,
-                    fontSize: '11px',
-                    padding: '8px',
+                <ReactJson
+                  src={pipelineResult.visualMetadata}
+                  theme="rjv-default"
+                  style={{
                     backgroundColor: 'transparent',
+                    fontSize: '11px',
                     textAlign: 'left',
-                    whiteSpace: 'pre',
+                    padding: '8px',
                   }}
-                  showLineNumbers={false}
-                  wrapLines={true}
-                >
-                  {formatMetadata(pipelineResult.visualMetadata)}
-                </SyntaxHighlighter>
+                  name={null}
+                  collapsed={2}
+                  enableClipboard={false}
+                  displayDataTypes={false}
+                  displayObjectSize={true}
+                  indentWidth={2}
+                />
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">

@@ -163,7 +163,7 @@ client/src/transformers/
 
 **Dependencies:**
 
-- `react-syntax-highlighter` - For syntax-highlighted code display
+- `react-json-view` - For collapsible JSON tree display with expand/collapse functionality
 - `@dnd-kit/core` and `@dnd-kit/sortable` - For drag-and-drop functionality (future)
 
 **UI Layout (2x2 Grid):**
@@ -270,7 +270,7 @@ client/src/transformers/
 
 **Key UI Improvements:**
 
-- **Syntax Highlighting**: JSON code blocks now have proper syntax highlighting with colors
+- **Collapsible JSON Trees**: JSON objects can be expanded/collapsed with arrow buttons for better navigation
 - **Proper Scrolling**: Code blocks scroll both horizontally and vertically when content overflows
 - **Height Constraints**: Fixed 180px height for code panels with consistent behavior
 - **Professional Appearance**: Clean, modern UI that looks like a proper development tool
