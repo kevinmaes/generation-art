@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import type { PipelineResult } from '../../../transformers/pipeline';
 import { transformers } from '../../../transformers/transformers';
 
@@ -106,12 +108,32 @@ export function PipelineManager({
           <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
             {selectedTransformer ? (
               <div
-                className="h-full overflow-auto border rounded bg-gray-50"
-                style={{ scrollbarWidth: 'thin' }}
+                className="h-full border rounded bg-gray-50"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#888 #f1f1f1',
+                  overflow: 'auto',
+                  overflowX: 'auto',
+                  overflowY: 'auto',
+                  maxHeight: '180px',
+                }}
               >
-                <pre className="text-xs p-2 m-0 text-left whitespace-pre font-mono">
-                  <code>{formatMetadata(pipelineResult?.config ?? {})}</code>
-                </pre>
+                <SyntaxHighlighter
+                  language="json"
+                  style={docco}
+                  customStyle={{
+                    margin: 0,
+                    fontSize: '11px',
+                    padding: '8px',
+                    backgroundColor: 'transparent',
+                    textAlign: 'left',
+                    whiteSpace: 'pre',
+                  }}
+                  showLineNumbers={false}
+                  wrapLines={true}
+                >
+                  {formatMetadata(pipelineResult?.config ?? {})}
+                </SyntaxHighlighter>
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
@@ -171,18 +193,35 @@ export function PipelineManager({
             Output Metadata
             {selectedTransformer && ` - ${selectedTransformer.name}`}
           </h4>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
             {selectedTransformer && pipelineResult ? (
               <div
-                className="h-full overflow-auto border rounded bg-gray-50"
-                style={{ scrollbarWidth: 'thin', maxHeight: '180px' }}
+                className="h-full border rounded bg-gray-50"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#888 #f1f1f1',
+                  overflow: 'auto',
+                  overflowX: 'auto',
+                  overflowY: 'auto',
+                  maxHeight: '180px',
+                }}
               >
-                <pre
-                  className="text-xs p-2 m-0 text-left whitespace-pre font-mono"
-                  style={{ maxHeight: '100%' }}
+                <SyntaxHighlighter
+                  language="json"
+                  style={docco}
+                  customStyle={{
+                    margin: 0,
+                    fontSize: '11px',
+                    padding: '8px',
+                    backgroundColor: 'transparent',
+                    textAlign: 'left',
+                    whiteSpace: 'pre',
+                  }}
+                  showLineNumbers={false}
+                  wrapLines={true}
                 >
-                  <code>{formatMetadata(pipelineResult.visualMetadata)}</code>
-                </pre>
+                  {formatMetadata(pipelineResult.visualMetadata)}
+                </SyntaxHighlighter>
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
