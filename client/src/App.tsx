@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
-import { safeValidateFlexibleGedcomData } from '../../shared/types';
+import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata } from '../../shared/types';
 import './App.css';
 
@@ -44,12 +44,8 @@ function App(): React.ReactElement {
       const data = JSON.parse(text) as unknown;
 
       // Use Zod validation instead of manual type checking
-      const result = safeValidateFlexibleGedcomData(data);
-      if (!result.success) {
-        throw new Error(`Invalid file format: ${result.error.message}`);
-      }
-
-      setFamilyTreeData(result.data);
+      const validatedData = validateFlexibleGedcomData(data);
+      setFamilyTreeData(validatedData);
       setCurrentView('artwork');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load file');
@@ -86,12 +82,8 @@ function App(): React.ReactElement {
       const data = JSON.parse(text) as unknown;
 
       // Use Zod validation for Kennedy data
-      const result = safeValidateFlexibleGedcomData(data);
-      if (!result.success) {
-        throw new Error(`Invalid Kennedy data format: ${result.error.message}`);
-      }
-
-      setFamilyTreeData(result.data);
+      const validatedData = validateFlexibleGedcomData(data);
+      setFamilyTreeData(validatedData);
       setCurrentView('artwork');
     } catch (err) {
       setError(
@@ -136,7 +128,7 @@ function App(): React.ReactElement {
               subtitle="Generative visualization of family connections and generations"
               width={minWidth}
               height={minHeight}
-              jsonFile={'generated/parsed/kennedy.json'}
+              gedcomData={familyTreeData}
               className="mb-8"
             />
           ) : (

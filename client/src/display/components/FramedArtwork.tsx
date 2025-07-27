@@ -3,15 +3,15 @@ import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
-import { useGedcomData } from '../../data-loading/hooks/useGedcomData';
 import { useCanvasExport } from '../../data-loading/hooks/useCanvasExport';
+import type { GedcomDataWithMetadata } from '../../../../shared/types';
 
 interface FramedArtworkProps {
   title: string;
   subtitle?: string;
   width?: number;
   height?: number;
-  jsonFile?: string;
+  gedcomData?: GedcomDataWithMetadata;
   className?: string;
 }
 
@@ -20,15 +20,10 @@ export function FramedArtwork({
   subtitle,
   width = CANVAS_DIMENSIONS.WEB.WIDTH,
   height = CANVAS_DIMENSIONS.WEB.HEIGHT,
-  jsonFile,
+  gedcomData,
   className = '',
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
-
-  // Get the family data for print export
-  const { data: familyData } = useGedcomData({
-    jsonFile: jsonFile ?? '',
-  });
 
   // Use the export hook
   const { exportState, exportWebCanvas, exportPrintCanvas } = useCanvasExport();
@@ -47,13 +42,13 @@ export function FramedArtwork({
 
   const handlePrintClick = useCallback(() => {
     console.log('🖨️ Print Ready clicked!');
-    if (!familyData) {
-      console.log('❌ No family data available for print export');
+    if (!gedcomData) {
+      console.log('❌ No GEDCOM data available for print export');
       return;
     }
 
-    void exportPrintCanvas(familyData);
-  }, [familyData, exportPrintCanvas]);
+    void exportPrintCanvas(gedcomData.individuals);
+  }, [gedcomData, exportPrintCanvas]);
 
   return (
     <div
@@ -73,7 +68,7 @@ export function FramedArtwork({
           <ArtGenerator
             width={width}
             height={height}
-            jsonFile={jsonFile}
+            gedcomData={gedcomData}
             onExportReady={handleExport}
           />
         </div>

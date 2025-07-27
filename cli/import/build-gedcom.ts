@@ -236,10 +236,7 @@ async function buildGedcomFiles(
         individuals,
         families,
       );
-      await writeFile(
-        finalOutputPath,
-        JSON.stringify(augmentedData.individuals, null, 2),
-      );
+      await writeFile(finalOutputPath, JSON.stringify(augmentedData, null, 2));
       console.log(`  ✓ Generated ${baseName}.json (enhanced with metadata)`);
 
       // Check for media directory with flexible naming
