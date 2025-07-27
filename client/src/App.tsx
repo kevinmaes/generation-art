@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
+import { PipelineManager } from './display/components/pipeline-ui/PipelineManager';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata } from '../../shared/types';
+import type { PipelineResult } from './transformers/pipeline';
+import { transformers } from './transformers/transformers';
 import './App.css';
 
 function App(): React.ReactElement {
@@ -12,6 +15,12 @@ function App(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
+  );
+  const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(
+    null,
+  );
+  const [activeTransformerIds, setActiveTransformerIds] = useState<string[]>(
+    Object.keys(transformers),
   );
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
@@ -94,6 +103,18 @@ function App(): React.ReactElement {
     }
   };
 
+  const handleTransformerSelect = (transformerId: string) => {
+    console.log('Selected transformer:', transformerId);
+    // TODO: Implement transformer selection logic
+  };
+
+  const handlePipelineResult = (result: PipelineResult | null) => {
+    setPipelineResult(result);
+    if (result) {
+      setActiveTransformerIds(result.config.transformerIds);
+    }
+  };
+
   return (
     <div
       className="min-h-screen w-full bg-gray-100 flex items-center justify-center"
@@ -123,14 +144,24 @@ function App(): React.ReactElement {
             )}
           </div>
           {currentView === 'artwork' && familyTreeData ? (
-            <FramedArtwork
-              title="Family Tree Visualization"
-              subtitle="Generative visualization of family connections and generations"
-              width={minWidth}
-              height={minHeight}
-              gedcomData={familyTreeData}
-              className="mb-8"
-            />
+            <>
+              <FramedArtwork
+                title="Family Tree Visualization"
+                subtitle="Generative visualization of family connections and generations"
+                width={minWidth}
+                height={minHeight}
+                gedcomData={familyTreeData}
+                className="mb-8"
+                onPipelineResult={handlePipelineResult}
+              />
+              <div className="mb-8">
+                <PipelineManager
+                  pipelineResult={pipelineResult}
+                  activeTransformerIds={activeTransformerIds}
+                  onTransformerSelect={handleTransformerSelect}
+                />
+              </div>
+            </>
           ) : (
             <div
               className="flex flex-col items-center justify-center"

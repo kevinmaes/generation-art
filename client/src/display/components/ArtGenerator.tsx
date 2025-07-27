@@ -4,6 +4,7 @@ import { createWebSketch, type SketchConfig } from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import { usePipeline } from './hooks/usePipeline';
+import type { PipelineResult } from '../../transformers/pipeline';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -13,6 +14,7 @@ interface ArtGeneratorProps {
   height?: number;
   gedcomData?: GedcomDataWithMetadata;
   onExportReady?: (p5Instance: p5) => void;
+  onPipelineResult?: (result: PipelineResult | null) => void;
 }
 
 export function ArtGenerator({
@@ -20,6 +22,7 @@ export function ArtGenerator({
   height = DEFAULT_HEIGHT,
   gedcomData,
   onExportReady,
+  onPipelineResult,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
@@ -29,6 +32,11 @@ export function ArtGenerator({
     error: pipelineError,
     isRunning,
   } = usePipeline(gedcomData, width, height);
+
+  // Notify parent component when pipeline result changes
+  useEffect(() => {
+    onPipelineResult?.(pipelineResult);
+  }, [pipelineResult, onPipelineResult]);
 
   // Only create the sketch after pipelineResult is available
   useEffect(() => {

@@ -5,6 +5,7 @@ import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import { useCanvasExport } from '../../data-loading/hooks/useCanvasExport';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import type { PipelineResult } from '../../transformers/pipeline';
 
 interface FramedArtworkProps {
   title: string;
@@ -13,6 +14,7 @@ interface FramedArtworkProps {
   height?: number;
   gedcomData?: GedcomDataWithMetadata;
   className?: string;
+  onPipelineResult?: (result: PipelineResult | null) => void;
 }
 
 export function FramedArtwork({
@@ -22,6 +24,7 @@ export function FramedArtwork({
   height = CANVAS_DIMENSIONS.WEB.HEIGHT,
   gedcomData,
   className = '',
+  onPipelineResult,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
 
@@ -70,6 +73,7 @@ export function FramedArtwork({
             height={height}
             gedcomData={gedcomData}
             onExportReady={handleExport}
+            onPipelineResult={onPipelineResult}
           />
         </div>
       </div>
