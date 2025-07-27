@@ -70,6 +70,14 @@ interface PipelineInput {
   config: PipelineConfig;
 }
 
+interface TransformerResult {
+  transformerId: string;
+  transformerName: string;
+  executionTime: number;
+  success: boolean;
+  error?: string;
+}
+
 /**
  * Pipeline execution result
  */
@@ -79,13 +87,7 @@ export interface PipelineResult {
 
   // Execution details
   executionTime: number;
-  transformerResults: {
-    transformerId: string;
-    transformerName: string;
-    executionTime: number;
-    success: boolean;
-    error?: string;
-  }[];
+  transformerResults: TransformerResult[];
 
   // Pipeline configuration used
   config: PipelineConfig;
