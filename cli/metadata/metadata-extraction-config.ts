@@ -1,4 +1,5 @@
 import type { Family, Individual } from '../../shared/types';
+import { calculateGeneration, extractYear } from './graph-analysis';
 
 /**
  * Configuration for extracting and transforming metadata from GEDCOM data
@@ -247,6 +248,62 @@ export const metadataExtractionConfig: Record<string, MetadataFieldConfig> = {
       const { individual } = context;
       if (!individual?.birth?.date) return null;
       return calculateZodiacSign(individual.birth.date);
+    },
+  },
+
+  relativeGenerationValue: {
+    fieldName: 'relativeGenerationValue',
+    category: 'Individual',
+    scope: 'individual',
+    dataType: 'float',
+    piiLevel: 'none',
+    description: 'Relative position within generation (0-1 normalized)',
+    gedcomSources: ['INDI', 'FAM'],
+    requiresMasking: false,
+    exampleValue: 0.75,
+    transform: (context: TransformationContext) => {
+      const { individual, allIndividuals, allFamilies } = context;
+      if (!individual || !allIndividuals || !allFamilies) return null;
+
+      // Calculate generation for this individual
+      const generation = calculateGeneration(
+        individual,
+        allIndividuals,
+        allFamilies,
+      );
+
+      // Find all individuals in the same generation
+      const sameGenerationIndividuals = allIndividuals.filter((ind) => {
+        const indGeneration = calculateGeneration(
+          ind,
+          allIndividuals,
+          allFamilies,
+        );
+        return indGeneration === generation;
+      });
+
+      if (sameGenerationIndividuals.length <= 1) return 0.5; // Center if alone in generation
+
+      // Sort individuals in same generation by some criteria (e.g., birth year, name)
+      // For now, use array index as a simple approach
+      const sortedIndividuals = sameGenerationIndividuals.sort((a, b) => {
+        // Try to sort by birth year first
+        const aYear = a.birth?.date ? (extractYear(a.birth.date) ?? 0) : 0;
+        const bYear = b.birth?.date ? (extractYear(b.birth.date) ?? 0) : 0;
+        if (aYear !== bYear) return aYear - bYear;
+
+        // Fallback to name sorting
+        return a.name.localeCompare(b.name);
+      });
+
+      // Find position of current individual in sorted list
+      const position = sortedIndividuals.findIndex(
+        (ind) => ind.id === individual.id,
+      );
+      if (position === -1) return 0.5;
+
+      // Normalize to 0-1 range
+      return position / (sortedIndividuals.length - 1);
     },
   },
 
