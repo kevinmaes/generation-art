@@ -1,7 +1,7 @@
 import type p5 from 'p5';
 import { getUniqueEdges } from './components/helpers';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type { VisualMetadata } from '../transformers/types';
+import type { CompleteVisualMetadata } from '../transformers/types';
 
 export interface SketchConfig {
   width: number;
@@ -18,7 +18,7 @@ export interface SketchConfig {
 }
 
 export interface SketchProps {
-  visualMetadata: VisualMetadata;
+  visualMetadata: CompleteVisualMetadata;
   config: SketchConfig;
   gedcomData: GedcomDataWithMetadata;
 }
@@ -54,23 +54,47 @@ function createSketch(props: SketchProps): (p: p5) => void {
       // Draw edges (lines between connected individuals)
       const edges = getUniqueEdges(gedcomData.individuals);
       for (const [id1, id2] of edges) {
-        const coord1 = getIndividualCoord(id1, width, height);
-        const coord2 = getIndividualCoord(id2, width, height);
-        const strokeColor = p.color(visualMetadata.strokeColor ?? '#ccc');
+        const coord1 = getIndividualCoord(id1, width, height, visualMetadata);
+        const coord2 = getIndividualCoord(id2, width, height, visualMetadata);
+
+        // Use family visual metadata for edges (if available)
+        const familyId = findFamilyId(id1, id2, gedcomData);
+        const familyMetadata = familyId
+          ? visualMetadata.families[familyId]
+          : null;
+        const strokeColor = p.color(
+          familyMetadata?.strokeColor ??
+            visualMetadata.global.defaultEdgeColor ??
+            '#ccc',
+        );
         p.stroke(strokeColor);
-        p.strokeWeight(visualMetadata.strokeWeight ?? strokeWeight);
+        p.strokeWeight(
+          familyMetadata?.strokeWeight ??
+            visualMetadata.global.defaultEdgeWeight ??
+            strokeWeight,
+        );
         p.line(coord1.x, coord1.y, coord2.x, coord2.y);
       }
 
-      // Draw nodes (individuals) using pipeline results
+      // Draw nodes (individuals) using per-entity visual metadata
       const individuals = Object.values(gedcomData.individuals);
       for (const ind of individuals) {
-        const x = visualMetadata.x ?? width / 2;
-        const y = visualMetadata.y ?? height / 2;
-        const size = visualMetadata.size ?? nodeSize;
-        const color = visualMetadata.color ?? colors[0];
-        const shape = visualMetadata.shape ?? 'circle';
-        const opacity = visualMetadata.opacity ?? 1.0;
+        const individualMetadata = visualMetadata.individuals[ind.id];
+        const x = individualMetadata?.x ?? width / 2;
+        const y = individualMetadata?.y ?? height / 2;
+        const size =
+          individualMetadata?.size ??
+          visualMetadata.global.defaultNodeSize ??
+          nodeSize;
+        const color =
+          individualMetadata?.color ??
+          visualMetadata.global.defaultNodeColor ??
+          colors[0];
+        const shape =
+          individualMetadata?.shape ??
+          visualMetadata.global.defaultNodeShape ??
+          'circle';
+        const opacity = individualMetadata?.opacity ?? 1.0;
 
         const pColor = p.color(color);
         pColor.setAlpha(opacity * 255);
@@ -121,6 +145,7 @@ export function createWebSketch(
   width: number,
   height: number,
   options?: Partial<SketchConfig>,
+  visualMetadata?: CompleteVisualMetadata,
 ): (p: p5) => void {
   const config: SketchConfig = {
     width,
@@ -135,19 +160,34 @@ export function createWebSketch(
     ...options,
   };
 
-  // Create initial visual metadata for backward compatibility
-  const visualMetadata: VisualMetadata = {
-    x: width / 2,
-    y: height / 2,
-    size: config.nodeSize,
-    color: config.colors?.[0] ?? '#0000ff',
-    shape: 'circle',
-    opacity: 1.0,
-    strokeColor: '#ccc',
-    strokeWeight: config.strokeWeight,
+  // Use provided visual metadata or create initial structure
+  const finalVisualMetadata: CompleteVisualMetadata = visualMetadata ?? {
+    individuals: {},
+    families: {},
+    tree: {
+      backgroundColor: '#ffffff',
+      group: 'tree',
+      layer: 0,
+      priority: 0,
+    },
+    global: {
+      canvasWidth: width,
+      canvasHeight: height,
+      backgroundColor: '#ffffff',
+      defaultNodeSize: config.nodeSize,
+      defaultEdgeWeight: config.strokeWeight,
+      defaultNodeColor: config.colors?.[0] ?? '#0000ff',
+      defaultEdgeColor: '#ccc',
+      defaultNodeShape: 'circle',
+      defaultEdgeStyle: 'solid',
+    },
   };
 
-  return createSketch({ config, gedcomData, visualMetadata });
+  return createSketch({
+    config,
+    gedcomData,
+    visualMetadata: finalVisualMetadata,
+  });
 }
 
 /**
@@ -172,27 +212,80 @@ export function createPrintSketch(
     ...options,
   };
 
-  // Create initial visual metadata for backward compatibility
-  const visualMetadata: VisualMetadata = {
-    x: width / 2,
-    y: height / 2,
-    size: config.nodeSize,
-    color: config.colors?.[0] ?? '#000000',
-    shape: 'circle',
-    opacity: 1.0,
-    strokeColor: '#ccc',
-    strokeWeight: config.strokeWeight,
+  // Create initial complete visual metadata structure
+  const visualMetadata: CompleteVisualMetadata = {
+    individuals: {},
+    families: {},
+    tree: {
+      backgroundColor: '#ffffff',
+      group: 'tree',
+      layer: 0,
+      priority: 0,
+    },
+    global: {
+      canvasWidth: width,
+      canvasHeight: height,
+      backgroundColor: '#ffffff',
+      defaultNodeSize: config.nodeSize,
+      defaultEdgeWeight: config.strokeWeight,
+      defaultNodeColor: config.colors?.[0] ?? '#000000',
+      defaultEdgeColor: '#ccc',
+      defaultNodeShape: 'circle',
+      defaultEdgeStyle: 'solid',
+    },
   };
 
   return createSketch({ config, gedcomData, visualMetadata });
 }
 
-// Helper function for backward compatibility
+/**
+ * Find family ID that connects two individuals
+ */
+function findFamilyId(
+  individualId1: string,
+  individualId2: string,
+  gedcomData: GedcomDataWithMetadata,
+): string | null {
+  for (const [familyId, family] of Object.entries(gedcomData.families)) {
+    const husbandId = family.husband?.id;
+    const wifeId = family.wife?.id;
+    const childrenIds = family.children.map((child) => child.id);
+
+    // Check if both individuals are in this family
+    const hasIndividual1 =
+      husbandId === individualId1 ||
+      wifeId === individualId1 ||
+      childrenIds.includes(individualId1);
+    const hasIndividual2 =
+      husbandId === individualId2 ||
+      wifeId === individualId2 ||
+      childrenIds.includes(individualId2);
+
+    if (hasIndividual1 && hasIndividual2) {
+      return familyId;
+    }
+  }
+  return null;
+}
+
+/**
+ * Get individual coordinates from visual metadata
+ */
 function getIndividualCoord(
   id: string,
   width: number,
   height: number,
+  visualMetadata: CompleteVisualMetadata,
 ): { x: number; y: number } {
+  const individualMetadata = visualMetadata.individuals[id];
+  if (
+    individualMetadata?.x !== undefined &&
+    individualMetadata?.y !== undefined
+  ) {
+    return { x: individualMetadata.x, y: individualMetadata.y };
+  }
+
+  // Fallback to hash-based positioning if no position data
   let hash = 5381;
   for (let i = 0; i < id.length; i++) {
     hash = (hash << 5) + hash + id.charCodeAt(i);

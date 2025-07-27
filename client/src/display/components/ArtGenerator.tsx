@@ -53,8 +53,14 @@ export function ArtGenerator({
       seed: pipelineResult.config.seed,
     };
 
-    // Pass the pipeline result to the sketch
-    const sketch = createWebSketch(gedcomData, width, height, sketchConfig);
+    // Pass the pipeline result's visual metadata to the sketch
+    const sketch = createWebSketch(
+      gedcomData,
+      width,
+      height,
+      sketchConfig,
+      pipelineResult.visualMetadata,
+    );
     p5InstanceRef.current = new p5(sketch, container);
 
     if (onExportReady) {
