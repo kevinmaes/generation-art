@@ -22,18 +22,64 @@ function stripPIIForLLM(
 
 ## PII Classification Table
 
-| Data Field               | PII Level | Action                    | Rationale                            |
-| ------------------------ | --------- | ------------------------- | ------------------------------------ |
-| **Individual Names**     | High      | Strip completely          | Direct personal identification       |
-| **Birth/Death Dates**    | High      | Mask to year only         | Temporal identification              |
-| **Birth/Death Places**   | High      | Strip completely          | Geographic identification            |
-| **Gender**               | Medium    | Keep as-is                | Statistical pattern, not identifying |
-| **Family Relationships** | Medium    | Keep structure, strip IDs | Relationship patterns important      |
-| **Generation Numbers**   | Low       | Keep as-is                | Structural metadata                  |
-| **Lifespan Values**      | Medium    | Normalize to 0-1 range    | Statistical pattern, not absolute    |
-| **Zodiac Signs**         | Low       | Keep as-is                | Statistical pattern                  |
-| **Birth Months**         | Medium    | Keep as-is                | Seasonal patterns important          |
-| **Metadata Statistics**  | Low       | Keep as-is                | Aggregate data, not individual       |
+### High PII Fields (Strip Completely)
+
+| Data Field                  | GEDCOM Tag  | Action           | Rationale                       |
+| --------------------------- | ----------- | ---------------- | ------------------------------- |
+| **Individual Names**        | `NAME`      | Strip completely | Direct personal identification  |
+| **Exact Addresses**         | `ADDR`      | Strip completely | Direct location identification  |
+| **Street Addresses**        | `RESI.ADDR` | Strip completely | Direct location identification  |
+| **Social Security Numbers** | `SSN`       | Strip completely | Government ID, highly sensitive |
+| **Phone Numbers**           | `PHON`      | Strip completely | Direct contact information      |
+| **Email Addresses**         | `EMAIL`     | Strip completely | Direct contact information      |
+| **Web URLs**                | `WWW`       | Strip completely | Direct contact information      |
+| **Specific Birth Dates**    | `BIRT.DATE` | Strip completely | Temporal identification         |
+| **Specific Death Dates**    | `DEAT.DATE` | Strip completely | Temporal identification         |
+| **Specific Marriage Dates** | `MARR.DATE` | Strip completely | Temporal identification         |
+| **Exact Birth Places**      | `BIRT.PLAC` | Strip completely | Geographic identification       |
+| **Exact Death Places**      | `DEAT.PLAC` | Strip completely | Geographic identification       |
+| **Exact Marriage Places**   | `MARR.PLAC` | Strip completely | Geographic identification       |
+| **Personal Notes**          | `NOTE`      | Strip completely | May contain personal details    |
+| **Source Citations**        | `SOUR`      | Strip completely | May contain personal details    |
+
+### Medium PII Fields (Mask/Transform)
+
+| Data Field                 | GEDCOM Tag                | Action                  | Rationale                          |
+| -------------------------- | ------------------------- | ----------------------- | ---------------------------------- |
+| **Birth Year Only**        | `BIRT.DATE`               | Extract year only       | Temporal pattern, not specific     |
+| **Death Year Only**        | `DEAT.DATE`               | Extract year only       | Temporal pattern, not specific     |
+| **Marriage Year Only**     | `MARR.DATE`               | Extract year only       | Temporal pattern, not specific     |
+| **Birth Country/State**    | `BIRT.PLAC`               | Reduce to country/state | Geographic pattern, not specific   |
+| **Death Country/State**    | `DEAT.PLAC`               | Reduce to country/state | Geographic pattern, not specific   |
+| **Marriage Country/State** | `MARR.PLAC`               | Reduce to country/state | Geographic pattern, not specific   |
+| **Lifespan Values**        | `BIRT.DATE` + `DEAT.DATE` | Normalize to 0-1 range  | Statistical pattern, not absolute  |
+| **Age at Death**           | `BIRT.DATE` + `DEAT.DATE` | Normalize to 0-1 range  | Statistical pattern, not absolute  |
+| **Age at Marriage**        | `BIRT.DATE` + `MARR.DATE` | Normalize to 0-1 range  | Statistical pattern, not absolute  |
+| **Occupation**             | `OCCU`                    | Generalize category     | Professional pattern, not specific |
+| **Education Level**        | `EDUC`                    | Generalize level        | Educational pattern, not specific  |
+| **Religion**               | `RELI`                    | Generalize category     | Cultural pattern, not specific     |
+| **Nationality**            | `NATI`                    | Generalize region       | Cultural pattern, not specific     |
+| **Titles**                 | `TITL`                    | Generalize type         | Social pattern, not specific       |
+
+### Low PII Fields (Keep As-Is)
+
+| Data Field                 | GEDCOM Tag  | Action                    | Rationale                            |
+| -------------------------- | ----------- | ------------------------- | ------------------------------------ |
+| **Gender**                 | `SEX`       | Keep as-is                | Statistical pattern, not identifying |
+| **Family Relationships**   | `FAMC/FAMS` | Keep structure, strip IDs | Relationship patterns important      |
+| **Generation Numbers**     | Computed    | Keep as-is                | Structural metadata                  |
+| **Zodiac Signs**           | `BIRT.DATE` | Keep as-is                | Statistical pattern                  |
+| **Birth Months**           | `BIRT.DATE` | Keep as-is                | Seasonal patterns important          |
+| **Birth Days of Week**     | `BIRT.DATE` | Keep as-is                | Statistical pattern                  |
+| **Is Alive Status**        | `DEAT`      | Keep as-is                | Statistical pattern                  |
+| **Number of Children**     | `CHIL`      | Keep as-is                | Family structure pattern             |
+| **Number of Siblings**     | Computed    | Keep as-is                | Family structure pattern             |
+| **Number of Spouses**      | `FAMS`      | Keep as-is                | Family structure pattern             |
+| **Metadata Statistics**    | Computed    | Keep as-is                | Aggregate data, not individual       |
+| **Graph Structure**        | Computed    | Keep as-is                | Structural metadata                  |
+| **Geographic Aggregates**  | Computed    | Keep as-is                | Aggregate patterns                   |
+| **Temporal Aggregates**    | Computed    | Keep as-is                | Aggregate patterns                   |
+| **Demographic Aggregates** | Computed    | Keep as-is                | Aggregate patterns                   |
 
 ## Detailed Field Specifications
 
@@ -42,16 +88,32 @@ function stripPIIForLLM(
 #### High PII Fields (Strip Completely)
 
 - `name`: Replace with `"Individual_<ID>"` or `"Person_<generation>_<index>"`
-- `birth.date`: Strip completely
-- `death.date`: Strip completely
-- `birth.place`: Strip completely
-- `death.place`: Strip completely
+- `birth.date`: Strip completely (specific dates)
+- `death.date`: Strip completely (specific dates)
+- `birth.place`: Strip completely (exact locations)
+- `death.place`: Strip completely (exact locations)
+- `address`: Strip completely (exact addresses)
+- `phone`: Strip completely (contact information)
+- `email`: Strip completely (contact information)
+- `www`: Strip completely (contact information)
+- `ssn`: Strip completely (government ID)
+- `note`: Strip completely (personal notes)
+- `source`: Strip completely (source citations)
 
 #### Medium PII Fields (Mask/Transform)
 
 - `birth.date`: Extract only year → `{ year: 1980 }`
 - `death.date`: Extract only year → `{ year: 2020 }`
+- `birth.place`: Reduce to country/state → `"USA, NY"` or `"Canada, ON"`
+- `death.place`: Reduce to country/state → `"USA, CA"` or `"Canada, BC"`
 - `lifespan`: Normalize to 0-1 range, remove absolute values
+- `ageAtDeath`: Normalize to 0-1 range, remove absolute values
+- `ageAtMarriage`: Normalize to 0-1 range, remove absolute values
+- `occupation`: Generalize to category → `"Professional"`, `"Service"`, `"Manual Labor"`
+- `education`: Generalize to level → `"Primary"`, `"Secondary"`, `"Higher"`
+- `religion`: Generalize to category → `"Christian"`, `"Jewish"`, `"Muslim"`, `"Other"`
+- `nationality`: Generalize to region → `"North American"`, `"European"`, `"Asian"`
+- `title`: Generalize to type → `"Military"`, `"Academic"`, `"Religious"`, `"Noble"`
 
 #### Low PII Fields (Keep As-Is)
 
@@ -59,8 +121,18 @@ function stripPIIForLLM(
 - `generation`: Keep numeric value
 - `relativeGenerationValue`: Keep 0-1 normalized value
 - `birthMonth`: Keep 1-12 value
+- `birthDayOfWeek`: Keep 0-6 value (Sunday = 0)
 - `zodiacSign`: Keep string value
 - `isAlive`: Keep boolean value
+- `numberOfChildren`: Keep numeric value
+- `numberOfSiblings`: Keep numeric value
+- `numberOfSpouses`: Keep numeric value
+- `centrality`: Keep numeric value
+- `relationshipCount`: Keep numeric value
+- `ancestorCount`: Keep numeric value
+- `descendantCount`: Keep numeric value
+- `siblingCount`: Keep numeric value
+- `cousinCount`: Keep numeric value
 
 ### Family Data
 
@@ -68,11 +140,14 @@ function stripPIIForLLM(
 
 - Family-specific names or identifiers
 - Marriage dates (if specific)
-- Marriage places
+- Marriage places (if specific)
+- Family notes
+- Family source citations
 
 #### Medium PII Fields (Mask/Transform)
 
 - Marriage dates: Extract only year
+- Marriage places: Reduce to country/state
 - Family size: Keep as numeric, strip individual details
 
 #### Low PII Fields (Keep As-Is)
@@ -80,6 +155,16 @@ function stripPIIForLLM(
 - Family structure (parent-child relationships)
 - Sibling relationships
 - Family metadata statistics
+- `numberOfChildren`: Keep numeric value
+- `familyComplexity`: Keep numeric value
+- `blendedFamily`: Keep boolean value
+- `remarriage`: Keep boolean value
+- `generation`: Keep numeric value
+- `sameCountryParents`: Keep boolean value
+- `crossCountryMarriage`: Keep boolean value
+- `marriageYear`: Keep numeric value (if already year-only)
+- `averageChildAge`: Keep numeric value
+- `childSpacing`: Keep array of numbers
 
 ### Tree-Level Metadata
 
@@ -93,6 +178,43 @@ function stripPIIForLLM(
 - `edges`: All structural data
 - `edgeAnalysis`: All aggregate statistics
 - `summary`: All aggregate statistics
+
+## Geographic Data Handling Strategy
+
+### Birth/Death Place Processing
+
+1. **Full Place String**: `"123 Main St, New York, NY, USA"`
+2. **Extract Components**: Parse into street, city, state, country
+3. **Strip Street Level**: Remove `"123 Main St"`
+4. **Keep City/State/Country**: `"New York, NY, USA"`
+5. **Optionally Reduce Further**: `"NY, USA"` or just `"USA"`
+
+### Implementation Logic
+
+```typescript
+function processPlace(
+  place: string,
+  level: 'country' | 'state' | 'city',
+): string {
+  // Parse place string into components
+  const components = parsePlaceString(place);
+
+  switch (level) {
+    case 'country':
+      return components.country || 'Unknown';
+    case 'state':
+      return components.state && components.country
+        ? `${components.state}, ${components.country}`
+        : components.country || 'Unknown';
+    case 'city':
+      return components.city && components.state && components.country
+        ? `${components.city}, ${components.state}, ${components.country}`
+        : components.state && components.country
+          ? `${components.state}, ${components.country}`
+          : components.country || 'Unknown';
+  }
+}
+```
 
 ## Implementation Strategy
 
