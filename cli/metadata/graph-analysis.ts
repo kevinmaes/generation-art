@@ -104,7 +104,8 @@ export const calculateGeneration = (
   const queue = [...rootIndividuals];
 
   while (queue.length > 0) {
-    const current = queue.shift()!;
+    const current = queue.shift();
+    if (!current) continue;
     const currentGen = generationMap.get(current.id) ?? 0;
 
     // Find families where this individual is a parent
@@ -303,7 +304,7 @@ export const analyzeTemporalPatterns = (
   const lifespanDistribution: Record<string, number> = {};
   lifespans.forEach((lifespan) => {
     const range = Math.floor(lifespan / 10) * 10;
-    const key = `${range}-${range + 9}`;
+    const key = `${String(range)}-${String(range + 9)}`;
     lifespanDistribution[key] = (lifespanDistribution[key] || 0) + 1;
   });
 
@@ -689,11 +690,11 @@ export const analyzeRelationships = (
       relationshipTypeDistribution['parent-child'] += fam.children.length;
 
     // Spouse relationships
-    if (fam.husband && fam.wife) relationshipTypeDistribution['spouse']++;
+    if (fam.husband && fam.wife) relationshipTypeDistribution.spouse++;
 
     // Sibling relationships
     if (fam.children.length > 1) {
-      relationshipTypeDistribution['sibling'] +=
+      relationshipTypeDistribution.sibling +=
         (fam.children.length * (fam.children.length - 1)) / 2;
     }
   });
@@ -846,7 +847,7 @@ export const generateEdgeId = (
   familyId?: string,
 ): string => {
   const sortedIds = [sourceId, targetId].sort();
-  return `${type}:${familyId || 'unknown'}-${sortedIds[0]}-${sortedIds[1]}`;
+  return `${type}:${familyId ?? 'unknown'}-${sortedIds[0]}-${sortedIds[1]}`;
 };
 
 /**
