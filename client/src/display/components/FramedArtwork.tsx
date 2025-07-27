@@ -3,7 +3,7 @@ import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
-import { useCanvasExport } from '../../data-loading/hooks/useCanvasExport';
+import { useShareArt } from '../../data-loading/hooks/useShareArt';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { PipelineResult } from '../../transformers/pipeline';
 
@@ -30,7 +30,7 @@ export function FramedArtwork({
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
 
-  const { exportState, exportWebCanvas } = useCanvasExport();
+  const { shareState, exportWebCanvas } = useShareArt();
 
   const handleExport = useCallback((p5Instance: p5) => {
     p5InstanceRef.current = p5Instance;
@@ -122,7 +122,7 @@ export function FramedArtwork({
         height={height}
         onExportClick={handleExportClick}
         onPrintClick={handlePrintClick}
-        exportState={exportState}
+        exportState={shareState}
       />
     </div>
   );
