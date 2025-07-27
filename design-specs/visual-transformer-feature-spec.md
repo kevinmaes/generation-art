@@ -77,18 +77,49 @@ These transformers should:
 - It's understood that there's always more detail and transformations that are possible within the pipeline to make things more creative later.
 - We can hold off on extensive unit testing during rapid development. We want to move quickly and things will likely change so testing will just slow us down.
 
+### Architecture Decisions & Feedback
+
+#### Code Organization
+
+- **Transformers belong in client app**: All transformer-related code (types, factories, individual transformers) is now in `client/src/transformers/` since they're only used by the client app
+- **Shared types only for CLI + Client**: Only types that are used by both CLI and client remain in `shared/types/`
+- **Registry pattern**: Central `transformers.ts` file exports all transformers keyed by their slugified IDs
+- **Individual transformer files**: Each transformer function is in its own file and exported to the registry
+
+#### Transformer Structure
+
+- **Async by design**: All transformers are async functions, ready for future LLM integration
+- **Slugified IDs**: Transformer IDs are automatically generated from readable names (e.g., "Horizontal Spread by Generation" → "horizontal-spread-by-generation")
+- **Factory utilities**: Helper functions for creating different types of transformers (simple, merging, replacing)
+- **Proper typing**: Full TypeScript support with proper async handling and return types
+
+#### File Structure
+
+```
+client/src/transformers/
+├── types.ts                    # All transformer-related types
+├── factory.ts                  # Factory utilities for creating transformers
+├── utils.ts                    # Utility functions (slugification, validation)
+├── transformers.ts             # Registry of all transformers
+├── horizontal-spread-by-generation.ts  # Individual transformer function
+└── transformers.test.ts        # Tests for the transformer system
+```
+
 ## 3. Steps to Completion
 
 > Cursor, please help implement this feature incrementally. Break each phase into logical commits and use this prompt as a north star for planning.
 
 ### ✅ Phase 1: Core VisualTransformer Logic
 
-- [ ] Define TypeScript types/interfaces for:
-  - `metadata`
-  - `visualMetadata`
-  - `VisualTransformerFn`
-- [ ] Create a `createTransformer()` utility/factory
-- [ ] Build example transformer: `horizontalSpreadByGeneration`
+- [x] Define TypeScript types/interfaces for:
+  - `metadata` (uses existing `GedcomDataWithMetadata` from shared)
+  - `visualMetadata` (VisualMetadata interface)
+  - `VisualTransformerFn` (async function type)
+- [x] Create transformer factory utilities (`createSimpleTransformer`, `createMergingTransformer`, etc.)
+- [x] Build example transformer: `horizontalSpreadByGeneration`
+- [x] Create transformer registry with slugified IDs
+- [x] Move all transformer-related code to client app (not shared)
+- [x] Make all transformers async (ready for future LLM integration)
 
 ### ✅ Phase 2: Chaining and Execution
 
@@ -116,4 +147,19 @@ These transformers should:
 
 ---
 
-_Last updated: 2025-07-27_
+## Current Status
+
+**Phase 1 Complete** ✅ - The core VisualTransformer system is now properly structured and working:
+
+- ✅ All transformer types moved to client app (`client/src/transformers/types.ts`)
+- ✅ Factory utilities moved to client app (`client/src/transformers/factory.ts`)
+- ✅ Transformer registry with slugified IDs (`client/src/transformers/transformers.ts`)
+- ✅ Example transformer working (`horizontal-spread-by-generation`)
+- ✅ All tests passing
+- ✅ Proper async support for future LLM integration
+
+**Ready for Phase 2**: Chaining and Execution - implementing the pipeline system to run multiple transformers in sequence.
+
+---
+
+_Last updated: 2025-01-27_
