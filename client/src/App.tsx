@@ -5,7 +5,6 @@ import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
 import type { PipelineResult } from './transformers/pipeline';
-import { transformers } from './transformers/transformers';
 import { runPipeline, createSimplePipeline } from './transformers/pipeline';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
@@ -26,9 +25,12 @@ function App(): React.ReactElement {
   const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(
     null,
   );
-  const [activeTransformerIds, setActiveTransformerIds] = useState<string[]>(
-    Object.keys(transformers),
-  );
+  const [activeTransformerIds, setActiveTransformerIds] = useState<string[]>([
+    'horizontal-spread-by-generation',
+    'vertical-spread',
+    'node-opacity',
+    'edge-opacity',
+  ]);
   const [isVisualizing, setIsVisualizing] = useState(false);
   const [currentDataset, setCurrentDataset] = useState<string>('kennedy');
 

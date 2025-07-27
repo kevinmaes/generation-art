@@ -95,11 +95,18 @@ export function PipelineManager({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4" style={{ height: '500px' }}>
+      <div className="grid grid-cols-2 gap-4" style={{ height: '1000px' }}>
         {/* Top-Left: Active Pipeline */}
         <div className="border rounded-lg p-4 flex flex-col">
           <h4 className="font-medium mb-3 text-gray-700">Active Pipeline</h4>
-          <div className="flex-1 overflow-y-auto space-y-2">
+          <div
+            className="flex-1 overflow-y-auto space-y-2"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#888 #f1f1f1',
+              maxHeight: '460px',
+            }}
+          >
             {activeTransformerIds.length === 0 ? (
               <p className="text-gray-500 text-sm">
                 No transformers in pipeline
@@ -177,7 +184,7 @@ export function PipelineManager({
               </button>
             )}
           </div>
-          <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
+          <div className="flex-1 overflow-hidden" style={{ height: '460px' }}>
             {pipelineInput ? (
               <div
                 className="h-full border rounded bg-gray-50"
@@ -187,7 +194,7 @@ export function PipelineManager({
                   overflow: 'auto',
                   overflowX: 'auto',
                   overflowY: 'auto',
-                  maxHeight: '180px',
+                  maxHeight: '460px',
                 }}
               >
                 <ReactJson
@@ -222,7 +229,16 @@ export function PipelineManager({
           <h4 className="font-medium mb-3 text-gray-700">
             Available Transformers
           </h4>
-          <div className="flex-1 overflow-y-auto space-y-2">
+          <div
+            className="flex-1 overflow-y-auto space-y-2"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#888 #f1f1f1',
+              height: '440px',
+              minHeight: '440px',
+              maxHeight: '440px',
+            }}
+          >
             {availableTransformerIds.length === 0 ? (
               <p className="text-gray-500 text-sm">All transformers in use</p>
             ) : (
@@ -286,7 +302,7 @@ export function PipelineManager({
               </button>
             )}
           </div>
-          <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
+          <div className="flex-1 overflow-hidden" style={{ height: '440px' }}>
             {pipelineResult ? (
               <div
                 className="h-full border rounded bg-gray-50"
@@ -296,7 +312,8 @@ export function PipelineManager({
                   overflow: 'auto',
                   overflowX: 'auto',
                   overflowY: 'auto',
-                  maxHeight: '180px',
+                  minHeight: '440px',
+                  maxHeight: '440px',
                 }}
               >
                 <ReactJson
