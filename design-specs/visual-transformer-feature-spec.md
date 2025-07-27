@@ -71,6 +71,10 @@ These transformers should:
 - Allow creative users to build their own transformers or remix existing ones
 - Use randomness sparingly — **structured serendipity**
 
+### Focused Development
+
+- When in doubt, the primary goal is to make the pipeline work end-to-end so that we can actually see the impact of the visual transformations on the canvas. It's understood that there's always more detail and transformations that are possible within the pipeline to make things more creative later.
+
 ## 3. Steps to Completion
 
 > Cursor, please help implement this feature incrementally. Break each phase into logical commits and use this prompt as a north star for planning.
