@@ -8,6 +8,7 @@
 
 import type { VisualTransformerConfig } from './types';
 import { horizontalSpreadByGenerationTransform } from './horizontal-spread-by-generation';
+import { nodeSizeTransform } from './node-size';
 import { generateTransformerId } from './utils';
 
 /**
@@ -39,6 +40,32 @@ export const transformers: Record<string, VisualTransformerConfig> = {
         max: 100,
         step: 5,
         description: 'Default size for nodes',
+      },
+    },
+  },
+  [generateTransformerId('Node Size')]: {
+    id: generateTransformerId('Node Size'),
+    name: 'Node Size',
+    description:
+      'Controls the size of nodes based on metadata like number of children, age at death, or importance metrics',
+    transform: nodeSizeTransform as VisualTransformerConfig['transform'],
+    categories: ['visual', 'size'],
+    parameters: {
+      baseSize: {
+        type: 'number',
+        defaultValue: 20,
+        min: 5,
+        max: 100,
+        step: 5,
+        description: 'Base size for nodes',
+      },
+      sizeMultiplier: {
+        type: 'number',
+        defaultValue: 2,
+        min: 0.1,
+        max: 10,
+        step: 0.1,
+        description: 'Multiplier for size calculations',
       },
     },
   },

@@ -41,9 +41,7 @@ export function PipelineManager({
     onTransformerSelect?.(transformerId);
   };
 
-  const selectedTransformer = selectedTransformerId
-    ? transformers[selectedTransformerId]
-    : null;
+  // Note: selectedTransformer is no longer used since we show complete pipeline data
 
   const availableTransformerIds = Object.keys(transformers).filter(
     (id) => !activeTransformerIds.includes(id),
@@ -154,10 +152,7 @@ export function PipelineManager({
             Pipeline Input
             {pipelineInput && (
               <span className="text-xs text-gray-500 ml-2">
-                ({Object.keys(dualData?.full.individuals ?? {}).length}{' '}
-                individuals,{' '}
-                {Object.keys(dualData?.llm.individuals ?? {}).length}{' '}
-                anonymized)
+                (Full data going into first transformer)
               </span>
             )}
           </h4>
@@ -245,14 +240,18 @@ export function PipelineManager({
           </div>
         </div>
 
-        {/* Bottom-Right: Output (data) */}
+        {/* Bottom-Right: Pipeline Output */}
         <div className="border rounded-lg p-4 flex flex-col">
           <h4 className="font-medium mb-3 text-gray-700">
-            Output
-            {selectedTransformer && ` - ${selectedTransformer.name}`}
+            Pipeline Output
+            {pipelineResult && (
+              <span className="text-xs text-gray-500 ml-2">
+                (Complete result from last transformer)
+              </span>
+            )}
           </h4>
           <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
-            {selectedTransformer && pipelineResult ? (
+            {pipelineResult ? (
               <div
                 className="h-full border rounded bg-gray-50"
                 style={{
@@ -265,7 +264,7 @@ export function PipelineManager({
                 }}
               >
                 <ReactJson
-                  src={pipelineResult.visualMetadata}
+                  src={pipelineResult}
                   theme="rjv-default"
                   style={{
                     backgroundColor: 'transparent',
@@ -283,9 +282,9 @@ export function PipelineManager({
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                {selectedTransformer
-                  ? 'Run pipeline to see output metadata'
-                  : 'Click Visualize to flow data through the pipeline'}
+                {activeTransformerIds.length > 0
+                  ? 'Click Visualize to see pipeline output'
+                  : 'Add transformers and click Visualize to see output'}
               </div>
             )}
           </div>
