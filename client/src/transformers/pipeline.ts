@@ -129,8 +129,7 @@ export function createInitialVisualMetadata(): VisualMetadata {
  * This ensures reproducible results when a seed is provided
  * (Currently unused, will be used in Phase 3)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function createSeededRandom(seed?: string): () => number {
+export function createSeededRandom(seed?: string): () => number {
   if (!seed) {
     return Math.random;
   }
