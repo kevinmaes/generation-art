@@ -154,14 +154,29 @@ export function PipelineManager({
 
         {/* Top-Right: Pipeline Input */}
         <div className="border rounded-lg p-4 flex flex-col">
-          <h4 className="font-medium mb-3 text-gray-700">
-            Pipeline Input
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-gray-700">
+              Pipeline Input
+              {pipelineInput && (
+                <span className="text-xs text-gray-500 ml-2">
+                  (Full data going into first transformer)
+                </span>
+              )}
+            </h4>
             {pipelineInput && (
-              <span className="text-xs text-gray-500 ml-2">
-                (Full data going into first transformer)
-              </span>
+              <button
+                onClick={() => {
+                  void navigator.clipboard.writeText(
+                    JSON.stringify(pipelineInput, null, 2),
+                  );
+                }}
+                className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors"
+                title="Copy as JSON"
+              >
+                Copy JSON
+              </button>
             )}
-          </h4>
+          </div>
           <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
             {pipelineInput ? (
               <div
@@ -248,14 +263,29 @@ export function PipelineManager({
 
         {/* Bottom-Right: Pipeline Output */}
         <div className="border rounded-lg p-4 flex flex-col">
-          <h4 className="font-medium mb-3 text-gray-700">
-            Pipeline Output
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="font-medium text-gray-700">
+              Pipeline Output
+              {pipelineResult && (
+                <span className="text-xs text-gray-500 ml-2">
+                  (Complete result from last transformer)
+                </span>
+              )}
+            </h4>
             {pipelineResult && (
-              <span className="text-xs text-gray-500 ml-2">
-                (Complete result from last transformer)
-              </span>
+              <button
+                onClick={() => {
+                  void navigator.clipboard.writeText(
+                    JSON.stringify(pipelineResult, null, 2),
+                  );
+                }}
+                className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors"
+                title="Copy as JSON"
+              >
+                Copy JSON
+              </button>
             )}
-          </h4>
+          </div>
           <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
             {pipelineResult ? (
               <div
