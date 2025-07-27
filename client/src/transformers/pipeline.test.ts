@@ -324,7 +324,15 @@ describe('Pipeline', () => {
         canvasHeight: 600,
       };
 
-      const result = await runPipeline({ gedcomData: mockMetadata, config });
+      const result = await runPipeline({
+        fullData: mockMetadata,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: mockMetadata.metadata,
+        },
+        config,
+      });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.executionTime).toBeGreaterThan(0);
@@ -345,7 +353,15 @@ describe('Pipeline', () => {
         temperature: 0.5,
       };
 
-      const result = await runPipeline({ gedcomData: mockMetadata, config });
+      const result = await runPipeline({
+        fullData: mockMetadata,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: mockMetadata.metadata,
+        },
+        config,
+      });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.transformerResults).toHaveLength(2);
@@ -364,7 +380,15 @@ describe('Pipeline', () => {
         transformerIds: ['non-existent-transformer'],
       };
 
-      const result = await runPipeline({ gedcomData: mockMetadata, config });
+      const result = await runPipeline({
+        fullData: mockMetadata,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: mockMetadata.metadata,
+        },
+        config,
+      });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.transformerResults).toHaveLength(1);
@@ -385,7 +409,15 @@ describe('Pipeline', () => {
         ],
       };
 
-      const result = await runPipeline({ gedcomData: mockMetadata, config });
+      const result = await runPipeline({
+        fullData: mockMetadata,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: mockMetadata.metadata,
+        },
+        config,
+      });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.transformerResults).toHaveLength(2);
@@ -402,7 +434,15 @@ describe('Pipeline', () => {
         canvasHeight: 800,
       };
 
-      const result = await runPipeline({ gedcomData: mockMetadata, config });
+      const result = await runPipeline({
+        fullData: mockMetadata,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: mockMetadata.metadata,
+        },
+        config,
+      });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.transformerResults[0].success).toBe(true);

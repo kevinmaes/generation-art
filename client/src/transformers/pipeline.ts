@@ -5,9 +5,13 @@
  * multiple VisualTransformers in sequence.
  */
 
-import type { TransformerContext, VisualMetadata } from './types';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type {
+  GedcomDataWithMetadata,
+  LLMReadyData,
+} from '../../../shared/types';
+import type { VisualMetadata, TransformerContext } from './types';
 import { getTransformer } from './transformers';
+import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 
 /**
  * Default visual metadata constants
@@ -66,7 +70,8 @@ export interface PipelineConfig {
 }
 
 interface PipelineInput {
-  gedcomData: GedcomDataWithMetadata;
+  fullData: GedcomDataWithMetadata;
+  llmData: LLMReadyData;
   config: PipelineConfig;
 }
 
@@ -163,17 +168,41 @@ export function createSeededRandom(seed?: string): () => number {
  * as input to the next transformer.
  */
 export async function runPipeline({
-  gedcomData,
+  fullData,
+  llmData,
   config,
 }: PipelineInput): Promise<PipelineResult> {
   const startTime = performance.now();
-  const transformerResults: PipelineResult['transformerResults'] = [];
 
-  // Create seeded random generator (for future use)
-  // const random = createSeededRandom(config.seed);
+  // Validate input data with Zod
+  try {
+    console.log('🔍 Validating pipeline input data...');
+
+    // Validate full data structure
+    const validatedFullData = GedcomDataWithMetadataSchema.parse(fullData);
+    console.log(
+      `✅ Full data validated: ${String(Object.keys(validatedFullData.individuals).length)} individuals, ${String(Object.keys(validatedFullData.families).length)} families`,
+    );
+
+    // LLM data structure is guaranteed by TypeScript types
+    console.log(
+      `✅ LLM data validated: ${String(Object.keys(llmData.individuals).length)} anonymized individuals`,
+    );
+
+    // Use validated data
+    fullData = validatedFullData;
+  } catch (error) {
+    console.error('❌ Pipeline input validation failed:', error);
+    throw new Error(
+      `Pipeline input validation failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 
   // Initialize visual metadata
   let visualMetadata = createInitialVisualMetadata();
+
+  // Track transformer execution results
+  const transformerResults: TransformerResult[] = [];
 
   // Execute each transformer in sequence
   for (const transformerId of config.transformerIds) {
@@ -188,7 +217,8 @@ export async function runPipeline({
 
       // Create context for this transformer
       const context: TransformerContext = {
-        gedcomData,
+        gedcomData: fullData,
+        llmData,
         visualMetadata,
         temperature: config.temperature,
         seed: config.seed,

@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import ReactJson from 'react-json-view';
 import type { PipelineResult } from '../../../transformers/pipeline';
 import { transformers } from '../../../transformers/transformers';
-import type { GedcomDataWithMetadata } from '../../../../../shared/types';
+import type {
+  GedcomDataWithMetadata,
+  LLMReadyData,
+} from '../../../../../shared/types';
+
+// Type for the complete dual-data structure
+interface DualGedcomData {
+  full: GedcomDataWithMetadata;
+  llm: LLMReadyData;
+}
 
 interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;
   activeTransformerIds: string[];
-  gedcomData?: GedcomDataWithMetadata;
+  dualData?: DualGedcomData;
   onTransformerSelect?: (transformerId: string) => void;
   onVisualize?: () => void;
   isVisualizing?: boolean;
@@ -17,7 +26,7 @@ interface PipelineManagerProps {
 export function PipelineManager({
   pipelineResult,
   activeTransformerIds,
-  gedcomData,
+  dualData,
   onTransformerSelect,
   onVisualize,
   isVisualizing = false,
@@ -40,11 +49,12 @@ export function PipelineManager({
     (id) => !activeTransformerIds.includes(id),
   );
 
-  // Construct the complete PipelineInput object
+  // Construct the complete PipelineInput object with dual data
   const pipelineInput =
-    gedcomData && activeTransformerIds.length > 0
+    dualData && activeTransformerIds.length > 0
       ? {
-          gedcomData,
+          fullData: dualData.full,
+          llmData: dualData.llm,
           config: {
             transformerIds: activeTransformerIds,
             temperature: 0.5, // Default temperature
@@ -138,11 +148,18 @@ export function PipelineManager({
           </div>
         </div>
 
-        {/* Top-Right: Input (data) */}
+        {/* Top-Right: Pipeline Input */}
         <div className="border rounded-lg p-4 flex flex-col">
           <h4 className="font-medium mb-3 text-gray-700">
-            Input
-            {selectedTransformer && ` - ${selectedTransformer.name}`}
+            Pipeline Input
+            {pipelineInput && (
+              <span className="text-xs text-gray-500 ml-2">
+                ({Object.keys(dualData?.full.individuals ?? {}).length}{' '}
+                individuals,{' '}
+                {Object.keys(dualData?.llm.individuals ?? {}).length}{' '}
+                anonymized)
+              </span>
+            )}
           </h4>
           <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
             {pipelineInput ? (
@@ -167,7 +184,7 @@ export function PipelineManager({
                     padding: '8px',
                   }}
                   name={null}
-                  collapsed={2}
+                  collapsed={3}
                   enableClipboard={false}
                   displayDataTypes={false}
                   displayObjectSize={true}
@@ -176,9 +193,9 @@ export function PipelineManager({
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                {hasData
-                  ? 'Select transformers to see pipeline input'
-                  : 'Load data to view pipeline input'}
+                {dualData
+                  ? 'Add transformers to see pipeline input'
+                  : 'Load data to see pipeline input'}
               </div>
             )}
           </div>

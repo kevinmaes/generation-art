@@ -3,15 +3,21 @@ import { FramedArtwork } from './display/components/FramedArtwork';
 import { PipelineManager } from './display/components/pipeline-ui/PipelineManager';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
-import type { GedcomDataWithMetadata } from '../../shared/types';
+import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
 import type { PipelineResult } from './transformers/pipeline';
 import { transformers } from './transformers/transformers';
 import { runPipeline, createSimplePipeline } from './transformers/pipeline';
+import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
 
+// Type for the complete dual-data structure
+interface DualGedcomData {
+  full: GedcomDataWithMetadata;
+  llm: LLMReadyData;
+}
+
 function App(): React.ReactElement {
-  const [familyTreeData, setFamilyTreeData] =
-    useState<GedcomDataWithMetadata | null>(null);
+  const [dualData, setDualData] = useState<DualGedcomData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
@@ -24,24 +30,33 @@ function App(): React.ReactElement {
     Object.keys(transformers),
   );
   const [isVisualizing, setIsVisualizing] = useState(false);
+  const [currentDataset, setCurrentDataset] = useState<string>('kennedy');
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
+
+  // Use the new hook for loading both full and LLM data
+  useGedcomDataWithLLM({
+    baseFileName: currentDataset,
+    onDataLoaded: (data) => {
+      setDualData(data);
+    },
+    onError: (error) => {
+      setError(error);
+    },
+  });
 
   // Check for autoLoad parameter and load Kennedy data automatically
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const autoLoad = urlParams.get('autoLoad');
 
-    if (
-      autoLoad === 'true' &&
-      currentView === 'file-select' &&
-      !familyTreeData
-    ) {
+    if (autoLoad === 'true' && currentView === 'file-select' && !dualData) {
       console.log('🔄 Auto-loading Kennedy family tree data...');
-      void handleLoadKennedy();
+      setCurrentDataset('kennedy');
+      setCurrentView('artwork');
     }
-  }, [currentView, familyTreeData]);
+  }, [currentView, dualData]);
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -56,7 +71,17 @@ function App(): React.ReactElement {
 
       // Use Zod validation instead of manual type checking
       const validatedData = validateFlexibleGedcomData(data);
-      setFamilyTreeData(validatedData);
+
+      // For uploaded files, create a minimal dual-data structure
+      // (LLM data will be null since we don't have pre-processed LLM data)
+      setDualData({
+        full: validatedData,
+        llm: {
+          individuals: {},
+          families: {},
+          metadata: validatedData.metadata,
+        },
+      });
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
@@ -67,55 +92,26 @@ function App(): React.ReactElement {
     }
   };
 
-  const handleLoadKennedy = async () => {
-    setIsLoading(true);
+  const handleLoadKennedy = () => {
+    setCurrentDataset('kennedy');
+    setCurrentView('artwork');
     setError(null);
-    try {
-      const response = await fetch(
-        `/generated/parsed/kennedy.json?t=${String(Date.now())}`,
-      );
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      const contentType = response.headers.get('content-type');
-      console.log('Content-Type:', contentType);
-
-      if (!response.ok) {
-        throw new Error(`Failed to load Kennedy data: ${response.statusText}`);
-      }
-
-      const text = await response.text();
-      console.log('Response text (first 200 chars):', text.substring(0, 200));
-
-      if (!contentType?.includes('application/json')) {
-        throw new Error(
-          `Expected JSON but got ${contentType ?? 'unknown content type'}`,
-        );
-      }
-
-      const data = JSON.parse(text) as unknown;
-
-      // Use Zod validation for Kennedy data
-      const validatedData = validateFlexibleGedcomData(data);
-      setFamilyTreeData(validatedData);
-      setCurrentView('artwork');
-      // Clear any previous pipeline result when loading new data
-      setPipelineResult(null);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to load Kennedy data',
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    // The hook will automatically load the data
   };
 
   const handleTransformerSelect = (transformerId: string) => {
-    console.log('Selected transformer:', transformerId);
-    // TODO: Implement transformer selection logic
+    setActiveTransformerIds((prev) =>
+      prev.includes(transformerId)
+        ? prev.filter((id) => id !== transformerId)
+        : [...prev, transformerId],
+    );
   };
 
   const handleVisualize = async () => {
-    if (!familyTreeData || activeTransformerIds.length === 0) return;
+    if (!dualData) {
+      setError('Data is required for visualization');
+      return;
+    }
 
     setIsVisualizing(true);
     try {
@@ -126,7 +122,8 @@ function App(): React.ReactElement {
       });
 
       const result = await runPipeline({
-        gedcomData: familyTreeData,
+        fullData: dualData.full,
+        llmData: dualData.llm,
         config: pipelineConfig,
       });
       setPipelineResult(result);
@@ -178,14 +175,14 @@ function App(): React.ReactElement {
               </button>
             )}
           </div>
-          {currentView === 'artwork' && familyTreeData ? (
+          {currentView === 'artwork' && dualData ? (
             <>
               <FramedArtwork
                 title="Family Tree Visualization"
                 subtitle="Generative visualization of family connections and generations"
                 width={minWidth}
                 height={minHeight}
-                gedcomData={familyTreeData}
+                gedcomData={dualData.full}
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onPipelineResult={handlePipelineResult}
@@ -194,13 +191,13 @@ function App(): React.ReactElement {
                 <PipelineManager
                   pipelineResult={pipelineResult}
                   activeTransformerIds={activeTransformerIds}
-                  gedcomData={familyTreeData}
+                  dualData={dualData}
                   onTransformerSelect={handleTransformerSelect}
                   onVisualize={() => {
                     void handleVisualize();
                   }}
                   isVisualizing={isVisualizing}
-                  hasData={!!familyTreeData}
+                  hasData={!!dualData}
                 />
               </div>
             </>
@@ -270,7 +267,7 @@ function App(): React.ReactElement {
                     <div className="text-gray-500 mb-2">or</div>
                     <button
                       onClick={() => {
-                        void handleLoadKennedy();
+                        handleLoadKennedy();
                       }}
                       disabled={isLoading}
                       className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

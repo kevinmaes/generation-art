@@ -9,3 +9,6 @@ export * from './schemas';
 
 // Re-export PII stripping types
 export type * from './pii-stripping';
+
+// Re-export LLM data types
+export type * from './llm-data';

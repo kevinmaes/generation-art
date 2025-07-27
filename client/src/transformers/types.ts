@@ -6,6 +6,7 @@
  */
 
 import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { LLMReadyData } from '../../../shared/types/llm-data';
 
 /**
  * Visual metadata represents the visual attributes of elements in the art
@@ -54,8 +55,11 @@ export interface VisualMetadata {
  * Input context for a VisualTransformer
  */
 export interface TransformerContext {
-  // The complete GEDCOM data with metadata
+  // The complete GEDCOM data with metadata (for local operations)
   gedcomData: GedcomDataWithMetadata;
+
+  // Pre-formatted LLM-ready data (PII stripped, for LLM calls)
+  llmData: LLMReadyData;
 
   // Current visual metadata state (may be partial)
   visualMetadata: VisualMetadata;

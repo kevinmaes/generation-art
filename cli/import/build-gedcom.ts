@@ -8,7 +8,7 @@ import {
 } from 'fs/promises';
 import { join, basename, extname } from 'path';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
-import { transformGedcomDataWithMetadata } from '../metadata/transformation-pipeline';
+import { processGedcomWithLLMOptimization } from '../metadata/llm-optimized-processing';
 import type { Individual, Family } from '../../shared/types';
 
 // Local interfaces that match SimpleGedcomParser output
@@ -213,7 +213,9 @@ async function buildGedcomFiles(
     const baseName = basename(file, '.ged');
     const inputPath = join(inputDir, file);
     const rawOutputPath = join(outputDir, `_${baseName}-raw.json`);
-    const finalOutputPath = join(outputDir, `${baseName}.json`);
+    const fullOutputPath = join(outputDir, `${baseName}.json`);
+    const llmOutputPath = join(outputDir, `${baseName}-llm.json`);
+    const statsOutputPath = join(outputDir, `${baseName}-stats.json`);
 
     console.log(`Processing ${inputDir}/${file}...`);
 
@@ -229,15 +231,38 @@ async function buildGedcomFiles(
         `  ✓ Generated _${baseName}-raw.json (${String(parsedData.individuals.length)} individuals, ${String(parsedData.families.length)} families)`,
       );
 
-      // Generate augmented data
+      // Generate LLM-optimized data
       const { individuals, families } =
         convertAndBuildRelationships(parsedData);
-      const augmentedData = transformGedcomDataWithMetadata(
+      const processingResult = processGedcomWithLLMOptimization(
         individuals,
         families,
       );
-      await writeFile(finalOutputPath, JSON.stringify(augmentedData, null, 2));
-      console.log(`  ✓ Generated ${baseName}.json (enhanced with metadata)`);
+
+      // Write full data (for local operations)
+      await writeFile(
+        fullOutputPath,
+        JSON.stringify(processingResult.full, null, 2),
+      );
+      console.log(`  ✓ Generated ${baseName}.json (full data with metadata)`);
+
+      // Write LLM-ready data (PII stripped)
+      await writeFile(
+        llmOutputPath,
+        JSON.stringify(processingResult.llm, null, 2),
+      );
+      console.log(
+        `  ✓ Generated ${baseName}-llm.json (LLM-ready, PII stripped)`,
+      );
+
+      // Write processing statistics
+      await writeFile(
+        statsOutputPath,
+        JSON.stringify(processingResult.stats, null, 2),
+      );
+      console.log(
+        `  ✓ Generated ${baseName}-stats.json (processing statistics)`,
+      );
 
       // Check for media directory with flexible naming
       const foundMediaDir = await findMediaDirectory(inputDir, baseName);

@@ -15,6 +15,7 @@ function calculateHorizontalPosition(
   individualId: string,
 ): number {
   const { gedcomData, canvasWidth = 1000 } = context;
+  console.log('transformer gedcomData', gedcomData);
 
   // Find the individual
   const individual = gedcomData.individuals[individualId];
