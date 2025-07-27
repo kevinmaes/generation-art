@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
+import { safeValidateFlexibleGedcomData } from '../../shared/types';
+import type { GedcomDataWithMetadata } from '../../shared/types';
 import './App.css';
 
-interface FamilyTreeData {
-  individuals: unknown[];
-  families: unknown[];
-  metadata?: unknown;
-}
-
 function App(): React.ReactElement {
-  const [familyTreeData, setFamilyTreeData] = useState<FamilyTreeData | null>(
-    null,
-  );
+  const [familyTreeData, setFamilyTreeData] =
+    useState<GedcomDataWithMetadata | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
@@ -48,29 +43,13 @@ function App(): React.ReactElement {
       const text = await file.text();
       const data = JSON.parse(text) as unknown;
 
-      // Handle both array format (enhanced) and object format (raw)
-      if (Array.isArray(data)) {
-        // Enhanced format: array of individuals with metadata
-        setFamilyTreeData({ individuals: data, families: [] });
-      } else if (
-        typeof data === 'object' &&
-        data !== null &&
-        'individuals' in data &&
-        'families' in data &&
-        Array.isArray(
-          (data as { individuals: unknown; families: unknown }).individuals,
-        ) &&
-        Array.isArray(
-          (data as { individuals: unknown; families: unknown }).families,
-        )
-      ) {
-        // Raw format: object with individuals and families
-        setFamilyTreeData(data as FamilyTreeData);
-      } else {
-        throw new Error(
-          'Invalid file format. Expected array of individuals or object with "individuals" and "families" arrays.',
-        );
+      // Use Zod validation instead of manual type checking
+      const result = safeValidateFlexibleGedcomData(data);
+      if (!result.success) {
+        throw new Error(`Invalid file format: ${result.error.message}`);
       }
+
+      setFamilyTreeData(result.data);
       setCurrentView('artwork');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load file');
@@ -104,8 +83,15 @@ function App(): React.ReactElement {
         );
       }
 
-      const data = JSON.parse(text) as FamilyTreeData;
-      setFamilyTreeData(data);
+      const data = JSON.parse(text) as unknown;
+
+      // Use Zod validation for Kennedy data
+      const result = safeValidateFlexibleGedcomData(data);
+      if (!result.success) {
+        throw new Error(`Invalid Kennedy data format: ${result.error.message}`);
+      }
+
+      setFamilyTreeData(result.data);
       setCurrentView('artwork');
     } catch (err) {
       setError(
