@@ -107,8 +107,8 @@ export function PipelineManager({
                       handleTransformerSelect(transformerId);
                     }}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
+                    <div className="flex items-center w-full">
+                      <div className="flex items-center space-x-2 flex-1 text-left">
                         <span className="text-xs bg-gray-300 text-gray-700 px-2 py-1 rounded">
                           {index + 1}
                         </span>
@@ -117,7 +117,7 @@ export function PipelineManager({
                         </span>
                       </div>
                       <button
-                        className="text-gray-400 hover:text-red-500 text-sm"
+                        className="text-gray-400 hover:text-red-500 text-sm flex-shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
                           /* TODO: Implement remove functionality */
@@ -127,7 +127,7 @@ export function PipelineManager({
                       </button>
                     </div>
                     {transformer.description && (
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-gray-600 mt-1 text-left">
                         {transformer.description}
                       </p>
                     )}
@@ -138,10 +138,10 @@ export function PipelineManager({
           </div>
         </div>
 
-        {/* Top-Right: Input Metadata */}
+        {/* Top-Right: Input (data) */}
         <div className="border rounded-lg p-4 flex flex-col">
           <h4 className="font-medium mb-3 text-gray-700">
-            Input Metadata
+            Input
             {selectedTransformer && ` - ${selectedTransformer.name}`}
           </h4>
           <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
@@ -201,8 +201,8 @@ export function PipelineManager({
                     key={transformerId}
                     className="p-3 rounded border bg-gray-50 border-gray-200"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
+                    <div className="flex items-center w-full">
+                      <div className="flex items-center space-x-2 flex-1 text-left">
                         <button
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                           onClick={() => {
@@ -217,7 +217,7 @@ export function PipelineManager({
                       </div>
                     </div>
                     {transformer.description && (
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-gray-600 mt-1 text-left">
                         {transformer.description}
                       </p>
                     )}
@@ -228,10 +228,10 @@ export function PipelineManager({
           </div>
         </div>
 
-        {/* Bottom-Right: Output Metadata */}
+        {/* Bottom-Right: Output (data) */}
         <div className="border rounded-lg p-4 flex flex-col">
           <h4 className="font-medium mb-3 text-gray-700">
-            Output Metadata
+            Output
             {selectedTransformer && ` - ${selectedTransformer.name}`}
           </h4>
           <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
