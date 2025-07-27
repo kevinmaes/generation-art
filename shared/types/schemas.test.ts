@@ -175,7 +175,7 @@ describe('Zod Schemas', () => {
       const result = validateFlexibleGedcomData(arrayData);
       expect(result.individuals).toEqual(arrayData);
       expect(result.families).toEqual([]);
-      expect(result.metadata.totalIndividuals).toBe(1);
+      expect(result.metadata.graphStructure.totalIndividuals).toBe(1);
     });
 
     it('should handle object format without metadata', () => {
@@ -208,7 +208,7 @@ describe('Zod Schemas', () => {
       const result = validateFlexibleGedcomData(objectData);
       expect(result.individuals).toEqual(objectData.individuals);
       expect(result.families).toEqual(objectData.families);
-      expect(result.metadata.totalIndividuals).toBe(1);
+      expect(result.metadata.graphStructure.totalIndividuals).toBe(1);
     });
   });
 
@@ -235,16 +235,9 @@ describe('Zod Schemas', () => {
         },
       };
 
-      const result = safeValidateFlexibleGedcomData(validData);
-      expect(result.success).toBe(true);
-      if (result.success) {
-        const data = result.data as {
-          individuals: unknown[];
-          metadata?: { totalIndividuals?: number };
-        };
-        expect(data.individuals).toHaveLength(1);
-        expect(data.metadata?.totalIndividuals).toBe(1);
-      }
+      const result = validateFlexibleGedcomData(validData);
+      expect(result.individuals).toHaveLength(1);
+      expect(result.metadata.graphStructure.totalIndividuals).toBe(1);
     });
 
     it('should return error for invalid data', () => {

@@ -9,6 +9,7 @@ import { z } from 'zod';
 export const IndividualSchema = z.object({
   id: z.string(),
   name: z.string(),
+  gender: z.enum(['M', 'F', 'U']).optional(), // M = Male, F = Female, U = Unknown
   birth: z
     .object({
       date: z.string().optional(),
@@ -39,23 +40,275 @@ export const GedcomDataSchema = z.object({
   families: z.array(FamilySchema),
 });
 
-// Metadata schemas
+// Edge schemas
+export const EdgeMetadataSchema = z.object({
+  relationshipStrength: z.number().min(0).max(1),
+  isDirectRelationship: z.boolean(),
+  relationshipDuration: z.number().optional(),
+  overlapYears: z.number().optional(),
+  familySize: z.number(),
+  birthOrder: z.number().optional(),
+  sameBirthCountry: z.boolean(),
+  sameDeathCountry: z.boolean(),
+  custom: z.record(z.unknown()).optional(),
+});
+
+export const EdgeSchema = z.object({
+  id: z.string(),
+  sourceId: z.string(),
+  targetId: z.string(),
+  relationshipType: z.enum(['parent-child', 'spouse', 'sibling']),
+  familyId: z.string().optional(),
+  metadata: EdgeMetadataSchema,
+});
+
+// Graph analysis schemas
+export const GraphStructureMetadataSchema = z.object({
+  totalIndividuals: z.number(),
+  totalFamilies: z.number(),
+  totalEdges: z.number(),
+  maxGenerations: z.number(),
+  minGenerations: z.number(),
+  generationDistribution: z.record(z.string(), z.number()),
+  averageGenerationsPerBranch: z.number(),
+  disconnectedComponents: z.number(),
+  largestComponentSize: z.number(),
+  averageConnectionsPerIndividual: z.number(),
+  connectivityDensity: z.number().min(0).max(1),
+  averageFamilySize: z.number(),
+  largestFamilySize: z.number(),
+  familySizeDistribution: z.record(z.string(), z.number()),
+  childlessFamilies: z.number(),
+  largeFamilies: z.number(),
+  treeComplexity: z.number().min(0).max(1),
+  branchingFactor: z.number(),
+  depthToBreadthRatio: z.number(),
+});
+
+export const TemporalMetadataSchema = z.object({
+  earliestBirthYear: z.number(),
+  latestBirthYear: z.number(),
+  timeSpan: z.number(),
+  generationTimeSpans: z.record(
+    z.object({
+      earliest: z.number(),
+      latest: z.number(),
+      span: z.number(),
+      averageBirthYear: z.number(),
+    }),
+  ),
+  averageLifespan: z.number(),
+  lifespanDistribution: z.record(z.string(), z.number()),
+  longestLifespan: z.number(),
+  shortestLifespan: z.number(),
+  lifespanVariance: z.number(),
+  historicalPeriods: z.array(
+    z.object({
+      period: z.string(),
+      count: z.number(),
+      percentage: z.number(),
+      years: z.object({ start: z.number(), end: z.number() }),
+    }),
+  ),
+  birthYearDistribution: z.record(z.string(), z.number()),
+  deathYearDistribution: z.record(z.string(), z.number()),
+  marriageYearDistribution: z.record(z.string(), z.number()),
+  averageGenerationGap: z.number(),
+  generationGapVariance: z.number(),
+});
+
+export const GeographicMetadataSchema = z.object({
+  uniqueBirthPlaces: z.number(),
+  uniqueDeathPlaces: z.number(),
+  countriesRepresented: z.number(),
+  statesProvincesRepresented: z.number(),
+  birthPlaceDistribution: z.record(z.number()),
+  deathPlaceDistribution: z.record(z.number()),
+  countryDistribution: z.record(z.number()),
+  stateProvinceDistribution: z.record(z.number()),
+  countryPercentages: z.record(z.number()),
+  stateProvincePercentages: z.record(z.number()),
+  migrationPatterns: z.array(
+    z.object({
+      fromCountry: z.string(),
+      toCountry: z.string(),
+      count: z.number(),
+      percentage: z.number(),
+    }),
+  ),
+  regions: z.array(
+    z.object({
+      region: z.string(),
+      countries: z.array(z.string()),
+      count: z.number(),
+      percentage: z.number(),
+    }),
+  ),
+  geographicClusters: z.array(
+    z.object({
+      clusterId: z.string(),
+      center: z.object({ lat: z.number(), lng: z.number() }),
+      radius: z.number(),
+      individuals: z.array(z.string()),
+      count: z.number(),
+    }),
+  ),
+  geographicDiversity: z.number().min(0).max(1),
+  averageDistanceBetweenBirthPlaces: z.number(),
+});
+
+export const DemographicMetadataSchema = z.object({
+  genderDistribution: z.object({
+    male: z.object({ count: z.number(), percentage: z.number() }),
+    female: z.object({ count: z.number(), percentage: z.number() }),
+    unknown: z.object({ count: z.number(), percentage: z.number() }),
+  }),
+  ageDistribution: z.record(z.number()),
+  averageAgeAtDeath: z.number(),
+  ageGroupDistribution: z.record(z.number()),
+  ageVariance: z.number(),
+  averageChildrenPerFamily: z.number(),
+  childlessFamilies: z.number(),
+  largeFamilies: z.number(),
+  familySizeVariance: z.number(),
+  averageAgeAtMarriage: z.number(),
+  marriageAgeDistribution: z.record(z.number()),
+  remarriageRate: z.number(),
+  marriageAgeVariance: z.number(),
+  averageChildrenPerWoman: z.number(),
+  fertilityRate: z.number(),
+  childbearingAgeRange: z.object({
+    min: z.number(),
+    max: z.number(),
+    average: z.number(),
+  }),
+});
+
+export const RelationshipMetadataSchema = z.object({
+  relationshipTypeDistribution: z.record(z.number()),
+  averageRelationshipDistance: z.number(),
+  relationshipDistanceDistribution: z.record(z.number()),
+  maxRelationshipDistance: z.number(),
+  blendedFamilies: z.number(),
+  stepRelationships: z.number(),
+  adoptionRate: z.number(),
+  multipleMarriages: z.number(),
+  averageAncestorsPerGeneration: z.number(),
+  missingAncestors: z.number(),
+  ancestralCompleteness: z.number().min(0).max(1),
+  ancestralDepth: z.number(),
+  averageSiblingsPerFamily: z.number(),
+  onlyChildren: z.number(),
+  largeSiblingGroups: z.number(),
+  cousinRelationships: z.object({
+    firstCousins: z.number(),
+    secondCousins: z.number(),
+    thirdCousins: z.number(),
+    distantCousins: z.number(),
+  }),
+  keyConnectors: z.array(z.string()),
+  averageCentrality: z.number(),
+  centralityDistribution: z.record(z.number()),
+});
+
+export const EdgeAnalysisMetadataSchema = z.object({
+  totalEdges: z.number(),
+  parentChildEdges: z.number(),
+  spouseEdges: z.number(),
+  siblingEdges: z.number(),
+  averageEdgeWeight: z.number(),
+  edgeWeightDistribution: z.record(z.number()),
+  strongRelationships: z.number(),
+  weakRelationships: z.number(),
+  averageRelationshipDuration: z.number(),
+  relationshipDurationDistribution: z.record(z.number()),
+  sameCountryRelationships: z.number(),
+  crossCountryRelationships: z.number(),
+  averageDistanceBetweenSpouses: z.number(),
+});
+
+export const TreeSummarySchema = z.object({
+  totalIndividuals: z.number(),
+  totalFamilies: z.number(),
+  timeSpan: z.string(),
+  geographicDiversity: z.string(),
+  familyComplexity: z.string(),
+  averageLifespan: z.number(),
+  maxGenerations: z.number(),
+});
+
+// Enhanced metadata schemas
 export const IndividualMetadataSchema = z.object({
+  // Basic metadata
   lifespan: z.number().min(0).max(1).optional(),
   isAlive: z.boolean().optional(),
   birthMonth: z.number().min(1).max(12).optional(),
   zodiacSign: z.string().optional(),
   generation: z.number().nullable().optional(),
   relativeGenerationValue: z.number().min(0).max(100).optional(),
+
+  // Graph-based fields
+  centrality: z.number().optional(),
+  relationshipCount: z.number().optional(),
+  ancestorCount: z.number().optional(),
+  descendantCount: z.number().optional(),
+  siblingCount: z.number().optional(),
+  cousinCount: z.number().optional(),
+
+  // Geographic fields
+  birthCountry: z.string().optional(),
+  deathCountry: z.string().optional(),
+  migrationDistance: z.number().optional(),
+
+  // Temporal fields
+  birthYear: z.number().optional(),
+  deathYear: z.number().optional(),
+  ageAtDeath: z.number().optional(),
+  generationGap: z.number().optional(),
 });
 
 export const FamilyMetadataSchema = z.object({
+  // Basic metadata
   numberOfChildren: z.number().min(0),
+
+  // Graph-based fields
+  familyComplexity: z.number().optional(),
+  blendedFamily: z.boolean().optional(),
+  remarriage: z.boolean().optional(),
+  generation: z.number().optional(),
+
+  // Geographic fields
+  sameCountryParents: z.boolean().optional(),
+  crossCountryMarriage: z.boolean().optional(),
+
+  // Temporal fields
+  marriageYear: z.number().optional(),
+  averageChildAge: z.number().optional(),
+  childSpacing: z.array(z.number()).optional(),
 });
 
 export const TreeMetadataSchema = z.object({
-  totalIndividuals: z.number().min(0).optional(),
-  depthOfTree: z.number().min(0).optional(),
+  // Graph structure
+  graphStructure: GraphStructureMetadataSchema,
+
+  // Temporal patterns
+  temporalPatterns: TemporalMetadataSchema,
+
+  // Geographic patterns
+  geographicPatterns: GeographicMetadataSchema,
+
+  // Demographics
+  demographics: DemographicMetadataSchema,
+
+  // Relationships
+  relationships: RelationshipMetadataSchema,
+
+  // Edges
+  edges: z.array(EdgeSchema),
+  edgeAnalysis: EdgeAnalysisMetadataSchema,
+
+  // Summary statistics for quick access
+  summary: TreeSummarySchema,
 });
 
 // Augmented schemas
@@ -99,6 +352,19 @@ export type GedcomDataWithMetadata = z.infer<
   typeof GedcomDataWithMetadataSchema
 >;
 
+// Graph analysis types
+export type Edge = z.infer<typeof EdgeSchema>;
+export type EdgeMetadata = z.infer<typeof EdgeMetadataSchema>;
+export type GraphStructureMetadata = z.infer<
+  typeof GraphStructureMetadataSchema
+>;
+export type TemporalMetadata = z.infer<typeof TemporalMetadataSchema>;
+export type GeographicMetadata = z.infer<typeof GeographicMetadataSchema>;
+export type DemographicMetadata = z.infer<typeof DemographicMetadataSchema>;
+export type RelationshipMetadata = z.infer<typeof RelationshipMetadataSchema>;
+export type EdgeAnalysisMetadata = z.infer<typeof EdgeAnalysisMetadataSchema>;
+export type TreeSummary = z.infer<typeof TreeSummarySchema>;
+
 // Validation functions
 export const validateGedcomData = (data: unknown): GedcomData => {
   return GedcomDataSchema.parse(data);
@@ -113,37 +379,291 @@ export const validateGedcomDataWithMetadata = (
 export const validateFlexibleGedcomData = (
   data: unknown,
 ): GedcomDataWithMetadata => {
-  const parsed = FlexibleGedcomDataSchema.parse(data);
+  const result = FlexibleGedcomDataSchema.parse(data);
 
-  // Handle different formats
-  if (Array.isArray(parsed)) {
-    // Enhanced format: array of individuals
+  // If it's just an array of individuals, convert to full structure
+  if (Array.isArray(result)) {
     return {
-      individuals: parsed,
+      individuals: result,
       families: [],
       metadata: {
-        totalIndividuals: parsed.length,
+        graphStructure: {
+          totalIndividuals: result.length,
+          totalFamilies: 0,
+          totalEdges: 0,
+          maxGenerations: 0,
+          minGenerations: 0,
+          generationDistribution: {},
+          averageGenerationsPerBranch: 0,
+          disconnectedComponents: 1,
+          largestComponentSize: result.length,
+          averageConnectionsPerIndividual: 0,
+          connectivityDensity: 0,
+          averageFamilySize: 0,
+          largestFamilySize: 0,
+          familySizeDistribution: {},
+          childlessFamilies: 0,
+          largeFamilies: 0,
+          treeComplexity: 0,
+          branchingFactor: 0,
+          depthToBreadthRatio: 0,
+        },
+        temporalPatterns: {
+          earliestBirthYear: 0,
+          latestBirthYear: 0,
+          timeSpan: 0,
+          generationTimeSpans: {},
+          averageLifespan: 0,
+          lifespanDistribution: {},
+          longestLifespan: 0,
+          shortestLifespan: 0,
+          lifespanVariance: 0,
+          historicalPeriods: [],
+          birthYearDistribution: {},
+          deathYearDistribution: {},
+          marriageYearDistribution: {},
+          averageGenerationGap: 0,
+          generationGapVariance: 0,
+        },
+        geographicPatterns: {
+          uniqueBirthPlaces: 0,
+          uniqueDeathPlaces: 0,
+          countriesRepresented: 0,
+          statesProvincesRepresented: 0,
+          birthPlaceDistribution: {},
+          deathPlaceDistribution: {},
+          countryDistribution: {},
+          stateProvinceDistribution: {},
+          countryPercentages: {},
+          stateProvincePercentages: {},
+          migrationPatterns: [],
+          regions: [],
+          geographicClusters: [],
+          geographicDiversity: 0,
+          averageDistanceBetweenBirthPlaces: 0,
+        },
+        demographics: {
+          genderDistribution: {
+            male: { count: 0, percentage: 0 },
+            female: { count: 0, percentage: 0 },
+            unknown: { count: 0, percentage: 0 },
+          },
+          ageDistribution: {},
+          averageAgeAtDeath: 0,
+          ageGroupDistribution: {},
+          ageVariance: 0,
+          averageChildrenPerFamily: 0,
+          childlessFamilies: 0,
+          largeFamilies: 0,
+          familySizeVariance: 0,
+          averageAgeAtMarriage: 0,
+          marriageAgeDistribution: {},
+          remarriageRate: 0,
+          marriageAgeVariance: 0,
+          averageChildrenPerWoman: 0,
+          fertilityRate: 0,
+          childbearingAgeRange: { min: 0, max: 0, average: 0 },
+        },
+        relationships: {
+          relationshipTypeDistribution: {},
+          averageRelationshipDistance: 0,
+          relationshipDistanceDistribution: {},
+          maxRelationshipDistance: 0,
+          blendedFamilies: 0,
+          stepRelationships: 0,
+          adoptionRate: 0,
+          multipleMarriages: 0,
+          averageAncestorsPerGeneration: 0,
+          missingAncestors: 0,
+          ancestralCompleteness: 0,
+          ancestralDepth: 0,
+          averageSiblingsPerFamily: 0,
+          onlyChildren: 0,
+          largeSiblingGroups: 0,
+          cousinRelationships: {
+            firstCousins: 0,
+            secondCousins: 0,
+            thirdCousins: 0,
+            distantCousins: 0,
+          },
+          keyConnectors: [],
+          averageCentrality: 0,
+          centralityDistribution: {},
+        },
+        edges: [],
+        edgeAnalysis: {
+          totalEdges: 0,
+          parentChildEdges: 0,
+          spouseEdges: 0,
+          siblingEdges: 0,
+          averageEdgeWeight: 0,
+          edgeWeightDistribution: {},
+          strongRelationships: 0,
+          weakRelationships: 0,
+          averageRelationshipDuration: 0,
+          relationshipDurationDistribution: {},
+          sameCountryRelationships: 0,
+          crossCountryRelationships: 0,
+          averageDistanceBetweenSpouses: 0,
+        },
+        summary: {
+          totalIndividuals: result.length,
+          totalFamilies: 0,
+          timeSpan: 'Unknown',
+          geographicDiversity: 'Unknown',
+          familyComplexity: 'Unknown',
+          averageLifespan: 0,
+          maxGenerations: 0,
+        },
       },
     };
-  } else if ('individuals' in parsed && 'families' in parsed) {
-    // Check if it has metadata
-    if ('metadata' in parsed) {
-      return parsed;
-    } else {
-      // Raw format: add empty metadata
-      return {
-        ...parsed,
-        metadata: {
-          totalIndividuals: parsed.individuals.length,
-        },
-      };
-    }
   }
 
-  throw new Error('Invalid data format');
+  // If it's missing metadata, add default metadata
+  if (
+    'individuals' in result &&
+    'families' in result &&
+    !('metadata' in result)
+  ) {
+    return {
+      ...result,
+      metadata: {
+        graphStructure: {
+          totalIndividuals: result.individuals.length,
+          totalFamilies: result.families.length,
+          totalEdges: 0,
+          maxGenerations: 0,
+          minGenerations: 0,
+          generationDistribution: {},
+          averageGenerationsPerBranch: 0,
+          disconnectedComponents: 1,
+          largestComponentSize: result.individuals.length,
+          averageConnectionsPerIndividual: 0,
+          connectivityDensity: 0,
+          averageFamilySize: 0,
+          largestFamilySize: 0,
+          familySizeDistribution: {},
+          childlessFamilies: 0,
+          largeFamilies: 0,
+          treeComplexity: 0,
+          branchingFactor: 0,
+          depthToBreadthRatio: 0,
+        },
+        temporalPatterns: {
+          earliestBirthYear: 0,
+          latestBirthYear: 0,
+          timeSpan: 0,
+          generationTimeSpans: {},
+          averageLifespan: 0,
+          lifespanDistribution: {},
+          longestLifespan: 0,
+          shortestLifespan: 0,
+          lifespanVariance: 0,
+          historicalPeriods: [],
+          birthYearDistribution: {},
+          deathYearDistribution: {},
+          marriageYearDistribution: {},
+          averageGenerationGap: 0,
+          generationGapVariance: 0,
+        },
+        geographicPatterns: {
+          uniqueBirthPlaces: 0,
+          uniqueDeathPlaces: 0,
+          countriesRepresented: 0,
+          statesProvincesRepresented: 0,
+          birthPlaceDistribution: {},
+          deathPlaceDistribution: {},
+          countryDistribution: {},
+          stateProvinceDistribution: {},
+          countryPercentages: {},
+          stateProvincePercentages: {},
+          migrationPatterns: [],
+          regions: [],
+          geographicClusters: [],
+          geographicDiversity: 0,
+          averageDistanceBetweenBirthPlaces: 0,
+        },
+        demographics: {
+          genderDistribution: {
+            male: { count: 0, percentage: 0 },
+            female: { count: 0, percentage: 0 },
+            unknown: { count: 0, percentage: 0 },
+          },
+          ageDistribution: {},
+          averageAgeAtDeath: 0,
+          ageGroupDistribution: {},
+          ageVariance: 0,
+          averageChildrenPerFamily: 0,
+          childlessFamilies: 0,
+          largeFamilies: 0,
+          familySizeVariance: 0,
+          averageAgeAtMarriage: 0,
+          marriageAgeDistribution: {},
+          remarriageRate: 0,
+          marriageAgeVariance: 0,
+          averageChildrenPerWoman: 0,
+          fertilityRate: 0,
+          childbearingAgeRange: { min: 0, max: 0, average: 0 },
+        },
+        relationships: {
+          relationshipTypeDistribution: {},
+          averageRelationshipDistance: 0,
+          relationshipDistanceDistribution: {},
+          maxRelationshipDistance: 0,
+          blendedFamilies: 0,
+          stepRelationships: 0,
+          adoptionRate: 0,
+          multipleMarriages: 0,
+          averageAncestorsPerGeneration: 0,
+          missingAncestors: 0,
+          ancestralCompleteness: 0,
+          ancestralDepth: 0,
+          averageSiblingsPerFamily: 0,
+          onlyChildren: 0,
+          largeSiblingGroups: 0,
+          cousinRelationships: {
+            firstCousins: 0,
+            secondCousins: 0,
+            thirdCousins: 0,
+            distantCousins: 0,
+          },
+          keyConnectors: [],
+          averageCentrality: 0,
+          centralityDistribution: {},
+        },
+        edges: [],
+        edgeAnalysis: {
+          totalEdges: 0,
+          parentChildEdges: 0,
+          spouseEdges: 0,
+          siblingEdges: 0,
+          averageEdgeWeight: 0,
+          edgeWeightDistribution: {},
+          strongRelationships: 0,
+          weakRelationships: 0,
+          averageRelationshipDuration: 0,
+          relationshipDurationDistribution: {},
+          sameCountryRelationships: 0,
+          crossCountryRelationships: 0,
+          averageDistanceBetweenSpouses: 0,
+        },
+        summary: {
+          totalIndividuals: result.individuals.length,
+          totalFamilies: result.families.length,
+          timeSpan: 'Unknown',
+          geographicDiversity: 'Unknown',
+          familyComplexity: 'Unknown',
+          averageLifespan: 0,
+          maxGenerations: 0,
+        },
+      },
+    };
+  }
+
+  return result;
 };
 
-// Safe parsing functions that return results instead of throwing
+// Safe validation functions that don't throw
 export const safeValidateGedcomData = (data: unknown) => {
   return GedcomDataSchema.safeParse(data);
 };

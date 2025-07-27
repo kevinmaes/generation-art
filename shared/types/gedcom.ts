@@ -10,6 +10,7 @@
 export interface Individual {
   id: string;
   name: string;
+  gender?: 'M' | 'F' | 'U'; // M = Male, F = Female, U = Unknown
   birth?: { date?: string; place?: string };
   death?: { date?: string; place?: string };
   parents: string[];
@@ -50,10 +51,30 @@ export interface AugmentedIndividual extends Individual {
  * Safe for external systems like LLMs
  */
 export interface IndividualMetadata {
+  // Basic metadata
   lifespan?: number;
   isAlive?: boolean;
   birthMonth?: number;
   zodiacSign?: string;
   generation?: number | null;
   relativeGenerationValue?: number;
+
+  // Graph-based fields
+  centrality?: number;
+  relationshipCount?: number;
+  ancestorCount?: number;
+  descendantCount?: number;
+  siblingCount?: number;
+  cousinCount?: number;
+
+  // Geographic fields
+  birthCountry?: string;
+  deathCountry?: string;
+  migrationDistance?: number;
+
+  // Temporal fields
+  birthYear?: number;
+  deathYear?: number;
+  ageAtDeath?: number;
+  generationGap?: number;
 }

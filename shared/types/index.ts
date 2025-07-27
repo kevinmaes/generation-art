@@ -1,9 +1,10 @@
 /**
  * Centralized type exports
  * This file provides a single import point for all types used by the cli and the client application
+ * All types are now derived from Zod schemas for consistency and runtime validation
  */
 
-// Zod schemas and derived types (preferred for runtime validation)
+// Zod schemas and derived types (source of truth)
 export {
   // Schemas
   IndividualSchema,
@@ -18,6 +19,17 @@ export {
   EnhancedIndividualArraySchema,
   FlexibleGedcomDataSchema,
 
+  // Graph analysis schemas
+  EdgeSchema,
+  EdgeMetadataSchema,
+  GraphStructureMetadataSchema,
+  TemporalMetadataSchema,
+  GeographicMetadataSchema,
+  DemographicMetadataSchema,
+  RelationshipMetadataSchema,
+  EdgeAnalysisMetadataSchema,
+  TreeSummarySchema,
+
   // Validation functions
   validateGedcomData,
   validateGedcomDataWithMetadata,
@@ -26,7 +38,7 @@ export {
   safeValidateGedcomDataWithMetadata,
   safeValidateFlexibleGedcomData,
 
-  // Derived types
+  // Derived types (inferred from schemas)
   type Individual,
   type Family,
   type GedcomData,
@@ -36,23 +48,18 @@ export {
   type AugmentedIndividual,
   type FamilyWithMetadata,
   type GedcomDataWithMetadata,
+
+  // Graph analysis types
+  type Edge,
+  type EdgeMetadata,
+  type GraphStructureMetadata,
+  type TemporalMetadata,
+  type GeographicMetadata,
+  type DemographicMetadata,
+  type RelationshipMetadata,
+  type EdgeAnalysisMetadata,
+  type TreeSummary,
 } from './schemas';
-
-// Legacy type exports (for backward compatibility)
-export type {
-  Individual as LegacyIndividual,
-  Family as LegacyFamily,
-  GedcomData as LegacyGedcomData,
-  AugmentedIndividual as LegacyAugmentedIndividual,
-  IndividualMetadata as LegacyIndividualMetadata,
-} from './gedcom';
-
-export type {
-  FamilyMetadata as LegacyFamilyMetadata,
-  TreeMetadata as LegacyTreeMetadata,
-  FamilyWithMetadata as LegacyFamilyWithMetadata,
-  GedcomDataWithMetadata as LegacyGedcomDataWithMetadata,
-} from './metadata';
 
 // Type predicates
 export { isNumber, isString, isBoolean, isBirthMonth } from './type-predicates';

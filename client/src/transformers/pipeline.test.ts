@@ -48,8 +48,134 @@ const mockMetadata: GedcomDataWithMetadata = {
   ],
   families: [],
   metadata: {
-    totalIndividuals: 1,
-    depthOfTree: 1,
+    graphStructure: {
+      totalIndividuals: 1,
+      totalFamilies: 0,
+      totalEdges: 0,
+      maxGenerations: 1,
+      minGenerations: 1,
+      generationDistribution: {},
+      averageGenerationsPerBranch: 1,
+      disconnectedComponents: 1,
+      largestComponentSize: 1,
+      averageConnectionsPerIndividual: 0,
+      connectivityDensity: 0,
+      averageFamilySize: 0,
+      largestFamilySize: 0,
+      familySizeDistribution: {},
+      childlessFamilies: 0,
+      largeFamilies: 0,
+      treeComplexity: 0,
+      branchingFactor: 0,
+      depthToBreadthRatio: 0,
+    },
+    temporalPatterns: {
+      earliestBirthYear: 0,
+      latestBirthYear: 0,
+      timeSpan: 0,
+      generationTimeSpans: {},
+      averageLifespan: 0,
+      lifespanDistribution: {},
+      longestLifespan: 0,
+      shortestLifespan: 0,
+      lifespanVariance: 0,
+      historicalPeriods: [],
+      birthYearDistribution: {},
+      deathYearDistribution: {},
+      marriageYearDistribution: {},
+      averageGenerationGap: 0,
+      generationGapVariance: 0,
+    },
+    geographicPatterns: {
+      uniqueBirthPlaces: 0,
+      uniqueDeathPlaces: 0,
+      countriesRepresented: 0,
+      statesProvincesRepresented: 0,
+      birthPlaceDistribution: {},
+      deathPlaceDistribution: {},
+      countryDistribution: {},
+      stateProvinceDistribution: {},
+      countryPercentages: {},
+      stateProvincePercentages: {},
+      migrationPatterns: [],
+      regions: [],
+      geographicClusters: [],
+      geographicDiversity: 0,
+      averageDistanceBetweenBirthPlaces: 0,
+    },
+    demographics: {
+      genderDistribution: {
+        male: { count: 0, percentage: 0 },
+        female: { count: 0, percentage: 0 },
+        unknown: { count: 0, percentage: 0 },
+      },
+      ageDistribution: {},
+      averageAgeAtDeath: 0,
+      ageGroupDistribution: {},
+      ageVariance: 0,
+      averageChildrenPerFamily: 0,
+      childlessFamilies: 0,
+      largeFamilies: 0,
+      familySizeVariance: 0,
+      averageAgeAtMarriage: 0,
+      marriageAgeDistribution: {},
+      remarriageRate: 0,
+      marriageAgeVariance: 0,
+      averageChildrenPerWoman: 0,
+      fertilityRate: 0,
+      childbearingAgeRange: { min: 0, max: 0, average: 0 },
+    },
+    relationships: {
+      relationshipTypeDistribution: {},
+      averageRelationshipDistance: 0,
+      relationshipDistanceDistribution: {},
+      maxRelationshipDistance: 0,
+      blendedFamilies: 0,
+      stepRelationships: 0,
+      adoptionRate: 0,
+      multipleMarriages: 0,
+      averageAncestorsPerGeneration: 0,
+      missingAncestors: 0,
+      ancestralCompleteness: 0,
+      ancestralDepth: 0,
+      averageSiblingsPerFamily: 0,
+      onlyChildren: 0,
+      largeSiblingGroups: 0,
+      cousinRelationships: {
+        firstCousins: 0,
+        secondCousins: 0,
+        thirdCousins: 0,
+        distantCousins: 0,
+      },
+      keyConnectors: [],
+      averageCentrality: 0,
+      centralityDistribution: {},
+    },
+    edges: [],
+    edgeAnalysis: {
+      totalEdges: 0,
+      parentChildEdges: 0,
+      spouseEdges: 0,
+      siblingEdges: 0,
+      averageEdgeWeight: 0,
+      edgeWeightDistribution: {},
+      strongRelationships: 0,
+      weakRelationships: 0,
+      averageRelationshipDuration: 0,
+      relationshipDurationDistribution: {},
+      sameCountryRelationships: 0,
+      crossCountryRelationships: 0,
+      averageDistanceBetweenSpouses: 0,
+    },
+    summary: {
+      totalIndividuals: 1,
+      totalFamilies: 0,
+      timeSpan: 'Unknown',
+      geographicDiversity: 'Unknown',
+      familyComplexity: 'Unknown',
+      averageLifespan: 0,
+      maxGenerations: 1,
+    },
   },
 };
 
@@ -197,7 +323,7 @@ describe('Pipeline', () => {
         canvasHeight: 600,
       };
 
-      const result = await runPipeline(mockMetadata, config);
+      const result = await runPipeline({ gedcomData: mockMetadata, config });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.executionTime).toBeGreaterThan(0);
@@ -218,7 +344,7 @@ describe('Pipeline', () => {
         temperature: 0.5,
       };
 
-      const result = await runPipeline(mockMetadata, config);
+      const result = await runPipeline({ gedcomData: mockMetadata, config });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.transformerResults).toHaveLength(2);
@@ -237,7 +363,7 @@ describe('Pipeline', () => {
         transformerIds: ['non-existent-transformer'],
       };
 
-      const result = await runPipeline(mockMetadata, config);
+      const result = await runPipeline({ gedcomData: mockMetadata, config });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.transformerResults).toHaveLength(1);
@@ -258,7 +384,7 @@ describe('Pipeline', () => {
         ],
       };
 
-      const result = await runPipeline(mockMetadata, config);
+      const result = await runPipeline({ gedcomData: mockMetadata, config });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.transformerResults).toHaveLength(2);
@@ -275,7 +401,7 @@ describe('Pipeline', () => {
         canvasHeight: 800,
       };
 
-      const result = await runPipeline(mockMetadata, config);
+      const result = await runPipeline({ gedcomData: mockMetadata, config });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.transformerResults[0].success).toBe(true);

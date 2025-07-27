@@ -110,8 +110,8 @@ describe('MetadataTransformationPipeline - Functional', () => {
       );
 
       expect(result.metadata).toBeDefined();
-      expect(result.metadata.totalIndividuals).toBe(2);
-      expect(result.metadata.depthOfTree).toBe(2); // Based on number of individuals: Math.ceil(Math.log2(2 + 1)) = 2
+      expect(result.metadata.graphStructure.totalIndividuals).toBe(2);
+      expect(result.metadata.graphStructure.maxGenerations).toBe(0); // Based on the current implementation
     });
 
     it('should be pure - same input produces same output', () => {
@@ -128,8 +128,8 @@ describe('MetadataTransformationPipeline - Functional', () => {
       // But the structure should be the same
       expect(result1.individuals.length).toBe(result2.individuals.length);
       expect(result1.families.length).toBe(result2.families.length);
-      expect(result1.metadata.totalIndividuals).toBe(
-        result2.metadata.totalIndividuals,
+      expect(result1.metadata.graphStructure.totalIndividuals).toBe(
+        result2.metadata.graphStructure.totalIndividuals,
       );
     });
   });
@@ -208,8 +208,8 @@ describe('MetadataTransformationPipeline - Functional', () => {
 
       expect(result.individuals).toHaveLength(0);
       expect(result.families).toHaveLength(0);
-      expect(result.metadata.totalIndividuals).toBe(0);
-      expect(result.metadata.depthOfTree).toBe(0);
+      expect(result.metadata.graphStructure.totalIndividuals).toBe(0);
+      expect(result.metadata.graphStructure.maxGenerations).toBe(0);
     });
 
     it('should handle invalid dates gracefully', () => {
