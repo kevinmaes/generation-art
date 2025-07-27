@@ -6,6 +6,7 @@ import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata } from '../../shared/types';
 import type { PipelineResult } from './transformers/pipeline';
 import { transformers } from './transformers/transformers';
+import { runPipeline, createSimplePipeline } from './transformers/pipeline';
 import './App.css';
 
 function App(): React.ReactElement {
@@ -22,6 +23,7 @@ function App(): React.ReactElement {
   const [activeTransformerIds, setActiveTransformerIds] = useState<string[]>(
     Object.keys(transformers),
   );
+  const [isVisualizing, setIsVisualizing] = useState(false);
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -56,6 +58,8 @@ function App(): React.ReactElement {
       const validatedData = validateFlexibleGedcomData(data);
       setFamilyTreeData(validatedData);
       setCurrentView('artwork');
+      // Clear any previous pipeline result when loading new data
+      setPipelineResult(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load file');
     } finally {
@@ -94,6 +98,8 @@ function App(): React.ReactElement {
       const validatedData = validateFlexibleGedcomData(data);
       setFamilyTreeData(validatedData);
       setCurrentView('artwork');
+      // Clear any previous pipeline result when loading new data
+      setPipelineResult(null);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to load Kennedy data',
@@ -106,6 +112,29 @@ function App(): React.ReactElement {
   const handleTransformerSelect = (transformerId: string) => {
     console.log('Selected transformer:', transformerId);
     // TODO: Implement transformer selection logic
+  };
+
+  const handleVisualize = async () => {
+    if (!familyTreeData || activeTransformerIds.length === 0) return;
+
+    setIsVisualizing(true);
+    try {
+      const pipelineConfig = createSimplePipeline(activeTransformerIds, {
+        canvasWidth: minWidth,
+        canvasHeight: minHeight,
+        temperature: 0.5,
+      });
+
+      const result = await runPipeline(familyTreeData, pipelineConfig);
+      setPipelineResult(result);
+    } catch (err) {
+      console.error('Pipeline execution failed:', err);
+      setError(
+        err instanceof Error ? err.message : 'Pipeline execution failed',
+      );
+    } finally {
+      setIsVisualizing(false);
+    }
   };
 
   const handlePipelineResult = (result: PipelineResult | null) => {
@@ -151,6 +180,7 @@ function App(): React.ReactElement {
                 width={minWidth}
                 height={minHeight}
                 gedcomData={familyTreeData}
+                pipelineResult={pipelineResult}
                 className="mb-8"
                 onPipelineResult={handlePipelineResult}
               />
@@ -159,6 +189,11 @@ function App(): React.ReactElement {
                   pipelineResult={pipelineResult}
                   activeTransformerIds={activeTransformerIds}
                   onTransformerSelect={handleTransformerSelect}
+                  onVisualize={() => {
+                    void handleVisualize();
+                  }}
+                  isVisualizing={isVisualizing}
+                  hasData={!!familyTreeData}
                 />
               </div>
             </>

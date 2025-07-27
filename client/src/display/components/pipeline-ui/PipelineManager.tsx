@@ -8,12 +8,18 @@ interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;
   activeTransformerIds: string[];
   onTransformerSelect?: (transformerId: string) => void;
+  onVisualize?: () => void;
+  isVisualizing?: boolean;
+  hasData?: boolean;
 }
 
 export function PipelineManager({
   pipelineResult,
   activeTransformerIds,
   onTransformerSelect,
+  onVisualize,
+  isVisualizing = false,
+  hasData = false,
 }: PipelineManagerProps): React.ReactElement {
   const [selectedTransformerId, setSelectedTransformerId] = useState<
     string | null
@@ -36,11 +42,32 @@ export function PipelineManager({
     return JSON.stringify(data, null, 2);
   };
 
+  const isVisualizeEnabled =
+    hasData && activeTransformerIds.length > 0 && !isVisualizing;
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h3 className="text-lg font-semibold mb-4">
-        Visual Transformer Pipeline
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Visual Transformer Pipeline</h3>
+        <button
+          onClick={onVisualize}
+          disabled={!isVisualizeEnabled}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            isVisualizeEnabled
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          {isVisualizing ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <span>Visualizing...</span>
+            </div>
+          ) : (
+            'Visualize'
+          )}
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 gap-4" style={{ height: '500px' }}>
         {/* Top-Left: Active Pipeline */}
@@ -227,7 +254,7 @@ export function PipelineManager({
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
                 {selectedTransformer
                   ? 'Run pipeline to see output metadata'
-                  : 'Select a transformer to view output metadata'}
+                  : 'Click Visualize to flow data through the pipeline'}
               </div>
             )}
           </div>

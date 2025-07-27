@@ -3,7 +3,6 @@ import p5 from 'p5';
 import { createWebSketch, type SketchConfig } from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
-import { usePipeline } from './hooks/usePipeline';
 import type { PipelineResult } from '../../transformers/pipeline';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
@@ -13,6 +12,7 @@ interface ArtGeneratorProps {
   width?: number;
   height?: number;
   gedcomData?: GedcomDataWithMetadata;
+  pipelineResult?: PipelineResult | null;
   onExportReady?: (p5Instance: p5) => void;
   onPipelineResult?: (result: PipelineResult | null) => void;
 }
@@ -21,21 +21,16 @@ export function ArtGenerator({
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
   gedcomData,
+  pipelineResult,
   onExportReady,
   onPipelineResult,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
 
-  const {
-    result: pipelineResult,
-    error: pipelineError,
-    isRunning,
-  } = usePipeline(gedcomData, width, height);
-
   // Notify parent component when pipeline result changes
   useEffect(() => {
-    onPipelineResult?.(pipelineResult);
+    onPipelineResult?.(pipelineResult ?? null);
   }, [pipelineResult, onPipelineResult]);
 
   // Only create the sketch after pipelineResult is available
@@ -77,55 +72,16 @@ export function ArtGenerator({
 
   if (!gedcomData) {
     return (
-      <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg"
-        style={{
-          width: `${String(width)}px`,
-          height: `${String(height)}px`,
-        }}
-      >
-        <div className="text-center">
-          <div className="text-gray-500 text-lg mb-2">
-            No GEDCOM data provided
-          </div>
-          <p className="text-gray-400 text-sm">
-            Please provide GEDCOM data to generate artwork
-          </p>
-        </div>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">No data loaded</p>
       </div>
     );
   }
 
-  if (isRunning || !pipelineResult) {
+  if (!pipelineResult) {
     return (
-      <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg"
-        style={{
-          width: `${String(width)}px`,
-          height: `${String(height)}px`,
-        }}
-      >
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <div className="text-gray-600">Running pipeline...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (pipelineError) {
-    return (
-      <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg"
-        style={{
-          width: `${String(width)}px`,
-          height: `${String(height)}px`,
-        }}
-      >
-        <div className="text-center">
-          <div className="text-red-500 text-lg mb-2">Pipeline Error</div>
-          <p className="text-gray-400 text-sm">{pipelineError}</p>
-        </div>
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">Click Visualize to generate artwork</p>
       </div>
     );
   }
