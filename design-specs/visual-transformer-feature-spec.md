@@ -148,11 +148,59 @@ client/src/transformers/
 - [ ] Design a privacy-safe abstraction layer to summarize metadata before sending
 - [ ] Create first LLM transformer (e.g., layout metaphor selector)
 
-### Phase 6: UI (Optional for now)
+### Phase 6: UI - Pipeline Management Interface
 
-- [ ] Create a transformer registry
-- [ ] Build drag-and-drop interface with reorderable pipeline
+- [ ] Create a transformer registry display
+- [ ] Build read-only pipeline viewer showing active transformers
+- [ ] Add Monaco code editor for metadata inspection
+- [ ] Implement drag-and-drop interface with reorderable pipeline
 - [ ] Connect pipeline to canvas renderer with "Generate Art" action
+
+#### UI Implementation Details
+
+**Dependencies:**
+
+- `@monaco-editor/react` - For code editor components
+- `@dnd-kit/core` and `@dnd-kit/sortable` - For drag-and-drop functionality
+
+**UI Layout (2x2 Grid):**
+
+1. **Top-Left: "Transformer Pipeline"**
+
+   - Lists active transformers in execution order
+   - Drag handles for reordering (initially read-only)
+   - Remove buttons (X) for each transformer
+   - Selected transformer highlighted with purple background
+
+2. **Bottom-Left: "Available Transformers"**
+
+   - Lists transformers not currently in pipeline
+   - Add buttons (+) to add to pipeline
+   - Initially read-only, shows available options
+
+3. **Top-Right: "Visual Metadata Input - [Selected Transformer]"**
+
+   - Monaco code editor showing input metadata
+   - Copy button for code
+   - Displays JSON structure of input data
+
+4. **Bottom-Right: "Visual Metadata Output - [Selected Transformer]"**
+   - Monaco code editor showing output metadata
+   - Copy button for code
+   - Displays JSON structure of output data
+
+**Implementation Priority:**
+
+1. **Phase 6a: Read-Only Pipeline Viewer** (Immediate)
+
+   - Display current pipeline configuration
+   - Show transformer execution order
+   - Basic metadata inspection without editing
+
+2. **Phase 6b: Interactive Pipeline Builder** (Future)
+   - Drag-and-drop reordering
+   - Add/remove transformers
+   - Real-time pipeline modification
 
 ---
 
@@ -176,6 +224,8 @@ client/src/transformers/
 - **Streamlined Architecture**: Direct data flow from CLI → App → Pipeline → Canvas
 
 **Ready for Phase 4**: Randomness and Repeatability - integrating seeded pseudo-random generation and temperature control for more creative transformations.
+
+**UI Planning Complete**: Detailed specifications added for Phase 6 pipeline management interface with Monaco code editor and drag-and-drop functionality.
 
 ---
 
