@@ -73,7 +73,9 @@ These transformers should:
 
 ### Focused Development
 
-- When in doubt, the primary goal is to make the pipeline work end-to-end so that we can actually see the impact of the visual transformations on the canvas. It's understood that there's always more detail and transformations that are possible within the pipeline to make things more creative later.
+- When in doubt, the primary goal is to make the pipeline work end-to-end so that we can actually see the impact of the visual transformations on the canvas.
+- It's understood that there's always more detail and transformations that are possible within the pipeline to make things more creative later.
+- We can hold off on extensive unit testing during rapid development. We want to move quickly and things will likely change so testing will just slow us down.
 
 ## 3. Steps to Completion
 
