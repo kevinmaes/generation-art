@@ -55,7 +55,7 @@ export interface VisualMetadata {
  */
 export interface TransformerContext {
   // The complete GEDCOM data with metadata
-  metadata: GedcomDataWithMetadata;
+  gedcomData: GedcomDataWithMetadata;
 
   // Current visual metadata state (may be partial)
   visualMetadata: VisualMetadata;

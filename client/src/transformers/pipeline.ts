@@ -65,6 +65,11 @@ export interface PipelineConfig {
   canvasHeight?: number;
 }
 
+interface PipelineInput {
+  gedcomData: GedcomDataWithMetadata;
+  config: PipelineConfig;
+}
+
 /**
  * Pipeline execution result
  */
@@ -155,10 +160,10 @@ export function createSeededRandom(seed?: string): () => number {
  * Executes all transformers in sequence, passing the output of each
  * as input to the next transformer.
  */
-export async function runPipeline(
-  metadata: GedcomDataWithMetadata,
-  config: PipelineConfig,
-): Promise<PipelineResult> {
+export async function runPipeline({
+  gedcomData,
+  config,
+}: PipelineInput): Promise<PipelineResult> {
   const startTime = performance.now();
   const transformerResults: PipelineResult['transformerResults'] = [];
 
@@ -181,7 +186,7 @@ export async function runPipeline(
 
       // Create context for this transformer
       const context: TransformerContext = {
-        metadata,
+        gedcomData,
         visualMetadata,
         temperature: config.temperature,
         seed: config.seed,

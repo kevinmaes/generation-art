@@ -14,10 +14,10 @@ function calculateHorizontalPosition(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { metadata, canvasWidth = 1000 } = context;
+  const { gedcomData, canvasWidth = 1000 } = context;
 
   // Find the individual
-  const individual = metadata.individuals.find(
+  const individual = gedcomData.individuals.find(
     (ind) => ind.id === individualId,
   );
   if (!individual) {
@@ -44,10 +44,10 @@ function calculateVerticalPosition(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { metadata, canvasHeight = 800 } = context;
+  const { gedcomData, canvasHeight = 800 } = context;
 
   // Find the individual
-  const individual = metadata.individuals.find(
+  const individual = gedcomData.individuals.find(
     (ind) => ind.id === individualId,
   );
   if (!individual) {
@@ -58,10 +58,10 @@ function calculateVerticalPosition(
 
   // Calculate vertical spacing
   const maxGenerations = Math.max(
-    ...metadata.individuals.map((ind) => ind.metadata.generation ?? 0),
+    ...gedcomData.individuals.map((ind) => ind.metadata.generation ?? 0),
   );
   const minGenerations = Math.min(
-    ...metadata.individuals.map((ind) => ind.metadata.generation ?? 0),
+    ...gedcomData.individuals.map((ind) => ind.metadata.generation ?? 0),
   );
   const generationRange = maxGenerations - minGenerations;
 
@@ -86,17 +86,17 @@ function calculateVerticalPosition(
 export async function horizontalSpreadByGenerationTransform(
   context: TransformerContext,
 ): Promise<{ visualMetadata: Partial<VisualMetadata> }> {
-  const { metadata } = context;
+  const { gedcomData } = context;
 
   // For now, we'll return a single visual metadata object
   // In a real implementation, this would be applied to each individual
   // For the prototype, we'll use the first individual as an example
 
-  if (metadata.individuals.length === 0) {
+  if (gedcomData.individuals.length === 0) {
     return { visualMetadata: {} };
   }
 
-  const firstIndividual = metadata.individuals[0];
+  const firstIndividual = gedcomData.individuals[0];
   const x = calculateHorizontalPosition(context, firstIndividual.id);
   const y = calculateVerticalPosition(context, firstIndividual.id);
 
