@@ -150,22 +150,25 @@ client/src/transformers/
 
 ### Phase 6: UI - Pipeline Management Interface
 
-- [ ] Create a transformer registry display
-- [ ] Build read-only pipeline viewer showing active transformers
-- [ ] Add Monaco code editor for metadata inspection
-- [ ] Implement drag-and-drop interface with reorderable pipeline
+- [x] Create a transformer registry display
+- [x] Build read-only pipeline viewer showing active transformers
+- [x] Add syntax-highlighted code editor for metadata inspection
+- [x] Implement basic pipeline visualization with proper scrolling
+- [ ] Add "Visualize" button for controlled pipeline execution
+- [ ] Implement transformer selection for input/output inspection
+- [ ] Add drag-and-drop interface with reorderable pipeline
 - [ ] Connect pipeline to canvas renderer with "Generate Art" action
 
 #### UI Implementation Details
 
 **Dependencies:**
 
-- `@monaco-editor/react` - For code editor components
-- `@dnd-kit/core` and `@dnd-kit/sortable` - For drag-and-drop functionality
+- `react-syntax-highlighter` - For syntax-highlighted code display
+- `@dnd-kit/core` and `@dnd-kit/sortable` - For drag-and-drop functionality (future)
 
 **UI Layout (2x2 Grid):**
 
-1. **Top-Left: "Transformer Pipeline"**
+1. **Top-Left: "Active Pipeline"**
 
    - Lists active transformers in execution order
    - Drag handles for reordering (initially read-only)
@@ -178,55 +181,104 @@ client/src/transformers/
    - Add buttons (+) to add to pipeline
    - Initially read-only, shows available options
 
-3. **Top-Right: "Visual Metadata Input - [Selected Transformer]"**
+3. **Top-Right: "Input Metadata"**
 
-   - Monaco code editor showing input metadata
-   - Copy button for code
-   - Displays JSON structure of input data
+   - Syntax-highlighted JSON showing input data
+   - Scrollable code blocks with proper formatting
+   - Shows pipeline input or selected transformer input
 
-4. **Bottom-Right: "Visual Metadata Output - [Selected Transformer]"**
-   - Monaco code editor showing output metadata
-   - Copy button for code
-   - Displays JSON structure of output data
+4. **Bottom-Right: "Output Metadata"**
+   - Syntax-highlighted JSON showing output data
+   - Scrollable code blocks with proper formatting
+   - Shows pipeline output or selected transformer output
+
+**Pipeline Execution Workflow:**
+
+1. **Initial State**:
+
+   - No visualization until "Visualize" button is clicked
+   - Input panel shows what the pipeline input would be
+   - Output panel shows "Click Visualize to flow data through the pipeline"
+
+2. **Visualize Button**:
+
+   - Only enabled when data is loaded AND pipeline has at least 1 transformer
+   - Triggers pipeline execution when clicked
+   - Shows loading state during execution
+
+3. **After Visualization**:
+
+   - Canvas displays the generated artwork
+   - Input panel shows the complete pipeline input object
+   - Output panel shows the complete pipeline output object
+   - Visualization persists until "Visualize" is clicked again
+
+4. **Pipeline Modification**:
+
+   - Users can modify transformers, order, parameters between runs
+   - Changes don't automatically trigger re-visualization
+   - Must click "Visualize" again to see changes
+
+5. **Future: Transformer Selection**:
+   - Users can select single or multiple contiguous transformers
+   - Input panel shows input to first selected transformer
+   - Output panel shows output from last selected transformer
+   - Enables detailed inspection of pipeline stages
 
 **Implementation Priority:**
 
-1. **Phase 6a: Read-Only Pipeline Viewer** (Immediate)
+1. **Phase 6a: Read-Only Pipeline Viewer** ✅ (Complete)
 
    - Display current pipeline configuration
    - Show transformer execution order
-   - Basic metadata inspection without editing
+   - Basic metadata inspection with syntax highlighting
 
-2. **Phase 6b: Interactive Pipeline Builder** (Future)
+2. **Phase 6b: Visualize Button & Controlled Execution** (Current)
+
+   - Add "Visualize" button with proper state management
+   - Implement controlled pipeline execution
+   - Show complete pipeline input/output in code panels
+
+3. **Phase 6c: Interactive Pipeline Builder** (Future)
+
    - Drag-and-drop reordering
    - Add/remove transformers
    - Real-time pipeline modification
 
----
+4. **Phase 6d: Transformer Selection** (Future)
+   - Select individual or multiple transformers
+   - Show transformer-specific input/output
+   - Detailed pipeline stage inspection
 
 ## Current Status
 
-**Phase 3 Complete** ✅ - Full Data Integration is now complete:
+**Phase 6a Complete** ✅ - Read-Only Pipeline Viewer is now complete:
 
-- ✅ CLI outputs full `GedcomDataWithMetadata` structure (individuals, families, metadata)
-- ✅ Pipeline accepts and processes complete data structure
-- ✅ App components updated to pass full data through the pipeline
-- ✅ FamilyTreeSketch updated to accept `GedcomDataWithMetadata` directly
-- ✅ Removed redundant data conversion and backwards compatibility code
-- ✅ Transformers now have access to complete family relationships and tree metadata
+- ✅ PipelineManager component with 2x2 grid layout
+- ✅ Active transformers display with selection highlighting
+- ✅ Available transformers list
+- ✅ Syntax-highlighted JSON code blocks with proper scrolling
+- ✅ Pipeline status display with execution time and transformer count
+- ✅ Proper height constraints and overflow handling
 
-**Key Data Flow Improvements:**
+**Phase 6b In Progress** 🔄 - Visualize Button & Controlled Execution:
 
-- **Complete Data Access**: Pipeline now receives full `GedcomDataWithMetadata` including PII for internal processing
-- **Family Relationships**: Transformers can analyze parent-child, spouse, and sibling relationships
-- **Tree-Level Analysis**: Access to total generations, time spans, birth distributions, etc.
-- **LLM Safety**: Individual transformers can extract PII-safe metadata for external API calls
-- **Streamlined Architecture**: Direct data flow from CLI → App → Pipeline → Canvas
+- 🔄 **Next**: Add "Visualize" button to PipelineManager
+- 🔄 **Next**: Implement controlled pipeline execution (no auto-run)
+- 🔄 **Next**: Show complete pipeline input/output in code panels
+- 🔄 **Next**: Proper state management for visualization lifecycle
 
-**Ready for Phase 4**: Randomness and Repeatability - integrating seeded pseudo-random generation and temperature control for more creative transformations.
+**Key UI Improvements:**
 
-**UI Planning Complete**: Detailed specifications added for Phase 6 pipeline management interface with Monaco code editor and drag-and-drop functionality.
+- **Syntax Highlighting**: JSON code blocks now have proper syntax highlighting with colors
+- **Proper Scrolling**: Code blocks scroll both horizontally and vertically when content overflows
+- **Height Constraints**: Fixed 180px height for code panels with consistent behavior
+- **Professional Appearance**: Clean, modern UI that looks like a proper development tool
+
+**Ready for Phase 6b**: Visualize Button implementation - adding controlled pipeline execution with proper state management and user feedback.
+
+**Future Phases Planned**: Interactive pipeline builder with drag-and-drop, transformer selection for detailed inspection, and advanced pipeline modification capabilities.
 
 ---
 
-_Last updated: 2025-01-27 18:45 UTC_
+_Last updated: 2025-01-27 19:15 UTC_
