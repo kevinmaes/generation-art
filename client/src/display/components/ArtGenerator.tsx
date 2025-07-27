@@ -13,6 +13,8 @@ interface ArtGeneratorProps {
   height?: number;
   gedcomData?: GedcomDataWithMetadata;
   pipelineResult?: PipelineResult | null;
+  showIndividuals?: boolean;
+  showRelations?: boolean;
   onExportReady?: (p5Instance: p5) => void;
   onPipelineResult?: (result: PipelineResult | null) => void;
 }
@@ -22,6 +24,8 @@ export function ArtGenerator({
   height = DEFAULT_HEIGHT,
   gedcomData,
   pipelineResult,
+  showIndividuals = true,
+  showRelations = true,
   onExportReady,
   onPipelineResult,
 }: ArtGeneratorProps): React.ReactElement {
@@ -35,7 +39,7 @@ export function ArtGenerator({
 
   // Only create the sketch after pipelineResult is available
   useEffect(() => {
-    if (!containerRef.current || !pipelineResult || !gedcomData) return;
+    if (!containerRef.current || !gedcomData) return;
 
     const container = containerRef.current;
 
@@ -48,9 +52,13 @@ export function ArtGenerator({
 
     // Create a proper config object for the sketch
     const sketchConfig: Partial<SketchConfig> = {
-      transformerIds: pipelineResult.config.transformerIds,
-      temperature: pipelineResult.config.temperature,
-      seed: pipelineResult.config.seed,
+      transformerIds: pipelineResult?.config.transformerIds ?? [
+        'horizontal-spread-by-generation',
+      ],
+      temperature: pipelineResult?.config.temperature ?? 0.5,
+      seed: pipelineResult?.config.seed,
+      showIndividuals,
+      showRelations,
     };
 
     // Pass the pipeline result's visual metadata to the sketch
@@ -59,7 +67,7 @@ export function ArtGenerator({
       width,
       height,
       sketchConfig,
-      pipelineResult.visualMetadata,
+      pipelineResult?.visualMetadata,
     );
     p5InstanceRef.current = new p5(sketch, container);
 
@@ -74,7 +82,15 @@ export function ArtGenerator({
       }
       container.innerHTML = '';
     };
-  }, [pipelineResult, gedcomData, width, height, onExportReady]);
+  }, [
+    pipelineResult,
+    gedcomData,
+    width,
+    height,
+    showIndividuals,
+    showRelations,
+    onExportReady,
+  ]);
 
   if (!gedcomData) {
     return (

@@ -1,6 +1,9 @@
 import type p5 from 'p5';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type { CompleteVisualMetadata } from '../transformers/types';
+import type {
+  CompleteVisualMetadata,
+  VisualMetadata,
+} from '../transformers/types';
 
 export interface SketchConfig {
   width: number;
@@ -14,6 +17,9 @@ export interface SketchConfig {
   transformerIds?: string[];
   temperature?: number;
   seed?: string;
+  // Visibility controls
+  showIndividuals?: boolean;
+  showRelations?: boolean;
 }
 
 export interface SketchProps {
@@ -38,6 +44,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
     transformerIds = ['horizontal-spread-by-generation'],
     temperature = 0.5,
     seed,
+    showIndividuals = true,
+    showRelations = true,
   } = config;
 
   return (p: p5) => {
@@ -51,82 +59,86 @@ function createSketch(props: SketchProps): (p: p5) => void {
       p.background(255);
 
       // Draw edges using visual metadata
-      for (const edge of gedcomData.metadata.edges) {
-        const coord1 = getIndividualCoord(
-          edge.sourceId,
-          width,
-          height,
-          visualMetadata,
-        );
-        const coord2 = getIndividualCoord(
-          edge.targetId,
-          width,
-          height,
-          visualMetadata,
-        );
+      if (showRelations) {
+        for (const edge of gedcomData.metadata.edges) {
+          const coord1 = getIndividualCoord(
+            edge.sourceId,
+            width,
+            height,
+            visualMetadata,
+          );
+          const coord2 = getIndividualCoord(
+            edge.targetId,
+            width,
+            height,
+            visualMetadata,
+          );
 
-        // Use edge visual metadata (if available)
-        const edgeMetadata = visualMetadata.edges[edge.id];
-        const strokeColor = p.color(
-          edgeMetadata?.strokeColor ??
-            visualMetadata.global.defaultEdgeColor ??
-            '#ccc',
-        );
-        p.stroke(strokeColor);
-        p.strokeWeight(
-          edgeMetadata?.strokeWeight ??
-            visualMetadata.global.defaultEdgeWeight ??
-            strokeWeight,
-        );
-        p.line(coord1.x, coord1.y, coord2.x, coord2.y);
+          // Use edge visual metadata (if available)
+          const edgeMetadata = visualMetadata.edges[edge.id];
+          const strokeColor = p.color(
+            edgeMetadata?.strokeColor ??
+              visualMetadata.global.defaultEdgeColor ??
+              '#ccc',
+          );
+          p.stroke(strokeColor);
+          p.strokeWeight(
+            edgeMetadata?.strokeWeight ??
+              visualMetadata.global.defaultEdgeWeight ??
+              strokeWeight,
+          );
+          p.line(coord1.x, coord1.y, coord2.x, coord2.y);
+        }
       }
 
       // Draw nodes (individuals) using per-entity visual metadata
-      const individuals = Object.values(gedcomData.individuals);
-      for (const ind of individuals) {
-        const individualMetadata = visualMetadata.individuals[ind.id];
-        const x = individualMetadata?.x ?? width / 2;
-        const y = individualMetadata?.y ?? height / 2;
-        const size =
-          individualMetadata?.size ??
-          visualMetadata.global.defaultNodeSize ??
-          nodeSize;
-        const color =
-          individualMetadata?.color ??
-          visualMetadata.global.defaultNodeColor ??
-          colors[0];
-        const shape =
-          individualMetadata?.shape ??
-          visualMetadata.global.defaultNodeShape ??
-          'circle';
-        const opacity = individualMetadata?.opacity ?? 1.0;
+      if (showIndividuals) {
+        const individuals = Object.values(gedcomData.individuals);
+        for (const ind of individuals) {
+          const individualMetadata = visualMetadata.individuals[ind.id];
+          const x = individualMetadata?.x ?? width / 2;
+          const y = individualMetadata?.y ?? height / 2;
+          const size =
+            individualMetadata?.size ??
+            visualMetadata.global.defaultNodeSize ??
+            nodeSize;
+          const color =
+            individualMetadata?.color ??
+            visualMetadata.global.defaultNodeColor ??
+            colors[0];
+          const shape =
+            individualMetadata?.shape ??
+            visualMetadata.global.defaultNodeShape ??
+            'circle';
+          const opacity = individualMetadata?.opacity ?? 1.0;
 
-        const pColor = p.color(color);
-        pColor.setAlpha(opacity * 255);
-        p.fill(pColor);
+          const pColor = p.color(color);
+          pColor.setAlpha(opacity * 255);
+          p.fill(pColor);
 
-        p.noStroke();
-        if (shape === 'circle') {
-          p.circle(x, y, size);
-        } else if (shape === 'square') {
-          p.rectMode(p.CENTER);
-          p.rect(x, y, size, size);
-        } else if (shape === 'triangle') {
-          p.triangle(
-            x,
-            y - size / 2,
-            x - size / 2,
-            y + size / 2,
-            x + size / 2,
-            y + size / 2,
-          );
-        }
+          p.noStroke();
+          if (shape === 'circle') {
+            p.circle(x, y, size);
+          } else if (shape === 'square') {
+            p.rectMode(p.CENTER);
+            p.rect(x, y, size, size);
+          } else if (shape === 'triangle') {
+            p.triangle(
+              x,
+              y - size / 2,
+              x - size / 2,
+              y + size / 2,
+              x + size / 2,
+              y + size / 2,
+            );
+          }
 
-        if (showNames) {
-          p.fill(0);
-          p.textSize(textSize);
-          p.textAlign(p.CENTER);
-          p.text(ind.name, x, y + size + textSize);
+          if (showNames) {
+            p.fill(0);
+            p.textSize(textSize);
+            p.textAlign(p.CENTER);
+            p.text(ind.name, x, y + size + textSize);
+          }
         }
       }
 
@@ -162,32 +174,52 @@ export function createWebSketch(
     colors: ['#0000ff', '#ffff00'],
     transformerIds: ['horizontal-spread-by-generation'],
     temperature: 0.5,
+    showIndividuals: true,
+    showRelations: true,
     ...options,
   };
 
   // Use provided visual metadata or create initial structure
-  const finalVisualMetadata: CompleteVisualMetadata = visualMetadata ?? {
-    individuals: {},
-    families: {},
-    edges: {},
-    tree: {
-      backgroundColor: '#ffffff',
-      group: 'tree',
-      layer: 0,
-      priority: 0,
-    },
-    global: {
-      canvasWidth: width,
-      canvasHeight: height,
-      backgroundColor: '#ffffff',
-      defaultNodeSize: config.nodeSize,
-      defaultEdgeWeight: config.strokeWeight,
-      defaultNodeColor: config.colors?.[0] ?? '#0000ff',
-      defaultEdgeColor: '#ccc',
-      defaultNodeShape: 'circle',
-      defaultEdgeStyle: 'solid',
-    },
-  };
+  const finalVisualMetadata: CompleteVisualMetadata =
+    visualMetadata ??
+    (() => {
+      // Initialize edge visual metadata from actual edge data
+      const edges: Record<string, VisualMetadata> = {};
+      gedcomData.metadata.edges.forEach((edge) => {
+        edges[edge.id] = {
+          strokeColor: '#ccc',
+          strokeWeight: config.strokeWeight,
+          strokeStyle: 'solid',
+          opacity: 1.0,
+          group: 'edges',
+          layer: 1,
+          priority: 0,
+        };
+      });
+
+      return {
+        individuals: {},
+        families: {},
+        edges,
+        tree: {
+          backgroundColor: '#ffffff',
+          group: 'tree',
+          layer: 0,
+          priority: 0,
+        },
+        global: {
+          canvasWidth: width,
+          canvasHeight: height,
+          backgroundColor: '#ffffff',
+          defaultNodeSize: config.nodeSize,
+          defaultEdgeWeight: config.strokeWeight,
+          defaultNodeColor: config.colors?.[0] ?? '#0000ff',
+          defaultEdgeColor: '#ccc',
+          defaultNodeShape: 'circle',
+          defaultEdgeStyle: 'solid',
+        },
+      };
+    })();
 
   return createSketch({
     config,
@@ -215,6 +247,8 @@ export function createPrintSketch(
     colors: ['#000000', '#666666'],
     transformerIds: ['horizontal-spread-by-generation'],
     temperature: 0.3,
+    showIndividuals: true,
+    showRelations: true,
     ...options,
   };
 

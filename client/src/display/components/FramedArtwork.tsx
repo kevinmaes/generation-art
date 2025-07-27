@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
@@ -29,6 +29,8 @@ export function FramedArtwork({
   onPipelineResult,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
+  const [showIndividuals, setShowIndividuals] = useState(true);
+  const [showRelations, setShowRelations] = useState(true);
 
   const { shareState, exportWebCanvas } = useShareArt();
 
@@ -100,6 +102,35 @@ export function FramedArtwork({
           <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
           {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
         </div>
+
+        {/* Visibility Controls */}
+        <div className="mt-4 flex justify-center space-x-6">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showIndividuals}
+              onChange={(e) => {
+                setShowIndividuals(e.target.checked);
+              }}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              Individuals
+            </span>
+          </label>
+
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showRelations}
+              onChange={(e) => {
+                setShowRelations(e.target.checked);
+              }}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+            />
+            <span className="text-sm font-medium text-gray-700">Relations</span>
+          </label>
+        </div>
       </div>
 
       {/* Canvas Container */}
@@ -110,6 +141,8 @@ export function FramedArtwork({
             height={height}
             gedcomData={gedcomData}
             pipelineResult={pipelineResult}
+            showIndividuals={showIndividuals}
+            showRelations={showRelations}
             onExportReady={handleExport}
             onPipelineResult={onPipelineResult}
           />
