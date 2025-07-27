@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { AugmentedIndividual } from '../../../../shared/types';
+import { validateFlexibleGedcomData } from '../../../../shared/types';
+import type { GedcomDataWithMetadata } from '../../../../shared/types';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
-  onDataLoaded?: (data: AugmentedIndividual[]) => void;
+  onDataLoaded?: (data: GedcomDataWithMetadata) => void;
   onError?: (error: string) => void;
 }
 
 interface UseGedcomDataReturn {
-  data: AugmentedIndividual[] | null;
+  data: GedcomDataWithMetadata | null;
   loading: boolean;
   error: string | null;
   refetch: () => void;
@@ -19,7 +20,7 @@ export function useGedcomData({
   onDataLoaded,
   onError,
 }: UseGedcomDataOptions): UseGedcomDataReturn {
-  const [data, setData] = useState<AugmentedIndividual[] | null>(null);
+  const [data, setData] = useState<GedcomDataWithMetadata | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,35 +66,11 @@ export function useGedcomData({
 
       const jsonData = (await response.json()) as unknown;
 
-      // Validate the data structure
-      if (!Array.isArray(jsonData)) {
-        throw new Error(
-          'Invalid data format: expected an array of individuals',
-        );
-      }
+      // Use Zod validation to handle flexible data formats
+      const validatedData = validateFlexibleGedcomData(jsonData);
 
-      // Basic validation of individual structure
-      const isValidIndividual = (
-        item: unknown,
-      ): item is AugmentedIndividual => {
-        return (
-          item !== null &&
-          typeof item === 'object' &&
-          'id' in item &&
-          'name' in item &&
-          typeof (item as AugmentedIndividual).id === 'string' &&
-          typeof (item as AugmentedIndividual).name === 'string'
-        );
-      };
-
-      if (!jsonData.every(isValidIndividual)) {
-        throw new Error(
-          'Invalid data format: individuals missing required fields',
-        );
-      }
-
-      setData(jsonData);
-      onDataLoadedRef.current?.(jsonData);
+      setData(validatedData);
+      onDataLoadedRef.current?.(validatedData);
     } catch (err) {
       let errorMessage: string;
 

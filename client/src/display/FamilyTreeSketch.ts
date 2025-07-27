@@ -63,7 +63,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
       }
 
       // Draw nodes (individuals) using pipeline results
-      for (const ind of gedcomData.individuals) {
+      const individuals = Object.values(gedcomData.individuals);
+      for (const ind of individuals) {
         const x = visualMetadata.x ?? width / 2;
         const y = visualMetadata.y ?? height / 2;
         const size = visualMetadata.size ?? nodeSize;

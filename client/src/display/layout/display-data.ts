@@ -7,7 +7,10 @@
  * Security: This layer only works with PII-safe metadata, never raw GEDCOM data.
  */
 
-import type { AugmentedIndividual } from '../../../../shared/types';
+import type {
+  AugmentedIndividual,
+  GedcomDataWithMetadata,
+} from '../../../../shared/types';
 
 // Canvas-specific data structures
 export interface DisplayNode {
@@ -58,7 +61,7 @@ export interface DisplayData {
  * Transform augmented individuals into display-ready data
  */
 export function createDisplayData(
-  individuals: AugmentedIndividual[],
+  gedcomData: GedcomDataWithMetadata,
   canvasWidth: number,
   canvasHeight: number,
 ): DisplayData {
@@ -70,7 +73,8 @@ export function createDisplayData(
   const centerY = canvasHeight / 2;
   const scale = Math.min(canvasWidth, canvasHeight) / 1000; // Scale factor
 
-  // Create nodes from individuals
+  // Create nodes from individuals (convert ID-keyed object to array)
+  const individuals = Object.values(gedcomData.individuals);
   for (const individual of individuals) {
     const node = createDisplayNode(individual, centerX, centerY, scale);
     nodes.push(node);

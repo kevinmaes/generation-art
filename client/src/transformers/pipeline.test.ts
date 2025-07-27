@@ -31,8 +31,8 @@ import type { GedcomDataWithMetadata } from '../../../shared/types';
 
 // Mock data for testing
 const mockMetadata: GedcomDataWithMetadata = {
-  individuals: [
-    {
+  individuals: {
+    I1: {
       id: 'I1',
       name: 'John Doe',
       parents: [],
@@ -43,10 +43,11 @@ const mockMetadata: GedcomDataWithMetadata = {
         lifespan: 0.8,
         isAlive: false,
         generation: 1,
+        relativeGenerationValue: 0.5,
       },
     },
-  ],
-  families: [],
+  },
+  families: {},
   metadata: {
     graphStructure: {
       totalIndividuals: 1,
