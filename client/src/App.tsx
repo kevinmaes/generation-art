@@ -153,7 +153,10 @@ function App(): React.ReactElement {
         className="flex flex-col justify-center items-center w-full h-full"
         style={{ minWidth, minHeight }}
       >
-        <div className="max-w-7xl w-full" style={{ minWidth }}>
+        <div
+          className="max-w-7xl w-full flex flex-col items-center"
+          style={{ minWidth }}
+        >
           <div className="pt-12 pb-8 text-center">
             <h1 className="text-5xl font-extrabold mb-3 text-gray-800 tracking-tight drop-shadow-sm">
               Generation Art
@@ -199,12 +202,15 @@ function App(): React.ReactElement {
             </>
           ) : (
             <div
-              className="flex flex-col items-center justify-center"
+              className="flex flex-col items-center justify-center w-full"
               style={{ minWidth, minHeight }}
             >
               <div
-                className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl"
-                style={{ minWidth: Math.min(500, minWidth) }}
+                className="bg-white rounded-lg shadow-lg p-8 w-full max-w-4xl flex flex-col justify-center"
+                style={{
+                  minWidth: Math.min(800, minWidth),
+                  minHeight: minHeight * 0.8,
+                }}
               >
                 <h2 className="text-2xl font-semibold mb-6 text-center">
                   Load Family Tree Data

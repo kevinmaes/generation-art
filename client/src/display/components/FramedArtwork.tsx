@@ -96,27 +96,9 @@ export function FramedArtwork({
     <div className={`bg-white rounded-lg shadow-lg ${className}`}>
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-            {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
-          </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={handleExportClick}
-              disabled={exportState.isExporting || !p5InstanceRef.current}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {exportState.isExporting ? 'Exporting...' : 'Export PNG'}
-            </button>
-            <button
-              onClick={handlePrintClick}
-              disabled={!p5InstanceRef.current}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Print
-            </button>
-          </div>
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+          {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
         </div>
       </div>
 

@@ -72,7 +72,13 @@ export function ArtGenerator({
 
   if (!gedcomData) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div
+        className="flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+        style={{
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
+        }}
+      >
         <p className="text-gray-500">No data loaded</p>
       </div>
     );
@@ -80,7 +86,13 @@ export function ArtGenerator({
 
   if (!pipelineResult) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div
+        className="flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+        style={{
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
+        }}
+      >
         <p className="text-gray-500">Click Visualize to generate artwork</p>
       </div>
     );
