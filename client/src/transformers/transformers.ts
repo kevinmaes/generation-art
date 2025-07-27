@@ -20,7 +20,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Horizontal Spread by Generation',
     description:
       'Positions individuals horizontally based on their generation, creating a traditional family tree layout',
-    transform: horizontalSpreadByGenerationTransform,
+    transform:
+      horizontalSpreadByGenerationTransform as VisualTransformerConfig['transform'],
     categories: ['layout', 'positioning'],
     parameters: {
       spacing: {
