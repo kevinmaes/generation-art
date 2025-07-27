@@ -3,10 +3,12 @@ import SyntaxHighlighter from 'react-syntax-highlighter';
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import type { PipelineResult } from '../../../transformers/pipeline';
 import { transformers } from '../../../transformers/transformers';
+import type { GedcomDataWithMetadata } from '../../../../../shared/types';
 
 interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;
   activeTransformerIds: string[];
+  gedcomData?: GedcomDataWithMetadata;
   onTransformerSelect?: (transformerId: string) => void;
   onVisualize?: () => void;
   isVisualizing?: boolean;
@@ -16,6 +18,7 @@ interface PipelineManagerProps {
 export function PipelineManager({
   pipelineResult,
   activeTransformerIds,
+  gedcomData,
   onTransformerSelect,
   onVisualize,
   isVisualizing = false,
@@ -41,6 +44,20 @@ export function PipelineManager({
   const formatMetadata = (data: unknown): string => {
     return JSON.stringify(data, null, 2);
   };
+
+  // Construct the complete PipelineInput object
+  const pipelineInput =
+    gedcomData && activeTransformerIds.length > 0
+      ? {
+          gedcomData,
+          config: {
+            transformerIds: activeTransformerIds,
+            temperature: 0.5, // Default temperature
+            canvasWidth: 800, // Default canvas width
+            canvasHeight: 600, // Default canvas height
+          },
+        }
+      : null;
 
   const isVisualizeEnabled =
     hasData && activeTransformerIds.length > 0 && !isVisualizing;
@@ -133,7 +150,7 @@ export function PipelineManager({
             {selectedTransformer && ` - ${selectedTransformer.name}`}
           </h4>
           <div className="flex-1 overflow-hidden" style={{ height: '180px' }}>
-            {selectedTransformer ? (
+            {pipelineInput ? (
               <div
                 className="h-full border rounded bg-gray-50"
                 style={{
@@ -159,12 +176,14 @@ export function PipelineManager({
                   showLineNumbers={false}
                   wrapLines={true}
                 >
-                  {formatMetadata(pipelineResult?.config ?? {})}
+                  {formatMetadata(pipelineInput)}
                 </SyntaxHighlighter>
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                Select a transformer to view input metadata
+                {hasData
+                  ? 'Select transformers to see pipeline input'
+                  : 'Load data to view pipeline input'}
               </div>
             )}
           </div>

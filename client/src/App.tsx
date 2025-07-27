@@ -125,7 +125,10 @@ function App(): React.ReactElement {
         temperature: 0.5,
       });
 
-      const result = await runPipeline(familyTreeData, pipelineConfig);
+      const result = await runPipeline({
+        gedcomData: familyTreeData,
+        config: pipelineConfig,
+      });
       setPipelineResult(result);
     } catch (err) {
       console.error('Pipeline execution failed:', err);
@@ -191,6 +194,7 @@ function App(): React.ReactElement {
                 <PipelineManager
                   pipelineResult={pipelineResult}
                   activeTransformerIds={activeTransformerIds}
+                  gedcomData={familyTreeData}
                   onTransformerSelect={handleTransformerSelect}
                   onVisualize={() => {
                     void handleVisualize();
