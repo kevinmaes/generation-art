@@ -102,10 +102,19 @@ function App(): React.ReactElement {
   };
 
   const handleTransformerSelect = (transformerId: string) => {
-    setActiveTransformerIds((prev) =>
-      prev.includes(transformerId)
-        ? prev.filter((id) => id !== transformerId)
-        : [...prev, transformerId],
+    // This is now just for selection, not for adding/removing
+    console.log('Selected transformer:', transformerId);
+  };
+
+  const handleAddTransformer = (transformerId: string) => {
+    if (!activeTransformerIds.includes(transformerId)) {
+      setActiveTransformerIds([...activeTransformerIds, transformerId]);
+    }
+  };
+
+  const handleRemoveTransformer = (transformerId: string) => {
+    setActiveTransformerIds(
+      activeTransformerIds.filter((id) => id !== transformerId),
     );
   };
 
@@ -141,9 +150,8 @@ function App(): React.ReactElement {
 
   const handlePipelineResult = (result: PipelineResult | null) => {
     setPipelineResult(result);
-    if (result) {
-      setActiveTransformerIds(result.config.transformerIds);
-    }
+    // Don't update activeTransformerIds from pipeline results
+    // The user's current transformer selection should be preserved
   };
 
   return (
@@ -195,6 +203,8 @@ function App(): React.ReactElement {
                   activeTransformerIds={activeTransformerIds}
                   dualData={dualData}
                   onTransformerSelect={handleTransformerSelect}
+                  onAddTransformer={handleAddTransformer}
+                  onRemoveTransformer={handleRemoveTransformer}
                   onVisualize={() => {
                     void handleVisualize();
                   }}

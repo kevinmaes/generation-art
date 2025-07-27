@@ -19,6 +19,8 @@ interface PipelineManagerProps {
   activeTransformerIds: string[];
   dualData?: DualGedcomData;
   onTransformerSelect?: (transformerId: string) => void;
+  onAddTransformer?: (transformerId: string) => void;
+  onRemoveTransformer?: (transformerId: string) => void;
   onVisualize?: () => void;
   isVisualizing?: boolean;
   hasData?: boolean;
@@ -29,6 +31,8 @@ export function PipelineManager({
   activeTransformerIds,
   dualData,
   onTransformerSelect,
+  onAddTransformer,
+  onRemoveTransformer,
   onVisualize,
   isVisualizing = false,
   hasData = false,
@@ -141,7 +145,7 @@ export function PipelineManager({
                         className="text-gray-400 hover:text-red-500 text-sm flex-shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
-                          /* TODO: Implement remove functionality */
+                          onRemoveTransformer?.(transformerId);
                         }}
                       >
                         ×
@@ -255,7 +259,7 @@ export function PipelineManager({
                         <button
                           className="text-green-600 hover:text-green-700 text-sm font-medium"
                           onClick={() => {
-                            /* TODO: Implement add functionality */
+                            onAddTransformer?.(transformerId);
                           }}
                         >
                           +
