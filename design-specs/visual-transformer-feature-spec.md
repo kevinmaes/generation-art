@@ -15,12 +15,15 @@ This pipeline is the creative engine that transforms genealogical data into expr
 Each **VisualTransformer** is a composable unit that:
 
 - Accepts an input object containing:
-  - **`metadata`** – parsed, privacy-safe metadata from GEDCOM (individuals, families, tree-wide signals)
+  - **`gedcomData`** – parsed, privacy-safe metadata from GEDCOM with comprehensive graph analysis (individuals, families, tree-wide signals, edges, and analysis results)
   - **`visualMetadata`** – the current set of visual attribute values (e.g. x/y, color, shape, motion attributes)
   - **`temperature`** (optional) – a float to control randomness vs determinism
   - **`seed`** (optional) – a string to support reproducibility
+  - **`canvasWidth`** (optional) – canvas dimensions for reference
+  - **`canvasHeight`** (optional) – canvas dimensions for reference
 - Produces a **transformed visualMetadata** based on:
   - Its own custom logic (can be rule-based, procedural, or seeded-random)
+  - Access to rich graph analysis data (structure, temporal, geographic, demographic, relationship patterns)
   - Potential delegation to LLM for layout suggestions or style interpretation
 - Can be **chained** with other transformers in sequence
 - Must be **order-aware but not order-dependent** — should handle already-transformed states intelligently
@@ -28,22 +31,59 @@ Each **VisualTransformer** is a composable unit that:
 
 Transformers can be:
 
-- Deterministic (e.g., based on birth decade)
+- Deterministic (e.g., based on birth decade, geographic patterns, generation depth)
 - Stochastic (e.g., with noise influenced by `temperature`)
-- LLM-augmented (e.g., interpretive or metaphoric layouts)
+- LLM-augmented (e.g., interpretive or metaphoric layouts based on tree analysis)
+- Graph-aware (e.g., using centrality, relationship distances, family complexity)
+
+### 🧠 Enhanced Metadata Access
+
+Transformers now have access to comprehensive graph analysis data:
+
+```typescript
+interface TransformerContext {
+  gedcomData: GedcomDataWithMetadata; // Enhanced with graph analysis
+  visualMetadata: VisualMetadata;
+  temperature?: number;
+  seed?: string;
+  canvasWidth?: number;
+  canvasHeight?: number;
+}
+
+// Enhanced GedcomDataWithMetadata includes:
+interface GedcomDataWithMetadata {
+  individuals: AugmentedIndividual[]; // With graph-based metadata
+  families: FamilyWithMetadata[]; // With graph-based metadata
+  metadata: TreeMetadata; // Comprehensive analysis results
+}
+
+// Rich metadata structure:
+interface TreeMetadata {
+  graphStructure: GraphStructureMetadata; // Tree topology, generations, connectivity
+  temporalPatterns: TemporalMetadata; // Time spans, life expectancy, historical periods
+  geographicPatterns: GeographicMetadata; // Location distributions, migration patterns
+  demographics: DemographicMetadata; // Gender, age, family dynamics
+  relationships: RelationshipMetadata; // Relationship types, distances, complexity
+  edges: Edge[]; // All relationship edges
+  edgeAnalysis: EdgeMetadata; // Edge properties and patterns
+  summary: TreeSummary; // Quick access to key metrics
+}
+```
 
 ### 🧠 LLM Delegation (Optional)
 
 Certain transformers may delegate decision-making to an LLM (given masked metadata). Examples:
 
-- Suggest a layout metaphor (e.g. “spiral for recursive families”)
-- Pick color palettes based on structural patterns
+- Suggest a layout metaphor based on tree complexity and geographic diversity
+- Pick color palettes based on historical periods and cultural patterns
 - Describe the emotional or historical tone of a tree and apply visual mappings accordingly
+- Generate layout strategies based on relationship centrality and family structure
 
 These transformers should:
 
 - Never send PII
 - Use derived or abstracted summaries only
+- Access rich graph analysis data for context
 - Return structured config (e.g., JSON instructions for layout or style)
 
 ### 🔁 Pipeline Execution
@@ -54,6 +94,7 @@ These transformers should:
 - Each transformer must:
   - Handle undefined input attributes
   - Preserve already-transformed attributes unless explicitly overridden
+  - Access rich graph analysis data for informed decisions
 
 ### 🎛 UI Interaction
 
@@ -61,7 +102,7 @@ These transformers should:
 - Drag and drop transformers into a "pipeline builder"
 - Reorder them freely
 - Adjust parameters like `temperature`
-- Press “Generate Art” to run the pipeline and render the output to canvas
+- Press "Generate Art" to run the pipeline and render the output to canvas
 
 ### ✨ Design Philosophy
 
@@ -70,6 +111,7 @@ These transformers should:
 - Encourage experimentation by making pipelines **transparent and editable**
 - Allow creative users to build their own transformers or remix existing ones
 - Use randomness sparingly — **structured serendipity**
+- Leverage **rich graph analysis** for meaningful visual decisions
 
 ### Focused Development
 
@@ -92,6 +134,7 @@ These transformers should:
 - **Slugified IDs**: Transformer IDs are automatically generated from readable names (e.g., "Horizontal Spread by Generation" → "horizontal-spread-by-generation")
 - **Factory utilities**: Helper functions for creating different types of transformers (simple, merging, replacing)
 - **Proper typing**: Full TypeScript support with proper async handling and return types
+- **Graph-aware**: Transformers can access comprehensive graph analysis data
 
 #### File Structure
 
@@ -112,7 +155,7 @@ client/src/transformers/
 ### ✅ Phase 1: Core VisualTransformer Logic
 
 - [x] Define TypeScript types/interfaces for:
-  - `metadata` (uses existing `GedcomDataWithMetadata` from shared)
+  - `gedcomData` (uses existing `GedcomDataWithMetadata` from shared)
   - `visualMetadata` (VisualMetadata interface)
   - `VisualTransformerFn` (async function type)
 - [x] Create transformer factory utilities (`createSimpleTransformer`, `createMergingTransformer`, etc.)
@@ -136,19 +179,28 @@ client/src/transformers/
 - [x] Update app components to pass full data through the pipeline
 - [x] Remove redundant data conversion in FamilyTreeSketch
 
-### Phase 4: Randomness and Repeatability
+### Phase 4: Enhanced Metadata Integration
+
+- [ ] Update transformer context to access enhanced graph analysis data
+- [ ] Create transformers that leverage graph structure analysis
+- [ ] Create transformers that use temporal patterns
+- [ ] Create transformers that utilize geographic analysis
+- [ ] Create transformers that apply demographic insights
+- [ ] Create transformers that consider relationship patterns
+
+### Phase 5: Randomness and Repeatability
 
 - [ ] Integrate seeded pseudo-random generator
 - [ ] Respect `temperature` parameter for all non-deterministic logic
 - [ ] Ensure pipeline produces repeatable results when seeded
 
-### Phase 5: Optional LLM Delegation
+### Phase 6: Optional LLM Delegation
 
 - [ ] Add optional LLM-driven transformers
 - [ ] Design a privacy-safe abstraction layer to summarize metadata before sending
-- [ ] Create first LLM transformer (e.g., layout metaphor selector)
+- [ ] Create first LLM transformer (e.g., layout metaphor selector based on tree analysis)
 
-### Phase 6: UI - Pipeline Management Interface
+### Phase 7: UI - Pipeline Management Interface
 
 - [x] Create a transformer registry display
 - [x] Build read-only pipeline viewer showing active transformers
@@ -186,6 +238,7 @@ client/src/transformers/
    - Syntax-highlighted JSON showing input data
    - Scrollable code blocks with proper formatting
    - Shows pipeline input or selected transformer input
+   - Displays rich graph analysis data when available
 
 4. **Bottom-Right: "Output Metadata"**
    - Syntax-highlighted JSON showing output data
@@ -227,32 +280,32 @@ client/src/transformers/
 
 **Implementation Priority:**
 
-1. **Phase 6a: Read-Only Pipeline Viewer** ✅ (Complete)
+1. **Phase 7a: Read-Only Pipeline Viewer** ✅ (Complete)
 
    - Display current pipeline configuration
    - Show transformer execution order
    - Basic metadata inspection with syntax highlighting
 
-2. **Phase 6b: Visualize Button & Controlled Execution** (Current)
+2. **Phase 7b: Visualize Button & Controlled Execution** (Current)
 
    - Add "Visualize" button with proper state management
    - Implement controlled pipeline execution
    - Show complete pipeline input/output in code panels
 
-3. **Phase 6c: Interactive Pipeline Builder** (Future)
+3. **Phase 7c: Interactive Pipeline Builder** (Future)
 
    - Drag-and-drop reordering
    - Add/remove transformers
    - Real-time pipeline modification
 
-4. **Phase 6d: Transformer Selection** (Future)
+4. **Phase 7d: Transformer Selection** (Future)
    - Select individual or multiple transformers
    - Show transformer-specific input/output
    - Detailed pipeline stage inspection
 
 ## Current Status
 
-**Phase 6a Complete** ✅ - Read-Only Pipeline Viewer is now complete:
+**Phase 7a Complete** ✅ - Read-Only Pipeline Viewer is now complete:
 
 - ✅ PipelineManager component with 2x2 grid layout
 - ✅ Active transformers display with selection highlighting
@@ -261,7 +314,7 @@ client/src/transformers/
 - ✅ Pipeline status display with execution time and transformer count
 - ✅ Proper height constraints and overflow handling
 
-**Phase 6b In Progress** 🔄 - Visualize Button & Controlled Execution:
+**Phase 7b In Progress** 🔄 - Visualize Button & Controlled Execution:
 
 - 🔄 **Next**: Add "Visualize" button to PipelineManager
 - 🔄 **Next**: Implement controlled pipeline execution (no auto-run)
@@ -275,7 +328,7 @@ client/src/transformers/
 - **Height Constraints**: Fixed 180px height for code panels with consistent behavior
 - **Professional Appearance**: Clean, modern UI that looks like a proper development tool
 
-**Ready for Phase 6b**: Visualize Button implementation - adding controlled pipeline execution with proper state management and user feedback.
+**Ready for Phase 7b**: Visualize Button implementation - adding controlled pipeline execution with proper state management and user feedback.
 
 **Future Phases Planned**: Interactive pipeline builder with drag-and-drop, transformer selection for detailed inspection, and advanced pipeline modification capabilities.
 
