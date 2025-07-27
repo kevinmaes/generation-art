@@ -70,8 +70,8 @@ describe('Zod Schemas', () => {
   describe('FlexibleGedcomDataSchema', () => {
     it('should validate GedcomDataWithMetadata format', () => {
       const validData = {
-        individuals: [
-          {
+        individuals: {
+          I1: {
             id: 'I1',
             name: 'John Doe',
             parents: [],
@@ -83,16 +83,16 @@ describe('Zod Schemas', () => {
               isAlive: false,
             },
           },
-        ],
-        families: [
-          {
+        },
+        families: {
+          F1: {
             id: 'F1',
             children: [],
             metadata: {
               numberOfChildren: 0,
             },
           },
-        ],
+        },
         metadata: {
           totalIndividuals: 1,
           depthOfTree: 1,
@@ -125,8 +125,8 @@ describe('Zod Schemas', () => {
 
     it('should validate object format without metadata', () => {
       const validObjectData = {
-        individuals: [
-          {
+        individuals: {
+          I1: {
             id: 'I1',
             name: 'John Doe',
             parents: [],
@@ -138,16 +138,16 @@ describe('Zod Schemas', () => {
               isAlive: false,
             },
           },
-        ],
-        families: [
-          {
+        },
+        families: {
+          F1: {
             id: 'F1',
             children: [],
             metadata: {
               numberOfChildren: 0,
             },
           },
-        ],
+        },
       };
 
       const result = FlexibleGedcomDataSchema.safeParse(validObjectData);
@@ -173,15 +173,16 @@ describe('Zod Schemas', () => {
       ];
 
       const result = validateFlexibleGedcomData(arrayData);
-      expect(result.individuals).toEqual(arrayData);
-      expect(result.families).toEqual([]);
+      expect(Object.keys(result.individuals)).toHaveLength(1);
+      expect(result.individuals.I1).toEqual(arrayData[0]);
+      expect(Object.keys(result.families)).toHaveLength(0);
       expect(result.metadata.graphStructure.totalIndividuals).toBe(1);
     });
 
     it('should handle object format without metadata', () => {
       const objectData = {
-        individuals: [
-          {
+        individuals: {
+          I1: {
             id: 'I1',
             name: 'John Doe',
             parents: [],
@@ -193,21 +194,23 @@ describe('Zod Schemas', () => {
               isAlive: false,
             },
           },
-        ],
-        families: [
-          {
+        },
+        families: {
+          F1: {
             id: 'F1',
             children: [],
             metadata: {
               numberOfChildren: 0,
             },
           },
-        ],
+        },
       };
 
       const result = validateFlexibleGedcomData(objectData);
-      expect(result.individuals).toEqual(objectData.individuals);
-      expect(result.families).toEqual(objectData.families);
+      expect(Object.keys(result.individuals)).toHaveLength(1);
+      expect(result.individuals.I1).toEqual(objectData.individuals.I1);
+      expect(Object.keys(result.families)).toHaveLength(1);
+      expect(result.families.F1).toEqual(objectData.families.F1);
       expect(result.metadata.graphStructure.totalIndividuals).toBe(1);
     });
   });
@@ -215,8 +218,8 @@ describe('Zod Schemas', () => {
   describe('safeValidateFlexibleGedcomData', () => {
     it('should return success for valid data', () => {
       const validData = {
-        individuals: [
-          {
+        individuals: {
+          I1: {
             id: 'I1',
             name: 'John Doe',
             parents: [],
@@ -228,15 +231,15 @@ describe('Zod Schemas', () => {
               isAlive: false,
             },
           },
-        ],
-        families: [],
+        },
+        families: {},
         metadata: {
           totalIndividuals: 1,
         },
       };
 
       const result = validateFlexibleGedcomData(validData);
-      expect(result.individuals).toHaveLength(1);
+      expect(Object.keys(result.individuals)).toHaveLength(1);
       expect(result.metadata.graphStructure.totalIndividuals).toBe(1);
     });
 

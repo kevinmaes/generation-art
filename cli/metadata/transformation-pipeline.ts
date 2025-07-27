@@ -390,15 +390,18 @@ export const extractTreeMetadata = (
 export const transformIndividualsWithMetadata = (
   individuals: Individual[],
   context: Omit<TransformationContext, 'individual' | 'family'>,
-): AugmentedIndividual[] => {
-  return individuals.map((individual) => {
-    const metadata = extractIndividualMetadata(individual, context);
+): Record<string, AugmentedIndividual> => {
+  const individualsById: Record<string, AugmentedIndividual> = {};
 
-    return {
+  individuals.forEach((individual) => {
+    const metadata = extractIndividualMetadata(individual, context);
+    individualsById[individual.id] = {
       ...individual,
       metadata,
     };
   });
+
+  return individualsById;
 };
 
 /**
@@ -406,30 +409,28 @@ export const transformIndividualsWithMetadata = (
  */
 export const transformFamiliesWithMetadata = (
   families: Family[],
-  individualsWithMetadata: AugmentedIndividual[],
+  individualsWithMetadata: Record<string, AugmentedIndividual>,
   context: Omit<TransformationContext, 'individual' | 'family'>,
-): FamilyWithMetadata[] => {
-  // Create lookup for individuals with metadata
-  const individualsById = new Map<string, AugmentedIndividual>();
-  individualsWithMetadata.forEach((ind) => {
-    individualsById.set(ind.id, ind);
-  });
+): Record<string, FamilyWithMetadata> => {
+  const familiesById: Record<string, FamilyWithMetadata> = {};
 
-  return families.map((family) => {
+  families.forEach((family) => {
     const metadata = extractFamilyMetadata(family, context);
 
-    return {
+    familiesById[family.id] = {
       id: family.id,
       husband: family.husband
-        ? individualsById.get(family.husband.id)
+        ? individualsWithMetadata[family.husband.id]
         : undefined,
-      wife: family.wife ? individualsById.get(family.wife.id) : undefined,
+      wife: family.wife ? individualsWithMetadata[family.wife.id] : undefined,
       children: family.children
-        .map((child) => individualsById.get(child.id))
-        .filter((ind): ind is AugmentedIndividual => ind !== undefined),
+        .map((child) => individualsWithMetadata[child.id])
+        .filter(Boolean),
       metadata,
     };
   });
+
+  return familiesById;
 };
 
 /**
@@ -467,7 +468,7 @@ export const transformGedcomDataWithMetadata = (
     individuals: individualsWithMetadata,
     families: familiesWithMetadata,
     metadata: treeMetadata,
-  };
+  } as GedcomDataWithMetadata;
 };
 
 /**
@@ -514,12 +515,23 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
   );
   const enhancedFamilies = enhanceFamilyMetadata(families, enhancedMetadata);
 
-  // 5. Return enhanced data structure
+  // 5. Convert arrays to ID-keyed objects for efficient lookups
+  const individualsById = {} as Record<string, AugmentedIndividual>;
+  enhancedIndividuals.forEach((individual) => {
+    individualsById[individual.id] = individual;
+  });
+
+  const familiesById = {} as Record<string, FamilyWithMetadata>;
+  enhancedFamilies.forEach((family) => {
+    familiesById[family.id] = family;
+  });
+
+  // 6. Return enhanced data structure with ID-keyed objects
   return {
-    individuals: enhancedIndividuals,
-    families: enhancedFamilies,
+    individuals: individualsById,
+    families: familiesById,
     metadata: enhancedMetadata,
-  };
+  } as GedcomDataWithMetadata;
 };
 
 /**

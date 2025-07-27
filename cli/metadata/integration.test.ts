@@ -57,9 +57,9 @@ describe('Comprehensive Analysis Integration', () => {
       mockFamilies,
     );
 
-    // Verify the structure
-    expect(result.individuals).toHaveLength(3);
-    expect(result.families).toHaveLength(1);
+    // Verify the structure (now ID-keyed objects)
+    expect(Object.keys(result.individuals)).toHaveLength(3);
+    expect(Object.keys(result.families)).toHaveLength(1);
     expect(result.metadata).toBeDefined();
 
     // Verify graph structure analysis
@@ -116,7 +116,7 @@ describe('Comprehensive Analysis Integration', () => {
       mockFamilies,
     );
 
-    const enhancedIndividual = result.individuals[0];
+    const enhancedIndividual = result.individuals.I1;
 
     // Verify enhanced metadata fields
     expect(enhancedIndividual.metadata.generation).toBeDefined();
@@ -132,7 +132,7 @@ describe('Comprehensive Analysis Integration', () => {
       mockFamilies,
     );
 
-    const enhancedFamily = result.families[0];
+    const enhancedFamily = result.families.F1;
 
     // Verify enhanced metadata fields
     expect(enhancedFamily.metadata.numberOfChildren).toBe(2);

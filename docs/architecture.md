@@ -98,9 +98,36 @@ interface GedcomParserFacade {
 ```typescript
 function convertAndBuildRelationships(data: ParsedGedcomData): {
   individuals: Individual[];
-  families: Family[];
-};
 ```
+
+#### ID-Keyed Data Structure Optimization
+
+**Design Decision**: The system uses ID-keyed objects (`Record<string, Individual>`) instead of arrays for efficient graph operations.
+
+**Benefits**:
+
+- **O(1) Lookups**: Direct access by GEDCOM ID vs O(n) array searches
+- **Graph Performance**: Optimized for family tree traversal patterns
+- **Transformer Efficiency**: Visual transformers can quickly access individuals by ID
+- **Memory Efficiency**: No need to maintain array order for graph data
+
+**Implementation**:
+
+```typescript
+// CLI transforms arrays to ID-keyed objects
+const individualsById: Record<string, AugmentedIndividual> = {};
+enhancedIndividuals.forEach((individual) => {
+  individualsById[individual.id] = individual;
+});
+
+// Transformers use efficient lookups
+const individual = context.gedcomData.individuals['I1'];
+```
+
+families: Family[];
+};
+
+````
 
 #### `metadata-extraction-config.ts`
 
@@ -149,7 +176,7 @@ function convertAndBuildRelationships(data: ParsedGedcomData): {
 ```typescript
 export function createWebSketch(data: ArtData): p5;
 export function createPrintSketch(data: ArtData): p5;
-```
+````
 
 #### `ArtGenerator.tsx`
 
