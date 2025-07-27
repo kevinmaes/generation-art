@@ -322,7 +322,7 @@ export const analyzeTemporalPatterns = (
   // For now, use decade-based grouping
   birthYears.forEach((year) => {
     const decade = Math.floor(year / 10) * 10;
-    if (!generationTimeSpans[decade]) {
+    if (!(decade in generationTimeSpans)) {
       generationTimeSpans[decade] = {
         earliest: year,
         latest: year,
