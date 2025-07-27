@@ -140,6 +140,7 @@ export function createInitialCompleteVisualMetadata(
 ): CompleteVisualMetadata {
   const individuals: Record<string, VisualMetadata> = {};
   const families: Record<string, VisualMetadata> = {};
+  const edges: Record<string, VisualMetadata> = {};
 
   // Initialize visual metadata for each individual
   Object.keys(gedcomData.individuals).forEach((individualId) => {
@@ -162,9 +163,30 @@ export function createInitialCompleteVisualMetadata(
     };
   });
 
+  // Initialize visual metadata for each edge
+  gedcomData.metadata.edges.forEach((edge) => {
+    edges[edge.id] = {
+      // Edge-specific defaults
+      strokeColor: DEFAULT_STROKE_COLOR,
+      strokeWeight: DEFAULT_STROKE_WEIGHT,
+      strokeStyle: DEFAULT_STROKE_STYLE,
+      opacity: 1.0,
+      // Remove position attributes for edges (they're connections, not positioned entities)
+      x: undefined,
+      y: undefined,
+      size: undefined,
+      shape: undefined,
+      // Edge-specific grouping
+      group: 'edges',
+      layer: 1, // Edges typically rendered below nodes
+      priority: 0,
+    };
+  });
+
   return {
     individuals,
     families,
+    edges,
     tree: {
       // Tree-level visual settings
       backgroundColor: DEFAULT_BACKGROUND_COLOR,
@@ -240,6 +262,17 @@ function mergeVisualMetadata(
       result.families[familyId] = {
         ...result.families[familyId],
         ...(updates.families?.[familyId] ?? {}),
+      };
+    });
+  }
+
+  // Merge edges
+  if (updates.edges) {
+    result.edges = { ...result.edges };
+    Object.keys(updates.edges).forEach((edgeId) => {
+      result.edges[edgeId] = {
+        ...result.edges[edgeId],
+        ...(updates.edges?.[edgeId] ?? {}),
       };
     });
   }

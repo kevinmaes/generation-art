@@ -53,14 +53,17 @@ export interface VisualMetadata {
 
 /**
  * Complete visual metadata structure that mirrors the data structure
- * Contains visual metadata for every entity: individuals, families, and the tree
+ * Contains visual metadata for every entity: individuals, families, edges, and the tree
  */
 export interface CompleteVisualMetadata {
   // Visual metadata for each individual (keyed by individual ID)
   individuals: Record<string, VisualMetadata>;
 
-  // Visual metadata for each family/edge (keyed by family ID)
+  // Visual metadata for each family (keyed by family ID)
   families: Record<string, VisualMetadata>;
+
+  // Visual metadata for each edge (keyed by edge ID)
+  edges: Record<string, VisualMetadata>;
 
   // Visual metadata for the overall tree/canvas
   tree: VisualMetadata;

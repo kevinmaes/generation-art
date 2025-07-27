@@ -1,5 +1,4 @@
 import type p5 from 'p5';
-import { getUniqueEdges } from './components/helpers';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { CompleteVisualMetadata } from '../transformers/types';
 
@@ -51,25 +50,31 @@ function createSketch(props: SketchProps): (p: p5) => void {
     p.draw = () => {
       p.background(255);
 
-      // Draw edges (lines between connected individuals)
-      const edges = getUniqueEdges(gedcomData.individuals);
-      for (const [id1, id2] of edges) {
-        const coord1 = getIndividualCoord(id1, width, height, visualMetadata);
-        const coord2 = getIndividualCoord(id2, width, height, visualMetadata);
+      // Draw edges using visual metadata
+      for (const edge of gedcomData.metadata.edges) {
+        const coord1 = getIndividualCoord(
+          edge.sourceId,
+          width,
+          height,
+          visualMetadata,
+        );
+        const coord2 = getIndividualCoord(
+          edge.targetId,
+          width,
+          height,
+          visualMetadata,
+        );
 
-        // Use family visual metadata for edges (if available)
-        const familyId = findFamilyId(id1, id2, gedcomData);
-        const familyMetadata = familyId
-          ? visualMetadata.families[familyId]
-          : null;
+        // Use edge visual metadata (if available)
+        const edgeMetadata = visualMetadata.edges[edge.id];
         const strokeColor = p.color(
-          familyMetadata?.strokeColor ??
+          edgeMetadata?.strokeColor ??
             visualMetadata.global.defaultEdgeColor ??
             '#ccc',
         );
         p.stroke(strokeColor);
         p.strokeWeight(
-          familyMetadata?.strokeWeight ??
+          edgeMetadata?.strokeWeight ??
             visualMetadata.global.defaultEdgeWeight ??
             strokeWeight,
         );
@@ -164,6 +169,7 @@ export function createWebSketch(
   const finalVisualMetadata: CompleteVisualMetadata = visualMetadata ?? {
     individuals: {},
     families: {},
+    edges: {},
     tree: {
       backgroundColor: '#ffffff',
       group: 'tree',
@@ -216,6 +222,7 @@ export function createPrintSketch(
   const visualMetadata: CompleteVisualMetadata = {
     individuals: {},
     families: {},
+    edges: {},
     tree: {
       backgroundColor: '#ffffff',
       group: 'tree',
@@ -236,36 +243,6 @@ export function createPrintSketch(
   };
 
   return createSketch({ config, gedcomData, visualMetadata });
-}
-
-/**
- * Find family ID that connects two individuals
- */
-function findFamilyId(
-  individualId1: string,
-  individualId2: string,
-  gedcomData: GedcomDataWithMetadata,
-): string | null {
-  for (const [familyId, family] of Object.entries(gedcomData.families)) {
-    const husbandId = family.husband?.id;
-    const wifeId = family.wife?.id;
-    const childrenIds = family.children.map((child) => child.id);
-
-    // Check if both individuals are in this family
-    const hasIndividual1 =
-      husbandId === individualId1 ||
-      wifeId === individualId1 ||
-      childrenIds.includes(individualId1);
-    const hasIndividual2 =
-      husbandId === individualId2 ||
-      wifeId === individualId2 ||
-      childrenIds.includes(individualId2);
-
-    if (hasIndividual1 && hasIndividual2) {
-      return familyId;
-    }
-  }
-  return null;
 }
 
 /**

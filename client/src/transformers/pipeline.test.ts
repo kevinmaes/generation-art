@@ -202,6 +202,10 @@ describe('Pipeline', () => {
       // Test tree metadata
       expect(metadata.tree.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
       expect(metadata.tree.group).toBe('tree');
+
+      // Test edges metadata
+      expect(metadata.edges).toBeDefined();
+      expect(typeof metadata.edges).toBe('object');
     });
 
     it('should include all default properties for individuals', () => {
@@ -229,6 +233,17 @@ describe('Pipeline', () => {
       expect(individualMetadata.layer).toBe(DEFAULT_LAYER);
       expect(individualMetadata.priority).toBe(DEFAULT_PRIORITY);
       expect(individualMetadata.custom).toEqual(DEFAULT_CUSTOM);
+    });
+
+    it('should create edge metadata with appropriate defaults', () => {
+      const metadata = createInitialCompleteVisualMetadata(mockMetadata);
+
+      // Test that edges object exists
+      expect(metadata.edges).toBeDefined();
+      expect(typeof metadata.edges).toBe('object');
+
+      // Test that edges object is empty when no edges in mock data
+      expect(Object.keys(metadata.edges)).toHaveLength(0);
     });
   });
 
