@@ -5,6 +5,27 @@ import {
   validatePipelineConfig,
   createSimplePipeline,
   type PipelineConfig,
+  // Import default constants for testing
+  DEFAULT_X,
+  DEFAULT_Y,
+  DEFAULT_SIZE,
+  DEFAULT_SCALE,
+  DEFAULT_COLOR,
+  DEFAULT_BACKGROUND_COLOR,
+  DEFAULT_STROKE_COLOR,
+  DEFAULT_OPACITY,
+  DEFAULT_ALPHA,
+  DEFAULT_SHAPE,
+  DEFAULT_STROKE_WEIGHT,
+  DEFAULT_STROKE_STYLE,
+  DEFAULT_VELOCITY,
+  DEFAULT_ACCELERATION,
+  DEFAULT_ROTATION,
+  DEFAULT_ROTATION_SPEED,
+  DEFAULT_GROUP,
+  DEFAULT_LAYER,
+  DEFAULT_PRIORITY,
+  DEFAULT_CUSTOM,
 } from './pipeline';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 
@@ -37,14 +58,40 @@ describe('Pipeline', () => {
     it('should create visual metadata with default values', () => {
       const metadata = createInitialVisualMetadata();
 
-      expect(metadata.x).toBe(0);
-      expect(metadata.y).toBe(0);
-      expect(metadata.size).toBe(20);
-      expect(metadata.color).toBe('#4CAF50');
-      expect(metadata.shape).toBe('circle');
-      expect(metadata.opacity).toBe(1.0);
-      expect(metadata.velocity).toEqual({ x: 0, y: 0 });
-      expect(metadata.custom).toEqual({});
+      expect(metadata.x).toBe(DEFAULT_X);
+      expect(metadata.y).toBe(DEFAULT_Y);
+      expect(metadata.size).toBe(DEFAULT_SIZE);
+      expect(metadata.color).toBe(DEFAULT_COLOR);
+      expect(metadata.shape).toBe(DEFAULT_SHAPE);
+      expect(metadata.opacity).toBe(DEFAULT_OPACITY);
+      expect(metadata.velocity).toEqual(DEFAULT_VELOCITY);
+      expect(metadata.custom).toEqual(DEFAULT_CUSTOM);
+    });
+
+    it('should include all default properties', () => {
+      const metadata = createInitialVisualMetadata();
+
+      // Test all default properties
+      expect(metadata.x).toBe(DEFAULT_X);
+      expect(metadata.y).toBe(DEFAULT_Y);
+      expect(metadata.size).toBe(DEFAULT_SIZE);
+      expect(metadata.scale).toBe(DEFAULT_SCALE);
+      expect(metadata.color).toBe(DEFAULT_COLOR);
+      expect(metadata.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
+      expect(metadata.strokeColor).toBe(DEFAULT_STROKE_COLOR);
+      expect(metadata.opacity).toBe(DEFAULT_OPACITY);
+      expect(metadata.alpha).toBe(DEFAULT_ALPHA);
+      expect(metadata.shape).toBe(DEFAULT_SHAPE);
+      expect(metadata.strokeWeight).toBe(DEFAULT_STROKE_WEIGHT);
+      expect(metadata.strokeStyle).toBe(DEFAULT_STROKE_STYLE);
+      expect(metadata.velocity).toEqual(DEFAULT_VELOCITY);
+      expect(metadata.acceleration).toEqual(DEFAULT_ACCELERATION);
+      expect(metadata.rotation).toBe(DEFAULT_ROTATION);
+      expect(metadata.rotationSpeed).toBe(DEFAULT_ROTATION_SPEED);
+      expect(metadata.group).toBe(DEFAULT_GROUP);
+      expect(metadata.layer).toBe(DEFAULT_LAYER);
+      expect(metadata.priority).toBe(DEFAULT_PRIORITY);
+      expect(metadata.custom).toEqual(DEFAULT_CUSTOM);
     });
   });
 
