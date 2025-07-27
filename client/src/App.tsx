@@ -46,15 +46,26 @@ function App(): React.ReactElement {
     setError(null);
     try {
       const text = await file.text();
-      const data = JSON.parse(text);
+      const data = JSON.parse(text) as unknown;
 
       // Handle both array format (enhanced) and object format (raw)
       if (Array.isArray(data)) {
         // Enhanced format: array of individuals with metadata
         setFamilyTreeData({ individuals: data, families: [] });
-      } else if (data.individuals && data.families) {
+      } else if (
+        typeof data === 'object' &&
+        data !== null &&
+        'individuals' in data &&
+        'families' in data &&
+        Array.isArray(
+          (data as { individuals: unknown; families: unknown }).individuals,
+        ) &&
+        Array.isArray(
+          (data as { individuals: unknown; families: unknown }).families,
+        )
+      ) {
         // Raw format: object with individuals and families
-        setFamilyTreeData(data);
+        setFamilyTreeData(data as FamilyTreeData);
       } else {
         throw new Error(
           'Invalid file format. Expected array of individuals or object with "individuals" and "families" arrays.',
@@ -73,7 +84,7 @@ function App(): React.ReactElement {
     setError(null);
     try {
       const response = await fetch(
-        '/generated/parsed/kennedy.json?t=' + Date.now(),
+        `/generated/parsed/kennedy.json?t=${String(Date.now())}`,
       );
       console.log('Response status:', response.status);
       console.log('Response headers:', response.headers);
@@ -87,13 +98,13 @@ function App(): React.ReactElement {
       const text = await response.text();
       console.log('Response text (first 200 chars):', text.substring(0, 200));
 
-      if (!contentType || !contentType.includes('application/json')) {
+      if (!contentType?.includes('application/json')) {
         throw new Error(
-          `Expected JSON but got ${contentType || 'unknown content type'}`,
+          `Expected JSON but got ${contentType ?? 'unknown content type'}`,
         );
       }
 
-      const data = JSON.parse(text);
+      const data = JSON.parse(text) as FamilyTreeData;
       setFamilyTreeData(data);
       setCurrentView('artwork');
     } catch (err) {
@@ -124,7 +135,9 @@ function App(): React.ReactElement {
             </p>
             {currentView === 'artwork' && (
               <button
-                onClick={() => setCurrentView('file-select')}
+                onClick={() => {
+                  setCurrentView('file-select');
+                }}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-2"
               >
                 Load Different File
@@ -188,7 +201,9 @@ function App(): React.ReactElement {
                         type="file"
                         accept=".json"
                         className="sr-only"
-                        onChange={handleFileSelect}
+                        onChange={(event) => {
+                          void handleFileSelect(event);
+                        }}
                         disabled={isLoading}
                       />
                     </div>
@@ -200,7 +215,9 @@ function App(): React.ReactElement {
                   <div className="text-center">
                     <div className="text-gray-500 mb-2">or</div>
                     <button
-                      onClick={handleLoadKennedy}
+                      onClick={() => {
+                        void handleLoadKennedy();
+                      }}
                       disabled={isLoading}
                       className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >

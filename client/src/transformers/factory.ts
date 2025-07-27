@@ -163,11 +163,8 @@ export function validateTransformer(transformer: VisualTransformerConfig): {
         if (typeof paramConfig.defaultValue !== 'boolean') {
           errors.push(`Parameter default value must be a boolean`);
         }
-      } else if (
-        paramConfig.type === 'color' &&
-        typeof paramConfig.defaultValue !== 'string'
-      ) {
-        errors.push(`Parameter default value must be a string (color)`);
+      } else if (typeof paramConfig.defaultValue !== 'string') {
+        errors.push('Parameter default value must be a string (color)');
       }
     }
   }
