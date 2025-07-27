@@ -1,11 +1,7 @@
 import type p5 from 'p5';
 import { getUniqueEdges } from './components/helpers';
-import {
-  runPipeline,
-  createSimplePipeline,
-  type PipelineResult,
-} from '../transformers/pipeline';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { VisualMetadata } from '../transformers/types';
 
 export interface SketchConfig {
   width: number;
@@ -21,7 +17,8 @@ export interface SketchConfig {
   seed?: string;
 }
 
-export interface SketchOptions {
+export interface SketchProps {
+  visualMetadata: VisualMetadata;
   config: SketchConfig;
   gedcomData: GedcomDataWithMetadata;
 }
@@ -29,8 +26,8 @@ export interface SketchOptions {
 /**
  * Create a sketch function for the given configuration
  */
-function createSketch(options: SketchOptions): (p: p5) => void {
-  const { config, gedcomData } = options;
+function createSketch(props: SketchProps): (p: p5) => void {
+  const { config, gedcomData, visualMetadata } = props;
   const {
     width,
     height,
@@ -44,75 +41,21 @@ function createSketch(options: SketchOptions): (p: p5) => void {
     seed,
   } = config;
 
-  // Create pipeline configuration
-  const pipelineConfig = createSimplePipeline(transformerIds, {
-    temperature,
-    seed,
-    canvasWidth: width,
-    canvasHeight: height,
-  });
-
   return (p: p5) => {
-    let pipelineResult: PipelineResult | null = null;
-    let pipelineError: string | null = null;
-
     p.setup = () => {
-      void (async () => {
-        console.log(
-          `🎨 Sketch setup - dimensions: ${String(width)} × ${String(height)}`,
-        );
-
-        p.createCanvas(width, height, p.P2D);
-        p.pixelDensity(1);
-        p.background(255);
-
-        // Run the VisualTransformer pipeline
-        try {
-          console.log('🔄 Running VisualTransformer pipeline...');
-          pipelineResult = await runPipeline(gedcomData, pipelineConfig);
-          console.log('✅ Pipeline completed:', pipelineResult);
-        } catch (error) {
-          console.error('❌ Pipeline failed:', error);
-          pipelineError =
-            error instanceof Error ? error.message : String(error);
-        }
-      })();
+      p.createCanvas(width, height, p.P2D);
+      p.pixelDensity(1);
+      p.background(255);
     };
 
     p.draw = () => {
       p.background(255);
 
-      if (pipelineError) {
-        // Show error state
-        p.fill(255, 0, 0);
-        p.textSize(16);
-        p.textAlign(p.CENTER);
-        p.text('Pipeline Error', width / 2, height / 2 - 20);
-        p.textSize(12);
-        p.text(pipelineError, width / 2, height / 2 + 10);
-        return;
-      }
-
-      if (!pipelineResult) {
-        // Show loading state
-        p.fill(100);
-        p.textSize(16);
-        p.textAlign(p.CENTER);
-        p.text('Running Pipeline...', width / 2, height / 2);
-        return;
-      }
-
-      // Use pipeline results for positioning and styling
-      const visualMetadata = pipelineResult.visualMetadata;
-
       // Draw edges (lines between connected individuals)
       const edges = getUniqueEdges(gedcomData.individuals);
       for (const [id1, id2] of edges) {
-        // For now, use simple positioning for edges
-        // TODO: Enhance with pipeline-based edge positioning
         const coord1 = getIndividualCoord(id1, width, height);
         const coord2 = getIndividualCoord(id2, width, height);
-
         const strokeColor = p.color(visualMetadata.strokeColor ?? '#ccc');
         p.stroke(strokeColor);
         p.strokeWeight(visualMetadata.strokeWeight ?? strokeWeight);
@@ -121,7 +64,6 @@ function createSketch(options: SketchOptions): (p: p5) => void {
 
       // Draw nodes (individuals) using pipeline results
       for (const ind of gedcomData.individuals) {
-        // Use pipeline-generated visual metadata
         const x = visualMetadata.x ?? width / 2;
         const y = visualMetadata.y ?? height / 2;
         const size = visualMetadata.size ?? nodeSize;
@@ -129,12 +71,10 @@ function createSketch(options: SketchOptions): (p: p5) => void {
         const shape = visualMetadata.shape ?? 'circle';
         const opacity = visualMetadata.opacity ?? 1.0;
 
-        // Apply opacity
         const pColor = p.color(color);
         pColor.setAlpha(opacity * 255);
         p.fill(pColor);
 
-        // Draw shape
         p.noStroke();
         if (shape === 'circle') {
           p.circle(x, y, size);
@@ -152,7 +92,6 @@ function createSketch(options: SketchOptions): (p: p5) => void {
           );
         }
 
-        // Show names if enabled
         if (showNames) {
           p.fill(0);
           p.textSize(textSize);
@@ -161,7 +100,6 @@ function createSketch(options: SketchOptions): (p: p5) => void {
         }
       }
 
-      // Show pipeline info
       p.fill(100);
       p.textSize(10);
       p.textAlign(p.LEFT);
@@ -170,11 +108,6 @@ function createSketch(options: SketchOptions): (p: p5) => void {
       if (seed) {
         p.text(`Seed: ${seed}`, 10, 50);
       }
-      p.text(
-        `Execution: ${String(pipelineResult.executionTime.toFixed(2))}ms`,
-        10,
-        65,
-      );
     };
   };
 }
@@ -201,7 +134,19 @@ export function createWebSketch(
     ...options,
   };
 
-  return createSketch({ config, gedcomData });
+  // Create initial visual metadata for backward compatibility
+  const visualMetadata: VisualMetadata = {
+    x: width / 2,
+    y: height / 2,
+    size: config.nodeSize,
+    color: config.colors?.[0] ?? '#0000ff',
+    shape: 'circle',
+    opacity: 1.0,
+    strokeColor: '#ccc',
+    strokeWeight: config.strokeWeight,
+  };
+
+  return createSketch({ config, gedcomData, visualMetadata });
 }
 
 /**
@@ -226,7 +171,19 @@ export function createPrintSketch(
     ...options,
   };
 
-  return createSketch({ config, gedcomData });
+  // Create initial visual metadata for backward compatibility
+  const visualMetadata: VisualMetadata = {
+    x: width / 2,
+    y: height / 2,
+    size: config.nodeSize,
+    color: config.colors?.[0] ?? '#000000',
+    shape: 'circle',
+    opacity: 1.0,
+    strokeColor: '#ccc',
+    strokeWeight: config.strokeWeight,
+  };
+
+  return createSketch({ config, gedcomData, visualMetadata });
 }
 
 // Helper function for backward compatibility

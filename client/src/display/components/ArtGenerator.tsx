@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 import p5 from 'p5';
-import { createWebSketch } from '../FamilyTreeSketch';
+import { createWebSketch, type SketchConfig } from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import { usePipeline } from './hooks/usePipeline';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -23,20 +24,36 @@ export function ArtGenerator({
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
 
+  const {
+    result: pipelineResult,
+    error: pipelineError,
+    isRunning,
+  } = usePipeline(gedcomData, width, height);
+
+  // Only create the sketch after pipelineResult is available
   useEffect(() => {
-    if (!containerRef.current || !gedcomData) return;
+    if (!containerRef.current || !pipelineResult || !gedcomData) return;
+
+    const container = containerRef.current;
 
     // Clean up previous instance
     if (p5InstanceRef.current) {
       p5InstanceRef.current.remove();
       p5InstanceRef.current = null;
     }
+    container.innerHTML = '';
 
-    const sketch = createWebSketch(gedcomData, width, height);
+    // Create a proper config object for the sketch
+    const sketchConfig: Partial<SketchConfig> = {
+      transformerIds: pipelineResult.config.transformerIds,
+      temperature: pipelineResult.config.temperature,
+      seed: pipelineResult.config.seed,
+    };
 
-    p5InstanceRef.current = new p5(sketch, containerRef.current);
+    // Pass the pipeline result to the sketch
+    const sketch = createWebSketch(gedcomData, width, height, sketchConfig);
+    p5InstanceRef.current = new p5(sketch, container);
 
-    // Call onExportReady with the p5 instance once it's created
     if (onExportReady) {
       onExportReady(p5InstanceRef.current);
     }
@@ -46,16 +63,19 @@ export function ArtGenerator({
         p5InstanceRef.current.remove();
         p5InstanceRef.current = null;
       }
+      if (container) {
+        container.innerHTML = '';
+      }
     };
-  }, [width, height, gedcomData, onExportReady]);
+  }, [pipelineResult, gedcomData, width, height, onExportReady]);
 
   if (!gedcomData) {
     return (
       <div
         className="flex items-center justify-center bg-gray-50 rounded-lg"
         style={{
-          width: `${String(width || DEFAULT_WIDTH)}px`,
-          height: `${String(height || DEFAULT_HEIGHT)}px`,
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
         }}
       >
         <div className="text-center">
@@ -70,13 +90,46 @@ export function ArtGenerator({
     );
   }
 
+  if (isRunning || !pipelineResult) {
+    return (
+      <div
+        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        style={{
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
+        }}
+      >
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="text-gray-600">Running pipeline...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (pipelineError) {
+    return (
+      <div
+        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        style={{
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
+        }}
+      >
+        <div className="text-center">
+          <div className="text-red-500 text-lg mb-2">Pipeline Error</div>
+          <p className="text-gray-400 text-sm">{pipelineError}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      key={`p5-container-${String(gedcomData.individuals.length)}`}
       ref={containerRef}
       style={{
-        width: `${String(width || DEFAULT_WIDTH)}px`,
-        height: `${String(height || DEFAULT_HEIGHT)}px`,
+        width: `${String(width)}px`,
+        height: `${String(height)}px`,
       }}
     />
   );
