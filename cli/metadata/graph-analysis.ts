@@ -443,9 +443,9 @@ export const analyzeGeographicPatterns = (
     .filter((country): country is string => !!country);
 
   // Calculate death countries (unused for now, but available for future use)
-  const _deathCountries = deathPlaces
-    .map((place) => extractCountry(place))
-    .filter((country): country is string => !!country);
+  // const _deathCountries = deathPlaces
+  //   .map((place) => extractCountry(place))
+  //   .filter((country): country is string => !!country);
 
   const countriesRepresented = new Set(birthCountries).size;
 
@@ -595,7 +595,7 @@ export const analyzeDemographics = (
   const ageDistribution: Record<string, number> = {};
   ages.forEach((age) => {
     const range = Math.floor(age / 10) * 10;
-    const key = `${range}-${range + 9}`;
+    const key = `${String(range)}-${String(range + 9)}`;
     ageDistribution[key] = (ageDistribution[key] || 0) + 1;
   });
 
@@ -941,8 +941,8 @@ export const generateTreeSummary = (
   return {
     totalIndividuals: graphStructure.totalIndividuals,
     totalFamilies: graphStructure.totalFamilies,
-    timeSpan: `${temporalPatterns.earliestBirthYear} - ${temporalPatterns.latestBirthYear}`,
-    geographicDiversity: `${geographicPatterns.countriesRepresented} countries`,
+    timeSpan: `${String(temporalPatterns.earliestBirthYear)} - ${String(temporalPatterns.latestBirthYear)}`,
+    geographicDiversity: `${String(geographicPatterns.countriesRepresented)} countries`,
     familyComplexity: `${graphStructure.averageFamilySize.toFixed(1)} avg children per family`,
     averageLifespan: temporalPatterns.averageLifespan,
     maxGenerations: graphStructure.maxGenerations,
