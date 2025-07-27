@@ -63,9 +63,7 @@ export function ArtGenerator({
         p5InstanceRef.current.remove();
         p5InstanceRef.current = null;
       }
-      if (container) {
-        container.innerHTML = '';
-      }
+      container.innerHTML = '';
     };
   }, [pipelineResult, gedcomData, width, height, onExportReady]);
 
