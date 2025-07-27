@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactJson from 'react-json-view';
-import type { PipelineResult } from '../../../transformers/pipeline';
+import type { PipelineResult } from '../../../transformers/types';
+import { createInitialCompleteVisualMetadata } from '../../../transformers/pipeline';
 import { transformers } from '../../../transformers/transformers';
 import type {
   GedcomDataWithMetadata,
@@ -47,12 +48,17 @@ export function PipelineManager({
     (id) => !activeTransformerIds.includes(id),
   );
 
-  // Construct the complete PipelineInput object with dual data
+  // Construct the complete PipelineInput object with dual data and initial visualMetadata
   const pipelineInput =
     dualData && activeTransformerIds.length > 0
       ? {
           fullData: dualData.full,
           llmData: dualData.llm,
+          visualMetadata: createInitialCompleteVisualMetadata(
+            dualData.full,
+            800, // Default canvas width
+            600, // Default canvas height
+          ),
           config: {
             transformerIds: activeTransformerIds,
             temperature: 0.5, // Default temperature
@@ -302,13 +308,13 @@ export function PipelineManager({
             <div>
               <span className="font-medium">Execution Time:</span>
               <span className="ml-2">
-                {pipelineResult.executionTime.toFixed(2)}ms
+                {pipelineResult.debug.totalExecutionTime.toFixed(2)}ms
               </span>
             </div>
             <div>
               <span className="font-medium">Transformers:</span>
               <span className="ml-2">
-                {pipelineResult.transformerResults.length} executed
+                {pipelineResult.debug.transformerResults.length} executed
               </span>
             </div>
           </div>

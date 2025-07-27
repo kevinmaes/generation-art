@@ -5,7 +5,11 @@
  * creating a traditional family tree layout where each generation is on a row.
  */
 
-import type { TransformerContext, VisualMetadata } from './types';
+import type {
+  TransformerContext,
+  CompleteVisualMetadata,
+  VisualMetadata,
+} from './types';
 
 /**
  * Calculate horizontal position based on relative generation value
@@ -14,8 +18,8 @@ function calculateHorizontalPosition(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { gedcomData, canvasWidth = 1000 } = context;
-  console.log('transformer gedcomData', gedcomData);
+  const { gedcomData, visualMetadata } = context;
+  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
 
   // Find the individual
   const individual = gedcomData.individuals[individualId];
@@ -39,7 +43,8 @@ function calculateVerticalPosition(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { gedcomData, canvasHeight = 800 } = context;
+  const { gedcomData, visualMetadata } = context;
+  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
 
   // Find the individual
   const individual = gedcomData.individuals[individualId];
@@ -72,35 +77,41 @@ function calculateVerticalPosition(
 
 /**
  * Horizontal spread by generation transform function
+ * Positions all individuals based on their generation
  */
 export async function horizontalSpreadByGenerationTransform(
   context: TransformerContext,
-): Promise<{ visualMetadata: Partial<VisualMetadata> }> {
-  const { gedcomData } = context;
-
-  // For now, we'll return a single visual metadata object
-  // In a real implementation, this would be applied to each individual
-  // For the prototype, we'll use the first individual as an example
+): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
+  const { gedcomData, visualMetadata } = context;
 
   const individuals = Object.values(gedcomData.individuals);
   if (individuals.length === 0) {
     return { visualMetadata: {} };
   }
 
-  const firstIndividual = individuals[0];
-  const x = calculateHorizontalPosition(context, firstIndividual.id);
-  const y = calculateVerticalPosition(context, firstIndividual.id);
+  // Create updated individual visual metadata
+  const updatedIndividuals: Record<string, VisualMetadata> = {};
+
+  // Position each individual based on their generation
+  individuals.forEach((individual) => {
+    const x = calculateHorizontalPosition(context, individual.id);
+    const y = calculateVerticalPosition(context, individual.id);
+
+    updatedIndividuals[individual.id] = {
+      x,
+      y,
+      size: visualMetadata.global.defaultNodeSize ?? 20,
+      color: visualMetadata.global.defaultNodeColor ?? '#4CAF50',
+      shape: visualMetadata.global.defaultNodeShape ?? 'circle',
+    };
+  });
 
   // Small delay to simulate async work (will be useful for future LLM calls)
   await new Promise((resolve) => setTimeout(resolve, 1));
 
   return {
     visualMetadata: {
-      x,
-      y,
-      size: 20, // Default size
-      color: '#4CAF50', // Default color
-      shape: 'circle',
+      individuals: updatedIndividuals,
     },
   };
 }

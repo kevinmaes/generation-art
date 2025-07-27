@@ -233,19 +233,42 @@ describe('Horizontal Spread Transformer', () => {
 
     const context = {
       gedcomData: mockMetadata,
-      visualMetadata: {},
-      canvasWidth: 1000,
-      canvasHeight: 800,
+      llmData: {
+        individuals: {},
+        families: {},
+        metadata: mockMetadata.metadata,
+      },
+      visualMetadata: {
+        individuals: {},
+        families: {},
+        tree: {},
+        global: {
+          canvasWidth: 1000,
+          canvasHeight: 800,
+          defaultNodeSize: 20,
+          defaultNodeColor: '#4CAF50',
+          defaultNodeShape: 'circle' as const,
+        },
+      },
     };
 
     const result = await transformer.transform(context);
 
     expect(result.visualMetadata).toBeDefined();
-    expect(result.visualMetadata.x).toBeDefined();
-    expect(result.visualMetadata.y).toBeDefined();
-    expect(result.visualMetadata.size).toBe(20);
-    expect(result.visualMetadata.color).toBe('#4CAF50');
-    expect(result.visualMetadata.shape).toBe('circle');
+    expect(result.visualMetadata.individuals).toBeDefined();
+    expect(Object.keys(result.visualMetadata.individuals || {})).toHaveLength(
+      1,
+    );
+    const individualId = Object.keys(
+      result.visualMetadata.individuals || {},
+    )[0];
+    const individualMetadata =
+      result.visualMetadata.individuals?.[individualId];
+    expect(individualMetadata?.x).toBeDefined();
+    expect(individualMetadata?.y).toBeDefined();
+    expect(individualMetadata?.size).toBe(20);
+    expect(individualMetadata?.color).toBe('#4CAF50');
+    expect(individualMetadata?.shape).toBe('circle');
   });
 
   it('should handle empty individuals array', async () => {

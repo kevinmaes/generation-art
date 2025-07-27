@@ -9,7 +9,12 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
-import type { VisualMetadata, TransformerContext } from './types';
+import type {
+  VisualMetadata,
+  CompleteVisualMetadata,
+  TransformerContext,
+  PipelineResult,
+} from './types';
 import { getTransformer } from './transformers';
 import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 
@@ -83,20 +88,8 @@ interface TransformerResult {
   error?: string;
 }
 
-/**
- * Pipeline execution result
- */
-export interface PipelineResult {
-  // Final visual metadata after all transformers
-  visualMetadata: VisualMetadata;
-
-  // Execution details
-  executionTime: number;
-  transformerResults: TransformerResult[];
-
-  // Pipeline configuration used
-  config: PipelineConfig;
-}
+// Re-export PipelineResult from types
+export type { PipelineResult } from './types';
 
 /**
  * Pipeline execution error
@@ -109,9 +102,9 @@ export interface PipelineError {
 }
 
 /**
- * Create initial visual metadata with default values
+ * Create initial visual metadata for a single entity
  */
-export function createInitialVisualMetadata(): VisualMetadata {
+function createInitialEntityVisualMetadata(): VisualMetadata {
   return {
     x: DEFAULT_X,
     y: DEFAULT_Y,
@@ -133,6 +126,63 @@ export function createInitialVisualMetadata(): VisualMetadata {
     layer: DEFAULT_LAYER,
     priority: DEFAULT_PRIORITY,
     custom: DEFAULT_CUSTOM,
+  };
+}
+
+/**
+ * Create complete initial visual metadata structure
+ * Mirrors the data structure with visual metadata for every entity
+ */
+export function createInitialCompleteVisualMetadata(
+  gedcomData: GedcomDataWithMetadata,
+  canvasWidth = 800,
+  canvasHeight = 600,
+): CompleteVisualMetadata {
+  const individuals: Record<string, VisualMetadata> = {};
+  const families: Record<string, VisualMetadata> = {};
+
+  // Initialize visual metadata for each individual
+  Object.keys(gedcomData.individuals).forEach((individualId) => {
+    individuals[individualId] = createInitialEntityVisualMetadata();
+  });
+
+  // Initialize visual metadata for each family
+  Object.keys(gedcomData.families).forEach((familyId) => {
+    families[familyId] = {
+      ...createInitialEntityVisualMetadata(),
+      // Family-specific defaults
+      strokeColor: '#666',
+      strokeWeight: 1,
+      strokeStyle: 'solid',
+      // Remove position attributes for families (they're connections, not positioned entities)
+      x: undefined,
+      y: undefined,
+      size: undefined,
+      shape: undefined,
+    };
+  });
+
+  return {
+    individuals,
+    families,
+    tree: {
+      // Tree-level visual settings
+      backgroundColor: DEFAULT_BACKGROUND_COLOR,
+      group: 'tree',
+      layer: 0,
+      priority: 0,
+    },
+    global: {
+      canvasWidth,
+      canvasHeight,
+      backgroundColor: DEFAULT_BACKGROUND_COLOR,
+      defaultNodeSize: DEFAULT_SIZE,
+      defaultEdgeWeight: DEFAULT_STROKE_WEIGHT,
+      defaultNodeColor: DEFAULT_COLOR,
+      defaultEdgeColor: DEFAULT_STROKE_COLOR,
+      defaultNodeShape: DEFAULT_SHAPE,
+      defaultEdgeStyle: DEFAULT_STROKE_STYLE,
+    },
   };
 }
 
@@ -160,6 +210,51 @@ export function createSeededRandom(seed?: string): () => number {
     state = (state * 9301 + 49297) % 233280;
     return state / 233280;
   };
+}
+
+/**
+ * Deep merge visual metadata objects
+ * Handles nested structures like individuals and families
+ */
+function mergeVisualMetadata(
+  base: CompleteVisualMetadata,
+  updates: Partial<CompleteVisualMetadata>,
+): CompleteVisualMetadata {
+  const result = { ...base };
+
+  // Merge individuals
+  if (updates.individuals) {
+    result.individuals = { ...result.individuals };
+    Object.keys(updates.individuals).forEach((individualId) => {
+      result.individuals[individualId] = {
+        ...result.individuals[individualId],
+        ...(updates.individuals?.[individualId] ?? {}),
+      };
+    });
+  }
+
+  // Merge families
+  if (updates.families) {
+    result.families = { ...result.families };
+    Object.keys(updates.families).forEach((familyId) => {
+      result.families[familyId] = {
+        ...result.families[familyId],
+        ...(updates.families?.[familyId] ?? {}),
+      };
+    });
+  }
+
+  // Merge tree metadata
+  if (updates.tree) {
+    result.tree = { ...result.tree, ...updates.tree };
+  }
+
+  // Merge global settings
+  if (updates.global) {
+    result.global = { ...result.global, ...updates.global };
+  }
+
+  return result;
 }
 
 /**
@@ -198,8 +293,12 @@ export async function runPipeline({
     );
   }
 
-  // Initialize visual metadata
-  let visualMetadata = createInitialVisualMetadata();
+  // Initialize complete visual metadata structure
+  let visualMetadata = createInitialCompleteVisualMetadata(
+    fullData,
+    config.canvasWidth,
+    config.canvasHeight,
+  );
 
   // Track transformer execution results
   const transformerResults: TransformerResult[] = [];
@@ -229,11 +328,11 @@ export async function runPipeline({
       // Execute transformer
       const result = await transformer.transform(context);
 
-      // Update visual metadata with transformer output
-      visualMetadata = {
-        ...visualMetadata,
-        ...result.visualMetadata,
-      };
+      // Update visual metadata with transformer output using deep merge
+      visualMetadata = mergeVisualMetadata(
+        visualMetadata,
+        result.visualMetadata,
+      );
 
       // Record successful execution
       transformerResults.push({
@@ -261,9 +360,18 @@ export async function runPipeline({
 
   return {
     visualMetadata,
-    executionTime,
-    transformerResults,
     config,
+    debug: {
+      transformerResults: transformerResults.map((result) => ({
+        transformerId: result.transformerId,
+        transformerName: result.transformerName,
+        output: { visualMetadata: {} },
+        executionTime: result.executionTime,
+        success: result.success,
+        error: result.error,
+      })),
+      totalExecutionTime: executionTime,
+    },
   };
 }
 

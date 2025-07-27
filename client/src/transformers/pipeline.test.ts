@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   runPipeline,
-  createInitialVisualMetadata,
+  createInitialCompleteVisualMetadata,
   validatePipelineConfig,
   createSimplePipeline,
   type PipelineConfig,
@@ -181,44 +181,54 @@ const mockMetadata: GedcomDataWithMetadata = {
 };
 
 describe('Pipeline', () => {
-  describe('createInitialVisualMetadata', () => {
-    it('should create visual metadata with default values', () => {
-      const metadata = createInitialVisualMetadata();
+  describe('createInitialCompleteVisualMetadata', () => {
+    it('should create complete visual metadata with default values', () => {
+      const metadata = createInitialCompleteVisualMetadata(mockMetadata);
 
-      expect(metadata.x).toBe(DEFAULT_X);
-      expect(metadata.y).toBe(DEFAULT_Y);
-      expect(metadata.size).toBe(DEFAULT_SIZE);
-      expect(metadata.color).toBe(DEFAULT_COLOR);
-      expect(metadata.shape).toBe(DEFAULT_SHAPE);
-      expect(metadata.opacity).toBe(DEFAULT_OPACITY);
-      expect(metadata.velocity).toEqual(DEFAULT_VELOCITY);
-      expect(metadata.custom).toEqual(DEFAULT_CUSTOM);
+      // Test global settings
+      expect(metadata.global.canvasWidth).toBe(800);
+      expect(metadata.global.canvasHeight).toBe(600);
+      expect(metadata.global.defaultNodeSize).toBe(DEFAULT_SIZE);
+      expect(metadata.global.defaultNodeColor).toBe(DEFAULT_COLOR);
+
+      // Test individual metadata
+      expect(metadata.individuals.I1).toBeDefined();
+      expect(metadata.individuals.I1.x).toBe(DEFAULT_X);
+      expect(metadata.individuals.I1.y).toBe(DEFAULT_Y);
+      expect(metadata.individuals.I1.size).toBe(DEFAULT_SIZE);
+      expect(metadata.individuals.I1.color).toBe(DEFAULT_COLOR);
+      expect(metadata.individuals.I1.shape).toBe(DEFAULT_SHAPE);
+
+      // Test tree metadata
+      expect(metadata.tree.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
+      expect(metadata.tree.group).toBe('tree');
     });
 
-    it('should include all default properties', () => {
-      const metadata = createInitialVisualMetadata();
+    it('should include all default properties for individuals', () => {
+      const metadata = createInitialCompleteVisualMetadata(mockMetadata);
+      const individualMetadata = metadata.individuals.I1;
 
       // Test all default properties
-      expect(metadata.x).toBe(DEFAULT_X);
-      expect(metadata.y).toBe(DEFAULT_Y);
-      expect(metadata.size).toBe(DEFAULT_SIZE);
-      expect(metadata.scale).toBe(DEFAULT_SCALE);
-      expect(metadata.color).toBe(DEFAULT_COLOR);
-      expect(metadata.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
-      expect(metadata.strokeColor).toBe(DEFAULT_STROKE_COLOR);
-      expect(metadata.opacity).toBe(DEFAULT_OPACITY);
-      expect(metadata.alpha).toBe(DEFAULT_ALPHA);
-      expect(metadata.shape).toBe(DEFAULT_SHAPE);
-      expect(metadata.strokeWeight).toBe(DEFAULT_STROKE_WEIGHT);
-      expect(metadata.strokeStyle).toBe(DEFAULT_STROKE_STYLE);
-      expect(metadata.velocity).toEqual(DEFAULT_VELOCITY);
-      expect(metadata.acceleration).toEqual(DEFAULT_ACCELERATION);
-      expect(metadata.rotation).toBe(DEFAULT_ROTATION);
-      expect(metadata.rotationSpeed).toBe(DEFAULT_ROTATION_SPEED);
-      expect(metadata.group).toBe(DEFAULT_GROUP);
-      expect(metadata.layer).toBe(DEFAULT_LAYER);
-      expect(metadata.priority).toBe(DEFAULT_PRIORITY);
-      expect(metadata.custom).toEqual(DEFAULT_CUSTOM);
+      expect(individualMetadata.x).toBe(DEFAULT_X);
+      expect(individualMetadata.y).toBe(DEFAULT_Y);
+      expect(individualMetadata.size).toBe(DEFAULT_SIZE);
+      expect(individualMetadata.scale).toBe(DEFAULT_SCALE);
+      expect(individualMetadata.color).toBe(DEFAULT_COLOR);
+      expect(individualMetadata.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
+      expect(individualMetadata.strokeColor).toBe(DEFAULT_STROKE_COLOR);
+      expect(individualMetadata.opacity).toBe(DEFAULT_OPACITY);
+      expect(individualMetadata.alpha).toBe(DEFAULT_ALPHA);
+      expect(individualMetadata.shape).toBe(DEFAULT_SHAPE);
+      expect(individualMetadata.strokeWeight).toBe(DEFAULT_STROKE_WEIGHT);
+      expect(individualMetadata.strokeStyle).toBe(DEFAULT_STROKE_STYLE);
+      expect(individualMetadata.velocity).toEqual(DEFAULT_VELOCITY);
+      expect(individualMetadata.acceleration).toEqual(DEFAULT_ACCELERATION);
+      expect(individualMetadata.rotation).toBe(DEFAULT_ROTATION);
+      expect(individualMetadata.rotationSpeed).toBe(DEFAULT_ROTATION_SPEED);
+      expect(individualMetadata.group).toBe(DEFAULT_GROUP);
+      expect(individualMetadata.layer).toBe(DEFAULT_LAYER);
+      expect(individualMetadata.priority).toBe(DEFAULT_PRIORITY);
+      expect(individualMetadata.custom).toEqual(DEFAULT_CUSTOM);
     });
   });
 
@@ -239,15 +249,15 @@ describe('Pipeline', () => {
       const pipeline = createSimplePipeline(transformerIds, {
         temperature: 0.8,
         seed: 'test-seed',
-        canvasWidth: 800,
-        canvasHeight: 600,
+        canvasWidth: 1000,
+        canvasHeight: 800,
       });
 
       expect(pipeline.transformerIds).toEqual(transformerIds);
       expect(pipeline.temperature).toBe(0.8);
       expect(pipeline.seed).toBe('test-seed');
-      expect(pipeline.canvasWidth).toBe(800);
-      expect(pipeline.canvasHeight).toBe(600);
+      expect(pipeline.canvasWidth).toBe(1000);
+      expect(pipeline.canvasHeight).toBe(800);
     });
   });
 
@@ -313,6 +323,23 @@ describe('Pipeline', () => {
         'Transformer not found: non-existent-transformer',
       );
     });
+
+    it('should collect multiple errors', () => {
+      const config: PipelineConfig = {
+        transformerIds: [],
+        temperature: 2.0,
+        canvasWidth: -100,
+      };
+
+      const result = validatePipelineConfig(config);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(3);
+      expect(result.errors).toContain(
+        'Pipeline must have at least one transformer',
+      );
+      expect(result.errors).toContain('Temperature must be between 0 and 1');
+      expect(result.errors).toContain('Canvas width must be positive');
+    });
   });
 
   describe('runPipeline', () => {
@@ -335,13 +362,12 @@ describe('Pipeline', () => {
       });
 
       expect(result.visualMetadata).toBeDefined();
-      expect(result.executionTime).toBeGreaterThan(0);
-      expect(result.transformerResults).toHaveLength(1);
-      expect(result.transformerResults[0].success).toBe(true);
-      expect(result.transformerResults[0].transformerId).toBe(
+      expect(result.debug.totalExecutionTime).toBeGreaterThan(0);
+      expect(result.debug.transformerResults).toHaveLength(1);
+      expect(result.debug.transformerResults[0].success).toBe(true);
+      expect(result.debug.transformerResults[0].transformerId).toBe(
         'horizontal-spread-by-generation',
       );
-      expect(result.config).toEqual(config);
     });
 
     it('should run multiple transformers in sequence', async () => {
@@ -364,13 +390,13 @@ describe('Pipeline', () => {
       });
 
       expect(result.visualMetadata).toBeDefined();
-      expect(result.transformerResults).toHaveLength(2);
-      expect(result.transformerResults[0].success).toBe(true);
-      expect(result.transformerResults[1].success).toBe(true);
-      expect(result.transformerResults[0].transformerId).toBe(
+      expect(result.debug.transformerResults).toHaveLength(2);
+      expect(result.debug.transformerResults[0].success).toBe(true);
+      expect(result.debug.transformerResults[1].success).toBe(true);
+      expect(result.debug.transformerResults[0].transformerId).toBe(
         'horizontal-spread-by-generation',
       );
-      expect(result.transformerResults[1].transformerId).toBe(
+      expect(result.debug.transformerResults[1].transformerId).toBe(
         'horizontal-spread-by-generation',
       );
     });
@@ -391,12 +417,12 @@ describe('Pipeline', () => {
       });
 
       expect(result.visualMetadata).toBeDefined();
-      expect(result.transformerResults).toHaveLength(1);
-      expect(result.transformerResults[0].success).toBe(false);
-      expect(result.transformerResults[0].error).toContain(
+      expect(result.debug.transformerResults).toHaveLength(1);
+      expect(result.debug.transformerResults[0].success).toBe(false);
+      expect(result.debug.transformerResults[0].error).toContain(
         'Transformer not found',
       );
-      expect(result.transformerResults[0].transformerId).toBe(
+      expect(result.debug.transformerResults[0].transformerId).toBe(
         'non-existent-transformer',
       );
     });
@@ -420,9 +446,9 @@ describe('Pipeline', () => {
       });
 
       expect(result.visualMetadata).toBeDefined();
-      expect(result.transformerResults).toHaveLength(2);
-      expect(result.transformerResults[0].success).toBe(false);
-      expect(result.transformerResults[1].success).toBe(true);
+      expect(result.debug.transformerResults).toHaveLength(2);
+      expect(result.debug.transformerResults[0].success).toBe(false);
+      expect(result.debug.transformerResults[1].success).toBe(true);
     });
 
     it('should pass context to transformers correctly', async () => {
@@ -445,7 +471,7 @@ describe('Pipeline', () => {
       });
 
       expect(result.visualMetadata).toBeDefined();
-      expect(result.transformerResults[0].success).toBe(true);
+      expect(result.debug.transformerResults[0].success).toBe(true);
     });
   });
 });

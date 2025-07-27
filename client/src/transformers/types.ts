@@ -52,7 +52,36 @@ export interface VisualMetadata {
 }
 
 /**
+ * Complete visual metadata structure that mirrors the data structure
+ * Contains visual metadata for every entity: individuals, families, and the tree
+ */
+export interface CompleteVisualMetadata {
+  // Visual metadata for each individual (keyed by individual ID)
+  individuals: Record<string, VisualMetadata>;
+
+  // Visual metadata for each family/edge (keyed by family ID)
+  families: Record<string, VisualMetadata>;
+
+  // Visual metadata for the overall tree/canvas
+  tree: VisualMetadata;
+
+  // Global visual settings
+  global: {
+    canvasWidth?: number;
+    canvasHeight?: number;
+    backgroundColor?: string;
+    defaultNodeSize?: number;
+    defaultEdgeWeight?: number;
+    defaultNodeColor?: string;
+    defaultEdgeColor?: string;
+    defaultNodeShape?: VisualMetadata['shape'];
+    defaultEdgeStyle?: VisualMetadata['strokeStyle'];
+  };
+}
+
+/**
  * Input context for a VisualTransformer
+ * Contains the complete data suite: raw data, LLM data, and visual metadata
  */
 export interface TransformerContext {
   // The complete GEDCOM data with metadata (for local operations)
@@ -61,8 +90,8 @@ export interface TransformerContext {
   // Pre-formatted LLM-ready data (PII stripped, for LLM calls)
   llmData: LLMReadyData;
 
-  // Current visual metadata state (may be partial)
-  visualMetadata: VisualMetadata;
+  // Current visual metadata state (complete structure for all entities)
+  visualMetadata: CompleteVisualMetadata;
 
   // Randomness control (0.0 = deterministic, 1.0 = fully random)
   temperature?: number;
@@ -77,10 +106,11 @@ export interface TransformerContext {
 
 /**
  * Output from a VisualTransformer
+ * Returns the full data suite with modified visual metadata
  */
 export interface TransformerOutput {
-  // The transformed visual metadata
-  visualMetadata: VisualMetadata;
+  // The transformed visual metadata (can be partial - only modified parts)
+  visualMetadata: Partial<CompleteVisualMetadata>;
 
   // Optional debug information
   debug?: {
@@ -92,6 +122,7 @@ export interface TransformerOutput {
 /**
  * A VisualTransformer function
  * Takes a context and returns transformed visual metadata
+ * Can modify visual metadata through coded logic, LLM calls, or both
  */
 export type VisualTransformerFn = (
   context: TransformerContext,
@@ -149,15 +180,25 @@ export interface VisualTransformerPipeline {
 
 /**
  * Result of running a pipeline
+ * Contains the complete visual metadata after all transformers
  */
 export interface PipelineResult {
-  visualMetadata: VisualMetadata;
+  visualMetadata: CompleteVisualMetadata;
+  config: {
+    transformerIds: string[];
+    temperature?: number;
+    seed?: string;
+    canvasWidth?: number;
+    canvasHeight?: number;
+  };
   debug: {
     transformerResults: {
       transformerId: string;
       transformerName: string;
       output: TransformerOutput;
       executionTime: number;
+      success: boolean;
+      error?: string;
     }[];
     totalExecutionTime: number;
   };
