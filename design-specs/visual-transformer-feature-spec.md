@@ -15,7 +15,8 @@ This pipeline is the creative engine that transforms genealogical data into expr
 Each **VisualTransformer** is a composable unit that:
 
 - Accepts an input object containing:
-  - **`gedcomData`** – parsed, privacy-safe metadata from GEDCOM with comprehensive graph analysis (individuals, families, tree-wide signals, edges, and analysis results)
+  - **`gedcomData`** – full parsed data from GEDCOM with comprehensive graph analysis (individuals, families, tree-wide signals, edges, and analysis results)
+  - **`llmData`** – PII-stripped data safe for LLM consumption (anonymized individuals/families with safe aggregate metadata)
   - **`visualMetadata`** – the current set of visual attribute values (e.g. x/y, color, shape, motion attributes)
   - **`temperature`** (optional) – a float to control randomness vs determinism
   - **`seed`** (optional) – a string to support reproducibility
@@ -42,37 +43,40 @@ Transformers now have access to comprehensive graph analysis data:
 
 ```typescript
 interface TransformerContext {
-  gedcomData: GedcomDataWithMetadata; // Enhanced with graph analysis
+  gedcomData: GedcomDataWithMetadata; // Full data with graph analysis
+  llmData: LLMReadyData; // PII-stripped data for LLM
   visualMetadata: VisualMetadata;
   temperature?: number;
   seed?: string;
   canvasWidth?: number;
   canvasHeight?: number;
 }
+```
 
 // Enhanced GedcomDataWithMetadata includes:
 interface GedcomDataWithMetadata {
-  individuals: AugmentedIndividual[]; // With graph-based metadata
-  families: FamilyWithMetadata[]; // With graph-based metadata
-  metadata: TreeMetadata; // Comprehensive analysis results
+individuals: AugmentedIndividual[]; // With graph-based metadata
+families: FamilyWithMetadata[]; // With graph-based metadata
+metadata: TreeMetadata; // Comprehensive analysis results
 }
 
 // Rich metadata structure:
 interface TreeMetadata {
-  graphStructure: GraphStructureMetadata; // Tree topology, generations, connectivity
-  temporalPatterns: TemporalMetadata; // Time spans, life expectancy, historical periods
-  geographicPatterns: GeographicMetadata; // Location distributions, migration patterns
-  demographics: DemographicMetadata; // Gender, age, family dynamics
-  relationships: RelationshipMetadata; // Relationship types, distances, complexity
-  edges: Edge[]; // All relationship edges
-  edgeAnalysis: EdgeMetadata; // Edge properties and patterns
-  summary: TreeSummary; // Quick access to key metrics
+graphStructure: GraphStructureMetadata; // Tree topology, generations, connectivity
+temporalPatterns: TemporalMetadata; // Time spans, life expectancy, historical periods
+geographicPatterns: GeographicMetadata; // Location distributions, migration patterns
+demographics: DemographicMetadata; // Gender, age, family dynamics
+relationships: RelationshipMetadata; // Relationship types, distances, complexity
+edges: Edge[]; // All relationship edges
+edgeAnalysis: EdgeMetadata; // Edge properties and patterns
+summary: TreeSummary; // Quick access to key metrics
 }
+
 ```
 
 ### 🧠 LLM Delegation (Optional)
 
-Certain transformers may delegate decision-making to an LLM (given masked metadata). Examples:
+Certain transformers may delegate decision-making to an LLM using the pre-stripped `llmData`. Examples:
 
 - Suggest a layout metaphor based on tree complexity and geographic diversity
 - Pick color palettes based on historical periods and cultural patterns
@@ -81,9 +85,9 @@ Certain transformers may delegate decision-making to an LLM (given masked metada
 
 These transformers should:
 
-- Never send PII
-- Use derived or abstracted summaries only
-- Access rich graph analysis data for context
+- Use `llmData` (pre-stripped PII-safe data) for LLM calls
+- Access `gedcomData` for local processing and full metadata
+- Never send raw PII to LLMs
 - Return structured config (e.g., JSON instructions for layout or style)
 
 ### 🔁 Pipeline Execution
@@ -139,13 +143,15 @@ These transformers should:
 #### File Structure
 
 ```
+
 client/src/transformers/
-├── types.ts                    # All transformer-related types
-├── factory.ts                  # Factory utilities for creating transformers
-├── utils.ts                    # Utility functions (slugification, validation)
-├── transformers.ts             # Registry of all transformers
-├── horizontal-spread-by-generation.ts  # Individual transformer function
-└── transformers.test.ts        # Tests for the transformer system
+├── types.ts # All transformer-related types
+├── factory.ts # Factory utilities for creating transformers
+├── utils.ts # Utility functions (slugification, validation)
+├── transformers.ts # Registry of all transformers
+├── horizontal-spread-by-generation.ts # Individual transformer function
+└── transformers.test.ts # Tests for the transformer system
+
 ```
 
 ## 3. Steps to Completion
@@ -352,3 +358,4 @@ The roadmap includes:
 ---
 
 _Last updated: 2025-01-27 19:15 UTC_
+```

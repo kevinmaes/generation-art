@@ -205,19 +205,21 @@ export function createPrintSketch(data: ArtData): p5;
 #### CLI Build Process
 
 **Location**: `src/scripts/build-gedcom.ts`
-**Purpose**: Process GEDCOM files locally via CLI to generate safe JSON output
+**Purpose**: Process GEDCOM files locally via CLI to generate dual JSON output
 **Responsibilities**:
 
 - GEDCOM file processing and validation
-- PII masking and metadata extraction
-- JSON generation to git-ignored directory
+- Comprehensive metadata analysis and extraction
+- PII stripping for LLM-ready data
+- Dual JSON generation to git-ignored directory
 - Error handling and validation
 
 **Key Features**:
 
 - Local-only processing (no PII sent to remote)
-- Comprehensive metadata extraction
-- PII masking for privacy
+- Comprehensive graph analysis and metadata extraction
+- Dual output: full data + LLM-ready PII-stripped data
+- Processing statistics and memory usage tracking
 - Output to git-ignored `generated/` directory
 
 #### `FramedArtwork.tsx`
@@ -271,7 +273,7 @@ export function createPrintSketch(data: ArtData): p5;
 ### 1. Unidirectional Data Flow
 
 ```
-CLI Build → Parser → Data Enhancement → Metadata → JSON Output → Art Generation → Display
+CLI Build → Parser → Metadata Analysis → PII Stripping → Dual JSON Output → Art Generation → Display
 ```
 
 ### 2. Component Communication

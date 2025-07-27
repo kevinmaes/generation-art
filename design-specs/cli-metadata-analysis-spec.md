@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document defines the CLI-level metadata analysis system that performs comprehensive graph calculations and analysis during the GEDCOM parsing/augmentation phase. This analysis runs **once** during CLI processing and provides rich, structured metadata for transformers to consume.
+This document defines the CLI-level metadata analysis system that performs comprehensive graph calculations and analysis during the GEDCOM parsing/augmentation phase. This analysis runs **once** during CLI processing and generates a dual data structure: full data with metadata and PII-stripped data for LLM consumption.
 
 ## Core Principles
 
@@ -13,6 +13,7 @@ This document defines the CLI-level metadata analysis system that performs compr
 5. **Extensibility**: Easy to add new analysis functions
 6. **Structured Data**: Rich metadata that transformers can easily consume
 7. **MCP Ready**: Structured inputs/outputs for future MCP implementations
+8. **Dual Output**: Generates both full data and LLM-ready PII-stripped data
 
 ## Analysis Categories
 
@@ -600,6 +601,59 @@ describe('End-to-End Analysis', () => {
   });
 });
 ```
+
+## Dual Output Structure
+
+### CLI Processing Output
+
+The CLI processing generates three output files:
+
+1. **Full Data** (`{name}.json`): Complete GEDCOM data with comprehensive metadata
+
+   ```typescript
+   interface GedcomDataWithMetadata {
+     individuals: Record<string, AugmentedIndividual>;
+     families: Record<string, FamilyWithMetadata>;
+     metadata: TreeMetadata;
+   }
+   ```
+
+2. **LLM-Ready Data** (`{name}-llm.json`): PII-stripped data safe for LLM consumption
+
+   ```typescript
+   interface LLMReadyData {
+     individuals: Record<string, AnonymizedIndividual>;
+     families: Record<string, AnonymizedFamily>;
+     metadata: TreeMetadata; // Safe aggregate metadata
+   }
+   ```
+
+3. **Processing Statistics** (`{name}-stats.json`): Processing metrics and PII stripping statistics
+   ```typescript
+   interface CLIProcessingStats {
+     individualsProcessed: number;
+     familiesProcessed: number;
+     piiStrippingStats: {
+       namesStripped: number;
+       datesStripped: number;
+       locationsStripped: number;
+       warnings: string[];
+     };
+     processingTime: number;
+     memoryUsage: {
+       fullDataSize: number;
+       llmDataSize: number;
+       totalSize: number;
+     };
+   }
+   ```
+
+### Benefits of Dual Output
+
+- **Performance**: PII stripping done once at CLI level, not at runtime
+- **Security**: Clear separation between full data and LLM-safe data
+- **Efficiency**: Transformers receive pre-processed data optimized for their needs
+- **Flexibility**: Full data available for local processing, LLM data for AI calls
 
 ## MCP Integration
 

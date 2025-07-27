@@ -36,6 +36,25 @@ interface AugmentedIndividual extends Individual {
 }
 ```
 
+### DualGedcomData
+
+```typescript
+interface DualGedcomData {
+  full: GedcomDataWithMetadata; // Complete data with metadata
+  llm: LLMReadyData; // PII-stripped data for LLM consumption
+}
+```
+
+### LLMReadyData
+
+```typescript
+interface LLMReadyData {
+  individuals: Record<string, AnonymizedIndividual>;
+  families: Record<string, AnonymizedFamily>;
+  metadata: TreeMetadata; // Safe aggregate metadata
+}
+```
+
 ## Metadata Types
 
 ### IndividualMetadata
