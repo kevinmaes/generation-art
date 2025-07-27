@@ -281,4 +281,21 @@ client/src/transformers/
 
 ---
 
+## 4. Transformer Ideas & Development Roadmap
+
+See the dedicated [Transformer Ideas & Development Roadmap](./transformer-ideas-roadmap.md) document for a comprehensive list of transformer ideas organized by category, priority, and implementation phases.
+
+The roadmap includes:
+
+- **30+ transformer ideas** across Low-Level, Mid-Level, High-Level, and Experimental categories
+- **Priority levels** (🔥 High, 🔶 Medium, 🔷 Low, 🧪 Experimental)
+- **LLM integration requirements** (❌/✅)
+- **Custom parameters** support (❌/✅)
+- **Implementation phases** with clear development order
+- **Custom parameter examples** for key transformers
+
+**Next Priority**: Start with the **Color Palette Transformer** as it's marked 🔥 High priority and will have immediate visual impact.
+
+---
+
 _Last updated: 2025-01-27 19:15 UTC_
