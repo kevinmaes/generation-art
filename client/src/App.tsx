@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import './App.css';
 
 interface FamilyTreeData {
-  individuals: any[];
-  families: any[];
-  metadata?: any;
+  individuals: unknown[];
+  families: unknown[];
+  metadata?: unknown;
 }
 
 function App(): React.ReactElement {
@@ -21,6 +21,21 @@ function App(): React.ReactElement {
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
+
+  // Check for autoLoad parameter and load Kennedy data automatically
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoLoad = urlParams.get('autoLoad');
+
+    if (
+      autoLoad === 'true' &&
+      currentView === 'file-select' &&
+      !familyTreeData
+    ) {
+      console.log('🔄 Auto-loading Kennedy family tree data...');
+      void handleLoadKennedy();
+    }
+  }, [currentView, familyTreeData]);
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
