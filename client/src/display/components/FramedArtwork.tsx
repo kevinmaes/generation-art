@@ -68,7 +68,7 @@ export function FramedArtwork({
                 <div class="print-title">${title}</div>
                 ${subtitle ? `<div class="print-subtitle">${subtitle}</div>` : ''}
                 <div class="print-info">
-                  Generated from ${String(gedcomData.individuals.length)} individuals
+                  Generated from ${String(Object.keys(gedcomData.individuals).length)} individuals
                 </div>
               </div>
               <canvas id="printCanvas"></canvas>
