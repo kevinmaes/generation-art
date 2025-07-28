@@ -12,7 +12,16 @@ import type {
 } from './types';
 
 /**
- * Calculate horizontal position based on selected dimension and parameters
+ * Adjust color hue by a small amount
+ */
+function adjustColorHue(color: string, _variation: number): string {
+  // Simple color adjustment - for now just return the original color
+  // TODO: Implement proper HSL color manipulation
+  return color;
+}
+
+/**
+ * Calculate horizontal position based on selected dimensions and parameters
  */
 function calculateHorizontalPosition(
   context: TransformerContext,
@@ -27,11 +36,11 @@ function calculateHorizontalPosition(
 
   // Get the primary dimension value
   const primaryDimension = dimensions.primary;
-  let dimensionValue = 0.5; // Default fallback
+  let primaryValue = 0.5; // Default fallback
 
   switch (primaryDimension) {
     case 'generation':
-      dimensionValue = individual.metadata.relativeGenerationValue ?? 0.5;
+      primaryValue = individual.metadata.relativeGenerationValue ?? 0.5;
       break;
     case 'birthYear': {
       // Normalize birth year to 0-1 range
@@ -42,7 +51,7 @@ function calculateHorizontalPosition(
         const minYear = Math.min(...allBirthYears);
         const maxYear = Math.max(...allBirthYears);
         const year = individual.metadata.birthYear ?? minYear;
-        dimensionValue = (year - minYear) / (maxYear - minYear);
+        primaryValue = (year - minYear) / (maxYear - minYear);
       }
       break;
     }
@@ -59,7 +68,7 @@ function calculateHorizontalPosition(
       const individualChildren = allIndividuals.filter((child) =>
         child.parents.includes(individual.id),
       ).length;
-      dimensionValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+      primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
       break;
     }
     case 'lifespan': {
@@ -68,7 +77,7 @@ function calculateHorizontalPosition(
         .filter((span): span is number => span !== undefined);
       if (allLifespans.length > 0) {
         const maxLifespan = Math.max(...allLifespans);
-        dimensionValue =
+        primaryValue =
           maxLifespan > 0
             ? (individual.metadata.lifespan ?? 0) / maxLifespan
             : 0.5;
@@ -80,14 +89,76 @@ function calculateHorizontalPosition(
         (ind) => ind.name.length,
       );
       const maxNameLength = Math.max(...allNameLengths);
-      dimensionValue =
+      primaryValue =
         maxNameLength > 0 ? individual.name.length / maxNameLength : 0.5;
       break;
     }
   }
 
+  // Get the secondary dimension value (if specified)
+  const secondaryDimension = dimensions.secondary;
+  let secondaryValue = 0.5; // Default fallback
+
+  if (secondaryDimension && secondaryDimension !== primaryDimension) {
+    switch (secondaryDimension) {
+      case 'generation':
+        secondaryValue = individual.metadata.relativeGenerationValue ?? 0.5;
+        break;
+      case 'birthYear': {
+        const allBirthYears = Object.values(gedcomData.individuals)
+          .map((ind) => ind.metadata.birthYear)
+          .filter((year): year is number => year !== undefined);
+        if (allBirthYears.length > 0) {
+          const minYear = Math.min(...allBirthYears);
+          const maxYear = Math.max(...allBirthYears);
+          const year = individual.metadata.birthYear ?? minYear;
+          secondaryValue = (year - minYear) / (maxYear - minYear);
+        }
+        break;
+      }
+      case 'childrenCount': {
+        const allIndividuals = Object.values(gedcomData.individuals);
+        const childrenCounts = allIndividuals.map((ind) => {
+          const children = allIndividuals.filter((child) =>
+            child.parents.includes(ind.id),
+          );
+          return children.length;
+        });
+        const maxChildren = Math.max(...childrenCounts);
+        const individualChildren = allIndividuals.filter((child) =>
+          child.parents.includes(individual.id),
+        ).length;
+        secondaryValue =
+          maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+        break;
+      }
+      case 'lifespan': {
+        const allLifespans = Object.values(gedcomData.individuals)
+          .map((ind) => ind.metadata.lifespan)
+          .filter((span): span is number => span !== undefined);
+        if (allLifespans.length > 0) {
+          const maxLifespan = Math.max(...allLifespans);
+          secondaryValue =
+            maxLifespan > 0
+              ? (individual.metadata.lifespan ?? 0) / maxLifespan
+              : 0.5;
+        }
+        break;
+      }
+      case 'nameLength': {
+        const allNameLengths = Object.values(gedcomData.individuals).map(
+          (ind) => ind.name.length,
+        );
+        const maxNameLength = Math.max(...allNameLengths);
+        secondaryValue =
+          maxNameLength > 0 ? individual.name.length / maxNameLength : 0.5;
+        break;
+      }
+    }
+  }
+
   // Get visual parameters directly from context
-  const { horizontalPadding, spacing } = visual;
+  const { horizontalPadding, spacing, variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
   // Calculate spacing multiplier based on spacing setting
@@ -105,14 +176,21 @@ function calculateHorizontalPosition(
   const availableWidth = canvasWidth - (horizontalPadding as number) * 2;
   const generationStart = horizontalPadding as number;
 
-  // Add temperature-based randomness
-  const randomFactor = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
+  // Combine primary and secondary dimensions with variation factor
+  const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
+
+  // Add temperature-based randomness with variation factor influence
+  const baseRandomness = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
+  const variationRandomness =
+    (Math.random() - 0.5) * (variationFactor as number) * 0.1; // Additional variation
+  const totalRandomFactor = baseRandomness + variationRandomness;
+
   const adjustedDimensionValue = Math.max(
     0,
-    Math.min(1, dimensionValue + randomFactor),
+    Math.min(1, combinedValue + totalRandomFactor),
   );
 
-  // Position within generation based on dimension value
+  // Position within generation based on combined dimension value
   const positionInGeneration =
     generationStart +
     adjustedDimensionValue * availableWidth * spacingMultiplier;
@@ -183,24 +261,45 @@ export async function horizontalSpreadByGenerationTransform(
     const y = calculateVerticalPosition(context, individual.id);
 
     // Get visual parameters directly from context
-    const { nodeSize, primaryColor } = context.visual;
+    const { nodeSize, primaryColor, variationFactor, temperature } =
+      context.visual;
+    const temp = (temperature as number) || 0.5;
 
-    // Convert node size string to actual size
+    // Convert node size string to actual size with temperature-based variation
     const sizeMap = {
       small: 15,
       medium: 20,
       large: 30,
       'extra-large': 40,
     };
-    const size = sizeMap[nodeSize as keyof typeof sizeMap] || 20;
+    const baseSize = sizeMap[nodeSize as keyof typeof sizeMap] || 20;
+
+    // Add size variation based on temperature and variation factor
+    const sizeVariation = (Math.random() - 0.5) * temp * 0.3; // ±15% size variation
+    const variationSizeAdjustment =
+      (Math.random() - 0.5) * (variationFactor as number) * 0.2;
+    const finalSize = Math.max(
+      5,
+      baseSize * (1 + sizeVariation + variationSizeAdjustment),
+    );
+
+    // Add color variation based on temperature
+    const colorVariation = temp > 0.3 ? (Math.random() - 0.5) * 0.1 : 0; // Subtle hue shift
+    const baseColor = String(primaryColor);
+    const adjustedColor =
+      colorVariation !== 0
+        ? adjustColorHue(baseColor, colorVariation)
+        : baseColor;
 
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
       x,
       y,
-      size,
-      color: String(primaryColor),
+      size: finalSize,
+      color: adjustedColor,
       shape: visualMetadata.global.defaultNodeShape ?? 'circle',
+      // Add opacity variation based on temperature
+      opacity: Math.max(0.3, 1 - temp * 0.2), // Higher temp = slightly more transparent
     };
   });
 

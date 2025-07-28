@@ -45,6 +45,7 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'primaryColor',
       'spacing',
       'temperature',
+      'variationFactor',
     ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(
