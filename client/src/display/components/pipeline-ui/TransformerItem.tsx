@@ -167,45 +167,39 @@ export function TransformerItem({
               e.stopPropagation();
             }}
           >
-            <summary className="text-xs text-blue-600 hover:text-blue-800 cursor-pointer flex items-center space-x-1 list-none">
-              <span className="text-xs transition-transform duration-200 group-open:rotate-90">
-                ▶
-              </span>
-              <span>
-                Parameters (
-                {transformer.availableDimensions.length +
-                  transformer.visualParameters.length}
-                )
-              </span>
+            <summary className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-t-lg shadow-sm cursor-pointer flex items-center justify-between list-none hover:bg-gray-100 transition-colors">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs transition-transform duration-200 group-open:rotate-90">
+                  ▶
+                </span>
+                <span className="text-xs font-medium text-gray-700">
+                  Parameters (
+                  {transformer.availableDimensions.length +
+                    transformer.visualParameters.length}
+                  )
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-gray-500">
+                  {transformer.availableDimensions.length} dimensions,{' '}
+                  {transformer.visualParameters.length} visual params
+                </span>
+                {onParameterReset && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onParameterReset(transformer.id);
+                    }}
+                    className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300 transition-colors"
+                    title="Reset to defaults"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
             </summary>
 
-            <div className="mt-3 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-              <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    {transformer.name || transformer.id}
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-500">
-                      {transformer.availableDimensions.length} dimensions,{' '}
-                      {transformer.visualParameters.length} visual params
-                    </span>
-                    {onParameterReset && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onParameterReset(transformer.id);
-                        }}
-                        className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300 transition-colors"
-                        title="Reset to defaults"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
+            <div className="bg-white border-l border-r border-b border-gray-200 rounded-b-lg shadow-sm overflow-hidden">
               <div className="p-4 space-y-4">
                 {/* Dimensions Section */}
                 {transformer.availableDimensions.length > 0 && (
