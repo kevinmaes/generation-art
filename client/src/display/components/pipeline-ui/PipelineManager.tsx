@@ -38,7 +38,7 @@ interface PipelineManagerProps {
   onVisualize?: () => void;
   isVisualizing?: boolean;
   hasData?: boolean;
-  isPipelineModified?: boolean;
+
   lastRunParameters?: Record<
     string,
     {
@@ -97,7 +97,6 @@ export function PipelineManager({
   onVisualize,
   isVisualizing = false,
   hasData = false,
-  isPipelineModified = true,
   lastRunParameters,
 }: PipelineManagerProps): React.ReactElement {
   const [showDiff, setShowDiff] = React.useState(false);
@@ -210,10 +209,7 @@ export function PipelineManager({
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
   const isVisualizeEnabled =
-    hasData &&
-    activeTransformerIds.length > 0 &&
-    !isVisualizing &&
-    isPipelineModified;
+    hasData && activeTransformerIds.length > 0 && !isVisualizing;
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">

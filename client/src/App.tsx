@@ -55,9 +55,7 @@ function App(): React.ReactElement {
     >
   >({});
   const [isVisualizing, setIsVisualizing] = useState(false);
-  const [lastRunTransformerIds, setLastRunTransformerIds] = useState<string[]>(
-    [],
-  );
+
   const [currentDataset, setCurrentDataset] = useState<string>('kennedy');
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
@@ -113,7 +111,6 @@ function App(): React.ReactElement {
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
-      setLastRunTransformerIds([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load file');
     } finally {
@@ -126,7 +123,6 @@ function App(): React.ReactElement {
     setCurrentView('artwork');
     setError(null);
     setPipelineResult(null);
-    setLastRunTransformerIds([]);
     // The hook will automatically load the data
   };
 
@@ -180,7 +176,6 @@ function App(): React.ReactElement {
         config: pipelineConfig,
       });
       setPipelineResult(result);
-      setLastRunTransformerIds([...activeTransformerIds]);
       // Update lastRunParameters with current transformerParameters after successful pipeline run
       // Ensure we capture the actual parameters used, including defaults for transformers without explicit parameters
       const actualParametersUsed: Record<
@@ -218,73 +213,6 @@ function App(): React.ReactElement {
     setPipelineResult(result);
     // Don't update activeTransformerIds from pipeline results
     // The user's current transformer selection should be preserved
-  };
-
-  // Check if pipeline has been modified since last run
-  const isPipelineModified = () => {
-    if (lastRunTransformerIds.length === 0) {
-      return true; // Never run, so consider it modified
-    }
-    if (lastRunTransformerIds.length !== activeTransformerIds.length) {
-      return true; // Different number of transformers
-    }
-    // Check if any transformer IDs are different
-    const transformersChanged = !lastRunTransformerIds.every(
-      (id, index) => id === activeTransformerIds[index],
-    );
-
-    if (transformersChanged) {
-      return true;
-    }
-
-    // Check if any parameters have changed
-    const parametersChanged = activeTransformerIds.some((transformerId) => {
-      const transformer = transformers[transformerId];
-
-      // Get current parameters (with defaults if not set)
-      const currentParams = transformerParameters[transformerId] ?? {
-        dimensions: {
-          primary: transformer.defaultPrimaryDimension,
-          secondary: transformer.defaultSecondaryDimension,
-        },
-        visual: {},
-      };
-
-      const lastParams = lastRunParameters[transformerId];
-
-      // If no last params, consider it changed
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!lastParams) return true;
-
-      // Check dimensions
-      if (
-        currentParams.dimensions.primary !== lastParams.dimensions.primary ||
-        currentParams.dimensions.secondary !== lastParams.dimensions.secondary
-      ) {
-        return true;
-      }
-
-      // Check visual parameters
-      const currentVisualKeys = Object.keys(currentParams.visual);
-      const lastVisualKeys = Object.keys(lastParams.visual);
-
-      if (currentVisualKeys.length !== lastVisualKeys.length) {
-        return true;
-      }
-
-      const visualChanged = currentVisualKeys.some(
-        (key) => currentParams.visual[key] !== lastParams.visual[key],
-      );
-
-      if (visualChanged) {
-        return true;
-      }
-
-      return false;
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    return transformersChanged || parametersChanged;
   };
 
   return (
@@ -345,7 +273,6 @@ function App(): React.ReactElement {
                     }}
                     isVisualizing={isVisualizing}
                     hasData={!!dualData}
-                    isPipelineModified={isPipelineModified()}
                     lastRunParameters={lastRunParameters}
                   />
                 </ErrorBoundary>
