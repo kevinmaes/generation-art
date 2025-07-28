@@ -250,6 +250,7 @@ function App(): React.ReactElement {
       const lastParams = lastRunParameters[transformerId];
 
       // If no last params, consider it changed
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (!lastParams) return true;
 
       // Check dimensions
@@ -279,6 +280,7 @@ function App(): React.ReactElement {
       return false;
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     return transformersChanged || parametersChanged;
   };
 
