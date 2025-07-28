@@ -34,19 +34,9 @@ function calculateVisualMetadataDiff(
   after: Record<string, unknown>,
   path = '',
 ): Record<string, unknown> | null {
-  if (typeof before !== typeof after) {
-    return { [path]: { before, after, diff: 'type-mismatch' } };
-  }
-
-  if (typeof before !== 'object' || before === null || after === null) {
-    if (before !== after) {
-      const diff =
-        typeof before === 'number' && typeof after === 'number'
-          ? after - before
-          : `${String(before)} → ${String(after)}`;
-      return { [path]: { before, after, diff } };
-    }
-    return null;
+  if (before !== after) {
+    const diff = `${JSON.stringify(before)} → ${JSON.stringify(after)}`;
+    return { [path]: { before, after, diff } };
   }
 
   const result: Record<string, unknown> = {};
@@ -202,7 +192,7 @@ export function PipelineManager({
               {pipelineInput && activeTransformerIds.length > 0 && (
                 <span className="text-xs text-gray-500 ml-2">
                   (Data going into "
-                  {transformers[activeTransformerIds[0]]?.name ||
+                  {transformers[activeTransformerIds[0]].name ||
                     activeTransformerIds[0]}
                   ")
                 </span>
@@ -223,7 +213,9 @@ export function PipelineManager({
                 </button>
                 {pipelineResult && (
                   <button
-                    onClick={() => setShowDiff(!showDiff)}
+                    onClick={() => {
+                      setShowDiff(!showDiff);
+                    }}
                     className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors"
                     title="Show diff between input and output"
                   >
@@ -249,10 +241,13 @@ export function PipelineManager({
                 <ReactJson
                   src={
                     showDiff && pipelineResult
-                      ? calculateVisualMetadataDiff(
-                          pipelineInput,
-                          pipelineResult.visualMetadata,
-                        ) || {}
+                      ? (calculateVisualMetadataDiff(
+                          pipelineInput as unknown as Record<string, unknown>,
+                          pipelineResult.visualMetadata as unknown as Record<
+                            string,
+                            unknown
+                          >,
+                        ) ?? {})
                       : pipelineInput
                   }
                   theme="rjv-default"
@@ -328,7 +323,7 @@ export function PipelineManager({
                   (Result from "
                   {transformers[
                     activeTransformerIds[activeTransformerIds.length - 1]
-                  ]?.name ||
+                  ].name ||
                     activeTransformerIds[activeTransformerIds.length - 1]}
                   ")
                 </span>
