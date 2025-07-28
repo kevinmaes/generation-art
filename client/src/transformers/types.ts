@@ -152,6 +152,12 @@ export interface VisualTransformerConfig {
   // Available dimensions for this transformer
   availableDimensions: DimensionId[];
 
+  // Default primary dimension (required)
+  defaultPrimaryDimension: DimensionId;
+
+  // Default secondary dimension (optional)
+  defaultSecondaryDimension?: DimensionId;
+
   // Available visual parameters for this transformer
   visualParameters: VisualParameterId[];
 
@@ -159,7 +165,7 @@ export interface VisualTransformerConfig {
   createRuntimeTransformerFunction: (params: {
     dimensions: {
       primary?: DimensionId;
-      secondary?: DimensionId[];
+      secondary?: DimensionId;
     };
     visual: Record<string, unknown>;
   }) => VisualTransformerFn;

@@ -51,7 +51,7 @@ export function generateTransformerId(name: string): string {
  */
 export function createRuntimeTransformerFunction(
   params: {
-    dimensions: { primary?: string; secondary?: string[] };
+    dimensions: { primary?: string; secondary?: string };
     visual: Record<string, unknown>;
   },
   transformFn: VisualTransformerFn,

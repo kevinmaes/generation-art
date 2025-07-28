@@ -37,6 +37,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'lifespan',
       'nameLength',
     ],
+    defaultPrimaryDimension: 'generation',
+    defaultSecondaryDimension: 'birthYear',
     visualParameters: [
       'horizontalPadding',
       'spacing',
@@ -62,6 +64,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'generation',
       'marriageCount',
     ],
+    defaultPrimaryDimension: 'childrenCount',
+    defaultSecondaryDimension: 'lifespan',
     visualParameters: ['nodeSize', 'variationFactor'],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeSizeTransform),
@@ -79,6 +83,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'lifespan',
       'distanceFromRoot',
     ],
+    defaultPrimaryDimension: 'generation',
+    defaultSecondaryDimension: 'childrenCount',
     visualParameters: ['nodeOpacity', 'variationFactor'],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeOpacityTransform),
@@ -96,6 +102,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'lifespan',
       'relationshipDensity',
     ],
+    defaultPrimaryDimension: 'generation',
+    defaultSecondaryDimension: 'childrenCount',
     visualParameters: ['edgeOpacity', 'edgeWidth', 'secondaryColor'],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, edgeOpacityTransform),
@@ -114,6 +122,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'generation',
       'nameLength',
     ],
+    defaultPrimaryDimension: 'birthYear',
+    defaultSecondaryDimension: 'childrenCount',
     visualParameters: ['verticalPadding', 'spacing', 'variationFactor'],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, verticalSpreadTransform),
