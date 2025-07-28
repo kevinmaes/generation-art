@@ -1,3 +1,11 @@
+import {
+  DEFAULT_COLOR,
+  DEFAULT_STROKE_COLOR,
+  DEFAULT_OPACITY,
+  DEFAULT_SHAPE,
+  DEFAULT_STROKE_STYLE,
+} from './constants';
+
 export interface VisualParameterConfig {
   id: string;
   label: string;
@@ -88,7 +96,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     description: 'Main color for nodes',
     type: 'color',
     category: 'Color',
-    defaultValue: '#3b82f6',
+    defaultValue: DEFAULT_COLOR,
   },
   secondaryColor: {
     id: 'secondaryColor',
@@ -96,7 +104,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     description: 'Secondary color for edges',
     type: 'color',
     category: 'Color',
-    defaultValue: '#6b7280',
+    defaultValue: DEFAULT_STROKE_COLOR,
   },
   colorScheme: {
     id: 'colorScheme',
@@ -125,7 +133,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     min: 0.1,
     max: 1.0,
     step: 0.1,
-    defaultValue: 0.8,
+    defaultValue: DEFAULT_OPACITY,
   },
   edgeOpacity: {
     id: 'edgeOpacity',
@@ -136,7 +144,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     min: 0.1,
     max: 1.0,
     step: 0.1,
-    defaultValue: 0.6,
+    defaultValue: DEFAULT_OPACITY,
   },
 
   // Style Parameters
@@ -152,7 +160,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
       { value: 'diamond', label: 'Diamond' },
       { value: 'triangle', label: 'Triangle' },
     ],
-    defaultValue: 'circle',
+    defaultValue: DEFAULT_SHAPE,
   },
   edgeStyle: {
     id: 'edgeStyle',
@@ -166,7 +174,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
       { value: 'dotted', label: 'Dotted' },
       { value: 'double', label: 'Double' },
     ],
-    defaultValue: 'solid',
+    defaultValue: DEFAULT_STROKE_STYLE,
   },
 
   // General Parameters

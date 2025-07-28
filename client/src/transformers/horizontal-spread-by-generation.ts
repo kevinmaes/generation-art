@@ -12,15 +12,6 @@ import type {
 } from './types';
 
 /**
- * Adjust color hue by a small amount
- */
-function adjustColorHue(color: string, _variation: number): string {
-  // Simple color adjustment - for now just return the original color
-  // TODO: Implement proper HSL color manipulation
-  return color;
-}
-
-/**
  * Calculate horizontal position based on selected dimensions and parameters
  */
 function calculateHorizontalPosition(
@@ -283,20 +274,12 @@ export async function horizontalSpreadByGenerationTransform(
       baseSize * (1 + sizeVariation + variationSizeAdjustment),
     );
 
-    // Add color variation based on temperature
-    const colorVariation = temp > 0.3 ? (Math.random() - 0.5) * 0.1 : 0; // Subtle hue shift
-    const baseColor = String(primaryColor);
-    const adjustedColor =
-      colorVariation !== 0
-        ? adjustColorHue(baseColor, colorVariation)
-        : baseColor;
-
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
       x,
       y,
       size: finalSize,
-      color: adjustedColor,
+      color: String(primaryColor),
       shape: visualMetadata.global.defaultNodeShape ?? 'circle',
       // Add opacity variation based on temperature
       opacity: Math.max(0.3, 1 - temp * 0.2), // Higher temp = slightly more transparent
