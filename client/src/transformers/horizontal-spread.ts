@@ -191,45 +191,6 @@ function calculateHorizontalPosition(
 }
 
 /**
- * Calculate vertical position based on generation
- */
-function calculateVerticalPosition(
-  context: TransformerContext,
-  individualId: string,
-): number {
-  const { gedcomData, visualMetadata } = context;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
-
-  // Find the individual
-  const individual = gedcomData.individuals[individualId];
-  const generation = individual.metadata.generation ?? 0;
-
-  // Calculate vertical spacing
-  const individuals = Object.values(gedcomData.individuals);
-  const maxGenerations = Math.max(
-    ...individuals.map((ind) => ind.metadata.generation ?? 0),
-  );
-  const minGenerations = Math.min(
-    ...individuals.map((ind) => ind.metadata.generation ?? 0),
-  );
-  const generationRange = maxGenerations - minGenerations;
-
-  if (generationRange === 0) {
-    return canvasHeight / 2; // All in same generation, center vertically
-  }
-
-  // Normalize generation to 0-1 range
-  const normalizedGeneration = (generation - minGenerations) / generationRange;
-
-  // Position vertically with some padding
-  const verticalPadding = canvasHeight * 0.1;
-  const availableHeight = canvasHeight - verticalPadding * 2;
-  const y = verticalPadding + normalizedGeneration * availableHeight;
-
-  return y;
-}
-
-/**
  * Horizontal spread by generation transform function
  * Positions all individuals based on their generation
  */
@@ -250,7 +211,7 @@ export async function horizontalSpreadTransform(
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
     const x = calculateHorizontalPosition(context, individual.id);
-    const y = calculateVerticalPosition(context, individual.id);
+    // Don't calculate y - preserve existing y position from previous transformers
 
     // Get visual parameters directly from context
     const { nodeSize, primaryColor, variationFactor, temperature } =
@@ -278,8 +239,7 @@ export async function horizontalSpreadTransform(
 
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      x,
-      y,
+      x, // Only set x position (horizontal spread responsibility)
       size: finalSize,
       color:
         (primaryColor as string | undefined) ??

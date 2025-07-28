@@ -190,45 +190,6 @@ function calculateVerticalPosition(
 }
 
 /**
- * Calculate horizontal position based on generation
- */
-function calculateHorizontalPosition(
-  context: TransformerContext,
-  individualId: string,
-): number {
-  const { gedcomData, visualMetadata } = context;
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
-
-  // Find the individual
-  const individual = gedcomData.individuals[individualId];
-  const generation = individual.metadata.generation ?? 0;
-
-  // Calculate horizontal spacing
-  const individuals = Object.values(gedcomData.individuals);
-  const maxGenerations = Math.max(
-    ...individuals.map((ind) => ind.metadata.generation ?? 0),
-  );
-  const minGenerations = Math.min(
-    ...individuals.map((ind) => ind.metadata.generation ?? 0),
-  );
-  const generationRange = maxGenerations - minGenerations;
-
-  if (generationRange === 0) {
-    return canvasWidth / 2; // All in same generation, center horizontally
-  }
-
-  // Normalize generation to 0-1 range
-  const normalizedGeneration = (generation - minGenerations) / generationRange;
-
-  // Position horizontally with some padding
-  const horizontalPadding = canvasWidth * 0.1;
-  const availableWidth = canvasWidth - horizontalPadding * 2;
-  const x = horizontalPadding + normalizedGeneration * availableWidth;
-
-  return x;
-}
-
-/**
  * Vertical spread transform function
  * Positions all individuals based on their generation and selected dimensions
  */
@@ -248,7 +209,7 @@ export async function verticalSpreadTransform(
   // Position each individual based on their generation
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
-    const x = calculateHorizontalPosition(context, individual.id);
+    // Don't calculate x - preserve existing x position from previous transformers
     const y = calculateVerticalPosition(context, individual.id);
 
     // Get visual parameters directly from context
@@ -276,10 +237,12 @@ export async function verticalSpreadTransform(
 
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      x,
-      y,
+      y, // Only set y position (vertical spread responsibility)
       size: finalSize,
-      color: String(primaryColor),
+      color:
+        (primaryColor as string | undefined) ??
+        visualMetadata.global.defaultNodeColor ??
+        '#cccccc',
       shape: visualMetadata.global.defaultNodeShape ?? 'circle',
       // Add opacity variation based on temperature
       opacity: Math.max(0.3, 1 - temp * 0.2), // Higher temp = slightly more transparent

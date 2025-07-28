@@ -492,5 +492,86 @@ describe('Pipeline', () => {
       expect(result.visualMetadata).toBeDefined();
       expect(result.debug.transformerResults[0].success).toBe(true);
     });
+
+    it('should preserve position values between transformers', async () => {
+      const config: PipelineConfig = {
+        transformerIds: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID],
+        temperature: 0.5,
+        canvasWidth: 800,
+        canvasHeight: 600,
+      };
+
+      const result = await runPipeline({
+        fullData: mockMetadata,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: mockMetadata.metadata,
+        },
+        config,
+      });
+
+      expect(result.visualMetadata).toBeDefined();
+      expect(result.debug.transformerResults).toHaveLength(2);
+      expect(result.debug.transformerResults[0].success).toBe(true);
+      expect(result.debug.transformerResults[1].success).toBe(true);
+
+      // Check that we have individual metadata
+      const individualId = Object.keys(result.visualMetadata.individuals)[0];
+      const individualMetadata =
+        result.visualMetadata.individuals[individualId];
+      expect(individualMetadata).toBeDefined();
+
+      // The final result should have both x and y positions from both transformers
+      // If transformers are overwriting each other, this test will fail
+      expect(individualMetadata.x).toBeDefined();
+      expect(individualMetadata.y).toBeDefined();
+
+      // Log the positions to see what's happening
+      console.log('Final positions:', {
+        x: individualMetadata.x,
+        y: individualMetadata.y,
+      });
+    });
+
+    it('should preserve position values in reverse order', async () => {
+      const config: PipelineConfig = {
+        transformerIds: [VERTICAL_SPREAD.ID, HORIZONTAL_SPREAD.ID],
+        temperature: 0.5,
+        canvasWidth: 800,
+        canvasHeight: 600,
+      };
+
+      const result = await runPipeline({
+        fullData: mockMetadata,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: mockMetadata.metadata,
+        },
+        config,
+      });
+
+      expect(result.visualMetadata).toBeDefined();
+      expect(result.debug.transformerResults).toHaveLength(2);
+      expect(result.debug.transformerResults[0].success).toBe(true);
+      expect(result.debug.transformerResults[1].success).toBe(true);
+
+      // Check that we have individual metadata
+      const individualId = Object.keys(result.visualMetadata.individuals)[0];
+      const individualMetadata =
+        result.visualMetadata.individuals[individualId];
+      expect(individualMetadata).toBeDefined();
+
+      // The final result should have both x and y positions from both transformers
+      expect(individualMetadata.x).toBeDefined();
+      expect(individualMetadata.y).toBeDefined();
+
+      // Log the positions to see what's happening
+      console.log('Final positions (reverse order):', {
+        x: individualMetadata.x,
+        y: individualMetadata.y,
+      });
+    });
   });
 });

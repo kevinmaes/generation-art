@@ -231,10 +231,6 @@ function mergeVisualMetadata(
   base: CompleteVisualMetadata,
   updates: Partial<CompleteVisualMetadata>,
 ): CompleteVisualMetadata {
-  // Debug logging to understand what's happening
-  console.log('mergeVisualMetadata - base:', base);
-  console.log('mergeVisualMetadata - updates:', updates);
-
   const result = { ...base };
 
   // Merge individuals
