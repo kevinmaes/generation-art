@@ -8,7 +8,7 @@ export interface VisualParameterConfig {
   min?: number;
   max?: number;
   step?: number;
-  defaultValue: unknown;
+  defaultValue: string | number | boolean;
 }
 
 export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
@@ -195,6 +195,11 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
 } as const;
 
 export type VisualParameterId = keyof typeof VISUAL_PARAMETERS;
+
+// Type that maps parameter IDs to their actual value types
+export type VisualParameterValues = {
+  [K in VisualParameterId]: (typeof VISUAL_PARAMETERS)[K]['defaultValue'];
+};
 
 // Helper function to get parameters by category
 export const getVisualParametersByCategory = (

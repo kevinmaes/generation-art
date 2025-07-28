@@ -87,8 +87,12 @@ function calculateHorizontalPosition(
   }
 
   // Get visual parameters
-  const horizontalPadding = (visual?.horizontalPadding as number) || 50;
-  const spacing = (visual?.spacing as string) || 'normal';
+  const horizontalPadding =
+    typeof visual?.horizontalPadding === 'number'
+      ? visual.horizontalPadding
+      : 50;
+  const spacing =
+    typeof visual?.spacing === 'string' ? visual.spacing : 'normal';
   const temp = temperature ?? 0.5;
 
   // Calculate spacing multiplier based on spacing setting
@@ -184,8 +188,14 @@ export async function horizontalSpreadByGenerationTransform(
     const y = calculateVerticalPosition(context, individual.id);
 
     // Get visual parameters
-    const nodeSize = (context.visual?.nodeSize as string) || 'medium';
-    const primaryColor = (context.visual?.primaryColor as string) || '#3b82f6';
+    const nodeSize =
+      typeof context.visual?.nodeSize === 'string'
+        ? context.visual.nodeSize
+        : 'medium';
+    const primaryColor =
+      typeof context.visual?.primaryColor === 'string'
+        ? context.visual.primaryColor
+        : '#3b82f6';
 
     // Convert node size string to actual size
     const sizeMap = {

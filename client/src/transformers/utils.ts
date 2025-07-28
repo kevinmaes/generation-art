@@ -7,6 +7,7 @@ import type {
   TransformerOutput,
   VisualTransformerFn,
 } from './types';
+import type { VisualParameterValues } from './visual-parameters';
 
 /**
  * Convert a transformer name to a slugified ID
@@ -52,7 +53,7 @@ export function generateTransformerId(name: string): string {
 export function createRuntimeTransformerFunction(
   params: {
     dimensions: { primary?: string; secondary?: string };
-    visual: Record<string, unknown>;
+    visual: Partial<VisualParameterValues>;
   },
   transformFn: VisualTransformerFn,
 ): VisualTransformerFn {

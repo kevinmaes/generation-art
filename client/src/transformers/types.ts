@@ -8,7 +8,10 @@
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
 import type { DimensionId } from './dimensions';
-import type { VisualParameterId } from './visual-parameters';
+import type {
+  VisualParameterId,
+  VisualParameterValues,
+} from './visual-parameters';
 
 /**
  * Visual metadata represents the visual attributes of elements in the art
@@ -115,7 +118,7 @@ export interface TransformerContext {
   };
 
   // User-selected visual parameters (injected by createRuntimeTransformerFunction)
-  visual?: Record<string, unknown>;
+  visual?: Partial<VisualParameterValues>;
 }
 
 /**
@@ -176,7 +179,7 @@ export interface VisualTransformerConfig {
       primary?: DimensionId;
       secondary?: DimensionId;
     };
-    visual: Record<string, unknown>;
+    visual: Partial<VisualParameterValues>;
   }) => VisualTransformerFn;
 
   // Categories for organization
