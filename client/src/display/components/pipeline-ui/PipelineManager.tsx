@@ -26,6 +26,54 @@ interface PipelineManagerProps {
   hasData?: boolean;
 }
 
+// Utility function to calculate diff between two visual metadata objects
+function calculateVisualMetadataDiff(
+  before: Record<string, unknown>,
+  after: Record<string, unknown>,
+  path = '',
+): Record<string, unknown> | null {
+  if (typeof before !== typeof after) {
+    return { [path]: { before, after, diff: 'type-mismatch' } };
+  }
+
+  if (typeof before !== 'object' || before === null || after === null) {
+    if (before !== after) {
+      const diff =
+        typeof before === 'number' && typeof after === 'number'
+          ? after - before
+          : `${String(before)} → ${String(after)}`;
+      return { [path]: { before, after, diff } };
+    }
+    return null;
+  }
+
+  const result: Record<string, unknown> = {};
+  const allKeys = new Set([...Object.keys(before), ...Object.keys(after)]);
+
+  for (const key of allKeys) {
+    const currentPath = path ? `${path}.${key}` : key;
+    const beforeValue = before[key];
+    const afterValue = after[key];
+
+    if (!(key in before)) {
+      result[key] = { added: afterValue };
+    } else if (!(key in after)) {
+      result[key] = { removed: beforeValue };
+    } else {
+      const diff = calculateVisualMetadataDiff(
+        beforeValue as Record<string, unknown>,
+        afterValue as Record<string, unknown>,
+        currentPath,
+      );
+      if (diff !== null) {
+        result[key] = diff;
+      }
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : null;
+}
+
 export function PipelineManager({
   pipelineResult,
   activeTransformerIds,
@@ -37,6 +85,7 @@ export function PipelineManager({
   isVisualizing = false,
   hasData = false,
 }: PipelineManagerProps): React.ReactElement {
+  const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] = useState<
     string | null
   >(activeTransformerIds[0] ?? null);
@@ -178,17 +227,28 @@ export function PipelineManager({
               )}
             </h4>
             {pipelineInput && (
-              <button
-                onClick={() => {
-                  void navigator.clipboard.writeText(
-                    JSON.stringify(pipelineInput, null, 2),
-                  );
-                }}
-                className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors"
-                title="Copy as JSON"
-              >
-                Copy JSON
-              </button>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => {
+                    void navigator.clipboard.writeText(
+                      JSON.stringify(pipelineInput, null, 2),
+                    );
+                  }}
+                  className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors"
+                  title="Copy as JSON"
+                >
+                  Copy JSON
+                </button>
+                {pipelineResult && (
+                  <button
+                    onClick={() => setShowDiff(!showDiff)}
+                    className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors"
+                    title="Show diff between input and output"
+                  >
+                    {showDiff ? 'Hide Diff' : 'Show Diff'}
+                  </button>
+                )}
+              </div>
             )}
           </div>
           <div className="flex-1 overflow-hidden" style={{ height: '460px' }}>
@@ -205,7 +265,14 @@ export function PipelineManager({
                 }}
               >
                 <ReactJson
-                  src={pipelineInput}
+                  src={
+                    showDiff && pipelineResult
+                      ? calculateVisualMetadataDiff(
+                          pipelineInput,
+                          pipelineResult.visualMetadata,
+                        ) || {}
+                      : pipelineInput
+                  }
                   theme="rjv-default"
                   style={{
                     backgroundColor: 'transparent',

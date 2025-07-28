@@ -94,10 +94,12 @@ export async function horizontalSpreadByGenerationTransform(
 
   // Position each individual based on their generation
   individuals.forEach((individual) => {
+    const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
     const x = calculateHorizontalPosition(context, individual.id);
     const y = calculateVerticalPosition(context, individual.id);
 
     updatedIndividuals[individual.id] = {
+      ...currentMetadata,
       x,
       y,
       size: visualMetadata.global.defaultNodeSize ?? 20,

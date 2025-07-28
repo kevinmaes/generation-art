@@ -2,6 +2,7 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  TransformerOutput,
 } from './types';
 
 /**
@@ -13,9 +14,9 @@ import type {
  * - Family importance (based on number of children)
  * - Edge length (longer edges more transparent)
  */
-export function edgeOpacityTransform(
+export async function edgeOpacityTransform(
   context: TransformerContext,
-): Partial<CompleteVisualMetadata> {
+): Promise<TransformerOutput> {
   const { gedcomData, visualMetadata } = context;
   const updatedEdges: Record<string, VisualMetadata> = {};
 
@@ -87,6 +88,8 @@ export function edgeOpacityTransform(
   });
 
   return {
-    edges: updatedEdges,
+    visualMetadata: {
+      edges: updatedEdges,
+    },
   };
 }

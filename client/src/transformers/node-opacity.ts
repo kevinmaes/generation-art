@@ -2,6 +2,7 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  TransformerOutput,
 } from './types';
 
 /**
@@ -13,9 +14,9 @@ import type {
  * - Age/lifespan (longer life = more opaque)
  * - Family importance (based on family size)
  */
-export function nodeOpacityTransform(
+export async function nodeOpacityTransform(
   context: TransformerContext,
-): Partial<CompleteVisualMetadata> {
+): Promise<TransformerOutput> {
   const { gedcomData, visualMetadata } = context;
   const updatedIndividuals: Record<string, VisualMetadata> = {};
 
@@ -56,6 +57,8 @@ export function nodeOpacityTransform(
   });
 
   return {
-    individuals: updatedIndividuals,
+    visualMetadata: {
+      individuals: updatedIndividuals,
+    },
   };
 }

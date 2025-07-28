@@ -24,8 +24,7 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Horizontal Spread by Generation',
     description:
       'Positions individuals horizontally based on their generation, creating a traditional family tree layout',
-    transform:
-      horizontalSpreadByGenerationTransform as VisualTransformerConfig['transform'],
+    transform: horizontalSpreadByGenerationTransform,
     categories: ['layout', 'positioning'],
     parameters: {
       spacing: {
@@ -51,7 +50,7 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Node Size',
     description:
       'Controls the size of nodes based on metadata like number of children, age at death, or importance metrics',
-    transform: nodeSizeTransform as VisualTransformerConfig['transform'],
+    transform: nodeSizeTransform,
     categories: ['visual', 'size'],
     parameters: {
       baseSize: {
@@ -77,7 +76,7 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Node Opacity',
     description:
       'Adjusts node transparency based on generation depth, number of children, lifespan, and family importance',
-    transform: nodeOpacityTransform as VisualTransformerConfig['transform'],
+    transform: nodeOpacityTransform,
     categories: ['visual', 'opacity'],
     parameters: {
       baseOpacity: {

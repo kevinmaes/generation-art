@@ -2,6 +2,7 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  TransformerOutput,
 } from './types';
 
 /**
@@ -13,16 +14,31 @@ import type {
  * - Creates visual separation to avoid straight lines
  * - Maintains generation-based horizontal positioning
  */
-export function verticalSpreadTransform(
+export async function verticalSpreadTransform(
   context: TransformerContext,
-): Partial<CompleteVisualMetadata> {
+): Promise<TransformerOutput> {
   const { gedcomData, visualMetadata } = context;
   const updatedIndividuals: Record<string, VisualMetadata> = {};
+
+  // Debug logging
+  console.log(
+    'Vertical Spread Transform - Input visualMetadata:',
+    visualMetadata,
+  );
+  console.log(
+    'Vertical Spread Transform - Number of individuals:',
+    Object.keys(gedcomData.individuals).length,
+  );
 
   // Get canvas dimensions from global settings
   const canvasHeight = visualMetadata.global.canvasHeight ?? 600;
   const verticalPadding = 50; // Padding from top/bottom
   const usableHeight = canvasHeight - verticalPadding * 2;
+
+  // Debug canvas dimensions
+  console.log('Vertical Spread Transform - Canvas height:', canvasHeight);
+  console.log('Vertical Spread Transform - Usable height:', usableHeight);
+  console.log('Vertical Spread Transform - Vertical padding:', verticalPadding);
 
   // Group individuals by generation
   const generationGroups: Record<number, string[]> = {};
@@ -62,36 +78,50 @@ export function verticalSpreadTransform(
       return individualA.name.localeCompare(individualB.name);
     });
 
-    // Calculate vertical positions
-    const spacing = usableHeight / (sortedIndividuals.length + 1); // +1 for better distribution
+    // Calculate vertical positions with better spacing
+    const spacing = usableHeight / Math.max(sortedIndividuals.length, 1);
 
     sortedIndividuals.forEach((individualId, index) => {
       const currentMetadata = visualMetadata.individuals[individualId] ?? {};
       const individual = gedcomData.individuals[individualId];
 
-      // Calculate base Y position
-      const baseY = verticalPadding + spacing * (index + 1);
+      // Calculate base Y position with better distribution
+      const baseY = verticalPadding + spacing * index + spacing / 2;
 
       // Add some variation based on individual characteristics
       let yVariation = 0;
 
       // Factor 1: Number of children (more children = slight upward shift)
       const childCount = individual.children.length;
-      yVariation += childCount * -2; // Upward shift for parents
+      yVariation += childCount * -5; // Increased upward shift for parents
 
       // Factor 2: Lifespan (longer life = slight downward shift)
       const lifespan = individual.metadata.lifespan ?? 0;
-      yVariation += lifespan / 10; // Downward shift for longer lives
+      yVariation += lifespan / 5; // Increased downward shift for longer lives
 
       // Factor 3: Generation depth (deeper generations = more variation)
-      const generationFactor = generation * 5;
-      yVariation += generationFactor * (Math.random() - 0.5) * 0.1; // Small random variation
+      const generationFactor = generation * 10;
+      yVariation += generationFactor * (Math.random() - 0.5) * 0.2; // Increased random variation
+
+      // Factor 4: Birth year variation within generation
+      const birthYear = individual.birth?.date
+        ? (extractYear(individual.birth.date) ?? 0)
+        : 0;
+      const birthYearVariation = (birthYear % 100) * 0.3; // Use birth year for additional variation
+      yVariation += birthYearVariation;
 
       // Apply variation with bounds
       const finalY = Math.max(
         verticalPadding,
         Math.min(canvasHeight - verticalPadding, baseY + yVariation),
       );
+
+      // Debug bounds checking for first few individuals
+      if (index < 3) {
+        console.log(
+          `Individual ${individualId}: baseY=${String(baseY)}, yVariation=${String(yVariation)}, finalY=${String(finalY)}`,
+        );
+      }
 
       updatedIndividuals[individualId] = {
         ...currentMetadata,
@@ -100,8 +130,30 @@ export function verticalSpreadTransform(
     });
   });
 
+  // Debug logging
+  console.log(
+    'Vertical Spread Transform - Updated individuals:',
+    updatedIndividuals,
+  );
+  console.log(
+    'Vertical Spread Transform - Number of updated individuals:',
+    Object.keys(updatedIndividuals).length,
+  );
+
+  // Simple test: Check if we have any Y values
+  const yValues = Object.values(updatedIndividuals)
+    .map((meta) => meta.y)
+    .filter((y) => y !== undefined);
+  console.log('Vertical Spread Transform - Y values found:', yValues.length);
+  console.log(
+    'Vertical Spread Transform - Sample Y values:',
+    yValues.slice(0, 5),
+  );
+
   return {
-    individuals: updatedIndividuals,
+    visualMetadata: {
+      individuals: updatedIndividuals,
+    },
   };
 }
 
