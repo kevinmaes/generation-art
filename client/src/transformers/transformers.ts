@@ -41,9 +41,9 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     defaultSecondaryDimension: 'birthYear',
     visualParameters: [
       'horizontalPadding',
-      'spacing',
       'nodeSize',
       'primaryColor',
+      'spacing',
     ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(
@@ -66,7 +66,7 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'childrenCount',
     defaultSecondaryDimension: 'lifespan',
-    visualParameters: ['nodeSize', 'variationFactor'],
+    visualParameters: ['variationFactor', 'nodeSize'],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeSizeTransform),
   },
@@ -124,7 +124,7 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'birthYear',
     defaultSecondaryDimension: 'childrenCount',
-    visualParameters: ['verticalPadding', 'spacing', 'variationFactor'],
+    visualParameters: ['verticalPadding', 'variationFactor', 'spacing'],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, verticalSpreadTransform),
   },

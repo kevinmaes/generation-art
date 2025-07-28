@@ -66,12 +66,11 @@ describe('Transformers Registry', () => {
       expect(transformer.description).toBeTruthy();
       expect(typeof transformer.transform).toBe('function');
 
-      if (transformer.parameters) {
-        for (const [, paramConfig] of Object.entries(transformer.parameters)) {
-          expect(paramConfig.description).toBeTruthy();
-          expect(paramConfig.defaultValue).toBeDefined();
-        }
-      }
+      // Check that transformers have the new structure
+      expect(transformer.availableDimensions).toBeDefined();
+      expect(transformer.defaultPrimaryDimension).toBeDefined();
+      expect(transformer.visualParameters).toBeDefined();
+      expect(transformer.createRuntimeTransformerFunction).toBeDefined();
     }
   });
 });
@@ -241,6 +240,7 @@ describe('Horizontal Spread Transformer', () => {
       visualMetadata: {
         individuals: {},
         families: {},
+        edges: {},
         tree: {},
         global: {
           canvasWidth: 1000,
@@ -256,11 +256,11 @@ describe('Horizontal Spread Transformer', () => {
 
     expect(result.visualMetadata).toBeDefined();
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals || {})).toHaveLength(
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
       1,
     );
     const individualId = Object.keys(
-      result.visualMetadata.individuals || {},
+      result.visualMetadata.individuals ?? {},
     )[0];
     const individualMetadata =
       result.visualMetadata.individuals?.[individualId];
@@ -414,9 +414,18 @@ describe('Horizontal Spread Transformer', () => {
 
     const context = {
       gedcomData: mockMetadata,
-      visualMetadata: {},
-      canvasWidth: 1000,
-      canvasHeight: 800,
+      llmData: {
+        individuals: {},
+        families: {},
+        metadata: mockMetadata.metadata,
+      },
+      visualMetadata: {
+        individuals: {},
+        families: {},
+        edges: {},
+        tree: {},
+        global: {},
+      },
     };
 
     const result = await transformer.transform(context);
