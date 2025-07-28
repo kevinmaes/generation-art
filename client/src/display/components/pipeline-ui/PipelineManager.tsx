@@ -22,6 +22,10 @@ interface PipelineManagerProps {
   onTransformerSelect?: (transformerId: string) => void;
   onAddTransformer?: (transformerId: string) => void;
   onRemoveTransformer?: (transformerId: string) => void;
+  onParameterChange?: (
+    transformerId: string,
+    parameters: Record<string, unknown>,
+  ) => void;
   onVisualize?: () => void;
   isVisualizing?: boolean;
   hasData?: boolean;
@@ -73,6 +77,7 @@ export function PipelineManager({
   onTransformerSelect,
   onAddTransformer,
   onRemoveTransformer,
+  onParameterChange,
   onVisualize,
   isVisualizing = false,
   hasData = false,
@@ -177,6 +182,7 @@ export function PipelineManager({
                     isInPipeline={true}
                     onAddTransformer={onAddTransformer}
                     onRemoveTransformer={onRemoveTransformer}
+                    onParameterChange={onParameterChange}
                   />
                 );
               })
@@ -306,6 +312,7 @@ export function PipelineManager({
                     isInPipeline={false}
                     onAddTransformer={onAddTransformer}
                     onRemoveTransformer={onRemoveTransformer}
+                    onParameterChange={onParameterChange}
                   />
                 );
               })

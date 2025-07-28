@@ -31,6 +31,12 @@ function App(): React.ReactElement {
     'node-opacity',
     'edge-opacity',
   ]);
+  const [transformerParameters, setTransformerParameters] = useState<
+    Record<string, Record<string, unknown>>
+  >({});
+  const [lastRunParameters, setLastRunParameters] = useState<
+    Record<string, Record<string, unknown>>
+  >({});
   const [isVisualizing, setIsVisualizing] = useState(false);
   const [lastRunTransformerIds, setLastRunTransformerIds] = useState<string[]>(
     [],
@@ -124,6 +130,16 @@ function App(): React.ReactElement {
     );
   };
 
+  const handleParameterChange = (
+    transformerId: string,
+    parameters: Record<string, unknown>,
+  ) => {
+    setTransformerParameters((prev) => ({
+      ...prev,
+      [transformerId]: parameters,
+    }));
+  };
+
   const handleVisualize = async () => {
     if (!dualData) {
       setError('Data is required for visualization');
@@ -145,6 +161,7 @@ function App(): React.ReactElement {
       });
       setPipelineResult(result);
       setLastRunTransformerIds([...activeTransformerIds]);
+      setLastRunParameters({ ...transformerParameters });
     } catch (err) {
       console.error('Pipeline execution failed:', err);
       setError(
@@ -170,9 +187,27 @@ function App(): React.ReactElement {
       return true; // Different number of transformers
     }
     // Check if any transformer IDs are different
-    return !lastRunTransformerIds.every(
+    const transformersChanged = !lastRunTransformerIds.every(
       (id, index) => id === activeTransformerIds[index],
     );
+
+    // Check if any parameters have changed
+    const parametersChanged = activeTransformerIds.some((transformerId) => {
+      const currentParams = transformerParameters[transformerId];
+      const lastParams = lastRunParameters[transformerId];
+
+      const hasCurrentParams = transformerId in transformerParameters;
+      const hasLastParams = transformerId in lastRunParameters;
+
+      if (!hasCurrentParams && !hasLastParams) return false;
+      if (!hasCurrentParams || !hasLastParams) return true;
+
+      return !Object.keys(currentParams).every(
+        (key) => currentParams[key] === lastParams[key],
+      );
+    });
+
+    return transformersChanged || parametersChanged;
   };
 
   return (
@@ -226,6 +261,7 @@ function App(): React.ReactElement {
                   onTransformerSelect={handleTransformerSelect}
                   onAddTransformer={handleAddTransformer}
                   onRemoveTransformer={handleRemoveTransformer}
+                  onParameterChange={handleParameterChange}
                   onVisualize={() => {
                     void handleVisualize();
                   }}
