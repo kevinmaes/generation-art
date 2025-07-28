@@ -7,7 +7,11 @@ import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
 import type { PipelineResult } from './transformers/pipeline';
 import { runPipeline, createSimplePipeline } from './transformers/pipeline';
-import { transformers } from './transformers/transformers';
+import {
+  transformers,
+  HORIZONTAL_SPREAD,
+  type TransformerId,
+} from './transformers/transformers';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
 
@@ -17,7 +21,7 @@ interface DualGedcomData {
   llm: LLMReadyData;
 }
 
-const DEFAULT_TRANSFORMER_IDS = ['horizontal-spread-by-generation'];
+const DEFAULT_TRANSFORMER_IDS: TransformerId[] = [HORIZONTAL_SPREAD.ID];
 
 function App(): React.ReactElement {
   const [dualData, setDualData] = useState<DualGedcomData | null>(null);
@@ -29,9 +33,9 @@ function App(): React.ReactElement {
   const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(
     null,
   );
-  const [activeTransformerIds, setActiveTransformerIds] = useState<string[]>(
-    DEFAULT_TRANSFORMER_IDS,
-  );
+  const [activeTransformerIds, setActiveTransformerIds] = useState<
+    TransformerId[]
+  >(DEFAULT_TRANSFORMER_IDS);
   const [transformerParameters, setTransformerParameters] = useState<
     Record<
       string,
@@ -131,7 +135,7 @@ function App(): React.ReactElement {
     console.log('Selected transformer:', transformerId);
   };
 
-  const handleAddTransformer = (transformerId: string) => {
+  const handleAddTransformer = (transformerId: TransformerId) => {
     if (!activeTransformerIds.includes(transformerId)) {
       setActiveTransformerIds([...activeTransformerIds, transformerId]);
     }

@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import ReactJson from 'react-json-view';
 import type { PipelineResult } from '../../../transformers/types';
 import { createInitialCompleteVisualMetadata } from '../../../transformers/pipeline';
-import { transformers } from '../../../transformers/transformers';
+import {
+  transformers,
+  type TransformerId,
+  getTransformer,
+  getTransformerIds,
+  isTransformerId,
+} from '../../../transformers/transformers';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
@@ -17,13 +23,13 @@ interface DualGedcomData {
 
 interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;
-  activeTransformerIds: string[];
+  activeTransformerIds: TransformerId[];
   dualData?: DualGedcomData;
-  onTransformerSelect?: (transformerId: string) => void;
-  onAddTransformer?: (transformerId: string) => void;
-  onRemoveTransformer?: (transformerId: string) => void;
+  onTransformerSelect?: (transformerId: TransformerId) => void;
+  onAddTransformer?: (transformerId: TransformerId) => void;
+  onRemoveTransformer?: (transformerId: TransformerId) => void;
   onParameterChange?: (
-    transformerId: string,
+    transformerId: TransformerId,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
       visual: Record<string, unknown>;
@@ -95,9 +101,8 @@ export function PipelineManager({
   lastRunParameters,
 }: PipelineManagerProps): React.ReactElement {
   const [showDiff, setShowDiff] = React.useState(false);
-  const [selectedTransformerId, setSelectedTransformerId] = useState<
-    string | null
-  >(activeTransformerIds[0] ?? null);
+  const [selectedTransformerId, setSelectedTransformerId] =
+    useState<TransformerId | null>(activeTransformerIds[0] ?? null);
 
   // Store parameters for all transformers (persistent across pipeline changes)
   const [transformerParameters, setTransformerParameters] = React.useState<
@@ -118,8 +123,14 @@ export function PipelineManager({
       visual: Record<string, unknown>;
     },
   ) => {
+    // Use type guard to ensure valid transformer ID
+    if (!isTransformerId(transformerId)) {
+      console.warn(`Invalid transformer ID: ${transformerId}`);
+      return;
+    }
+
     // Ensure we have valid parameters with defaults
-    const transformer = transformers[transformerId];
+    const transformer = getTransformer(transformerId);
     const validParameters = {
       dimensions: {
         primary:
@@ -139,7 +150,12 @@ export function PipelineManager({
   };
 
   const handleParameterReset = (transformerId: string) => {
-    const transformer = transformers[transformerId];
+    if (!isTransformerId(transformerId)) {
+      console.warn(`Invalid transformer ID: ${transformerId}`);
+      return;
+    }
+
+    const transformer = getTransformer(transformerId);
     const defaultParameters = {
       dimensions: {
         primary: transformer.defaultPrimaryDimension,
@@ -159,14 +175,14 @@ export function PipelineManager({
     onVisualize?.();
   };
 
-  const handleTransformerSelect = (transformerId: string) => {
+  const handleTransformerSelect = (transformerId: TransformerId) => {
     setSelectedTransformerId(transformerId);
     onTransformerSelect?.(transformerId);
   };
 
   // Note: selectedTransformer is no longer used since we show complete pipeline data
 
-  const availableTransformerIds = Object.keys(transformers).filter(
+  const availableTransformerIds: TransformerId[] = getTransformerIds().filter(
     (id) => !activeTransformerIds.includes(id),
   );
 
@@ -243,7 +259,7 @@ export function PipelineManager({
               </p>
             ) : (
               activeTransformerIds.map((transformerId, index) => {
-                const transformer = transformers[transformerId];
+                const transformer = getTransformer(transformerId);
                 const isSelected = selectedTransformerId === transformerId;
 
                 return (

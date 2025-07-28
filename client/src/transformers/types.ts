@@ -12,6 +12,7 @@ import type {
   VisualParameterId,
   VisualParameterValues,
 } from './visual-parameters';
+import type { TransformerId } from './transformers';
 
 /**
  * Visual metadata represents the visual attributes of elements in the art
@@ -150,7 +151,7 @@ export type VisualTransformerFn = (
  */
 export interface VisualTransformerConfig {
   // Unique identifier for the transformer
-  id: string;
+  id: TransformerId;
 
   // Human-readable name
   name: string;
@@ -210,7 +211,7 @@ export interface VisualTransformerPipeline {
 export interface PipelineResult {
   visualMetadata: CompleteVisualMetadata;
   config: {
-    transformerIds: string[];
+    transformerIds: TransformerId[];
     temperature?: number;
     seed?: string;
     canvasWidth?: number;
@@ -218,7 +219,7 @@ export interface PipelineResult {
   };
   debug: {
     transformerResults: {
-      transformerId: string;
+      transformerId: TransformerId;
       transformerName: string;
       output: TransformerOutput;
       executionTime: number;

@@ -16,7 +16,7 @@ import type {
   PipelineResult,
 } from './types';
 import type { VisualParameterValues } from './visual-parameters';
-import { getTransformer } from './transformers';
+import { getTransformer, type TransformerId } from './transformers';
 import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
   DEFAULT_X,
@@ -46,7 +46,7 @@ import {
  */
 export interface PipelineConfig {
   // List of transformer IDs to execute in order
-  transformerIds: string[];
+  transformerIds: TransformerId[];
 
   // Randomness control (0.0 = deterministic, 1.0 = fully random)
   temperature?: number;
@@ -66,7 +66,7 @@ interface PipelineInput {
 }
 
 interface TransformerResult {
-  transformerId: string;
+  transformerId: TransformerId;
   transformerName: string;
   executionTime: number;
   success: boolean;
@@ -332,9 +332,6 @@ export async function runPipeline({
     try {
       // Get transformer from registry
       const transformer = getTransformer(transformerId);
-      if (!transformer) {
-        throw new Error(`Transformer not found: ${transformerId}`);
-      }
 
       // Create context for this transformer
       const context: TransformerContext = {
@@ -431,14 +428,6 @@ export function validatePipelineConfig(config: PipelineConfig): {
     errors.push('Canvas height must be positive');
   }
 
-  // Validate that all transformer IDs exist
-  for (const transformerId of config.transformerIds) {
-    const transformer = getTransformer(transformerId);
-    if (!transformer) {
-      errors.push(`Transformer not found: ${transformerId}`);
-    }
-  }
-
   return {
     isValid: errors.length === 0,
     errors,
@@ -449,7 +438,7 @@ export function validatePipelineConfig(config: PipelineConfig): {
  * Create a simple pipeline with default settings
  */
 export function createSimplePipeline(
-  transformerIds: string[],
+  transformerIds: TransformerId[],
   options?: {
     temperature?: number;
     seed?: string;

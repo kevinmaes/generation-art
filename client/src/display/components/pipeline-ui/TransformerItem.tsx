@@ -1,24 +1,25 @@
 import React from 'react';
 import type { VisualTransformerConfig } from '../../../transformers/types';
+import type { TransformerId } from '../../../transformers/transformers';
 import { DIMENSIONS } from '../../../transformers/dimensions';
 import { VISUAL_PARAMETERS } from '../../../transformers/visual-parameters';
 
 interface TransformerItemProps {
   transformer: VisualTransformerConfig;
   isSelected: boolean;
-  handleTransformerSelect: (transformerId: string) => void;
+  handleTransformerSelect: (transformerId: TransformerId) => void;
   index: number;
   isInPipeline: boolean;
-  onAddTransformer?: (transformerId: string) => void;
-  onRemoveTransformer?: (transformerId: string) => void;
+  onAddTransformer?: (transformerId: TransformerId) => void;
+  onRemoveTransformer?: (transformerId: TransformerId) => void;
   onParameterChange?: (
-    transformerId: string,
+    transformerId: TransformerId,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
       visual: Record<string, unknown>;
     },
   ) => void;
-  onParameterReset?: (transformerId: string) => void;
+  onParameterReset?: (transformerId: TransformerId) => void;
   currentParameters?: {
     dimensions: { primary?: string; secondary?: string };
     visual: Record<string, unknown>;

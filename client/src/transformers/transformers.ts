@@ -13,21 +13,44 @@ import { nodeOpacityTransform } from './node-opacity';
 import { edgeOpacityTransform } from './edge-opacity';
 import { verticalSpreadTransform } from './vertical-spread';
 import type { VisualTransformerFn } from './types';
-import {
-  generateTransformerId,
-  createRuntimeTransformerFunction,
-} from './utils';
+import { createRuntimeTransformerFunction } from './utils';
+
+// Transformer constants for type safety
+export const HORIZONTAL_SPREAD = {
+  ID: 'horizontal-spread',
+  NAME: 'Horizontal Spread',
+} as const;
+export const NODE_SIZE = { ID: 'node-size', NAME: 'Node Size' } as const;
+export const NODE_OPACITY = {
+  ID: 'node-opacity',
+  NAME: 'Node Opacity',
+} as const;
+export const EDGE_OPACITY = {
+  ID: 'edge-opacity',
+  NAME: 'Edge Opacity',
+} as const;
+export const VERTICAL_SPREAD = {
+  ID: 'vertical-spread',
+  NAME: 'Vertical Spread',
+} as const;
+
+export type TransformerId =
+  | typeof HORIZONTAL_SPREAD.ID
+  | typeof NODE_SIZE.ID
+  | typeof NODE_OPACITY.ID
+  | typeof EDGE_OPACITY.ID
+  | typeof VERTICAL_SPREAD.ID;
 
 /**
  * Registry of all available transformers
- * Keyed by transformer ID (slugified name)
+ * Keyed by transformer ID for type safety
  */
-export const transformers: Record<string, VisualTransformerConfig> = {
-  [generateTransformerId('Horizontal Spread by Generation')]: {
-    id: generateTransformerId('Horizontal Spread by Generation'),
-    name: 'Horizontal Spread by Generation',
+export const transformers: Record<TransformerId, VisualTransformerConfig> = {
+  [HORIZONTAL_SPREAD.ID]: {
+    id: HORIZONTAL_SPREAD.ID,
+    name: HORIZONTAL_SPREAD.NAME,
     description:
-      'Positions individuals horizontally based on their generation, creating a traditional family tree layout',
+      'Positions individuals horizontally based on selected dimensions, creating spread-out layouts',
     transform: horizontalSpreadByGenerationTransform as VisualTransformerFn,
     categories: ['layout', 'positioning'],
     availableDimensions: [
@@ -53,9 +76,9 @@ export const transformers: Record<string, VisualTransformerConfig> = {
         horizontalSpreadByGenerationTransform,
       ),
   },
-  [generateTransformerId('Node Size')]: {
-    id: generateTransformerId('Node Size'),
-    name: 'Node Size',
+  [NODE_SIZE.ID]: {
+    id: NODE_SIZE.ID,
+    name: NODE_SIZE.NAME,
     description:
       'Controls the size of nodes based on metadata like number of children, age at death, or importance metrics',
     transform: nodeSizeTransform as VisualTransformerFn,
@@ -72,9 +95,9 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeSizeTransform),
   },
-  [generateTransformerId('Node Opacity')]: {
-    id: generateTransformerId('Node Opacity'),
-    name: 'Node Opacity',
+  [NODE_OPACITY.ID]: {
+    id: NODE_OPACITY.ID,
+    name: NODE_OPACITY.NAME,
     description:
       'Adjusts node transparency based on generation depth, number of children, lifespan, and family importance',
     transform: nodeOpacityTransform as VisualTransformerFn,
@@ -91,9 +114,9 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeOpacityTransform),
   },
-  [generateTransformerId('Edge Opacity')]: {
-    id: generateTransformerId('Edge Opacity'),
-    name: 'Edge Opacity',
+  [EDGE_OPACITY.ID]: {
+    id: EDGE_OPACITY.ID,
+    name: EDGE_OPACITY.NAME,
     description:
       'Controls edge transparency based on relationship type, generation distance, family importance, and edge length',
     transform: edgeOpacityTransform as VisualTransformerFn,
@@ -110,9 +133,9 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, edgeOpacityTransform),
   },
-  [generateTransformerId('Vertical Spread')]: {
-    id: generateTransformerId('Vertical Spread'),
-    name: 'Vertical Spread',
+  [VERTICAL_SPREAD.ID]: {
+    id: VERTICAL_SPREAD.ID,
+    name: VERTICAL_SPREAD.NAME,
     description:
       'Adds vertical positioning to individuals within their generation, creating visual separation and avoiding straight lines',
     transform: verticalSpreadTransform as VisualTransformerFn,
@@ -133,12 +156,24 @@ export const transformers: Record<string, VisualTransformerConfig> = {
 };
 
 /**
+ * Type guard to check if a string is a valid TransformerId
+ */
+export function isTransformerId(id: string): id is TransformerId {
+  return id in transformers;
+}
+
+/**
  * Get a transformer by ID
  */
-export function getTransformer(
-  id: string,
-): VisualTransformerConfig | undefined {
+export function getTransformer(id: TransformerId): VisualTransformerConfig {
   return transformers[id];
+}
+
+/**
+ * Get all transformer IDs as a properly typed array
+ */
+export function getTransformerIds(): TransformerId[] {
+  return Object.keys(transformers).filter(isTransformerId);
 }
 
 /**

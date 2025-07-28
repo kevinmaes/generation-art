@@ -5,6 +5,7 @@ import {
   getAllTransformers,
   getTransformersByCategory,
   getAllCategories,
+  type TransformerId,
 } from './transformers';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { VisualParameterValues } from './visual-parameters';
@@ -16,21 +17,21 @@ describe('Transformers Registry', () => {
   });
 
   it('should have horizontal spread transformer', () => {
-    const transformer = transformers['horizontal-spread-by-generation'];
+    const transformer = transformers['horizontal-spread'];
     expect(transformer).toBeDefined();
-    expect(transformer.id).toBe('horizontal-spread-by-generation');
-    expect(transformer.name).toBe('Horizontal Spread by Generation');
+    expect(transformer.id).toBe('horizontal-spread');
+    expect(transformer.name).toBe('Horizontal Spread');
     expect(typeof transformer.transform).toBe('function');
   });
 
   it('should get transformer by ID', () => {
-    const transformer = getTransformer('horizontal-spread-by-generation');
+    const transformer = getTransformer('horizontal-spread');
     expect(transformer).toBeDefined();
-    expect(transformer?.id).toBe('horizontal-spread-by-generation');
+    expect(transformer.id).toBe('horizontal-spread');
   });
 
   it('should return undefined for non-existent transformer', () => {
-    const transformer = getTransformer('non-existent');
+    const transformer = getTransformer('non-existent' as TransformerId);
     expect(transformer).toBeUndefined();
   });
 
@@ -78,10 +79,8 @@ describe('Transformers Registry', () => {
 
 describe('Horizontal Spread Transformer', () => {
   it('should transform context with individuals', async () => {
-    const transformer = getTransformer('horizontal-spread-by-generation');
+    const transformer = getTransformer('horizontal-spread');
     expect(transformer).toBeDefined();
-
-    if (!transformer) return;
 
     const mockMetadata: GedcomDataWithMetadata = {
       individuals: {
@@ -279,10 +278,8 @@ describe('Horizontal Spread Transformer', () => {
   });
 
   it('should handle empty individuals array', async () => {
-    const transformer = getTransformer('horizontal-spread-by-generation');
+    const transformer = getTransformer('horizontal-spread');
     expect(transformer).toBeDefined();
-
-    if (!transformer) return;
 
     const mockMetadata: GedcomDataWithMetadata = {
       individuals: {},

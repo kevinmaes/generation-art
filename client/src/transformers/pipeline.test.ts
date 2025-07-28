@@ -5,6 +5,8 @@ import {
   validatePipelineConfig,
   createSimplePipeline,
   type PipelineConfig,
+} from './pipeline';
+import {
   // Import default constants for testing
   DEFAULT_X,
   DEFAULT_Y,
@@ -26,8 +28,13 @@ import {
   DEFAULT_LAYER,
   DEFAULT_PRIORITY,
   DEFAULT_CUSTOM,
-} from './pipeline';
+} from './constants';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
+import {
+  HORIZONTAL_SPREAD,
+  VERTICAL_SPREAD,
+  type TransformerId,
+} from './transformers';
 
 // Mock data for testing
 const mockMetadata: GedcomDataWithMetadata = {
@@ -249,7 +256,7 @@ describe('Pipeline', () => {
 
   describe('createSimplePipeline', () => {
     it('should create a pipeline with default settings', () => {
-      const transformerIds = ['horizontal-spread-by-generation'];
+      const transformerIds = [HORIZONTAL_SPREAD.ID];
       const pipeline = createSimplePipeline(transformerIds);
 
       expect(pipeline.transformerIds).toEqual(transformerIds);
@@ -260,7 +267,7 @@ describe('Pipeline', () => {
     });
 
     it('should create a pipeline with custom settings', () => {
-      const transformerIds = ['horizontal-spread-by-generation'];
+      const transformerIds = [HORIZONTAL_SPREAD.ID];
       const pipeline = createSimplePipeline(transformerIds, {
         temperature: 0.8,
         seed: 'test-seed',
@@ -279,7 +286,7 @@ describe('Pipeline', () => {
   describe('validatePipelineConfig', () => {
     it('should validate a correct pipeline config', () => {
       const config: PipelineConfig = {
-        transformerIds: ['horizontal-spread-by-generation'],
+        transformerIds: [HORIZONTAL_SPREAD.ID],
         temperature: 0.5,
         canvasWidth: 800,
         canvasHeight: 600,
@@ -305,7 +312,7 @@ describe('Pipeline', () => {
 
     it('should reject invalid temperature', () => {
       const config: PipelineConfig = {
-        transformerIds: ['horizontal-spread-by-generation'],
+        transformerIds: [HORIZONTAL_SPREAD.ID],
         temperature: 1.5, // Invalid: > 1
       };
 
@@ -316,7 +323,7 @@ describe('Pipeline', () => {
 
     it('should reject invalid canvas dimensions', () => {
       const config: PipelineConfig = {
-        transformerIds: ['horizontal-spread-by-generation'],
+        transformerIds: [HORIZONTAL_SPREAD.ID],
         canvasWidth: -100, // Invalid: negative
         canvasHeight: 0, // Invalid: zero
       };
@@ -329,7 +336,7 @@ describe('Pipeline', () => {
 
     it('should reject non-existent transformer', () => {
       const config: PipelineConfig = {
-        transformerIds: ['non-existent-transformer'],
+        transformerIds: ['non-existent-transformer' as TransformerId],
       };
 
       const result = validatePipelineConfig(config);
@@ -360,7 +367,7 @@ describe('Pipeline', () => {
   describe('runPipeline', () => {
     it('should run a single transformer successfully', async () => {
       const config: PipelineConfig = {
-        transformerIds: ['horizontal-spread-by-generation'],
+        transformerIds: [HORIZONTAL_SPREAD.ID],
         temperature: 0.5,
         canvasWidth: 800,
         canvasHeight: 600,
@@ -381,16 +388,13 @@ describe('Pipeline', () => {
       expect(result.debug.transformerResults).toHaveLength(1);
       expect(result.debug.transformerResults[0].success).toBe(true);
       expect(result.debug.transformerResults[0].transformerId).toBe(
-        'horizontal-spread-by-generation',
+        HORIZONTAL_SPREAD.ID,
       );
     });
 
     it('should run multiple transformers in sequence', async () => {
       const config: PipelineConfig = {
-        transformerIds: [
-          'horizontal-spread-by-generation',
-          'horizontal-spread-by-generation',
-        ],
+        transformerIds: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID],
         temperature: 0.5,
       };
 
@@ -418,7 +422,7 @@ describe('Pipeline', () => {
 
     it('should handle transformer failures gracefully', async () => {
       const config: PipelineConfig = {
-        transformerIds: ['non-existent-transformer'],
+        transformerIds: ['non-existent-transformer' as TransformerId],
       };
 
       const result = await runPipeline({
@@ -438,15 +442,15 @@ describe('Pipeline', () => {
         'Transformer not found',
       );
       expect(result.debug.transformerResults[0].transformerId).toBe(
-        'non-existent-transformer',
+        'non-existent-transformer' as TransformerId,
       );
     });
 
     it('should continue execution after transformer failure', async () => {
       const config: PipelineConfig = {
         transformerIds: [
-          'non-existent-transformer',
-          'horizontal-spread-by-generation',
+          'non-existent-transformer' as TransformerId,
+          HORIZONTAL_SPREAD.ID,
         ],
       };
 
@@ -468,7 +472,7 @@ describe('Pipeline', () => {
 
     it('should pass context to transformers correctly', async () => {
       const config: PipelineConfig = {
-        transformerIds: ['horizontal-spread-by-generation'],
+        transformerIds: [HORIZONTAL_SPREAD.ID],
         temperature: 0.7,
         seed: 'test-seed',
         canvasWidth: 1000,
