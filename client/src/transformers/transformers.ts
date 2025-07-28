@@ -13,7 +13,10 @@ import { nodeOpacityTransform } from './node-opacity';
 import { edgeOpacityTransform } from './edge-opacity';
 import { verticalSpreadTransform } from './vertical-spread';
 import type { VisualTransformerFn } from './types';
-import { generateTransformerId } from './utils';
+import {
+  generateTransformerId,
+  createRuntimeTransformerFunction,
+} from './utils';
 
 /**
  * Registry of all available transformers
@@ -40,13 +43,11 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'nodeSize',
       'primaryColor',
     ],
-    createRuntimeTransformerFunction: (_params) => {
-      return async (context) => {
-        // For now, just call the original transform function
-        // TODO: Implement parameter injection
-        return await horizontalSpreadByGenerationTransform(context);
-      };
-    },
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(
+        params,
+        horizontalSpreadByGenerationTransform,
+      ),
   },
   [generateTransformerId('Node Size')]: {
     id: generateTransformerId('Node Size'),
@@ -62,13 +63,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'marriageCount',
     ],
     visualParameters: ['nodeSize', 'variationFactor'],
-    createRuntimeTransformerFunction: (_params) => {
-      return async (context) => {
-        // For now, just call the original transform function
-        // TODO: Implement parameter injection
-        return await nodeSizeTransform(context);
-      };
-    },
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, nodeSizeTransform),
   },
   [generateTransformerId('Node Opacity')]: {
     id: generateTransformerId('Node Opacity'),
@@ -84,13 +80,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'distanceFromRoot',
     ],
     visualParameters: ['nodeOpacity', 'variationFactor'],
-    createRuntimeTransformerFunction: (_params) => {
-      return async (context) => {
-        // For now, just call the original transform function
-        // TODO: Implement parameter injection
-        return await nodeOpacityTransform(context);
-      };
-    },
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, nodeOpacityTransform),
   },
   [generateTransformerId('Edge Opacity')]: {
     id: generateTransformerId('Edge Opacity'),
@@ -106,13 +97,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'relationshipDensity',
     ],
     visualParameters: ['edgeOpacity', 'edgeWidth', 'secondaryColor'],
-    createRuntimeTransformerFunction: (_params) => {
-      return async (context) => {
-        // For now, just call the original transform function
-        // TODO: Implement parameter injection
-        return await edgeOpacityTransform(context);
-      };
-    },
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, edgeOpacityTransform),
   },
   [generateTransformerId('Vertical Spread')]: {
     id: generateTransformerId('Vertical Spread'),
@@ -129,13 +115,8 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'nameLength',
     ],
     visualParameters: ['verticalPadding', 'spacing', 'variationFactor'],
-    createRuntimeTransformerFunction: (_params) => {
-      return async (context) => {
-        // For now, just call the original transform function
-        // TODO: Implement parameter injection
-        return await verticalSpreadTransform(context);
-      };
-    },
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, verticalSpreadTransform),
   },
 };
 

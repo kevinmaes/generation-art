@@ -2,6 +2,12 @@
  * Transformer utilities
  */
 
+import type {
+  TransformerContext,
+  TransformerOutput,
+  VisualTransformerFn,
+} from './types';
+
 /**
  * Convert a transformer name to a slugified ID
  * e.g., "Horizontal Spread by Generation" -> "horizontal-spread-by-generation"
@@ -35,4 +41,33 @@ export function generateTransformerId(name: string): string {
   }
 
   return slug;
+}
+
+/**
+ * Creates a runtime transformer function that injects parameters into the context
+ * @param params - User-selected dimensions and visual parameters
+ * @param transformFn - The actual transformer function to execute
+ * @returns A runtime transformer function with enhanced context
+ */
+export function createRuntimeTransformerFunction(
+  params: {
+    dimensions: { primary?: string; secondary?: string[] };
+    visual: Record<string, unknown>;
+  },
+  transformFn: VisualTransformerFn,
+): VisualTransformerFn {
+  return async (context: TransformerContext): Promise<TransformerOutput> => {
+    // Merge parameters into the context
+    const enhancedContext = {
+      ...context,
+      dimensions: params.dimensions,
+      visual: params.visual,
+      temperature:
+        (params.visual.temperature as number | undefined) ??
+        context.temperature,
+    };
+
+    // Call the transformer function with enhanced context
+    return await transformFn(enhancedContext);
+  };
 }
