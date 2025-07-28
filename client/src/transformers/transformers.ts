@@ -12,6 +12,7 @@ import { nodeSizeTransform } from './node-size';
 import { nodeOpacityTransform } from './node-opacity';
 import { edgeOpacityTransform } from './edge-opacity';
 import { verticalSpreadTransform } from './vertical-spread';
+import type { VisualTransformerFn } from './types';
 import { generateTransformerId } from './utils';
 
 /**
@@ -24,25 +25,27 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Horizontal Spread by Generation',
     description:
       'Positions individuals horizontally based on their generation, creating a traditional family tree layout',
-    transform: horizontalSpreadByGenerationTransform,
+    transform: horizontalSpreadByGenerationTransform as VisualTransformerFn,
     categories: ['layout', 'positioning'],
-    parameters: {
-      spacing: {
-        type: 'number',
-        defaultValue: 1.0,
-        min: 0.1,
-        max: 3.0,
-        step: 0.1,
-        description: 'Spacing multiplier between generations',
-      },
-      nodeSize: {
-        type: 'number',
-        defaultValue: 20,
-        min: 5,
-        max: 100,
-        step: 5,
-        description: 'Default size for nodes',
-      },
+    availableDimensions: [
+      'generation',
+      'birthYear',
+      'childrenCount',
+      'lifespan',
+      'nameLength',
+    ],
+    visualParameters: [
+      'horizontalPadding',
+      'spacing',
+      'nodeSize',
+      'primaryColor',
+    ],
+    createRuntimeTransformerFunction: (_params) => {
+      return async (context) => {
+        // For now, just call the original transform function
+        // TODO: Implement parameter injection
+        return await horizontalSpreadByGenerationTransform(context);
+      };
     },
   },
   [generateTransformerId('Node Size')]: {
@@ -50,25 +53,21 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Node Size',
     description:
       'Controls the size of nodes based on metadata like number of children, age at death, or importance metrics',
-    transform: nodeSizeTransform,
+    transform: nodeSizeTransform as VisualTransformerFn,
     categories: ['visual', 'size'],
-    parameters: {
-      baseSize: {
-        type: 'number',
-        defaultValue: 20,
-        min: 5,
-        max: 100,
-        step: 5,
-        description: 'Base size for nodes',
-      },
-      sizeMultiplier: {
-        type: 'number',
-        defaultValue: 2,
-        min: 0.1,
-        max: 10,
-        step: 0.1,
-        description: 'Multiplier for size calculations',
-      },
+    availableDimensions: [
+      'childrenCount',
+      'lifespan',
+      'generation',
+      'marriageCount',
+    ],
+    visualParameters: ['nodeSize', 'variationFactor'],
+    createRuntimeTransformerFunction: (_params) => {
+      return async (context) => {
+        // For now, just call the original transform function
+        // TODO: Implement parameter injection
+        return await nodeSizeTransform(context);
+      };
     },
   },
   [generateTransformerId('Node Opacity')]: {
@@ -76,25 +75,21 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Node Opacity',
     description:
       'Adjusts node transparency based on generation depth, number of children, lifespan, and family importance',
-    transform: nodeOpacityTransform,
+    transform: nodeOpacityTransform as VisualTransformerFn,
     categories: ['visual', 'opacity'],
-    parameters: {
-      baseOpacity: {
-        type: 'number',
-        defaultValue: 0.8,
-        min: 0.1,
-        max: 1.0,
-        step: 0.05,
-        description: 'Base opacity for all nodes',
-      },
-      minOpacity: {
-        type: 'number',
-        defaultValue: 0.3,
-        min: 0.1,
-        max: 0.9,
-        step: 0.05,
-        description: 'Minimum opacity allowed',
-      },
+    availableDimensions: [
+      'generation',
+      'childrenCount',
+      'lifespan',
+      'distanceFromRoot',
+    ],
+    visualParameters: ['nodeOpacity', 'variationFactor'],
+    createRuntimeTransformerFunction: (_params) => {
+      return async (context) => {
+        // For now, just call the original transform function
+        // TODO: Implement parameter injection
+        return await nodeOpacityTransform(context);
+      };
     },
   },
   [generateTransformerId('Edge Opacity')]: {
@@ -102,25 +97,21 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Edge Opacity',
     description:
       'Controls edge transparency based on relationship type, generation distance, family importance, and edge length',
-    transform: edgeOpacityTransform as VisualTransformerConfig['transform'],
+    transform: edgeOpacityTransform as VisualTransformerFn,
     categories: ['visual', 'opacity'],
-    parameters: {
-      baseOpacity: {
-        type: 'number',
-        defaultValue: 0.7,
-        min: 0.1,
-        max: 1.0,
-        step: 0.05,
-        description: 'Base opacity for all edges',
-      },
-      minOpacity: {
-        type: 'number',
-        defaultValue: 0.2,
-        min: 0.1,
-        max: 0.9,
-        step: 0.05,
-        description: 'Minimum opacity allowed',
-      },
+    availableDimensions: [
+      'generation',
+      'childrenCount',
+      'lifespan',
+      'relationshipDensity',
+    ],
+    visualParameters: ['edgeOpacity', 'edgeWidth', 'secondaryColor'],
+    createRuntimeTransformerFunction: (_params) => {
+      return async (context) => {
+        // For now, just call the original transform function
+        // TODO: Implement parameter injection
+        return await edgeOpacityTransform(context);
+      };
     },
   },
   [generateTransformerId('Vertical Spread')]: {
@@ -128,25 +119,22 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     name: 'Vertical Spread',
     description:
       'Adds vertical positioning to individuals within their generation, creating visual separation and avoiding straight lines',
-    transform: verticalSpreadTransform as VisualTransformerConfig['transform'],
+    transform: verticalSpreadTransform as VisualTransformerFn,
     categories: ['layout', 'positioning'],
-    parameters: {
-      verticalPadding: {
-        type: 'number',
-        defaultValue: 50,
-        min: 10,
-        max: 200,
-        step: 10,
-        description: 'Padding from top and bottom of canvas',
-      },
-      variationFactor: {
-        type: 'number',
-        defaultValue: 0.1,
-        min: 0.0,
-        max: 0.5,
-        step: 0.01,
-        description: 'Amount of random variation to apply',
-      },
+    availableDimensions: [
+      'birthYear',
+      'childrenCount',
+      'lifespan',
+      'generation',
+      'nameLength',
+    ],
+    visualParameters: ['verticalPadding', 'spacing', 'variationFactor'],
+    createRuntimeTransformerFunction: (_params) => {
+      return async (context) => {
+        // For now, just call the original transform function
+        // TODO: Implement parameter injection
+        return await verticalSpreadTransform(context);
+      };
     },
   },
 };

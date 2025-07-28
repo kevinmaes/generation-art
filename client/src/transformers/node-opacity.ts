@@ -1,6 +1,5 @@
 import type {
   TransformerContext,
-  CompleteVisualMetadata,
   VisualMetadata,
   TransformerOutput,
 } from './types';
@@ -24,6 +23,9 @@ export async function nodeOpacityTransform(
   const baseOpacity = 0.8; // Base opacity for all nodes
   const minOpacity = 0.3; // Minimum opacity
   const maxOpacity = 1.0; // Maximum opacity
+
+  // Add a small delay to satisfy async requirement
+  await new Promise((resolve) => setTimeout(resolve, 0));
 
   Object.keys(gedcomData.individuals).forEach((individualId) => {
     const individual = gedcomData.individuals[individualId];

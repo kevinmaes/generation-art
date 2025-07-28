@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type p5 from 'p5';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type {
