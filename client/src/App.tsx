@@ -32,6 +32,9 @@ function App(): React.ReactElement {
     'edge-opacity',
   ]);
   const [isVisualizing, setIsVisualizing] = useState(false);
+  const [lastRunTransformerIds, setLastRunTransformerIds] = useState<string[]>(
+    [],
+  );
   const [currentDataset, setCurrentDataset] = useState<string>('kennedy');
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
@@ -87,6 +90,7 @@ function App(): React.ReactElement {
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
+      setLastRunTransformerIds([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load file');
     } finally {
@@ -98,6 +102,8 @@ function App(): React.ReactElement {
     setCurrentDataset('kennedy');
     setCurrentView('artwork');
     setError(null);
+    setPipelineResult(null);
+    setLastRunTransformerIds([]);
     // The hook will automatically load the data
   };
 
@@ -138,6 +144,7 @@ function App(): React.ReactElement {
         config: pipelineConfig,
       });
       setPipelineResult(result);
+      setLastRunTransformerIds([...activeTransformerIds]);
     } catch (err) {
       console.error('Pipeline execution failed:', err);
       setError(
@@ -152,6 +159,20 @@ function App(): React.ReactElement {
     setPipelineResult(result);
     // Don't update activeTransformerIds from pipeline results
     // The user's current transformer selection should be preserved
+  };
+
+  // Check if pipeline has been modified since last run
+  const isPipelineModified = () => {
+    if (lastRunTransformerIds.length === 0) {
+      return true; // Never run, so consider it modified
+    }
+    if (lastRunTransformerIds.length !== activeTransformerIds.length) {
+      return true; // Different number of transformers
+    }
+    // Check if any transformer IDs are different
+    return !lastRunTransformerIds.every(
+      (id, index) => id === activeTransformerIds[index],
+    );
   };
 
   return (
@@ -210,6 +231,7 @@ function App(): React.ReactElement {
                   }}
                   isVisualizing={isVisualizing}
                   hasData={!!dualData}
+                  isPipelineModified={isPipelineModified()}
                 />
               </div>
             </>

@@ -24,6 +24,7 @@ interface PipelineManagerProps {
   onVisualize?: () => void;
   isVisualizing?: boolean;
   hasData?: boolean;
+  isPipelineModified?: boolean;
 }
 
 // Utility function to calculate diff between two visual metadata objects
@@ -84,6 +85,7 @@ export function PipelineManager({
   onVisualize,
   isVisualizing = false,
   hasData = false,
+  isPipelineModified = true,
 }: PipelineManagerProps): React.ReactElement {
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] = useState<
@@ -122,7 +124,10 @@ export function PipelineManager({
       : null;
 
   const isVisualizeEnabled =
-    hasData && activeTransformerIds.length > 0 && !isVisualizing;
+    hasData &&
+    activeTransformerIds.length > 0 &&
+    !isVisualizing &&
+    isPipelineModified;
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -132,9 +137,11 @@ export function PipelineManager({
           onClick={onVisualize}
           disabled={!isVisualizeEnabled}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            isVisualizeEnabled
-              ? 'bg-blue-500 text-white hover:bg-blue-600'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            isVisualizing
+              ? 'bg-blue-500 text-white'
+              : isVisualizeEnabled
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
         >
           {isVisualizing ? (
