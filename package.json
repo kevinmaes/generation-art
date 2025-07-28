@@ -28,10 +28,12 @@
     "task:output": "tsx src/tasks/outputJson.ts"
   },
   "dependencies": {
+    "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.15.29",
     "@types/p5": "^1.7.6",
     "gedcom-ts": "^1.1.1",
     "leva": "^0.10.0",
+    "lodash-es": "^4.17.21",
     "p5": "^2.0.3",
     "prettier": "^3.5.3",
     "react": "^19.1.0",
