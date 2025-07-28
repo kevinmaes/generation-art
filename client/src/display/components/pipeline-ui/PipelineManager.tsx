@@ -168,9 +168,12 @@ export function PipelineManager({
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-gray-700">
               Pipeline Input
-              {pipelineInput && (
+              {pipelineInput && activeTransformerIds.length > 0 && (
                 <span className="text-xs text-gray-500 ml-2">
-                  (Full data going into first transformer)
+                  (Data going into "
+                  {transformers[activeTransformerIds[0]]?.name ||
+                    activeTransformerIds[0]}
+                  ")
                 </span>
               )}
             </h4>
@@ -286,9 +289,14 @@ export function PipelineManager({
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-gray-700">
               Pipeline Output
-              {pipelineResult && (
+              {pipelineResult && activeTransformerIds.length > 0 && (
                 <span className="text-xs text-gray-500 ml-2">
-                  (Complete result from last transformer)
+                  (Result from "
+                  {transformers[
+                    activeTransformerIds[activeTransformerIds.length - 1]
+                  ]?.name ||
+                    activeTransformerIds[activeTransformerIds.length - 1]}
+                  ")
                 </span>
               )}
             </h4>
