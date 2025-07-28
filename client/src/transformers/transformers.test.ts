@@ -7,6 +7,7 @@ import {
   getAllCategories,
 } from './transformers';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { VisualParameterValues } from './visual-parameters';
 
 describe('Transformers Registry', () => {
   it('should export transformers object', () => {
@@ -250,9 +251,15 @@ describe('Horizontal Spread Transformer', () => {
           defaultNodeShape: 'circle' as const,
         },
       },
+      dimensions: { primary: 'generation' },
+      visual: {} as VisualParameterValues,
     };
 
-    const result = await transformer.transform(context);
+    const runtimeTransformer = transformer.createRuntimeTransformerFunction({
+      dimensions: { primary: 'generation' },
+      visual: {},
+    });
+    const result = await runtimeTransformer(context);
 
     expect(result.visualMetadata).toBeDefined();
     expect(result.visualMetadata.individuals).toBeDefined();
@@ -426,9 +433,15 @@ describe('Horizontal Spread Transformer', () => {
         tree: {},
         global: {},
       },
+      dimensions: { primary: 'generation' },
+      visual: {} as VisualParameterValues,
     };
 
-    const result = await transformer.transform(context);
+    const runtimeTransformer = transformer.createRuntimeTransformerFunction({
+      dimensions: { primary: 'generation' },
+      visual: {},
+    });
+    const result = await runtimeTransformer(context);
 
     expect(result.visualMetadata).toEqual({});
   });

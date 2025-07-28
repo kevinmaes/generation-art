@@ -15,6 +15,7 @@ import type {
   TransformerContext,
   PipelineResult,
 } from './types';
+import type { VisualParameterValues } from './visual-parameters';
 import { getTransformer } from './transformers';
 import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 
@@ -360,10 +361,16 @@ export async function runPipeline({
         seed: config.seed,
         canvasWidth: config.canvasWidth,
         canvasHeight: config.canvasHeight,
+        dimensions: { primary: 'generation' },
+        visual: {} as VisualParameterValues, // Will be overridden by factory function
       };
 
-      // Execute transformer
-      const result = await transformer.transform(context);
+      // Execute transformer using factory function to inject parameters
+      const runtimeTransformer = transformer.createRuntimeTransformerFunction({
+        dimensions: { primary: 'generation' },
+        visual: {},
+      });
+      const result = await runtimeTransformer(context);
 
       // Update visual metadata with transformer output using deep merge
       visualMetadata = mergeVisualMetadata(

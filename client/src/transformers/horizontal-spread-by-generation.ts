@@ -26,7 +26,7 @@ function calculateHorizontalPosition(
   const individual = gedcomData.individuals[individualId];
 
   // Get the primary dimension value
-  const primaryDimension = dimensions?.primary ?? 'generation';
+  const primaryDimension = dimensions.primary;
   let dimensionValue = 0.5; // Default fallback
 
   switch (primaryDimension) {
@@ -86,13 +86,8 @@ function calculateHorizontalPosition(
     }
   }
 
-  // Get visual parameters
-  const horizontalPadding =
-    typeof visual?.horizontalPadding === 'number'
-      ? visual.horizontalPadding
-      : 50;
-  const spacing =
-    typeof visual?.spacing === 'string' ? visual.spacing : 'normal';
+  // Get visual parameters directly from context
+  const { horizontalPadding, spacing } = visual;
   const temp = temperature ?? 0.5;
 
   // Calculate spacing multiplier based on spacing setting
@@ -107,8 +102,8 @@ function calculateHorizontalPosition(
     spacingMultipliers[spacing as keyof typeof spacingMultipliers] || 1.0;
 
   // Calculate available width
-  const availableWidth = canvasWidth - horizontalPadding * 2;
-  const generationStart = horizontalPadding;
+  const availableWidth = canvasWidth - (horizontalPadding as number) * 2;
+  const generationStart = horizontalPadding as number;
 
   // Add temperature-based randomness
   const randomFactor = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
@@ -187,15 +182,8 @@ export async function horizontalSpreadByGenerationTransform(
     const x = calculateHorizontalPosition(context, individual.id);
     const y = calculateVerticalPosition(context, individual.id);
 
-    // Get visual parameters
-    const nodeSize =
-      typeof context.visual?.nodeSize === 'string'
-        ? context.visual.nodeSize
-        : 'medium';
-    const primaryColor =
-      typeof context.visual?.primaryColor === 'string'
-        ? context.visual.primaryColor
-        : '#3b82f6';
+    // Get visual parameters directly from context
+    const { nodeSize, primaryColor } = context.visual;
 
     // Convert node size string to actual size
     const sizeMap = {
@@ -211,7 +199,7 @@ export async function horizontalSpreadByGenerationTransform(
       x,
       y,
       size,
-      color: primaryColor,
+      color: String(primaryColor),
       shape: visualMetadata.global.defaultNodeShape ?? 'circle',
     };
   });

@@ -112,13 +112,13 @@ export interface TransformerContext {
   canvasHeight?: number;
 
   // User-selected dimensions (injected by createRuntimeTransformerFunction)
-  dimensions?: {
-    primary?: string;
+  dimensions: {
+    primary: string;
     secondary?: string;
   };
 
   // User-selected visual parameters (injected by createRuntimeTransformerFunction)
-  visual?: Partial<VisualParameterValues>;
+  visual: VisualParameterValues;
 }
 
 /**

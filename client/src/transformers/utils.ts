@@ -8,6 +8,7 @@ import type {
   VisualTransformerFn,
 } from './types';
 import type { VisualParameterValues } from './visual-parameters';
+import { VISUAL_PARAMETERS } from './visual-parameters';
 
 /**
  * Convert a transformer name to a slugified ID
@@ -45,6 +46,18 @@ export function generateTransformerId(name: string): string {
 }
 
 /**
+ * Get all default visual parameter values
+ */
+function getDefaultVisualParams(): VisualParameterValues {
+  return Object.fromEntries(
+    Object.entries(VISUAL_PARAMETERS).map(([key, config]) => [
+      key,
+      config.defaultValue,
+    ]),
+  ) as VisualParameterValues;
+}
+
+/**
  * Creates a runtime transformer function that injects parameters into the context
  * @param params - User-selected dimensions and visual parameters
  * @param transformFn - The actual transformer function to execute
@@ -58,14 +71,22 @@ export function createRuntimeTransformerFunction(
   transformFn: VisualTransformerFn,
 ): VisualTransformerFn {
   return async (context: TransformerContext): Promise<TransformerOutput> => {
-    // Merge parameters into the context
+    // Get all default values
+    const defaultVisualParams = getDefaultVisualParams();
+
+    // Merge parameters into the context with full defaults
     const enhancedContext = {
       ...context,
-      dimensions: params.dimensions,
-      visual: params.visual,
+      dimensions: {
+        primary: params.dimensions.primary ?? 'generation',
+        secondary: params.dimensions.secondary,
+      },
+      visual: {
+        ...defaultVisualParams,
+        ...params.visual,
+      } as VisualParameterValues,
       temperature:
-        (params.visual.temperature as number | undefined) ??
-        context.temperature,
+        (Number(params.visual.temperature) || context.temperature) ?? 0.5,
     };
 
     // Call the transformer function with enhanced context
