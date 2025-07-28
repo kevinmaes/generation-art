@@ -17,6 +17,8 @@ interface DualGedcomData {
   llm: LLMReadyData;
 }
 
+const DEFAULT_TRANSFORMER_IDS = ['horizontal-spread-by-generation'];
+
 function App(): React.ReactElement {
   const [dualData, setDualData] = useState<DualGedcomData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,12 +29,9 @@ function App(): React.ReactElement {
   const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(
     null,
   );
-  const [activeTransformerIds, setActiveTransformerIds] = useState<string[]>([
-    'horizontal-spread-by-generation',
-    'vertical-spread',
-    'node-opacity',
-    'edge-opacity',
-  ]);
+  const [activeTransformerIds, setActiveTransformerIds] = useState<string[]>(
+    DEFAULT_TRANSFORMER_IDS,
+  );
   const [transformerParameters, setTransformerParameters] = useState<
     Record<
       string,
