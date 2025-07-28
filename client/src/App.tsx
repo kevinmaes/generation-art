@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
 import { PipelineManager } from './display/components/pipeline-ui/PipelineManager';
+import { ErrorBoundary } from './display/components/ErrorBoundary';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
@@ -32,10 +33,22 @@ function App(): React.ReactElement {
     'edge-opacity',
   ]);
   const [transformerParameters, setTransformerParameters] = useState<
-    Record<string, Record<string, unknown>>
+    Record<
+      string,
+      {
+        dimensions: { primary?: string; secondary?: string };
+        visual: Record<string, unknown>;
+      }
+    >
   >({});
   const [lastRunParameters, setLastRunParameters] = useState<
-    Record<string, Record<string, unknown>>
+    Record<
+      string,
+      {
+        dimensions: { primary?: string; secondary?: string };
+        visual: Record<string, unknown>;
+      }
+    >
   >({});
   const [isVisualizing, setIsVisualizing] = useState(false);
   const [lastRunTransformerIds, setLastRunTransformerIds] = useState<string[]>(
@@ -132,7 +145,10 @@ function App(): React.ReactElement {
 
   const handleParameterChange = (
     transformerId: string,
-    parameters: Record<string, unknown>,
+    parameters: {
+      dimensions: { primary?: string; secondary?: string };
+      visual: Record<string, unknown>;
+    },
   ) => {
     setTransformerParameters((prev) => ({
       ...prev,
@@ -202,8 +218,26 @@ function App(): React.ReactElement {
       if (!hasCurrentParams && !hasLastParams) return false;
       if (!hasCurrentParams || !hasLastParams) return true;
 
-      return !Object.keys(currentParams).every(
-        (key) => currentParams[key] === lastParams[key],
+      // Ensure both params exist before comparing
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!currentParams || !lastParams) return true;
+
+      // Check dimensions
+      if (
+        currentParams.dimensions.primary !== lastParams.dimensions.primary ||
+        currentParams.dimensions.secondary !== lastParams.dimensions.secondary
+      ) {
+        return true;
+      }
+
+      // Check visual parameters
+      const currentVisualKeys = Object.keys(currentParams.visual);
+      const lastVisualKeys = Object.keys(lastParams.visual);
+
+      if (currentVisualKeys.length !== lastVisualKeys.length) return true;
+
+      return currentVisualKeys.some(
+        (key) => currentParams.visual[key] !== lastParams.visual[key],
       );
     });
 
@@ -254,21 +288,23 @@ function App(): React.ReactElement {
                 onPipelineResult={handlePipelineResult}
               />
               <div className="mb-8">
-                <PipelineManager
-                  pipelineResult={pipelineResult}
-                  activeTransformerIds={activeTransformerIds}
-                  dualData={dualData}
-                  onTransformerSelect={handleTransformerSelect}
-                  onAddTransformer={handleAddTransformer}
-                  onRemoveTransformer={handleRemoveTransformer}
-                  onParameterChange={handleParameterChange}
-                  onVisualize={() => {
-                    void handleVisualize();
-                  }}
-                  isVisualizing={isVisualizing}
-                  hasData={!!dualData}
-                  isPipelineModified={isPipelineModified()}
-                />
+                <ErrorBoundary>
+                  <PipelineManager
+                    pipelineResult={pipelineResult}
+                    activeTransformerIds={activeTransformerIds}
+                    dualData={dualData}
+                    onTransformerSelect={handleTransformerSelect}
+                    onAddTransformer={handleAddTransformer}
+                    onRemoveTransformer={handleRemoveTransformer}
+                    onParameterChange={handleParameterChange}
+                    onVisualize={() => {
+                      void handleVisualize();
+                    }}
+                    isVisualizing={isVisualizing}
+                    hasData={!!dualData}
+                    isPipelineModified={isPipelineModified()}
+                  />
+                </ErrorBoundary>
               </div>
             </>
           ) : (

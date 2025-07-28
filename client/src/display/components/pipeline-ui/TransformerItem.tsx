@@ -11,25 +11,19 @@ interface TransformerItemProps {
   isInPipeline: boolean;
   onAddTransformer?: (transformerId: string) => void;
   onRemoveTransformer?: (transformerId: string) => void;
-  onParameterChange?: (
-    transformerId: string,
-    parameters: {
-      dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, unknown>;
-    },
-  ) => void;
+  // NEW: Track local changes instead of immediate pipeline updates
+  onLocalParameterChange?: (transformerId: string, hasChanges: boolean) => void;
   onParameterReset?: (transformerId: string) => void;
   currentParameters?: {
     dimensions: { primary?: string; secondary?: string };
     visual: Record<string, unknown>;
   };
+  // NEW: Disable controls during visualization
+  isVisualizing?: boolean;
+  // NEW: Counter to signal when visualization starts (used to reset local changes)
+  visualizationCount?: number;
 }
 
-/**
- * A component that displays a transformer item in the pipeline.
- * @param param0 - The props for the transformer item.
- * @returns A React component that displays a transformer item in the pipeline.
- */
 export function TransformerItem({
   transformer,
   isSelected,
@@ -38,15 +32,17 @@ export function TransformerItem({
   isInPipeline,
   onAddTransformer,
   onRemoveTransformer,
-  onParameterChange,
+  onLocalParameterChange,
   onParameterReset,
   currentParameters,
+  isVisualizing = false,
+  visualizationCount = 0,
 }: TransformerItemProps) {
+  // Local parameter state
   const [parameters, setParameters] = React.useState<{
     dimensions: { primary?: string; secondary?: string };
     visual: Record<string, unknown>;
   }>(() => {
-    // Use current parameters if available, otherwise use defaults
     if (currentParameters) {
       return currentParameters;
     }
@@ -59,31 +55,33 @@ export function TransformerItem({
     };
   });
 
-  // Update local state when currentParameters change
+  // Track if parameters have been modified locally
+  const [hasLocalChanges, setHasLocalChanges] = React.useState(false);
+
+  // Separate state for slider values during dragging
+  const [sliderValues, setSliderValues] = React.useState<
+    Record<string, unknown>
+  >({});
+
+  // Update local state when currentParameters change (from parent)
   React.useEffect(() => {
     if (currentParameters) {
       setParameters(currentParameters);
+      setHasLocalChanges(false); // Reset change tracking when parent updates
     }
   }, [currentParameters]);
 
-  // Notify parent of parameter changes
-  const prevParametersRef = React.useRef(parameters);
-
+  // Reset local changes when visualization starts
   React.useEffect(() => {
-    if (onParameterChange) {
-      const prevParams = prevParametersRef.current;
-      const hasChanged =
-        prevParams.dimensions.primary !== parameters.dimensions.primary ||
-        prevParams.dimensions.secondary !== parameters.dimensions.secondary ||
-        JSON.stringify(prevParams.visual) !== JSON.stringify(parameters.visual);
+    setHasLocalChanges(false);
+  }, [visualizationCount]);
 
-      if (hasChanged) {
-        prevParametersRef.current = { ...parameters };
-        onParameterChange(transformer.id, parameters);
-      }
-    }
-  }, [parameters, transformer.id, onParameterChange]);
+  // Notify parent of local changes
+  React.useEffect(() => {
+    onLocalParameterChange?.(transformer.id, hasLocalChanges);
+  }, [hasLocalChanges, transformer.id]);
 
+  // Handle dimension changes
   const handleDimensionChange = (
     type: 'primary' | 'secondary',
     value: string | undefined,
@@ -95,8 +93,10 @@ export function TransformerItem({
         [type]: value,
       },
     }));
+    setHasLocalChanges(true);
   };
 
+  // Handle visual parameter changes (non-sliders)
   const handleVisualParameterChange = (key: string, value: unknown) => {
     setParameters((prev) => ({
       ...prev,
@@ -105,7 +105,51 @@ export function TransformerItem({
         [key]: value,
       },
     }));
+    setHasLocalChanges(true);
   };
+
+  // Handle slider input during dragging
+  const handleSliderInput = (key: string, value: unknown) => {
+    setSliderValues((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // Handle slider change completion
+  const handleSliderChangeComplete = (key: string, value: unknown) => {
+    setParameters((prev) => ({
+      ...prev,
+      visual: {
+        ...prev.visual,
+        [key]: value,
+      },
+    }));
+    setSliderValues((prev) => {
+      const { [key]: _, ...newValues } = prev; // Clear the slider value
+      return newValues;
+    });
+    setHasLocalChanges(true);
+  };
+
+  // Handle parameter reset
+  const handleParameterReset = () => {
+    const defaultParameters = {
+      dimensions: {
+        primary: transformer.defaultPrimaryDimension,
+        secondary: transformer.defaultSecondaryDimension,
+      },
+      visual: {},
+    };
+    setParameters(defaultParameters);
+    setSliderValues({});
+    setHasLocalChanges(false);
+    onParameterReset?.(transformer.id);
+  };
+
+  // Disable controls during visualization
+  const isDisabled = isVisualizing;
+
   return (
     <div
       key={transformer.id}
@@ -113,9 +157,11 @@ export function TransformerItem({
         isSelected
           ? 'bg-purple-100 border-purple-300'
           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-      }`}
+      } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
       onClick={() => {
-        handleTransformerSelect(transformer.id);
+        if (!isDisabled) {
+          handleTransformerSelect(transformer.id);
+        }
       }}
     >
       <div className="flex items-center w-full">
@@ -128,14 +174,22 @@ export function TransformerItem({
           <span className="font-medium text-sm">
             {transformer.name || transformer.id}
           </span>
+          {hasLocalChanges && (
+            <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">
+              Modified
+            </span>
+          )}
         </div>
         {isInPipeline ? (
           <button
             className="text-gray-400 hover:text-red-500 text-sm flex-shrink-0"
             onClick={(e) => {
               e.stopPropagation();
-              onRemoveTransformer?.(transformer.id);
+              if (!isDisabled) {
+                onRemoveTransformer?.(transformer.id);
+              }
             }}
+            disabled={isDisabled}
           >
             ×
           </button>
@@ -144,8 +198,11 @@ export function TransformerItem({
             className="text-gray-400 hover:text-green-500 text-sm flex-shrink-0"
             onClick={(e) => {
               e.stopPropagation();
-              onAddTransformer?.(transformer.id);
+              if (!isDisabled) {
+                onAddTransformer?.(transformer.id);
+              }
             }}
+            disabled={isDisabled}
           >
             +
           </button>
@@ -184,18 +241,17 @@ export function TransformerItem({
                   {transformer.availableDimensions.length} dimensions,{' '}
                   {transformer.visualParameters.length} visual params
                 </span>
-                {onParameterReset && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onParameterReset(transformer.id);
-                    }}
-                    className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300 transition-colors"
-                    title="Reset to defaults"
-                  >
-                    Reset
-                  </button>
-                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleParameterReset();
+                  }}
+                  className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300 transition-colors"
+                  title="Reset to defaults"
+                  disabled={isDisabled}
+                >
+                  Reset
+                </button>
               </div>
             </summary>
 
@@ -224,6 +280,7 @@ export function TransformerItem({
                             handleDimensionChange('primary', e.target.value);
                           }}
                           className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                          disabled={isDisabled}
                         >
                           {transformer.availableDimensions.map((dimId) => (
                             <option key={dimId} value={dimId}>
@@ -247,6 +304,7 @@ export function TransformerItem({
                             );
                           }}
                           className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                          disabled={isDisabled}
                         >
                           <option value="">No secondary dimension</option>
                           {transformer.availableDimensions
@@ -273,17 +331,26 @@ export function TransformerItem({
                           max={1}
                           step={0.1}
                           value={
-                            (parameters.visual.temperature as number) ||
-                            (VISUAL_PARAMETERS.temperature
-                              .defaultValue as number)
+                            sliderValues.temperature !== undefined
+                              ? (sliderValues.temperature as number)
+                              : (parameters.visual.temperature as number) ||
+                                (VISUAL_PARAMETERS.temperature
+                                  .defaultValue as number)
                           }
+                          onInput={(e) => {
+                            handleSliderInput(
+                              'temperature',
+                              Number((e.target as HTMLInputElement).value),
+                            );
+                          }}
                           onChange={(e) => {
-                            handleVisualParameterChange(
+                            handleSliderChangeComplete(
                               'temperature',
                               Number(e.target.value),
                             );
                           }}
                           className="w-full"
+                          disabled={isDisabled}
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
                           <span>0</span>
@@ -333,18 +400,33 @@ export function TransformerItem({
                                             max={param.max}
                                             step={param.step}
                                             value={
-                                              (parameters.visual[
-                                                paramId
-                                              ] as number) ||
-                                              (param.defaultValue as number)
+                                              sliderValues[paramId] !==
+                                              undefined
+                                                ? (sliderValues[
+                                                    paramId
+                                                  ] as number)
+                                                : (parameters.visual[
+                                                    paramId
+                                                  ] as number) ||
+                                                  (param.defaultValue as number)
                                             }
+                                            onInput={(e) => {
+                                              handleSliderInput(
+                                                paramId,
+                                                Number(
+                                                  (e.target as HTMLInputElement)
+                                                    .value,
+                                                ),
+                                              );
+                                            }}
                                             onChange={(e) => {
-                                              handleVisualParameterChange(
+                                              handleSliderChangeComplete(
                                                 paramId,
                                                 Number(e.target.value),
                                               );
                                             }}
                                             className="w-full"
+                                            disabled={isDisabled}
                                           />
                                           <div className="flex justify-between text-xs text-gray-500 mt-1">
                                             <span>{param.min}</span>
@@ -367,6 +449,7 @@ export function TransformerItem({
                                             );
                                           }}
                                           className="w-full h-8 border border-gray-300 rounded"
+                                          disabled={isDisabled}
                                         />
                                       ) : null}
                                     </div>
@@ -417,6 +500,7 @@ export function TransformerItem({
                                             );
                                           }}
                                           className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                                          disabled={isDisabled}
                                         >
                                           {param.options.map((option) => (
                                             <option
@@ -446,6 +530,7 @@ export function TransformerItem({
                                             );
                                           }}
                                           className="w-full text-xs border border-gray-300 rounded px-2 py-1"
+                                          disabled={isDisabled}
                                         />
                                       ) : param.type === 'boolean' ? (
                                         <input
@@ -463,6 +548,7 @@ export function TransformerItem({
                                             );
                                           }}
                                           className="text-xs"
+                                          disabled={isDisabled}
                                         />
                                       ) : null}
                                     </div>

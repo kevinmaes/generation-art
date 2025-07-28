@@ -24,7 +24,10 @@ interface PipelineManagerProps {
   onRemoveTransformer?: (transformerId: string) => void;
   onParameterChange?: (
     transformerId: string,
-    parameters: Record<string, unknown>,
+    parameters: {
+      dimensions: { primary?: string; secondary?: string };
+      visual: Record<string, unknown>;
+    },
   ) => void;
   onVisualize?: () => void;
   isVisualizing?: boolean;
@@ -99,6 +102,30 @@ export function PipelineManager({
     >
   >({});
 
+  // Track which transformers have local changes (not yet applied to pipeline)
+  const [transformersWithLocalChanges, setTransformersWithLocalChanges] =
+    React.useState<Set<string>>(new Set());
+
+  // Counter to signal when visualization starts (used to reset local changes in TransformerItems)
+  const [visualizationCount, setVisualizationCount] = React.useState(0);
+
+  // Handle local parameter changes (track changes but don't update pipeline yet)
+  const handleLocalParameterChange = (
+    transformerId: string,
+    hasChanges: boolean,
+  ) => {
+    setTransformersWithLocalChanges((prev) => {
+      const newSet = new Set(prev);
+      if (hasChanges) {
+        newSet.add(transformerId);
+      } else {
+        newSet.delete(transformerId);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle parameter changes (when actually applied to pipeline)
   const handleParameterChange = (
     transformerId: string,
     parameters: {
@@ -126,7 +153,32 @@ export function PipelineManager({
       ...prev,
       [transformerId]: defaultParameters,
     }));
-    onParameterChange?.(transformerId, defaultParameters);
+    handleParameterChange(transformerId, defaultParameters);
+
+    // Remove this transformer from local changes tracking since it's been reset
+    setTransformersWithLocalChanges((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(transformerId);
+      return newSet;
+    });
+  };
+
+  // Handle visualization with parameter application
+  const handleVisualize = () => {
+    // Apply all local parameter changes to the pipeline before visualizing
+    transformersWithLocalChanges.forEach((transformerId) => {
+      const parameters = transformerParameters[transformerId];
+      handleParameterChange(transformerId, parameters);
+    });
+
+    // Clear local changes tracking
+    setTransformersWithLocalChanges(new Set());
+
+    // Increment visualization count to signal TransformerItems to reset their local changes
+    setVisualizationCount((prev) => prev + 1);
+
+    // Call the original onVisualize
+    onVisualize?.();
   };
 
   const handleTransformerSelect = (transformerId: string) => {
@@ -140,38 +192,44 @@ export function PipelineManager({
     (id) => !activeTransformerIds.includes(id),
   );
 
-  // Construct the complete PipelineInput object with dual data and initial visualMetadata
-  const pipelineInput =
-    dualData && activeTransformerIds.length > 0
-      ? {
-          fullData: dualData.full,
-          llmData: dualData.llm,
-          visualMetadata: createInitialCompleteVisualMetadata(
-            dualData.full,
-            800, // Default canvas width
-            600, // Default canvas height
-          ),
-          config: {
-            transformerIds: activeTransformerIds,
-            temperature: 0.5, // Default temperature
-            canvasWidth: 800, // Default canvas width
-            canvasHeight: 600, // Default canvas height
-          },
-        }
-      : null;
+  // Memoize the pipeline input to avoid expensive recalculations
+  const pipelineInput = React.useMemo(() => {
+    if (!dualData || activeTransformerIds.length === 0) {
+      return null;
+    }
+
+    return {
+      fullData: dualData.full,
+      llmData: dualData.llm,
+      visualMetadata: createInitialCompleteVisualMetadata(
+        dualData.full,
+        800, // Default canvas width
+        600, // Default canvas height
+      ),
+      config: {
+        transformerIds: activeTransformerIds,
+        temperature: 0.5, // Default temperature
+        canvasWidth: 800, // Default canvas width
+        canvasHeight: 600, // Default canvas height
+      },
+    };
+  }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
+
+  // Check if there are any local parameter changes that need to be applied
+  const hasLocalParameterChanges = transformersWithLocalChanges.size > 0;
 
   const isVisualizeEnabled =
     hasData &&
     activeTransformerIds.length > 0 &&
     !isVisualizing &&
-    isPipelineModified;
+    (isPipelineModified || hasLocalParameterChanges);
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">Visual Transformer Pipeline</h3>
         <button
-          onClick={onVisualize}
+          onClick={handleVisualize}
           disabled={!isVisualizeEnabled}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             isVisualizing
@@ -223,9 +281,11 @@ export function PipelineManager({
                     isInPipeline={true}
                     onAddTransformer={onAddTransformer}
                     onRemoveTransformer={onRemoveTransformer}
-                    onParameterChange={handleParameterChange}
+                    onLocalParameterChange={handleLocalParameterChange}
                     onParameterReset={handleParameterReset}
                     currentParameters={transformerParameters[transformerId]}
+                    isVisualizing={isVisualizing}
+                    visualizationCount={visualizationCount}
                   />
                 );
               })
@@ -355,9 +415,11 @@ export function PipelineManager({
                     isInPipeline={false}
                     onAddTransformer={onAddTransformer}
                     onRemoveTransformer={onRemoveTransformer}
-                    onParameterChange={handleParameterChange}
+                    onLocalParameterChange={handleLocalParameterChange}
                     onParameterReset={handleParameterReset}
                     currentParameters={transformerParameters[transformerId]}
+                    isVisualizing={isVisualizing}
+                    visualizationCount={visualizationCount}
                   />
                 );
               })
