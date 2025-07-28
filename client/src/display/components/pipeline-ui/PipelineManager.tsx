@@ -88,6 +88,47 @@ export function PipelineManager({
     string | null
   >(activeTransformerIds[0] ?? null);
 
+  // Store parameters for all transformers (persistent across pipeline changes)
+  const [transformerParameters, setTransformerParameters] = React.useState<
+    Record<
+      string,
+      {
+        dimensions: { primary?: string; secondary?: string };
+        visual: Record<string, unknown>;
+      }
+    >
+  >({});
+
+  const handleParameterChange = (
+    transformerId: string,
+    parameters: {
+      dimensions: { primary?: string; secondary?: string };
+      visual: Record<string, unknown>;
+    },
+  ) => {
+    setTransformerParameters((prev) => ({
+      ...prev,
+      [transformerId]: parameters,
+    }));
+    onParameterChange?.(transformerId, parameters);
+  };
+
+  const handleParameterReset = (transformerId: string) => {
+    const transformer = transformers[transformerId];
+    const defaultParameters = {
+      dimensions: {
+        primary: transformer.defaultPrimaryDimension,
+        secondary: transformer.defaultSecondaryDimension,
+      },
+      visual: {},
+    };
+    setTransformerParameters((prev) => ({
+      ...prev,
+      [transformerId]: defaultParameters,
+    }));
+    onParameterChange?.(transformerId, defaultParameters);
+  };
+
   const handleTransformerSelect = (transformerId: string) => {
     setSelectedTransformerId(transformerId);
     onTransformerSelect?.(transformerId);
@@ -182,7 +223,9 @@ export function PipelineManager({
                     isInPipeline={true}
                     onAddTransformer={onAddTransformer}
                     onRemoveTransformer={onRemoveTransformer}
-                    onParameterChange={onParameterChange}
+                    onParameterChange={handleParameterChange}
+                    onParameterReset={handleParameterReset}
+                    currentParameters={transformerParameters[transformerId]}
                   />
                 );
               })
@@ -312,7 +355,9 @@ export function PipelineManager({
                     isInPipeline={false}
                     onAddTransformer={onAddTransformer}
                     onRemoveTransformer={onRemoveTransformer}
-                    onParameterChange={onParameterChange}
+                    onParameterChange={handleParameterChange}
+                    onParameterReset={handleParameterReset}
+                    currentParameters={transformerParameters[transformerId]}
                   />
                 );
               })

@@ -13,8 +13,16 @@ interface TransformerItemProps {
   onRemoveTransformer?: (transformerId: string) => void;
   onParameterChange?: (
     transformerId: string,
-    parameters: Record<string, unknown>,
+    parameters: {
+      dimensions: { primary?: string; secondary?: string };
+      visual: Record<string, unknown>;
+    },
   ) => void;
+  onParameterReset?: (transformerId: string) => void;
+  currentParameters?: {
+    dimensions: { primary?: string; secondary?: string };
+    visual: Record<string, unknown>;
+  };
 }
 
 /**
@@ -31,17 +39,32 @@ export function TransformerItem({
   onAddTransformer,
   onRemoveTransformer,
   onParameterChange,
+  onParameterReset,
+  currentParameters,
 }: TransformerItemProps) {
   const [parameters, setParameters] = React.useState<{
     dimensions: { primary?: string; secondary?: string };
     visual: Record<string, unknown>;
-  }>({
-    dimensions: {
-      primary: transformer.defaultPrimaryDimension,
-      secondary: transformer.defaultSecondaryDimension,
-    },
-    visual: {},
+  }>(() => {
+    // Use current parameters if available, otherwise use defaults
+    if (currentParameters) {
+      return currentParameters;
+    }
+    return {
+      dimensions: {
+        primary: transformer.defaultPrimaryDimension,
+        secondary: transformer.defaultSecondaryDimension,
+      },
+      visual: {},
+    };
   });
+
+  // Update local state when currentParameters change
+  React.useEffect(() => {
+    if (currentParameters) {
+      setParameters(currentParameters);
+    }
+  }, [currentParameters]);
 
   // Notify parent of parameter changes
   const prevParametersRef = React.useRef(parameters);
@@ -162,10 +185,24 @@ export function TransformerItem({
                   <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">
                     {transformer.name || transformer.id}
                   </span>
-                  <span className="text-xs text-gray-500">
-                    {transformer.availableDimensions.length} dimensions,{' '}
-                    {transformer.visualParameters.length} visual params
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500">
+                      {transformer.availableDimensions.length} dimensions,{' '}
+                      {transformer.visualParameters.length} visual params
+                    </span>
+                    {onParameterReset && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onParameterReset(transformer.id);
+                        }}
+                        className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300 transition-colors"
+                        title="Reset to defaults"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
