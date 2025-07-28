@@ -7,6 +7,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../../../shared/types';
+import { TransformerItem } from './TransformerItem';
 
 // Type for the complete dual-data structure
 interface DualGedcomData {
@@ -177,42 +178,16 @@ export function PipelineManager({
                 const isSelected = selectedTransformerId === transformerId;
 
                 return (
-                  <div
+                  <TransformerItem
                     key={transformerId}
-                    className={`p-3 rounded border cursor-pointer transition-colors ${
-                      isSelected
-                        ? 'bg-purple-100 border-purple-300'
-                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                    }`}
-                    onClick={() => {
-                      handleTransformerSelect(transformerId);
-                    }}
-                  >
-                    <div className="flex items-center w-full">
-                      <div className="flex items-center space-x-2 flex-1 text-left">
-                        <span className="text-xs bg-gray-300 text-gray-700 px-2 py-1 rounded">
-                          {index + 1}
-                        </span>
-                        <span className="font-medium text-sm">
-                          {transformer.name || transformerId}
-                        </span>
-                      </div>
-                      <button
-                        className="text-gray-400 hover:text-red-500 text-sm flex-shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onRemoveTransformer?.(transformerId);
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                    {transformer.description && (
-                      <p className="text-xs text-gray-600 mt-1 text-left">
-                        {transformer.description}
-                      </p>
-                    )}
-                  </div>
+                    transformer={transformer}
+                    isSelected={isSelected}
+                    handleTransformerSelect={handleTransformerSelect}
+                    index={index}
+                    isInPipeline={true}
+                    onAddTransformer={onAddTransformer}
+                    onRemoveTransformer={onRemoveTransformer}
+                  />
                 );
               })
             )}
@@ -327,31 +302,16 @@ export function PipelineManager({
                 const transformer = transformers[transformerId];
 
                 return (
-                  <div
+                  <TransformerItem
                     key={transformerId}
-                    className="p-3 rounded border bg-gray-50 border-gray-200"
-                  >
-                    <div className="flex items-center w-full">
-                      <div className="flex items-center space-x-2 flex-1 text-left">
-                        <button
-                          className="text-green-600 hover:text-green-700 text-sm font-medium"
-                          onClick={() => {
-                            onAddTransformer?.(transformerId);
-                          }}
-                        >
-                          +
-                        </button>
-                        <span className="font-medium text-sm">
-                          {transformer.name || transformerId}
-                        </span>
-                      </div>
-                    </div>
-                    {transformer.description && (
-                      <p className="text-xs text-gray-600 mt-1 text-left">
-                        {transformer.description}
-                      </p>
-                    )}
-                  </div>
+                    transformer={transformer}
+                    isSelected={false}
+                    handleTransformerSelect={handleTransformerSelect}
+                    index={availableTransformerIds.length}
+                    isInPipeline={false}
+                    onAddTransformer={onAddTransformer}
+                    onRemoveTransformer={onRemoveTransformer}
+                  />
                 );
               })
             )}
