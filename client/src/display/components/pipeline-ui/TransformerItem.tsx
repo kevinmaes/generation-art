@@ -25,6 +25,11 @@ interface TransformerItemProps {
   };
   // NEW: Disable controls during visualization
   isVisualizing?: boolean;
+  // NEW: Last run parameters to compare for "Modified" badge
+  lastRunParameters?: {
+    dimensions: { primary?: string; secondary?: string };
+    visual: Record<string, unknown>;
+  };
 }
 
 export function TransformerItem({
@@ -39,6 +44,7 @@ export function TransformerItem({
   onParameterReset,
   currentParameters,
   isVisualizing = false,
+  lastRunParameters,
 }: TransformerItemProps) {
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -68,6 +74,31 @@ export function TransformerItem({
       setParameters(currentParameters);
     }
   }, [currentParameters]);
+
+  // Check if parameters have been modified since last run
+  const hasBeenModified = React.useMemo(() => {
+    if (!lastRunParameters || !currentParameters) return false;
+
+    // Check dimensions
+    if (
+      currentParameters.dimensions.primary !==
+        lastRunParameters.dimensions.primary ||
+      currentParameters.dimensions.secondary !==
+        lastRunParameters.dimensions.secondary
+    ) {
+      return true;
+    }
+
+    // Check visual parameters
+    const currentVisualKeys = Object.keys(currentParameters.visual);
+    const lastVisualKeys = Object.keys(lastRunParameters.visual);
+
+    if (currentVisualKeys.length !== lastVisualKeys.length) return true;
+
+    return currentVisualKeys.some(
+      (key) => currentParameters.visual[key] !== lastRunParameters.visual[key],
+    );
+  }, [currentParameters, lastRunParameters]);
 
   // Handle dimension changes
   const handleDimensionChange = (
@@ -165,6 +196,11 @@ export function TransformerItem({
           <span className="font-medium text-sm">
             {transformer.name || transformer.id}
           </span>
+          {hasBeenModified && (
+            <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">
+              Modified
+            </span>
+          )}
         </div>
         {isInPipeline ? (
           <button

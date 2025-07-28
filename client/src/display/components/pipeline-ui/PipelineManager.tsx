@@ -33,6 +33,13 @@ interface PipelineManagerProps {
   isVisualizing?: boolean;
   hasData?: boolean;
   isPipelineModified?: boolean;
+  lastRunParameters?: Record<
+    string,
+    {
+      dimensions: { primary?: string; secondary?: string };
+      visual: Record<string, unknown>;
+    }
+  >;
 }
 
 // Utility function to calculate diff between two visual metadata objects
@@ -85,6 +92,7 @@ export function PipelineManager({
   isVisualizing = false,
   hasData = false,
   isPipelineModified = true,
+  lastRunParameters,
 }: PipelineManagerProps): React.ReactElement {
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] = useState<
@@ -144,13 +152,6 @@ export function PipelineManager({
       [transformerId]: defaultParameters,
     }));
     handleParameterChange(transformerId, defaultParameters);
-
-    // Remove this transformer from local changes tracking since it's been reset
-    setTransformersWithLocalChanges((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(transformerId);
-      return newSet;
-    });
   };
 
   // Handle visualization
@@ -267,6 +268,7 @@ export function PipelineManager({
                       }
                     }
                     isVisualizing={isVisualizing}
+                    lastRunParameters={lastRunParameters?.[transformerId]}
                   />
                 );
               })
@@ -408,6 +410,7 @@ export function PipelineManager({
                       }
                     }
                     isVisualizing={isVisualizing}
+                    lastRunParameters={lastRunParameters?.[transformerId]}
                   />
                 );
               })

@@ -7,6 +7,7 @@ import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
 import type { PipelineResult } from './transformers/pipeline';
 import { runPipeline, createSimplePipeline } from './transformers/pipeline';
+import { transformers } from './transformers/transformers';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
 
@@ -178,7 +179,28 @@ function App(): React.ReactElement {
       setPipelineResult(result);
       setLastRunTransformerIds([...activeTransformerIds]);
       // Update lastRunParameters with current transformerParameters after successful pipeline run
-      setLastRunParameters({ ...transformerParameters });
+      // Ensure we capture the actual parameters used, including defaults for transformers without explicit parameters
+      const actualParametersUsed: Record<
+        string,
+        {
+          dimensions: { primary?: string; secondary?: string };
+          visual: Record<string, unknown>;
+        }
+      > = {};
+      activeTransformerIds.forEach((transformerId) => {
+        const transformer = transformers[transformerId];
+        actualParametersUsed[transformerId] = transformerParameters[
+          transformerId
+        ] ?? {
+          dimensions: {
+            primary: transformer.defaultPrimaryDimension,
+            secondary: transformer.defaultSecondaryDimension,
+          },
+          visual: {},
+        };
+      });
+
+      setLastRunParameters(actualParametersUsed);
     } catch (err) {
       console.error('Pipeline execution failed:', err);
       setError(
@@ -214,18 +236,21 @@ function App(): React.ReactElement {
 
     // Check if any parameters have changed
     const parametersChanged = activeTransformerIds.some((transformerId) => {
-      const currentParams = transformerParameters[transformerId];
+      const transformer = transformers[transformerId];
+
+      // Get current parameters (with defaults if not set)
+      const currentParams = transformerParameters[transformerId] ?? {
+        dimensions: {
+          primary: transformer.defaultPrimaryDimension,
+          secondary: transformer.defaultSecondaryDimension,
+        },
+        visual: {},
+      };
+
       const lastParams = lastRunParameters[transformerId];
 
-      const hasCurrentParams = transformerId in transformerParameters;
-      const hasLastParams = transformerId in lastRunParameters;
-
-      if (!hasCurrentParams && !hasLastParams) return false;
-      if (!hasCurrentParams || !hasLastParams) return true;
-
-      // Ensure both params exist before comparing
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!currentParams || !lastParams) return true;
+      // If no last params, consider it changed
+      if (!lastParams) return true;
 
       // Check dimensions
       if (
@@ -316,6 +341,7 @@ function App(): React.ReactElement {
                     isVisualizing={isVisualizing}
                     hasData={!!dualData}
                     isPipelineModified={isPipelineModified()}
+                    lastRunParameters={lastRunParameters}
                   />
                 </ErrorBoundary>
               </div>
