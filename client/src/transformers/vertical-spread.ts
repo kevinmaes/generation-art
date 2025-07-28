@@ -1,167 +1,297 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
-import type {
-  TransformerContext,
-  VisualMetadata,
-  TransformerOutput,
-} from './types';
-
 /**
  * Vertical Spread Transformer
  *
- * Adds vertical positioning to individuals within their generation:
- * - Spreads individuals vertically within their generation
- * - Uses birth order, family position, and other factors
- * - Creates visual separation to avoid straight lines
- * - Maintains generation-based horizontal positioning
+ * This transformer positions individuals vertically based on their generation
+ * and selected dimensions, creating visual separation within generations.
+ */
+
+import type {
+  TransformerContext,
+  CompleteVisualMetadata,
+  VisualMetadata,
+} from './types';
+
+/**
+ * Calculate vertical position based on selected dimensions and parameters
+ */
+function calculateVerticalPosition(
+  context: TransformerContext,
+  individualId: string,
+): number {
+  const { gedcomData, visualMetadata, dimensions, visual, temperature } =
+    context;
+  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+
+  // Find the individual
+  const individual = gedcomData.individuals[individualId];
+
+  // Get the primary dimension value
+  const primaryDimension = dimensions.primary;
+  let primaryValue = 0.5; // Default fallback
+
+  switch (primaryDimension) {
+    case 'generation':
+      primaryValue = individual.metadata.relativeGenerationValue ?? 0.5;
+      break;
+    case 'birthYear': {
+      // Normalize birth year to 0-1 range
+      const allBirthYears = Object.values(gedcomData.individuals)
+        .map((ind) => ind.metadata.birthYear)
+        .filter((year): year is number => year !== undefined);
+      if (allBirthYears.length > 0) {
+        const minYear = Math.min(...allBirthYears);
+        const maxYear = Math.max(...allBirthYears);
+        const year = individual.metadata.birthYear ?? minYear;
+        primaryValue = (year - minYear) / (maxYear - minYear);
+      }
+      break;
+    }
+    case 'childrenCount': {
+      // Count children by looking at parent relationships
+      const allIndividuals = Object.values(gedcomData.individuals);
+      const childrenCounts = allIndividuals.map((ind) => {
+        const children = allIndividuals.filter((child) =>
+          child.parents.includes(ind.id),
+        );
+        return children.length;
+      });
+      const maxChildren = Math.max(...childrenCounts);
+      const individualChildren = allIndividuals.filter((child) =>
+        child.parents.includes(individual.id),
+      ).length;
+      primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+      break;
+    }
+    case 'lifespan': {
+      const allLifespans = Object.values(gedcomData.individuals)
+        .map((ind) => ind.metadata.lifespan)
+        .filter((span): span is number => span !== undefined);
+      if (allLifespans.length > 0) {
+        const maxLifespan = Math.max(...allLifespans);
+        primaryValue =
+          maxLifespan > 0
+            ? (individual.metadata.lifespan ?? 0) / maxLifespan
+            : 0.5;
+      }
+      break;
+    }
+    case 'nameLength': {
+      const allNameLengths = Object.values(gedcomData.individuals).map(
+        (ind) => ind.name.length,
+      );
+      const maxNameLength = Math.max(...allNameLengths);
+      primaryValue =
+        maxNameLength > 0 ? individual.name.length / maxNameLength : 0.5;
+      break;
+    }
+  }
+
+  // Get the secondary dimension value (if specified)
+  const secondaryDimension = dimensions.secondary;
+  let secondaryValue = 0.5; // Default fallback
+
+  if (secondaryDimension && secondaryDimension !== primaryDimension) {
+    switch (secondaryDimension) {
+      case 'generation':
+        secondaryValue = individual.metadata.relativeGenerationValue ?? 0.5;
+        break;
+      case 'birthYear': {
+        const allBirthYears = Object.values(gedcomData.individuals)
+          .map((ind) => ind.metadata.birthYear)
+          .filter((year): year is number => year !== undefined);
+        if (allBirthYears.length > 0) {
+          const minYear = Math.min(...allBirthYears);
+          const maxYear = Math.max(...allBirthYears);
+          const year = individual.metadata.birthYear ?? minYear;
+          secondaryValue = (year - minYear) / (maxYear - minYear);
+        }
+        break;
+      }
+      case 'childrenCount': {
+        const allIndividuals = Object.values(gedcomData.individuals);
+        const childrenCounts = allIndividuals.map((ind) => {
+          const children = allIndividuals.filter((child) =>
+            child.parents.includes(ind.id),
+          );
+          return children.length;
+        });
+        const maxChildren = Math.max(...childrenCounts);
+        const individualChildren = allIndividuals.filter((child) =>
+          child.parents.includes(individual.id),
+        ).length;
+        secondaryValue =
+          maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+        break;
+      }
+      case 'lifespan': {
+        const allLifespans = Object.values(gedcomData.individuals)
+          .map((ind) => ind.metadata.lifespan)
+          .filter((span): span is number => span !== undefined);
+        if (allLifespans.length > 0) {
+          const maxLifespan = Math.max(...allLifespans);
+          secondaryValue =
+            maxLifespan > 0
+              ? (individual.metadata.lifespan ?? 0) / maxLifespan
+              : 0.5;
+        }
+        break;
+      }
+      case 'nameLength': {
+        const allNameLengths = Object.values(gedcomData.individuals).map(
+          (ind) => ind.name.length,
+        );
+        const maxNameLength = Math.max(...allNameLengths);
+        secondaryValue =
+          maxNameLength > 0 ? individual.name.length / maxNameLength : 0.5;
+        break;
+      }
+    }
+  }
+
+  // Get visual parameters directly from context
+  const { verticalPadding, spacing, variationFactor } = visual;
+  const temp = temperature ?? 0.5;
+
+  // Calculate spacing multiplier based on spacing setting
+  const spacingMultipliers = {
+    tight: 0.6,
+    compact: 0.8,
+    normal: 1.0,
+    loose: 1.2,
+    sparse: 1.5,
+  };
+  const spacingMultiplier =
+    spacingMultipliers[spacing as keyof typeof spacingMultipliers] || 1.0;
+
+  // Calculate available height
+  const availableHeight = canvasHeight - (verticalPadding as number) * 2;
+  const generationStart = verticalPadding as number;
+
+  // Combine primary and secondary dimensions with variation factor
+  const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
+
+  // Add temperature-based randomness with variation factor influence
+  const baseRandomness = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
+  const variationRandomness =
+    (Math.random() - 0.5) * (variationFactor as number) * 0.1; // Additional variation
+  const totalRandomFactor = baseRandomness + variationRandomness;
+
+  const adjustedDimensionValue = Math.max(
+    0,
+    Math.min(1, combinedValue + totalRandomFactor),
+  );
+
+  // Position within generation based on combined dimension value
+  const positionInGeneration =
+    generationStart +
+    adjustedDimensionValue * availableHeight * spacingMultiplier;
+
+  return positionInGeneration;
+}
+
+/**
+ * Calculate horizontal position based on generation
+ */
+function calculateHorizontalPosition(
+  context: TransformerContext,
+  individualId: string,
+): number {
+  const { gedcomData, visualMetadata } = context;
+  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
+
+  // Find the individual
+  const individual = gedcomData.individuals[individualId];
+  const generation = individual.metadata.generation ?? 0;
+
+  // Calculate horizontal spacing
+  const individuals = Object.values(gedcomData.individuals);
+  const maxGenerations = Math.max(
+    ...individuals.map((ind) => ind.metadata.generation ?? 0),
+  );
+  const minGenerations = Math.min(
+    ...individuals.map((ind) => ind.metadata.generation ?? 0),
+  );
+  const generationRange = maxGenerations - minGenerations;
+
+  if (generationRange === 0) {
+    return canvasWidth / 2; // All in same generation, center horizontally
+  }
+
+  // Normalize generation to 0-1 range
+  const normalizedGeneration = (generation - minGenerations) / generationRange;
+
+  // Position horizontally with some padding
+  const horizontalPadding = canvasWidth * 0.1;
+  const availableWidth = canvasWidth - horizontalPadding * 2;
+  const x = horizontalPadding + normalizedGeneration * availableWidth;
+
+  return x;
+}
+
+/**
+ * Vertical spread transform function
+ * Positions all individuals based on their generation and selected dimensions
  */
 export async function verticalSpreadTransform(
   context: TransformerContext,
-): Promise<TransformerOutput> {
+): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
+
+  const individuals = Object.values(gedcomData.individuals);
+  if (individuals.length === 0) {
+    return { visualMetadata: {} };
+  }
+
+  // Create updated individual visual metadata
   const updatedIndividuals: Record<string, VisualMetadata> = {};
 
-  // Add a small delay to satisfy async requirement
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  // Position each individual based on their generation
+  individuals.forEach((individual) => {
+    const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
+    const x = calculateHorizontalPosition(context, individual.id);
+    const y = calculateVerticalPosition(context, individual.id);
 
-  // Debug logging
-  console.log(
-    'Vertical Spread Transform - Input visualMetadata:',
-    visualMetadata,
-  );
-  console.log(
-    'Vertical Spread Transform - Number of individuals:',
-    Object.keys(gedcomData.individuals).length,
-  );
+    // Get visual parameters directly from context
+    const { nodeSize, primaryColor, variationFactor, temperature } =
+      context.visual;
+    const temp = (temperature as number) || 0.5;
 
-  // Get canvas dimensions from global settings
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 600;
-  const verticalPadding = 50; // Padding from top/bottom
-  const usableHeight = canvasHeight - verticalPadding * 2;
+    // Convert node size string to actual size with temperature-based variation
+    const sizeMap = {
+      small: 15,
+      medium: 20,
+      large: 30,
+      'extra-large': 40,
+    };
+    const baseSize = sizeMap[nodeSize as keyof typeof sizeMap] || 20;
 
-  // Debug canvas dimensions
-  console.log('Vertical Spread Transform - Canvas height:', canvasHeight);
-  console.log('Vertical Spread Transform - Usable height:', usableHeight);
-  console.log('Vertical Spread Transform - Vertical padding:', verticalPadding);
+    // Add size variation based on temperature and variation factor
+    const sizeVariation = (Math.random() - 0.5) * temp * 0.3; // ±15% size variation
+    const variationSizeAdjustment =
+      (Math.random() - 0.5) * (variationFactor as number) * 0.2;
+    const finalSize = Math.max(
+      5,
+      baseSize * (1 + sizeVariation + variationSizeAdjustment),
+    );
 
-  // Group individuals by generation
-  const generationGroups: Record<number, string[]> = {};
-
-  Object.keys(gedcomData.individuals).forEach((individualId) => {
-    const individual = gedcomData.individuals[individualId];
-    const generation = individual.metadata.generation ?? 0;
-
-    if (!generationGroups[generation]) {
-      generationGroups[generation] = [];
-    }
-    generationGroups[generation].push(individualId);
+    updatedIndividuals[individual.id] = {
+      ...currentMetadata,
+      x,
+      y,
+      size: finalSize,
+      color: String(primaryColor),
+      shape: visualMetadata.global.defaultNodeShape ?? 'circle',
+      // Add opacity variation based on temperature
+      opacity: Math.max(0.3, 1 - temp * 0.2), // Higher temp = slightly more transparent
+    };
   });
 
-  // Process each generation
-  Object.keys(generationGroups).forEach((generationStr) => {
-    const generation = parseInt(generationStr, 10);
-    const individualsInGeneration = generationGroups[generation];
-
-    if (individualsInGeneration.length === 0) return;
-
-    // Sort individuals within generation by various factors
-    const sortedIndividuals = individualsInGeneration.sort((a, b) => {
-      const individualA = gedcomData.individuals[a];
-      const individualB = gedcomData.individuals[b];
-
-      // Primary sort: birth year (earlier = higher position)
-      const birthYearA = individualA.birth?.date
-        ? (extractYear(individualA.birth.date) ?? 0)
-        : 0;
-      const birthYearB = individualB.birth?.date
-        ? (extractYear(individualB.birth.date) ?? 0)
-        : 0;
-      if (birthYearA !== birthYearB) return birthYearA - birthYearB;
-
-      // Secondary sort: name (alphabetical)
-      return individualA.name.localeCompare(individualB.name);
-    });
-
-    // Calculate vertical positions with better spacing
-    const spacing = usableHeight / Math.max(sortedIndividuals.length, 1);
-
-    sortedIndividuals.forEach((individualId, index) => {
-      const currentMetadata = visualMetadata.individuals[individualId] ?? {};
-      const individual = gedcomData.individuals[individualId];
-
-      // Calculate base Y position with better distribution
-      const baseY = verticalPadding + spacing * index + spacing / 2;
-
-      // Add some variation based on individual characteristics
-      let yVariation = 0;
-
-      // Factor 1: Number of children (more children = slight upward shift)
-      const childCount = individual.children.length;
-      yVariation += childCount * -5; // Increased upward shift for parents
-
-      // Factor 2: Lifespan (longer life = slight downward shift)
-      const lifespan = individual.metadata.lifespan ?? 0;
-      yVariation += lifespan / 5; // Increased downward shift for longer lives
-
-      // Factor 3: Generation depth (deeper generations = more variation)
-      const generationFactor = generation * 10;
-      yVariation += generationFactor * (Math.random() - 0.5) * 0.2; // Increased random variation
-
-      // Factor 4: Birth year variation within generation
-      const birthYear = individual.birth?.date
-        ? (extractYear(individual.birth.date) ?? 0)
-        : 0;
-      const birthYearVariation = (birthYear % 100) * 0.3; // Use birth year for additional variation
-      yVariation += birthYearVariation;
-
-      // Apply variation with bounds
-      const finalY = Math.max(
-        verticalPadding,
-        Math.min(canvasHeight - verticalPadding, baseY + yVariation),
-      );
-
-      // Debug bounds checking for first few individuals
-      if (index < 3) {
-        console.log(
-          `Individual ${individualId}: baseY=${String(baseY)}, yVariation=${String(yVariation)}, finalY=${String(finalY)}`,
-        );
-      }
-
-      updatedIndividuals[individualId] = {
-        ...currentMetadata,
-        y: finalY,
-      };
-    });
-  });
-
-  // Debug logging
-  console.log(
-    'Vertical Spread Transform - Updated individuals:',
-    updatedIndividuals,
-  );
-  console.log(
-    'Vertical Spread Transform - Number of updated individuals:',
-    Object.keys(updatedIndividuals).length,
-  );
-
-  // Simple test: Check if we have any Y values
-  const yValues = Object.values(updatedIndividuals)
-    .map((meta) => meta.y)
-    .filter((y) => y !== undefined);
-  console.log('Vertical Spread Transform - Y values found:', yValues.length);
-  console.log(
-    'Vertical Spread Transform - Sample Y values:',
-    yValues.slice(0, 5),
-  );
+  // Small delay to simulate async work (will be useful for future LLM calls)
+  await new Promise((resolve) => setTimeout(resolve, 1));
 
   return {
     visualMetadata: {
       individuals: updatedIndividuals,
     },
   };
-}
-
-// Helper function to extract year from date string
-function extractYear(dateString: string): number | null {
-  const yearMatch = /\b(\d{4})\b/.exec(dateString);
-  return yearMatch ? parseInt(yearMatch[1], 10) : null;
 }

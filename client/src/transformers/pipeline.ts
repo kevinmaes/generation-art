@@ -16,7 +16,11 @@ import type {
   PipelineResult,
 } from './types';
 import type { VisualParameterValues } from './visual-parameters';
-import { getTransformer, type TransformerId } from './transformers';
+import {
+  getTransformer,
+  type TransformerId,
+  transformers,
+} from './transformers';
 import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
   DEFAULT_X,
@@ -411,6 +415,13 @@ export function validatePipelineConfig(config: PipelineConfig): {
 
   if (config.transformerIds.length === 0) {
     errors.push('Pipeline must have at least one transformer');
+  }
+
+  // Check if all transformers exist
+  for (const transformerId of config.transformerIds) {
+    if (!(transformerId in transformers)) {
+      errors.push(`Transformer not found: ${transformerId}`);
+    }
   }
 
   if (

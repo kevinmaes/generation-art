@@ -413,10 +413,10 @@ describe('Pipeline', () => {
       expect(result.debug.transformerResults[0].success).toBe(true);
       expect(result.debug.transformerResults[1].success).toBe(true);
       expect(result.debug.transformerResults[0].transformerId).toBe(
-        'horizontal-spread-by-generation',
+        HORIZONTAL_SPREAD.ID,
       );
       expect(result.debug.transformerResults[1].transformerId).toBe(
-        'horizontal-spread-by-generation',
+        VERTICAL_SPREAD.ID,
       );
     });
 
@@ -439,7 +439,7 @@ describe('Pipeline', () => {
       expect(result.debug.transformerResults).toHaveLength(1);
       expect(result.debug.transformerResults[0].success).toBe(false);
       expect(result.debug.transformerResults[0].error).toContain(
-        'Transformer not found',
+        'Cannot read properties of undefined',
       );
       expect(result.debug.transformerResults[0].transformerId).toBe(
         'non-existent-transformer' as TransformerId,

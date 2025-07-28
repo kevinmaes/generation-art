@@ -10,6 +10,7 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
+import { DEFAULT_COLOR } from './constants';
 
 /**
  * Calculate horizontal position based on selected dimensions and parameters
@@ -232,7 +233,7 @@ function calculateVerticalPosition(
  * Horizontal spread by generation transform function
  * Positions all individuals based on their generation
  */
-export async function horizontalSpreadByGenerationTransform(
+export async function horizontalSpreadTransform(
   context: TransformerContext,
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
@@ -254,6 +255,7 @@ export async function horizontalSpreadByGenerationTransform(
     // Get visual parameters directly from context
     const { nodeSize, primaryColor, variationFactor, temperature } =
       context.visual;
+
     const temp = (temperature as number) || 0.5;
 
     // Convert node size string to actual size with temperature-based variation
@@ -279,7 +281,10 @@ export async function horizontalSpreadByGenerationTransform(
       x,
       y,
       size: finalSize,
-      color: String(primaryColor),
+      color:
+        (primaryColor as string | undefined) ??
+        visualMetadata.global.defaultNodeColor ??
+        DEFAULT_COLOR,
       shape: visualMetadata.global.defaultNodeShape ?? 'circle',
       // Add opacity variation based on temperature
       opacity: Math.max(0.3, 1 - temp * 0.2), // Higher temp = slightly more transparent

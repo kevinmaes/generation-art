@@ -251,12 +251,16 @@ describe('Horizontal Spread Transformer', () => {
         },
       },
       dimensions: { primary: 'generation' },
-      visual: {} as VisualParameterValues,
+      visual: {
+        primaryColor: '#4CAF50',
+      } as VisualParameterValues,
     };
 
     const runtimeTransformer = transformer.createRuntimeTransformerFunction({
       dimensions: { primary: 'generation' },
-      visual: {},
+      visual: {
+        primaryColor: '#4CAF50',
+      },
     });
     const result = await runtimeTransformer(context);
 
@@ -272,7 +276,9 @@ describe('Horizontal Spread Transformer', () => {
       result.visualMetadata.individuals?.[individualId];
     expect(individualMetadata?.x).toBeDefined();
     expect(individualMetadata?.y).toBeDefined();
-    expect(individualMetadata?.size).toBe(20);
+    // Size now includes temperature-based variation, so check it's within reasonable bounds
+    expect(individualMetadata?.size).toBeGreaterThan(5);
+    expect(individualMetadata?.size).toBeLessThan(50);
     expect(individualMetadata?.color).toBe('#4CAF50');
     expect(individualMetadata?.shape).toBe('circle');
   });

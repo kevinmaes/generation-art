@@ -7,7 +7,7 @@
  */
 
 import type { VisualTransformerConfig } from './types';
-import { horizontalSpreadByGenerationTransform } from './horizontal-spread-by-generation';
+import { horizontalSpreadTransform } from './horizontal-spread';
 import { nodeSizeTransform } from './node-size';
 import { nodeOpacityTransform } from './node-opacity';
 import { edgeOpacityTransform } from './edge-opacity';
@@ -51,7 +51,7 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     name: HORIZONTAL_SPREAD.NAME,
     description:
       'Positions individuals horizontally based on selected dimensions, creating spread-out layouts',
-    transform: horizontalSpreadByGenerationTransform as VisualTransformerFn,
+    transform: horizontalSpreadTransform as VisualTransformerFn,
     categories: ['layout', 'positioning'],
     availableDimensions: [
       'generation',
@@ -71,10 +71,7 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
       'variationFactor',
     ],
     createRuntimeTransformerFunction: (params) =>
-      createRuntimeTransformerFunction(
-        params,
-        horizontalSpreadByGenerationTransform,
-      ),
+      createRuntimeTransformerFunction(params, horizontalSpreadTransform),
   },
   [NODE_SIZE.ID]: {
     id: NODE_SIZE.ID,
@@ -137,7 +134,7 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     id: VERTICAL_SPREAD.ID,
     name: VERTICAL_SPREAD.NAME,
     description:
-      'Adds vertical positioning to individuals within their generation, creating visual separation and avoiding straight lines',
+      'Positions individuals vertically based on selected dimensions, creating visual separation within generations',
     transform: verticalSpreadTransform as VisualTransformerFn,
     categories: ['layout', 'positioning'],
     availableDimensions: [
@@ -149,7 +146,14 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'birthYear',
     defaultSecondaryDimension: 'childrenCount',
-    visualParameters: ['verticalPadding', 'variationFactor', 'spacing'],
+    visualParameters: [
+      'verticalPadding',
+      'nodeSize',
+      'primaryColor',
+      'spacing',
+      'temperature',
+      'variationFactor',
+    ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, verticalSpreadTransform),
   },
