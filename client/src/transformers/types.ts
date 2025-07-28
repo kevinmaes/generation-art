@@ -107,6 +107,15 @@ export interface TransformerContext {
   // Canvas dimensions for reference
   canvasWidth?: number;
   canvasHeight?: number;
+
+  // User-selected dimensions (injected by createRuntimeTransformerFunction)
+  dimensions?: {
+    primary?: string;
+    secondary?: string;
+  };
+
+  // User-selected visual parameters (injected by createRuntimeTransformerFunction)
+  visual?: Record<string, unknown>;
 }
 
 /**

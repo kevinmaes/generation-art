@@ -12,26 +12,111 @@ import type {
 } from './types';
 
 /**
- * Calculate horizontal position based on relative generation value
+ * Calculate horizontal position based on selected dimension and parameters
  */
 function calculateHorizontalPosition(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { gedcomData, visualMetadata } = context;
+  const { gedcomData, visualMetadata, dimensions, visual, temperature } =
+    context;
   const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
 
   // Find the individual
   const individual = gedcomData.individuals[individualId];
-  const relativeValue = individual.metadata.relativeGenerationValue ?? 0.5;
 
-  // Calculate base position for this generation
-  const generationWidth = canvasWidth * 0.8; // Use 80% of canvas width
-  const generationStart = canvasWidth * 0.1; // Start at 10% from left
+  // Get the primary dimension value
+  const primaryDimension = dimensions?.primary ?? 'generation';
+  let dimensionValue = 0.5; // Default fallback
 
-  // Position within generation based on relative value
+  switch (primaryDimension) {
+    case 'generation':
+      dimensionValue = individual.metadata.relativeGenerationValue ?? 0.5;
+      break;
+    case 'birthYear': {
+      // Normalize birth year to 0-1 range
+      const allBirthYears = Object.values(gedcomData.individuals)
+        .map((ind) => ind.metadata.birthYear)
+        .filter((year): year is number => year !== undefined);
+      if (allBirthYears.length > 0) {
+        const minYear = Math.min(...allBirthYears);
+        const maxYear = Math.max(...allBirthYears);
+        const year = individual.metadata.birthYear ?? minYear;
+        dimensionValue = (year - minYear) / (maxYear - minYear);
+      }
+      break;
+    }
+    case 'childrenCount': {
+      // Count children by looking at parent relationships
+      const allIndividuals = Object.values(gedcomData.individuals);
+      const childrenCounts = allIndividuals.map((ind) => {
+        const children = allIndividuals.filter((child) =>
+          child.parents.includes(ind.id),
+        );
+        return children.length;
+      });
+      const maxChildren = Math.max(...childrenCounts);
+      const individualChildren = allIndividuals.filter((child) =>
+        child.parents.includes(individual.id),
+      ).length;
+      dimensionValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+      break;
+    }
+    case 'lifespan': {
+      const allLifespans = Object.values(gedcomData.individuals)
+        .map((ind) => ind.metadata.lifespan)
+        .filter((span): span is number => span !== undefined);
+      if (allLifespans.length > 0) {
+        const maxLifespan = Math.max(...allLifespans);
+        dimensionValue =
+          maxLifespan > 0
+            ? (individual.metadata.lifespan ?? 0) / maxLifespan
+            : 0.5;
+      }
+      break;
+    }
+    case 'nameLength': {
+      const allNameLengths = Object.values(gedcomData.individuals).map(
+        (ind) => ind.name.length,
+      );
+      const maxNameLength = Math.max(...allNameLengths);
+      dimensionValue =
+        maxNameLength > 0 ? individual.name.length / maxNameLength : 0.5;
+      break;
+    }
+  }
+
+  // Get visual parameters
+  const horizontalPadding = (visual?.horizontalPadding as number) || 50;
+  const spacing = (visual?.spacing as string) || 'normal';
+  const temp = temperature ?? 0.5;
+
+  // Calculate spacing multiplier based on spacing setting
+  const spacingMultipliers = {
+    tight: 0.6,
+    compact: 0.8,
+    normal: 1.0,
+    loose: 1.2,
+    sparse: 1.5,
+  };
+  const spacingMultiplier =
+    spacingMultipliers[spacing as keyof typeof spacingMultipliers] || 1.0;
+
+  // Calculate available width
+  const availableWidth = canvasWidth - horizontalPadding * 2;
+  const generationStart = horizontalPadding;
+
+  // Add temperature-based randomness
+  const randomFactor = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
+  const adjustedDimensionValue = Math.max(
+    0,
+    Math.min(1, dimensionValue + randomFactor),
+  );
+
+  // Position within generation based on dimension value
   const positionInGeneration =
-    generationStart + relativeValue * generationWidth;
+    generationStart +
+    adjustedDimensionValue * availableWidth * spacingMultiplier;
 
   return positionInGeneration;
 }
@@ -98,12 +183,25 @@ export async function horizontalSpreadByGenerationTransform(
     const x = calculateHorizontalPosition(context, individual.id);
     const y = calculateVerticalPosition(context, individual.id);
 
+    // Get visual parameters
+    const nodeSize = (context.visual?.nodeSize as string) || 'medium';
+    const primaryColor = (context.visual?.primaryColor as string) || '#3b82f6';
+
+    // Convert node size string to actual size
+    const sizeMap = {
+      small: 15,
+      medium: 20,
+      large: 30,
+      'extra-large': 40,
+    };
+    const size = sizeMap[nodeSize as keyof typeof sizeMap] || 20;
+
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
       x,
       y,
-      size: visualMetadata.global.defaultNodeSize ?? 20,
-      color: visualMetadata.global.defaultNodeColor ?? '#4CAF50',
+      size,
+      color: primaryColor,
       shape: visualMetadata.global.defaultNodeShape ?? 'circle',
     };
   });
