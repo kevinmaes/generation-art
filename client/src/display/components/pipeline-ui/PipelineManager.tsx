@@ -102,30 +102,7 @@ export function PipelineManager({
     >
   >({});
 
-  // Track which transformers have local changes (not yet applied to pipeline)
-  const [transformersWithLocalChanges, setTransformersWithLocalChanges] =
-    React.useState<Set<string>>(new Set());
-
-  // Counter to signal when visualization starts (used to reset local changes in TransformerItems)
-  const [visualizationCount, setVisualizationCount] = React.useState(0);
-
-  // Handle local parameter changes (track changes but don't update pipeline yet)
-  const handleLocalParameterChange = (
-    transformerId: string,
-    hasChanges: boolean,
-  ) => {
-    setTransformersWithLocalChanges((prev) => {
-      const newSet = new Set(prev);
-      if (hasChanges) {
-        newSet.add(transformerId);
-      } else {
-        newSet.delete(transformerId);
-      }
-      return newSet;
-    });
-  };
-
-  // Handle parameter changes (when actually applied to pipeline)
+  // Handle parameter changes (immediately apply to pipeline)
   const handleParameterChange = (
     transformerId: string,
     parameters: {
@@ -133,11 +110,24 @@ export function PipelineManager({
       visual: Record<string, unknown>;
     },
   ) => {
+    // Ensure we have valid parameters with defaults
+    const transformer = transformers[transformerId];
+    const validParameters = {
+      dimensions: {
+        primary:
+          parameters.dimensions.primary ?? transformer.defaultPrimaryDimension,
+        secondary:
+          parameters.dimensions.secondary ??
+          transformer.defaultSecondaryDimension,
+      },
+      visual: parameters.visual,
+    };
+
     setTransformerParameters((prev) => ({
       ...prev,
-      [transformerId]: parameters,
+      [transformerId]: validParameters,
     }));
-    onParameterChange?.(transformerId, parameters);
+    onParameterChange?.(transformerId, validParameters);
   };
 
   const handleParameterReset = (transformerId: string) => {
@@ -163,21 +153,8 @@ export function PipelineManager({
     });
   };
 
-  // Handle visualization with parameter application
+  // Handle visualization
   const handleVisualize = () => {
-    // Apply all local parameter changes to the pipeline before visualizing
-    transformersWithLocalChanges.forEach((transformerId) => {
-      const parameters = transformerParameters[transformerId];
-      handleParameterChange(transformerId, parameters);
-    });
-
-    // Clear local changes tracking
-    setTransformersWithLocalChanges(new Set());
-
-    // Increment visualization count to signal TransformerItems to reset their local changes
-    setVisualizationCount((prev) => prev + 1);
-
-    // Call the original onVisualize
     onVisualize?.();
   };
 
@@ -215,14 +192,11 @@ export function PipelineManager({
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
-  // Check if there are any local parameter changes that need to be applied
-  const hasLocalParameterChanges = transformersWithLocalChanges.size > 0;
-
   const isVisualizeEnabled =
     hasData &&
     activeTransformerIds.length > 0 &&
     !isVisualizing &&
-    (isPipelineModified || hasLocalParameterChanges);
+    isPipelineModified;
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -281,11 +255,18 @@ export function PipelineManager({
                     isInPipeline={true}
                     onAddTransformer={onAddTransformer}
                     onRemoveTransformer={onRemoveTransformer}
-                    onLocalParameterChange={handleLocalParameterChange}
+                    onParameterChange={handleParameterChange}
                     onParameterReset={handleParameterReset}
-                    currentParameters={transformerParameters[transformerId]}
+                    currentParameters={
+                      transformerParameters[transformerId] ?? {
+                        dimensions: {
+                          primary: transformer.defaultPrimaryDimension,
+                          secondary: transformer.defaultSecondaryDimension,
+                        },
+                        visual: {},
+                      }
+                    }
                     isVisualizing={isVisualizing}
-                    visualizationCount={visualizationCount}
                   />
                 );
               })
@@ -415,11 +396,18 @@ export function PipelineManager({
                     isInPipeline={false}
                     onAddTransformer={onAddTransformer}
                     onRemoveTransformer={onRemoveTransformer}
-                    onLocalParameterChange={handleLocalParameterChange}
+                    onParameterChange={handleParameterChange}
                     onParameterReset={handleParameterReset}
-                    currentParameters={transformerParameters[transformerId]}
+                    currentParameters={
+                      transformerParameters[transformerId] ?? {
+                        dimensions: {
+                          primary: transformer.defaultPrimaryDimension,
+                          secondary: transformer.defaultSecondaryDimension,
+                        },
+                        visual: {},
+                      }
+                    }
                     isVisualizing={isVisualizing}
-                    visualizationCount={visualizationCount}
                   />
                 );
               })

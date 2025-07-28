@@ -11,8 +11,13 @@ interface TransformerItemProps {
   isInPipeline: boolean;
   onAddTransformer?: (transformerId: string) => void;
   onRemoveTransformer?: (transformerId: string) => void;
-  // NEW: Track local changes instead of immediate pipeline updates
-  onLocalParameterChange?: (transformerId: string, hasChanges: boolean) => void;
+  onParameterChange?: (
+    transformerId: string,
+    parameters: {
+      dimensions: { primary?: string; secondary?: string };
+      visual: Record<string, unknown>;
+    },
+  ) => void;
   onParameterReset?: (transformerId: string) => void;
   currentParameters?: {
     dimensions: { primary?: string; secondary?: string };
@@ -20,8 +25,6 @@ interface TransformerItemProps {
   };
   // NEW: Disable controls during visualization
   isVisualizing?: boolean;
-  // NEW: Counter to signal when visualization starts (used to reset local changes)
-  visualizationCount?: number;
 }
 
 export function TransformerItem({
@@ -32,11 +35,10 @@ export function TransformerItem({
   isInPipeline,
   onAddTransformer,
   onRemoveTransformer,
-  onLocalParameterChange,
+  onParameterChange,
   onParameterReset,
   currentParameters,
   isVisualizing = false,
-  visualizationCount = 0,
 }: TransformerItemProps) {
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -55,9 +57,6 @@ export function TransformerItem({
     };
   });
 
-  // Track if parameters have been modified locally
-  const [hasLocalChanges, setHasLocalChanges] = React.useState(false);
-
   // Separate state for slider values during dragging
   const [sliderValues, setSliderValues] = React.useState<
     Record<string, unknown>
@@ -67,45 +66,36 @@ export function TransformerItem({
   React.useEffect(() => {
     if (currentParameters) {
       setParameters(currentParameters);
-      setHasLocalChanges(false); // Reset change tracking when parent updates
     }
   }, [currentParameters]);
-
-  // Reset local changes when visualization starts
-  React.useEffect(() => {
-    setHasLocalChanges(false);
-  }, [visualizationCount]);
-
-  // Notify parent of local changes
-  React.useEffect(() => {
-    onLocalParameterChange?.(transformer.id, hasLocalChanges);
-  }, [hasLocalChanges, transformer.id]);
 
   // Handle dimension changes
   const handleDimensionChange = (
     type: 'primary' | 'secondary',
     value: string | undefined,
   ) => {
-    setParameters((prev) => ({
-      ...prev,
+    const newParameters = {
+      ...parameters,
       dimensions: {
-        ...prev.dimensions,
+        ...parameters.dimensions,
         [type]: value,
       },
-    }));
-    setHasLocalChanges(true);
+    };
+    setParameters(newParameters);
+    onParameterChange?.(transformer.id, newParameters);
   };
 
   // Handle visual parameter changes (non-sliders)
   const handleVisualParameterChange = (key: string, value: unknown) => {
-    setParameters((prev) => ({
-      ...prev,
+    const newParameters = {
+      ...parameters,
       visual: {
-        ...prev.visual,
+        ...parameters.visual,
         [key]: value,
       },
-    }));
-    setHasLocalChanges(true);
+    };
+    setParameters(newParameters);
+    onParameterChange?.(transformer.id, newParameters);
   };
 
   // Handle slider input during dragging
@@ -118,18 +108,19 @@ export function TransformerItem({
 
   // Handle slider change completion
   const handleSliderChangeComplete = (key: string, value: unknown) => {
-    setParameters((prev) => ({
-      ...prev,
+    const newParameters = {
+      ...parameters,
       visual: {
-        ...prev.visual,
+        ...parameters.visual,
         [key]: value,
       },
-    }));
+    };
+    setParameters(newParameters);
     setSliderValues((prev) => {
       const { [key]: _, ...newValues } = prev; // Clear the slider value
       return newValues;
     });
-    setHasLocalChanges(true);
+    onParameterChange?.(transformer.id, newParameters);
   };
 
   // Handle parameter reset
@@ -143,7 +134,7 @@ export function TransformerItem({
     };
     setParameters(defaultParameters);
     setSliderValues({});
-    setHasLocalChanges(false);
+    onParameterChange?.(transformer.id, defaultParameters);
     onParameterReset?.(transformer.id);
   };
 
@@ -174,11 +165,6 @@ export function TransformerItem({
           <span className="font-medium text-sm">
             {transformer.name || transformer.id}
           </span>
-          {hasLocalChanges && (
-            <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">
-              Modified
-            </span>
-          )}
         </div>
         {isInPipeline ? (
           <button

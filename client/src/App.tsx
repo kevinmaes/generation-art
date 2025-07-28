@@ -177,6 +177,7 @@ function App(): React.ReactElement {
       });
       setPipelineResult(result);
       setLastRunTransformerIds([...activeTransformerIds]);
+      // Update lastRunParameters with current transformerParameters after successful pipeline run
       setLastRunParameters({ ...transformerParameters });
     } catch (err) {
       console.error('Pipeline execution failed:', err);
@@ -207,6 +208,10 @@ function App(): React.ReactElement {
       (id, index) => id === activeTransformerIds[index],
     );
 
+    if (transformersChanged) {
+      return true;
+    }
+
     // Check if any parameters have changed
     const parametersChanged = activeTransformerIds.some((transformerId) => {
       const currentParams = transformerParameters[transformerId];
@@ -234,11 +239,19 @@ function App(): React.ReactElement {
       const currentVisualKeys = Object.keys(currentParams.visual);
       const lastVisualKeys = Object.keys(lastParams.visual);
 
-      if (currentVisualKeys.length !== lastVisualKeys.length) return true;
+      if (currentVisualKeys.length !== lastVisualKeys.length) {
+        return true;
+      }
 
-      return currentVisualKeys.some(
+      const visualChanged = currentVisualKeys.some(
         (key) => currentParams.visual[key] !== lastParams.visual[key],
       );
+
+      if (visualChanged) {
+        return true;
+      }
+
+      return false;
     });
 
     return transformersChanged || parametersChanged;
