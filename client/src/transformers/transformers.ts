@@ -44,6 +44,7 @@ export const transformers: Record<string, VisualTransformerConfig> = {
       'nodeSize',
       'primaryColor',
       'spacing',
+      'temperature',
     ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(
@@ -66,7 +67,7 @@ export const transformers: Record<string, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'childrenCount',
     defaultSecondaryDimension: 'lifespan',
-    visualParameters: ['variationFactor', 'nodeSize'],
+    visualParameters: ['variationFactor', 'nodeSize', 'temperature'],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeSizeTransform),
   },

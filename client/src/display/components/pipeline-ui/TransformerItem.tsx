@@ -211,11 +211,11 @@ export function TransformerItem({
                 {transformer.availableDimensions.length > 0 && (
                   <div>
                     <h4 className="text-xs font-medium text-gray-700 mb-2">
-                      Dimensions
+                      Dimensions + Temperature
                     </h4>
 
                     {/* Dimensions Row */}
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       {/* Primary Dimension */}
                       <div>
                         <label className="block text-xs text-gray-600 mb-1">
@@ -267,6 +267,35 @@ export function TransformerItem({
                             ))}
                         </select>
                       </div>
+
+                      {/* Temperature */}
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">
+                          Temperature
+                        </label>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.1}
+                          value={
+                            (parameters.visual.temperature as number) ||
+                            (VISUAL_PARAMETERS.temperature
+                              .defaultValue as number)
+                          }
+                          onChange={(e) => {
+                            handleVisualParameterChange(
+                              'temperature',
+                              Number(e.target.value),
+                            );
+                          }}
+                          className="w-full"
+                        />
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                          <span>0</span>
+                          <span>1</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -278,45 +307,74 @@ export function TransformerItem({
                       Visual Parameters
                     </h4>
 
-                    {/* Two-column layout: Sliders on left, Numerical on right */}
+                    {/* Two-column layout: Sliders+Colors on left, Dropdowns+Numbers on right */}
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Left column: Sliders */}
+                      {/* Left column: Sliders and Color pickers */}
                       <div>
                         {(() => {
-                          const sliderParams =
-                            transformer.visualParameters.filter(
-                              (paramId) =>
-                                VISUAL_PARAMETERS[paramId].type === 'range',
-                            );
-                          if (sliderParams.length > 0) {
+                          const leftColumnParams =
+                            transformer.visualParameters.filter((paramId) => {
+                              const param = VISUAL_PARAMETERS[paramId];
+                              return (
+                                (param.type === 'range' ||
+                                  param.type === 'color') &&
+                                paramId !== 'temperature'
+                              );
+                            });
+                          if (leftColumnParams.length > 0) {
                             return (
                               <div className="space-y-3">
-                                {sliderParams.map((paramId) => {
+                                {leftColumnParams.map((paramId) => {
                                   const param = VISUAL_PARAMETERS[paramId];
                                   return (
                                     <div key={paramId}>
                                       <label className="block text-xs text-gray-600 mb-1 text-left">
                                         {param.label}
                                       </label>
-                                      <input
-                                        type="range"
-                                        min={param.min}
-                                        max={param.max}
-                                        step={param.step}
-                                        value={
-                                          (parameters.visual[
-                                            paramId
-                                          ] as number) ||
-                                          (param.defaultValue as number)
-                                        }
-                                        onChange={(e) => {
-                                          handleVisualParameterChange(
-                                            paramId,
-                                            Number(e.target.value),
-                                          );
-                                        }}
-                                        className="w-full"
-                                      />
+                                      {param.type === 'range' ? (
+                                        <>
+                                          <input
+                                            type="range"
+                                            min={param.min}
+                                            max={param.max}
+                                            step={param.step}
+                                            value={
+                                              (parameters.visual[
+                                                paramId
+                                              ] as number) ||
+                                              (param.defaultValue as number)
+                                            }
+                                            onChange={(e) => {
+                                              handleVisualParameterChange(
+                                                paramId,
+                                                Number(e.target.value),
+                                              );
+                                            }}
+                                            className="w-full"
+                                          />
+                                          <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                            <span>{param.min}</span>
+                                            <span>{param.max}</span>
+                                          </div>
+                                        </>
+                                      ) : param.type === 'color' ? (
+                                        <input
+                                          type="color"
+                                          value={
+                                            (parameters.visual[
+                                              paramId
+                                            ] as string) ||
+                                            (param.defaultValue as string)
+                                          }
+                                          onChange={(e) => {
+                                            handleVisualParameterChange(
+                                              paramId,
+                                              e.target.value,
+                                            );
+                                          }}
+                                          className="w-full h-8 border border-gray-300 rounded"
+                                        />
+                                      ) : null}
                                     </div>
                                   );
                                 })}
@@ -327,18 +385,22 @@ export function TransformerItem({
                         })()}
                       </div>
 
-                      {/* Right column: Numerical inputs and other controls */}
+                      {/* Right column: Dropdowns and Numerical inputs */}
                       <div>
                         {(() => {
-                          const otherParams =
-                            transformer.visualParameters.filter(
-                              (paramId) =>
-                                VISUAL_PARAMETERS[paramId].type !== 'range',
-                            );
-                          if (otherParams.length > 0) {
+                          const rightColumnParams =
+                            transformer.visualParameters.filter((paramId) => {
+                              const param = VISUAL_PARAMETERS[paramId];
+                              return (
+                                param.type === 'select' ||
+                                param.type === 'number' ||
+                                param.type === 'boolean'
+                              );
+                            });
+                          if (rightColumnParams.length > 0) {
                             return (
                               <div className="space-y-3">
-                                {otherParams.map((paramId) => {
+                                {rightColumnParams.map((paramId) => {
                                   const param = VISUAL_PARAMETERS[paramId];
                                   return (
                                     <div key={paramId}>
@@ -408,41 +470,7 @@ export function TransformerItem({
                                           }}
                                           className="text-xs"
                                         />
-                                      ) : param.type === 'color' ? (
-                                        <input
-                                          type="color"
-                                          value={
-                                            (parameters.visual[
-                                              paramId
-                                            ] as string) ||
-                                            (param.defaultValue as string)
-                                          }
-                                          onChange={(e) => {
-                                            handleVisualParameterChange(
-                                              paramId,
-                                              e.target.value,
-                                            );
-                                          }}
-                                          className="w-full h-8 border border-gray-300 rounded"
-                                        />
-                                      ) : (
-                                        <input
-                                          type="text"
-                                          value={
-                                            (parameters.visual[
-                                              paramId
-                                            ] as string) ||
-                                            (param.defaultValue as string)
-                                          }
-                                          onChange={(e) => {
-                                            handleVisualParameterChange(
-                                              paramId,
-                                              e.target.value,
-                                            );
-                                          }}
-                                          className="w-full text-xs border border-gray-300 rounded px-2 py-1"
-                                        />
-                                      )}
+                                      ) : null}
                                     </div>
                                   );
                                 })}
