@@ -218,7 +218,7 @@ export function TransformerItem({
                     <div className="grid grid-cols-3 gap-2">
                       {/* Primary Dimension */}
                       <div>
-                        <label className="block text-xs text-gray-600 mb-1">
+                        <label className="block text-xs text-gray-600 mb-1 text-left">
                           Primary
                         </label>
                         <select
@@ -241,7 +241,7 @@ export function TransformerItem({
 
                       {/* Secondary Dimensions */}
                       <div>
-                        <label className="block text-xs text-gray-600 mb-1">
+                        <label className="block text-xs text-gray-600 mb-1 text-left">
                           Secondary
                         </label>
                         <select
@@ -270,7 +270,7 @@ export function TransformerItem({
 
                       {/* Temperature */}
                       <div>
-                        <label className="block text-xs text-gray-600 mb-1">
+                        <label className="block text-xs text-gray-600 mb-1 text-left">
                           Temperature
                         </label>
                         <input
