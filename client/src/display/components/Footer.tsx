@@ -5,6 +5,7 @@ interface FooterProps {
   height: number;
   onExportClick: () => void;
   onPrintClick: () => void;
+  onOpenPipelineClick: () => void;
   exportState: {
     status: string;
     error: string | null;
@@ -16,14 +17,26 @@ export function Footer({
   height,
   onExportClick,
   onPrintClick,
+  onOpenPipelineClick,
   exportState,
 }: FooterProps): React.ReactElement {
   return (
     <div className="bg-gray-50 px-8 py-4 border-t border-gray-200">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center relative">
         <div className="text-sm text-gray-600">
           <span className="font-medium">Canvas Size:</span> {width} × {height}px
         </div>
+        
+        {/* Centered Pipeline Button */}
+        <div className="absolute left-1/2 transform -translate-x-1/2">
+          <button
+            onClick={onOpenPipelineClick}
+            className="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors font-medium"
+          >
+            Open Pipeline Manager <kbd className="ml-2 px-2 py-1 bg-purple-600 rounded text-xs">⌘D</kbd>
+          </button>
+        </div>
+
         <div className="flex gap-3">
           <button
             onClick={onExportClick}

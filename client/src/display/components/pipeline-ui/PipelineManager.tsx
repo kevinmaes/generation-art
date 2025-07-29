@@ -212,41 +212,17 @@ export function PipelineManager({
     hasData && activeTransformerIds.length > 0 && !isVisualizing;
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Visual Transformer Pipeline</h3>
-        <button
-          onClick={handleVisualize}
-          disabled={!isVisualizeEnabled}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            isVisualizing
-              ? 'bg-blue-500 text-white'
-              : isVisualizeEnabled
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
-        >
-          {isVisualizing ? (
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Visualizing...</span>
-            </div>
-          ) : (
-            'Visualize'
-          )}
-        </button>
-      </div>
+    <div className="h-full flex flex-col bg-white p-6">
 
-      <div className="grid grid-cols-2 gap-4" style={{ height: '1000px' }}>
+      <div className="flex-1 grid grid-cols-2 gap-4 min-h-0">
         {/* Top-Left: Active Pipeline */}
-        <div className="border rounded-lg p-4 flex flex-col">
+        <div className="border rounded-lg p-4 flex flex-col min-h-0">
           <h4 className="font-medium mb-3 text-gray-700">Active Pipeline</h4>
           <div
-            className="flex-1 overflow-y-auto space-y-2"
+            className="flex-1 overflow-y-auto space-y-2 min-h-0"
             style={{
               scrollbarWidth: 'thin',
               scrollbarColor: '#888 #f1f1f1',
-              maxHeight: '460px',
             }}
           >
             {activeTransformerIds.length === 0 ? (
@@ -289,7 +265,7 @@ export function PipelineManager({
         </div>
 
         {/* Top-Right: Pipeline Input */}
-        <div className="border rounded-lg p-4 flex flex-col">
+        <div className="border rounded-lg p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-gray-700">
               Pipeline Input
@@ -329,7 +305,7 @@ export function PipelineManager({
               </div>
             )}
           </div>
-          <div className="flex-1 overflow-hidden" style={{ height: '460px' }}>
+          <div className="flex-1 overflow-hidden min-h-0">
             {pipelineInput ? (
               <div
                 className="h-full border rounded bg-gray-50"
@@ -339,7 +315,6 @@ export function PipelineManager({
                   overflow: 'auto',
                   overflowX: 'auto',
                   overflowY: 'auto',
-                  maxHeight: '460px',
                 }}
               >
                 <ReactJson
@@ -380,18 +355,15 @@ export function PipelineManager({
         </div>
 
         {/* Bottom-Left: Available Transformers */}
-        <div className="border rounded-lg p-4 flex flex-col">
+        <div className="border rounded-lg p-4 flex flex-col min-h-0">
           <h4 className="font-medium mb-3 text-gray-700">
             Available Transformers
           </h4>
           <div
-            className="flex-1 overflow-y-auto space-y-2"
+            className="flex-1 overflow-y-auto space-y-2 min-h-0"
             style={{
               scrollbarWidth: 'thin',
               scrollbarColor: '#888 #f1f1f1',
-              height: '440px',
-              minHeight: '440px',
-              maxHeight: '440px',
             }}
           >
             {availableTransformerIds.length === 0 ? (
@@ -431,7 +403,7 @@ export function PipelineManager({
         </div>
 
         {/* Bottom-Right: Pipeline Output */}
-        <div className="border rounded-lg p-4 flex flex-col">
+        <div className="border rounded-lg p-4 flex flex-col min-h-0">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-gray-700">
               Pipeline Output
@@ -460,7 +432,7 @@ export function PipelineManager({
               </button>
             )}
           </div>
-          <div className="flex-1 overflow-hidden" style={{ height: '440px' }}>
+          <div className="flex-1 overflow-hidden min-h-0">
             {pipelineResult ? (
               <div
                 className="h-full border rounded bg-gray-50"
@@ -470,8 +442,6 @@ export function PipelineManager({
                   overflow: 'auto',
                   overflowX: 'auto',
                   overflowY: 'auto',
-                  minHeight: '440px',
-                  maxHeight: '440px',
                 }}
               >
                 <ReactJson
@@ -502,9 +472,9 @@ export function PipelineManager({
         </div>
       </div>
 
-      {/* Pipeline Status */}
-      {pipelineResult && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+      {/* Pipeline Status - Always visible at bottom */}
+      <div className="mt-4 p-3 bg-gray-50 rounded-lg border-t">
+        {pipelineResult ? (
           <div className="flex items-center justify-between text-sm">
             <div>
               <span className="font-medium">Pipeline Status:</span>
@@ -523,8 +493,12 @@ export function PipelineManager({
               </span>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-sm text-gray-500 text-center">
+            No pipeline results yet. Configure transformers and click Visualize.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

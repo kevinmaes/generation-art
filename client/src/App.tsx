@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
-import { PipelineManager } from './display/components/pipeline-ui/PipelineManager';
+import { PipelineModal } from './display/components/pipeline-ui/PipelineModal';
 import { ErrorBoundary } from './display/components/ErrorBoundary';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
@@ -55,6 +55,7 @@ function App(): React.ReactElement {
     >
   >({});
   const [isVisualizing, setIsVisualizing] = useState(false);
+  const [isPipelineModalOpen, setIsPipelineModalOpen] = useState(false);
 
   const [currentDataset, setCurrentDataset] = useState<string>('kennedy');
 
@@ -83,6 +84,20 @@ function App(): React.ReactElement {
       setCurrentView('artwork');
     }
   }, [currentView, dualData]);
+
+  // Handle keyboard shortcut for pipeline modal
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Handle Cmd+D or Ctrl+D
+      if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
+        event.preventDefault(); // Prevent browser bookmark
+        setIsPipelineModalOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -257,26 +272,8 @@ function App(): React.ReactElement {
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onPipelineResult={handlePipelineResult}
+                onOpenPipelineClick={() => setIsPipelineModalOpen(true)}
               />
-              <div className="mb-8">
-                <ErrorBoundary>
-                  <PipelineManager
-                    pipelineResult={pipelineResult}
-                    activeTransformerIds={activeTransformerIds}
-                    dualData={dualData}
-                    onTransformerSelect={handleTransformerSelect}
-                    onAddTransformer={handleAddTransformer}
-                    onRemoveTransformer={handleRemoveTransformer}
-                    onParameterChange={handleParameterChange}
-                    onVisualize={() => {
-                      void handleVisualize();
-                    }}
-                    isVisualizing={isVisualizing}
-                    hasData={!!dualData}
-                    lastRunParameters={lastRunParameters}
-                  />
-                </ErrorBoundary>
-              </div>
             </>
           ) : (
             <div
@@ -370,6 +367,27 @@ function App(): React.ReactElement {
           )}
         </div>
       </div>
+
+      {/* Pipeline Modal */}
+      <ErrorBoundary>
+        <PipelineModal
+          isOpen={isPipelineModalOpen}
+          onClose={() => setIsPipelineModalOpen(false)}
+          pipelineResult={pipelineResult}
+          activeTransformerIds={activeTransformerIds}
+          dualData={dualData}
+          onTransformerSelect={handleTransformerSelect}
+          onAddTransformer={handleAddTransformer}
+          onRemoveTransformer={handleRemoveTransformer}
+          onParameterChange={handleParameterChange}
+          onVisualize={() => {
+            void handleVisualize();
+          }}
+          isVisualizing={isVisualizing}
+          hasData={!!dualData}
+          lastRunParameters={lastRunParameters}
+        />
+      </ErrorBoundary>
     </div>
   );
 }
