@@ -98,9 +98,36 @@ interface GedcomParserFacade {
 ```typescript
 function convertAndBuildRelationships(data: ParsedGedcomData): {
   individuals: Individual[];
-  families: Family[];
-};
 ```
+
+#### ID-Keyed Data Structure Optimization
+
+**Design Decision**: The system uses ID-keyed objects (`Record<string, Individual>`) instead of arrays for efficient graph operations.
+
+**Benefits**:
+
+- **O(1) Lookups**: Direct access by GEDCOM ID vs O(n) array searches
+- **Graph Performance**: Optimized for family tree traversal patterns
+- **Transformer Efficiency**: Visual transformers can quickly access individuals by ID
+- **Memory Efficiency**: No need to maintain array order for graph data
+
+**Implementation**:
+
+```typescript
+// CLI transforms arrays to ID-keyed objects
+const individualsById: Record<string, AugmentedIndividual> = {};
+enhancedIndividuals.forEach((individual) => {
+  individualsById[individual.id] = individual;
+});
+
+// Transformers use efficient lookups
+const individual = context.gedcomData.individuals['I1'];
+```
+
+families: Family[];
+};
+
+````
 
 #### `metadata-extraction-config.ts`
 
@@ -149,7 +176,7 @@ function convertAndBuildRelationships(data: ParsedGedcomData): {
 ```typescript
 export function createWebSketch(data: ArtData): p5;
 export function createPrintSketch(data: ArtData): p5;
-```
+````
 
 #### `ArtGenerator.tsx`
 
@@ -178,19 +205,21 @@ export function createPrintSketch(data: ArtData): p5;
 #### CLI Build Process
 
 **Location**: `src/scripts/build-gedcom.ts`
-**Purpose**: Process GEDCOM files locally via CLI to generate safe JSON output
+**Purpose**: Process GEDCOM files locally via CLI to generate dual JSON output
 **Responsibilities**:
 
 - GEDCOM file processing and validation
-- PII masking and metadata extraction
-- JSON generation to git-ignored directory
+- Comprehensive metadata analysis and extraction
+- PII stripping for LLM-ready data
+- Dual JSON generation to git-ignored directory
 - Error handling and validation
 
 **Key Features**:
 
 - Local-only processing (no PII sent to remote)
-- Comprehensive metadata extraction
-- PII masking for privacy
+- Comprehensive graph analysis and metadata extraction
+- Dual output: full data + LLM-ready PII-stripped data
+- Processing statistics and memory usage tracking
 - Output to git-ignored `generated/` directory
 
 #### `FramedArtwork.tsx`
@@ -244,7 +273,7 @@ export function createPrintSketch(data: ArtData): p5;
 ### 1. Unidirectional Data Flow
 
 ```
-CLI Build → Parser → Data Enhancement → Metadata → JSON Output → Art Generation → Display
+CLI Build → Parser → Metadata Analysis → PII Stripping → Dual JSON Output → Art Generation → Display
 ```
 
 ### 2. Component Communication

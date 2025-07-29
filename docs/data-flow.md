@@ -28,68 +28,80 @@ graph LR
 
 ## Stage 1: CLI Processing 🖥️
 
-**Purpose**: Parse GEDCOM + extract PII-safe metadata  
+**Purpose**: Parse GEDCOM + generate dual data structure (full + LLM-ready)  
 **Location**: `src/cli/`  
 **Security**: Local only, never transmitted
 
 ```mermaid
 graph LR
     A[📁 GEDCOM File] --> B[🔍 Parse & Validate]
-    B --> C[🔒 PII Masking]
-    C --> D[📈 Metadata Extraction]
-    D --> E[💾 Safe JSON Output]
+    B --> C[📈 Comprehensive Metadata Analysis]
+    C --> D[🔒 PII Stripping for LLM]
+    D --> E[💾 Dual JSON Output]
 
     style A fill:#ffebee
     style E fill:#e8f5e8
 ```
 
-**Output**: `generated/parsed/*-augmented.json` (git-ignored)
+**Output**:
+
+- `generated/parsed/*.json` (full data with metadata)
+- `generated/parsed/*-llm.json` (PII-stripped for LLM)
+- `generated/parsed/*-stats.json` (processing statistics)
 
 ## Stage 2: Data Loading 🎨
 
-**Purpose**: Load pre-processed JSON + handle errors  
+**Purpose**: Load dual data structure (full + LLM-ready) + handle errors  
 **Location**: `src/client/data-loading/`  
 **Security**: Public, safe data only
 
 ```mermaid
 graph LR
-    A[💾 Generated JSON] --> B[📊 Load & Validate]
+    A[💾 Full JSON] --> B[📊 Load & Validate]
+    A2[💾 LLM JSON] --> B
     B --> C[❌ Error Handling]
-    B --> D[✅ Success State]
+    B --> D[✅ Dual Data Structure]
 
     style A fill:#e8f5e8
+    style A2 fill:#e8f5e8
     style D fill:#c8e6c9
 ```
 
-**Input**: `generated/parsed/*-augmented.json`  
-**Output**: Validated `AugmentedIndividual[]`
+**Input**:
+
+- `generated/parsed/*.json` (full data)
+- `generated/parsed/*-llm.json` (LLM-ready data)  
+  **Output**: Validated `DualGedcomData` with `full` and `llm` properties
 
 ## Stage 3: Visualization 🎨
 
-**Purpose**: Transform metadata → canvas layout  
+**Purpose**: Transform dual data → canvas layout  
 **Location**: `src/client/display/`  
 **Security**: Public, safe data only
 
 ```mermaid
 graph LR
-    A[📊 Augmented Data] --> B[📐 Layout Calculations]
-    B --> C[🎯 Canvas Coordinates]
-    C --> D[🖼️ P5.js Rendering]
+    A[📊 Full Data] --> B[📐 Layout Calculations]
+    A2[🔒 LLM Data] --> C[🤖 LLM Analysis]
+    B --> D[🎯 Canvas Coordinates]
+    C --> D
+    D --> E[🖼️ P5.js Rendering]
 
     style A fill:#e8f5e8
-    style D fill:#e1f5fe
+    style A2 fill:#fff3e0
+    style E fill:#e1f5fe
 ```
 
-**Input**: `AugmentedIndividual[]`  
+**Input**: `DualGedcomData` (full + LLM-ready)  
 **Output**: Canvas rendering + exports
 
 ## Data Structures
 
-| Stage | Input          | Output             | Key Types                                     |
-| ----- | -------------- | ------------------ | --------------------------------------------- |
-| **1** | GEDCOM file    | JSON with metadata | `Individual`, `Family`, `AugmentedIndividual` |
-| **2** | Generated JSON | Validated data     | `AugmentedIndividual[]`                       |
-| **3** | Augmented data | Canvas layout      | `DisplayData`, `CanvasCoordinates`            |
+| Stage | Input           | Output              | Key Types                                |
+| ----- | --------------- | ------------------- | ---------------------------------------- |
+| **1** | GEDCOM file     | Dual JSON files     | `GedcomDataWithMetadata`, `LLMReadyData` |
+| **2** | Dual JSON files | Validated dual data | `DualGedcomData`                         |
+| **3** | Dual data       | Canvas layout       | `DisplayData`, `CanvasCoordinates`       |
 
 ## Error Handling
 

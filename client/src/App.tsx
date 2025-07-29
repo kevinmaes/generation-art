@@ -1,26 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
+import { PipelineManager } from './display/components/pipeline-ui/PipelineManager';
+import { ErrorBoundary } from './display/components/ErrorBoundary';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
+import { validateFlexibleGedcomData } from '../../shared/types';
+import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
+import type { PipelineResult } from './transformers/pipeline';
+import { runPipeline, createSimplePipeline } from './transformers/pipeline';
+import {
+  transformers,
+  HORIZONTAL_SPREAD,
+  type TransformerId,
+} from './transformers/transformers';
+import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
 
-interface FamilyTreeData {
-  individuals: any[];
-  families: any[];
-  metadata?: any;
+// Type for the complete dual-data structure
+interface DualGedcomData {
+  full: GedcomDataWithMetadata;
+  llm: LLMReadyData;
 }
 
+const DEFAULT_TRANSFORMER_IDS: TransformerId[] = [HORIZONTAL_SPREAD.ID];
+
 function App(): React.ReactElement {
-  const [familyTreeData, setFamilyTreeData] = useState<FamilyTreeData | null>(
-    null,
-  );
+  const [dualData, setDualData] = useState<DualGedcomData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
   );
+  const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(
+    null,
+  );
+  const [activeTransformerIds, setActiveTransformerIds] = useState<
+    TransformerId[]
+  >(DEFAULT_TRANSFORMER_IDS);
+  const [transformerParameters, setTransformerParameters] = useState<
+    Record<
+      string,
+      {
+        dimensions: { primary?: string; secondary?: string };
+        visual: Record<string, unknown>;
+      }
+    >
+  >({});
+  const [lastRunParameters, setLastRunParameters] = useState<
+    Record<
+      string,
+      {
+        dimensions: { primary?: string; secondary?: string };
+        visual: Record<string, unknown>;
+      }
+    >
+  >({});
+  const [isVisualizing, setIsVisualizing] = useState(false);
+
+  const [currentDataset, setCurrentDataset] = useState<string>('kennedy');
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
+
+  // Use the new hook for loading both full and LLM data
+  useGedcomDataWithLLM({
+    baseFileName: currentDataset,
+    onDataLoaded: (data) => {
+      setDualData(data);
+    },
+    onError: (error) => {
+      setError(error);
+    },
+  });
+
+  // Check for autoLoad parameter and load Kennedy data automatically
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoLoad = urlParams.get('autoLoad');
+
+    if (autoLoad === 'true' && currentView === 'file-select' && !dualData) {
+      console.log('🔄 Auto-loading Kennedy family tree data...');
+      setCurrentDataset('kennedy');
+      setCurrentView('artwork');
+    }
+  }, [currentView, dualData]);
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -31,21 +93,24 @@ function App(): React.ReactElement {
     setError(null);
     try {
       const text = await file.text();
-      const data = JSON.parse(text);
+      const data = JSON.parse(text) as unknown;
 
-      // Handle both array format (enhanced) and object format (raw)
-      if (Array.isArray(data)) {
-        // Enhanced format: array of individuals with metadata
-        setFamilyTreeData({ individuals: data, families: [] });
-      } else if (data.individuals && data.families) {
-        // Raw format: object with individuals and families
-        setFamilyTreeData(data);
-      } else {
-        throw new Error(
-          'Invalid file format. Expected array of individuals or object with "individuals" and "families" arrays.',
-        );
-      }
+      // Use Zod validation instead of manual type checking
+      const validatedData = validateFlexibleGedcomData(data);
+
+      // For uploaded files, create a minimal dual-data structure
+      // (LLM data will be null since we don't have pre-processed LLM data)
+      setDualData({
+        full: validatedData,
+        llm: {
+          individuals: {},
+          families: {},
+          metadata: validatedData.metadata,
+        },
+      });
       setCurrentView('artwork');
+      // Clear any previous pipeline result when loading new data
+      setPipelineResult(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load file');
     } finally {
@@ -53,41 +118,101 @@ function App(): React.ReactElement {
     }
   };
 
-  const handleLoadKennedy = async () => {
-    setIsLoading(true);
+  const handleLoadKennedy = () => {
+    setCurrentDataset('kennedy');
+    setCurrentView('artwork');
     setError(null);
+    setPipelineResult(null);
+    // The hook will automatically load the data
+  };
+
+  const handleTransformerSelect = (transformerId: string) => {
+    // This is now just for selection, not for adding/removing
+    console.log('Selected transformer:', transformerId);
+  };
+
+  const handleAddTransformer = (transformerId: TransformerId) => {
+    if (!activeTransformerIds.includes(transformerId)) {
+      setActiveTransformerIds([...activeTransformerIds, transformerId]);
+    }
+  };
+
+  const handleRemoveTransformer = (transformerId: string) => {
+    setActiveTransformerIds(
+      activeTransformerIds.filter((id) => id !== transformerId),
+    );
+  };
+
+  const handleParameterChange = (
+    transformerId: string,
+    parameters: {
+      dimensions: { primary?: string; secondary?: string };
+      visual: Record<string, unknown>;
+    },
+  ) => {
+    setTransformerParameters((prev) => ({
+      ...prev,
+      [transformerId]: parameters,
+    }));
+  };
+
+  const handleVisualize = async () => {
+    if (!dualData) {
+      setError('Data is required for visualization');
+      return;
+    }
+
+    setIsVisualizing(true);
     try {
-      const response = await fetch(
-        '/generated/parsed/kennedy.json?t=' + Date.now(),
-      );
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      const contentType = response.headers.get('content-type');
-      console.log('Content-Type:', contentType);
+      const pipelineConfig = createSimplePipeline(activeTransformerIds, {
+        canvasWidth: minWidth,
+        canvasHeight: minHeight,
+        temperature: 0.5,
+      });
 
-      if (!response.ok) {
-        throw new Error(`Failed to load Kennedy data: ${response.statusText}`);
-      }
+      const result = await runPipeline({
+        fullData: dualData.full,
+        llmData: dualData.llm,
+        config: pipelineConfig,
+      });
+      setPipelineResult(result);
+      // Update lastRunParameters with current transformerParameters after successful pipeline run
+      // Ensure we capture the actual parameters used, including defaults for transformers without explicit parameters
+      const actualParametersUsed: Record<
+        string,
+        {
+          dimensions: { primary?: string; secondary?: string };
+          visual: Record<string, unknown>;
+        }
+      > = {};
+      activeTransformerIds.forEach((transformerId) => {
+        const transformer = transformers[transformerId];
+        actualParametersUsed[transformerId] = transformerParameters[
+          transformerId
+        ] ?? {
+          dimensions: {
+            primary: transformer.defaultPrimaryDimension,
+            secondary: transformer.defaultSecondaryDimension,
+          },
+          visual: {},
+        };
+      });
 
-      const text = await response.text();
-      console.log('Response text (first 200 chars):', text.substring(0, 200));
-
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error(
-          `Expected JSON but got ${contentType || 'unknown content type'}`,
-        );
-      }
-
-      const data = JSON.parse(text);
-      setFamilyTreeData(data);
-      setCurrentView('artwork');
+      setLastRunParameters(actualParametersUsed);
     } catch (err) {
+      console.error('Pipeline execution failed:', err);
       setError(
-        err instanceof Error ? err.message : 'Failed to load Kennedy data',
+        err instanceof Error ? err.message : 'Pipeline execution failed',
       );
     } finally {
-      setIsLoading(false);
+      setIsVisualizing(false);
     }
+  };
+
+  const handlePipelineResult = (result: PipelineResult | null) => {
+    setPipelineResult(result);
+    // Don't update activeTransformerIds from pipeline results
+    // The user's current transformer selection should be preserved
   };
 
   return (
@@ -99,7 +224,10 @@ function App(): React.ReactElement {
         className="flex flex-col justify-center items-center w-full h-full"
         style={{ minWidth, minHeight }}
       >
-        <div className="max-w-7xl w-full" style={{ minWidth }}>
+        <div
+          className="max-w-7xl w-full flex flex-col items-center"
+          style={{ minWidth }}
+        >
           <div className="pt-12 pb-8 text-center">
             <h1 className="text-5xl font-extrabold mb-3 text-gray-800 tracking-tight drop-shadow-sm">
               Generation Art
@@ -109,30 +237,58 @@ function App(): React.ReactElement {
             </p>
             {currentView === 'artwork' && (
               <button
-                onClick={() => setCurrentView('file-select')}
+                onClick={() => {
+                  setCurrentView('file-select');
+                }}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-2"
               >
                 Load Different File
               </button>
             )}
           </div>
-          {currentView === 'artwork' && familyTreeData ? (
-            <FramedArtwork
-              title="Family Tree Visualization"
-              subtitle="Generative visualization of family connections and generations"
-              width={minWidth}
-              height={minHeight}
-              jsonFile={'generated/parsed/kennedy.json'}
-              className="mb-8"
-            />
+          {currentView === 'artwork' && dualData ? (
+            <>
+              <FramedArtwork
+                title="Family Tree Visualization"
+                subtitle="Generative visualization of family connections and generations"
+                width={minWidth}
+                height={minHeight}
+                gedcomData={dualData.full}
+                pipelineResult={pipelineResult}
+                className="mb-8"
+                onPipelineResult={handlePipelineResult}
+              />
+              <div className="mb-8">
+                <ErrorBoundary>
+                  <PipelineManager
+                    pipelineResult={pipelineResult}
+                    activeTransformerIds={activeTransformerIds}
+                    dualData={dualData}
+                    onTransformerSelect={handleTransformerSelect}
+                    onAddTransformer={handleAddTransformer}
+                    onRemoveTransformer={handleRemoveTransformer}
+                    onParameterChange={handleParameterChange}
+                    onVisualize={() => {
+                      void handleVisualize();
+                    }}
+                    isVisualizing={isVisualizing}
+                    hasData={!!dualData}
+                    lastRunParameters={lastRunParameters}
+                  />
+                </ErrorBoundary>
+              </div>
+            </>
           ) : (
             <div
-              className="flex flex-col items-center justify-center"
+              className="flex flex-col items-center justify-center w-full"
               style={{ minWidth, minHeight }}
             >
               <div
-                className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl"
-                style={{ minWidth: Math.min(500, minWidth) }}
+                className="bg-white rounded-lg shadow-lg p-8 w-full max-w-4xl flex flex-col justify-center"
+                style={{
+                  minWidth: Math.min(800, minWidth),
+                  minHeight: minHeight * 0.8,
+                }}
               >
                 <h2 className="text-2xl font-semibold mb-6 text-center">
                   Load Family Tree Data
@@ -173,7 +329,9 @@ function App(): React.ReactElement {
                         type="file"
                         accept=".json"
                         className="sr-only"
-                        onChange={handleFileSelect}
+                        onChange={(event) => {
+                          void handleFileSelect(event);
+                        }}
                         disabled={isLoading}
                       />
                     </div>
@@ -185,7 +343,9 @@ function App(): React.ReactElement {
                   <div className="text-center">
                     <div className="text-gray-500 mb-2">or</div>
                     <button
-                      onClick={handleLoadKennedy}
+                      onClick={() => {
+                        handleLoadKennedy();
+                      }}
                       disabled={isLoading}
                       className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >

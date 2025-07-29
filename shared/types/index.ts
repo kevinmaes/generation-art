@@ -1,24 +1,14 @@
 /**
  * Centralized type exports
- * This file provides a single import point for all types used across the application
+ * This file provides a single import point for all types used by the cli and the client application
+ * All types are now derived from Zod schemas for consistency and runtime validation
  */
 
-// Core GEDCOM types
-export type {
-  Individual,
-  Family,
-  GedcomData,
-  AugmentedIndividual,
-  IndividualMetadata,
-} from './gedcom';
+// Re-export schemas and validation functions (source of truth)
+export * from './schemas';
 
-// Metadata types
-export type {
-  FamilyMetadata,
-  TreeMetadata,
-  FamilyWithMetadata,
-  GedcomDataWithMetadata,
-} from './metadata';
+// Re-export PII stripping types
+export type * from './pii-stripping';
 
-// Type predicates
-export { isNumber, isString, isBoolean, isBirthMonth } from './type-predicates';
+// Re-export LLM data types
+export type * from './llm-data';

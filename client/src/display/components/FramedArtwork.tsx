@@ -1,18 +1,21 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
-import { useGedcomData } from '../../data-loading/hooks/useGedcomData';
-import { useCanvasExport } from '../../data-loading/hooks/useCanvasExport';
+import { useShareArt } from '../../data-loading/hooks/useShareArt';
+import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import type { PipelineResult } from '../../transformers/pipeline';
 
 interface FramedArtworkProps {
   title: string;
   subtitle?: string;
   width?: number;
   height?: number;
-  jsonFile?: string;
+  gedcomData?: GedcomDataWithMetadata;
+  pipelineResult?: PipelineResult | null;
   className?: string;
+  onPipelineResult?: (result: PipelineResult | null) => void;
 }
 
 export function FramedArtwork({
@@ -20,71 +23,139 @@ export function FramedArtwork({
   subtitle,
   width = CANVAS_DIMENSIONS.WEB.WIDTH,
   height = CANVAS_DIMENSIONS.WEB.HEIGHT,
-  jsonFile,
+  gedcomData,
+  pipelineResult,
   className = '',
+  onPipelineResult,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
+  const [showIndividuals, setShowIndividuals] = useState(true);
+  const [showRelations, setShowRelations] = useState(true);
 
-  // Get the family data for print export
-  const { data: familyData } = useGedcomData({
-    jsonFile: jsonFile ?? '',
-  });
-
-  // Use the export hook
-  const { exportState, exportWebCanvas, exportPrintCanvas } = useCanvasExport();
+  const { shareState, exportWebCanvas } = useShareArt();
 
   const handleExport = useCallback((p5Instance: p5) => {
-    console.log('🎨 p5 instance received:', p5Instance);
     p5InstanceRef.current = p5Instance;
   }, []);
 
   const handleExportClick = useCallback(() => {
-    console.log('🖼️ Export PNG clicked!');
     if (p5InstanceRef.current) {
       exportWebCanvas(p5InstanceRef.current);
     }
   }, [exportWebCanvas]);
 
   const handlePrintClick = useCallback(() => {
-    console.log('🖨️ Print Ready clicked!');
-    if (!familyData) {
-      console.log('❌ No family data available for print export');
-      return;
+    if (p5InstanceRef.current && gedcomData) {
+      // Access the canvas through the p5 instance
+      const canvas = (
+        p5InstanceRef.current as unknown as { canvas: HTMLCanvasElement }
+      ).canvas;
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        const htmlContent = `
+          <html>
+            <head>
+              <title>${title}</title>
+              <style>
+                body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                .print-header { text-align: center; margin-bottom: 20px; }
+                .print-title { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+                .print-subtitle { font-size: 14px; color: #666; }
+                .print-info { font-size: 12px; color: #888; margin-top: 10px; }
+                canvas { display: block; margin: 0 auto; border: 1px solid #ccc; }
+              </style>
+            </head>
+            <body>
+              <div class="print-header">
+                <div class="print-title">${title}</div>
+                ${subtitle ? `<div class="print-subtitle">${subtitle}</div>` : ''}
+                <div class="print-info">
+                  Generated from ${String(Object.keys(gedcomData.individuals).length)} individuals
+                </div>
+              </div>
+              <canvas id="printCanvas"></canvas>
+              <script>
+                const canvas = document.getElementById('printCanvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                img.onload = function() {
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+                  ctx.drawImage(img, 0, 0);
+                };
+                img.src = '${canvas.toDataURL()}';
+              </script>
+            </body>
+          </html>
+        `;
+        printWindow.document.documentElement.innerHTML = htmlContent;
+        printWindow.print();
+      }
     }
-
-    void exportPrintCanvas(familyData);
-  }, [familyData, exportPrintCanvas]);
+  }, [title, subtitle, gedcomData]);
 
   return (
-    <div
-      className={`bg-white rounded-lg shadow-xl overflow-hidden ${className}`}
-    >
+    <div className={`bg-white rounded-lg shadow-lg ${className}`}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-        <h2 className="text-2xl font-bold mb-1">{title}</h2>
-        {subtitle && (
-          <p className="text-blue-100 text-sm opacity-90">{subtitle}</p>
-        )}
+      <div className="p-6 border-b border-gray-200">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+          {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
+        </div>
+
+        {/* Visibility Controls */}
+        <div className="mt-4 flex justify-center space-x-6">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showIndividuals}
+              onChange={(e) => {
+                setShowIndividuals(e.target.checked);
+              }}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              Individuals
+            </span>
+          </label>
+
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showRelations}
+              onChange={(e) => {
+                setShowRelations(e.target.checked);
+              }}
+              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+            />
+            <span className="text-sm font-medium text-gray-700">Relations</span>
+          </label>
+        </div>
       </div>
 
-      {/* Frame around artwork */}
+      {/* Canvas Container */}
       <div className="p-8 bg-gray-50">
         <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
           <ArtGenerator
             width={width}
             height={height}
-            jsonFile={jsonFile}
+            gedcomData={gedcomData}
+            pipelineResult={pipelineResult}
+            showIndividuals={showIndividuals}
+            showRelations={showRelations}
             onExportReady={handleExport}
+            onPipelineResult={onPipelineResult}
           />
         </div>
       </div>
 
+      {/* Footer */}
       <Footer
         width={width}
         height={height}
         onExportClick={handleExportClick}
         onPrintClick={handlePrintClick}
-        exportState={exportState}
+        exportState={shareState}
       />
     </div>
   );

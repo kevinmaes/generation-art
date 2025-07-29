@@ -17,11 +17,13 @@ export function getIndividualCoord(
 
 // Pure function to generate unique edges between individuals
 export function getUniqueEdges(
-  individuals: AugmentedIndividual[],
+  individuals: Record<string, AugmentedIndividual>,
 ): [string, string][] {
   const edges = new Set<string>();
   const result: [string, string][] = [];
-  for (const ind of individuals) {
+  const individualsArray = Object.values(individuals);
+
+  for (const ind of individualsArray) {
     const connections = new Set([
       ...ind.parents,
       ...ind.spouses,

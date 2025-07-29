@@ -36,6 +36,25 @@ interface AugmentedIndividual extends Individual {
 }
 ```
 
+### DualGedcomData
+
+```typescript
+interface DualGedcomData {
+  full: GedcomDataWithMetadata; // Complete data with metadata
+  llm: LLMReadyData; // PII-stripped data for LLM consumption
+}
+```
+
+### LLMReadyData
+
+```typescript
+interface LLMReadyData {
+  individuals: Record<string, AnonymizedIndividual>;
+  families: Record<string, AnonymizedFamily>;
+  metadata: TreeMetadata; // Safe aggregate metadata
+}
+```
+
 ## Metadata Types
 
 ### IndividualMetadata
@@ -83,14 +102,34 @@ interface TreeMetadata {
 | `Family.wife`            | `WIFE`      | 1     | `1 WIFE @I2@`        |
 | `Family.children`        | `CHIL`      | 1     | `1 CHIL @I3@`        |
 
+## Data Structure Design
+
+### ID-Keyed Objects for Efficient Graph Operations
+
+**Design Decision**: We use ID-keyed objects (`Record<string, Individual>`) instead of arrays for individuals and families because:
+
+1. **Graph Nature**: Family trees are graphs, not linear sequences - order doesn't matter
+2. **Efficient Lookups**: O(1) access by ID vs O(n) array searches
+3. **Transformer Performance**: Visual transformers frequently need to look up individuals by ID
+4. **Relationship Navigation**: Easy traversal of parent-child-spouse relationships
+
+```typescript
+// Efficient: O(1) lookup
+const individual = gedcomData.individuals['I1'];
+const family = gedcomData.families['F1'];
+
+// vs Inefficient: O(n) lookup
+const individual = gedcomData.individuals.find((ind) => ind.id === 'I1');
+```
+
 ## Data Flow Types
 
-| Stage         | Input Type              | Output Type                | Purpose                      |
-| ------------- | ----------------------- | -------------------------- | ---------------------------- |
-| **Parse**     | `string`                | `Individual[]`, `Family[]` | Raw GEDCOM → structured data |
-| **Augment**   | `Individual[]`          | `AugmentedIndividual[]`    | Add metadata property        |
-| **Transform** | `AugmentedIndividual[]` | `AugmentedIndividual[]`    | Apply PII masking            |
-| **Display**   | `AugmentedIndividual[]` | `DisplayData`              | Canvas layout data           |
+| Stage         | Input Type                            | Output Type                           | Purpose                      |
+| ------------- | ------------------------------------- | ------------------------------------- | ---------------------------- |
+| **Parse**     | `string`                              | `Individual[]`, `Family[]`            | Raw GEDCOM → structured data |
+| **Augment**   | `Individual[]`                        | `AugmentedIndividual[]`               | Add metadata property        |
+| **Transform** | `AugmentedIndividual[]`               | `Record<string, AugmentedIndividual>` | Convert to ID-keyed objects  |
+| **Display**   | `Record<string, AugmentedIndividual>` | `DisplayData`                         | Canvas layout data           |
 
 ## Type Predicates
 

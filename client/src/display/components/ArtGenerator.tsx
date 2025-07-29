@@ -1,8 +1,9 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import p5 from 'p5';
-import { createWebSketch } from '../FamilyTreeSketch';
+import { createWebSketch, type SketchConfig } from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
-import { useGedcomData } from '../../data-loading/hooks/useGedcomData';
+import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import type { PipelineResult } from '../../transformers/pipeline';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -10,42 +11,66 @@ const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
 interface ArtGeneratorProps {
   width?: number;
   height?: number;
-  jsonFile?: string;
+  gedcomData?: GedcomDataWithMetadata;
+  pipelineResult?: PipelineResult | null;
+  showIndividuals?: boolean;
+  showRelations?: boolean;
   onExportReady?: (p5Instance: p5) => void;
+  onPipelineResult?: (result: PipelineResult | null) => void;
 }
 
 export function ArtGenerator({
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
-  jsonFile,
+  gedcomData,
+  pipelineResult,
+  showIndividuals = true,
+  showRelations = true,
   onExportReady,
+  onPipelineResult,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
 
-  const handleError = useCallback((errorMessage: string) => {
-    console.error('Failed to load family data:', errorMessage);
-  }, []);
-
-  const { data, loading, error, refetch } = useGedcomData({
-    jsonFile: jsonFile ?? '',
-    onError: handleError,
-  });
-
+  // Notify parent component when pipeline result changes
   useEffect(() => {
-    if (!containerRef.current || !data) return;
+    onPipelineResult?.(pipelineResult ?? null);
+  }, [pipelineResult, onPipelineResult]);
+
+  // Only create the sketch after pipelineResult is available
+  useEffect(() => {
+    if (!containerRef.current || !gedcomData) return;
+
+    const container = containerRef.current;
 
     // Clean up previous instance
     if (p5InstanceRef.current) {
       p5InstanceRef.current.remove();
       p5InstanceRef.current = null;
     }
+    container.innerHTML = '';
 
-    const sketch = createWebSketch(data, width, height);
+    // Create a proper config object for the sketch
+    const sketchConfig: Partial<SketchConfig> = {
+      transformerIds: pipelineResult?.config.transformerIds ?? [
+        'horizontal-spread-by-generation',
+      ],
+      temperature: pipelineResult?.config.temperature ?? 0.5,
+      seed: pipelineResult?.config.seed,
+      showIndividuals,
+      showRelations,
+    };
 
-    p5InstanceRef.current = new p5(sketch, containerRef.current);
+    // Pass the pipeline result's visual metadata to the sketch
+    const sketch = createWebSketch(
+      gedcomData,
+      width,
+      height,
+      sketchConfig,
+      pipelineResult?.visualMetadata,
+    );
+    p5InstanceRef.current = new p5(sketch, container);
 
-    // Call onExportReady with the p5 instance once it's created
     if (onExportReady) {
       onExportReady(p5InstanceRef.current);
     }
@@ -55,93 +80,52 @@ export function ArtGenerator({
         p5InstanceRef.current.remove();
         p5InstanceRef.current = null;
       }
+      container.innerHTML = '';
     };
-  }, [width, height, data, onExportReady]);
+  }, [
+    pipelineResult,
+    gedcomData,
+    width,
+    height,
+    showIndividuals,
+    showRelations,
+    onExportReady,
+  ]);
 
-  if (!jsonFile) {
+  if (!gedcomData) {
     return (
       <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        className="flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
         style={{
-          width: `${String(width || DEFAULT_WIDTH)}px`,
-          height: `${String(height || DEFAULT_HEIGHT)}px`,
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
         }}
       >
-        <div className="text-center">
-          <div className="text-gray-500 text-lg mb-2">
-            No JSON file provided
-          </div>
-          <p className="text-gray-400 text-sm">
-            Please specify a JSON file to load family data
-          </p>
-        </div>
+        <p className="text-gray-500">No data loaded</p>
       </div>
     );
   }
 
-  if (loading) {
+  if (!pipelineResult) {
     return (
       <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        className="flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
         style={{
-          width: `${String(width || DEFAULT_WIDTH)}px`,
-          height: `${String(height || DEFAULT_HEIGHT)}px`,
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
         }}
       >
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <div className="text-gray-600">Loading family data...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg"
-        style={{
-          width: `${String(width || DEFAULT_WIDTH)}px`,
-          height: `${String(height || DEFAULT_HEIGHT)}px`,
-        }}
-      >
-        <div className="text-center max-w-md">
-          <div className="text-red-500 text-lg mb-2">Failed to load data</div>
-          <p className="text-gray-600 text-sm mb-4">{error}</p>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg"
-        style={{
-          width: `${String(width || DEFAULT_WIDTH)}px`,
-          height: `${String(height || DEFAULT_HEIGHT)}px`,
-        }}
-      >
-        <div className="text-center">
-          <div className="text-gray-500 text-lg">No data available</div>
-        </div>
+        <p className="text-gray-500">Click Visualize to generate artwork</p>
       </div>
     );
   }
 
   return (
     <div
-      key={`p5-container-${jsonFile}`}
       ref={containerRef}
       style={{
-        width: `${String(width || DEFAULT_WIDTH)}px`,
-        height: `${String(height || DEFAULT_HEIGHT)}px`,
+        width: `${String(width)}px`,
+        height: `${String(height)}px`,
       }}
     />
   );

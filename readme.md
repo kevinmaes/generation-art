@@ -46,6 +46,16 @@ Transform GEDCOM family tree data into generative artwork using React, TypeScrip
 - **Stage 2-3**: Client-side visualization of safe data only
 - **No raw GEDCOM data** ever leaves your machine
 
+## 📋 Development Guidelines
+
+### GEDCOM Standards
+
+When working with GEDCOM data, tags, or parsing:
+
+- Always reference `design-specs/gedcom-condensed.md` for tag definitions
+- Follow GEDCOM 5.5.1 standards for data structures
+- Validate against the specification for compliance
+
 ## 🎯 Key Features
 
 - ✅ **GEDCOM 5.5.1 parsing** with custom lightweight parser

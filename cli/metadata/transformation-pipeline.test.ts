@@ -46,9 +46,9 @@ describe('MetadataTransformationPipeline - Functional', () => {
         mockFamilies,
       );
 
-      expect(result.individuals).toHaveLength(2);
-      expect(result.individuals[0].metadata).toBeDefined();
-      expect(result.individuals[1].metadata).toBeDefined();
+      expect(Object.keys(result.individuals)).toHaveLength(2);
+      expect(result.individuals.I1.metadata).toBeDefined();
+      expect(result.individuals.I2.metadata).toBeDefined();
     });
 
     it('should extract lifespan metadata', () => {
@@ -58,8 +58,8 @@ describe('MetadataTransformationPipeline - Functional', () => {
       );
 
       // John Doe lived from 1990 to 2020 = 30 years
-      expect(result.individuals[0].metadata.lifespan).toBeDefined();
-      expect(typeof result.individuals[0].metadata.lifespan).toBe('number');
+      expect(result.individuals.I1.metadata.lifespan).toBeDefined();
+      expect(typeof result.individuals.I1.metadata.lifespan).toBe('number');
     });
 
     it('should extract isAlive metadata', () => {
@@ -68,8 +68,8 @@ describe('MetadataTransformationPipeline - Functional', () => {
         mockFamilies,
       );
 
-      expect(result.individuals[0].metadata.isAlive).toBe(false); // Has death date
-      expect(result.individuals[1].metadata.isAlive).toBe(true); // No death date
+      expect(result.individuals.I1.metadata.isAlive).toBe(false); // Has death date
+      expect(result.individuals.I2.metadata.isAlive).toBe(true); // No death date
     });
 
     it('should extract birth month metadata', () => {
@@ -78,8 +78,8 @@ describe('MetadataTransformationPipeline - Functional', () => {
         mockFamilies,
       );
 
-      expect(result.individuals[0].metadata.birthMonth).toBe(6); // June
-      expect(result.individuals[1].metadata.birthMonth).toBe(8); // August
+      expect(result.individuals.I1.metadata.birthMonth).toBe(6); // June
+      expect(result.individuals.I2.metadata.birthMonth).toBe(8); // August
     });
 
     it('should extract zodiac sign metadata', () => {
@@ -88,8 +88,8 @@ describe('MetadataTransformationPipeline - Functional', () => {
         mockFamilies,
       );
 
-      expect(result.individuals[0].metadata.zodiacSign).toBeDefined();
-      expect(typeof result.individuals[0].metadata.zodiacSign).toBe('string');
+      expect(result.individuals.I1.metadata.zodiacSign).toBeDefined();
+      expect(typeof result.individuals.I1.metadata.zodiacSign).toBe('string');
     });
 
     it('should extract family metadata', () => {
@@ -98,9 +98,9 @@ describe('MetadataTransformationPipeline - Functional', () => {
         mockFamilies,
       );
 
-      expect(result.families).toHaveLength(1);
-      expect(result.families[0].metadata).toBeDefined();
-      expect(result.families[0].metadata.numberOfChildren).toBe(0);
+      expect(Object.keys(result.families)).toHaveLength(1);
+      expect(result.families.F1.metadata).toBeDefined();
+      expect(result.families.F1.metadata.numberOfChildren).toBe(0);
     });
 
     it('should extract tree metadata', () => {
@@ -110,8 +110,8 @@ describe('MetadataTransformationPipeline - Functional', () => {
       );
 
       expect(result.metadata).toBeDefined();
-      expect(result.metadata.totalIndividuals).toBe(2);
-      expect(result.metadata.depthOfTree).toBe(2); // Based on number of individuals: Math.ceil(Math.log2(2 + 1)) = 2
+      expect(result.metadata.graphStructure.totalIndividuals).toBe(2);
+      expect(result.metadata.graphStructure.maxGenerations).toBe(0); // Based on the current implementation
     });
 
     it('should be pure - same input produces same output', () => {
@@ -126,10 +126,14 @@ describe('MetadataTransformationPipeline - Functional', () => {
 
       // Note: PII masking adds randomness, so we can't do deep equality
       // But the structure should be the same
-      expect(result1.individuals.length).toBe(result2.individuals.length);
-      expect(result1.families.length).toBe(result2.families.length);
-      expect(result1.metadata.totalIndividuals).toBe(
-        result2.metadata.totalIndividuals,
+      expect(Object.keys(result1.individuals).length).toBe(
+        Object.keys(result2.individuals).length,
+      );
+      expect(Object.keys(result1.families).length).toBe(
+        Object.keys(result2.families).length,
+      );
+      expect(result1.metadata.graphStructure.totalIndividuals).toBe(
+        result2.metadata.graphStructure.totalIndividuals,
       );
     });
   });
@@ -197,19 +201,19 @@ describe('MetadataTransformationPipeline - Functional', () => {
         [],
       );
 
-      expect(result.individuals[0].metadata.lifespan).toBeUndefined();
-      expect(result.individuals[0].metadata.birthMonth).toBeUndefined();
-      expect(result.individuals[0].metadata.zodiacSign).toBeUndefined();
-      expect(result.individuals[0].metadata.isAlive).toBe(true); // No death date
+      expect(result.individuals.I3.metadata.lifespan).toBeUndefined();
+      expect(result.individuals.I3.metadata.birthMonth).toBeUndefined();
+      expect(result.individuals.I3.metadata.zodiacSign).toBeUndefined();
+      expect(result.individuals.I3.metadata.isAlive).toBe(true); // No death date
     });
 
     it('should handle empty arrays', () => {
       const result = transformGedcomDataWithMetadata([], []);
 
-      expect(result.individuals).toHaveLength(0);
-      expect(result.families).toHaveLength(0);
-      expect(result.metadata.totalIndividuals).toBe(0);
-      expect(result.metadata.depthOfTree).toBe(0);
+      expect(Object.keys(result.individuals)).toHaveLength(0);
+      expect(Object.keys(result.families)).toHaveLength(0);
+      expect(result.metadata.graphStructure.totalIndividuals).toBe(0);
+      expect(result.metadata.graphStructure.maxGenerations).toBe(0);
     });
 
     it('should handle invalid dates gracefully', () => {
@@ -231,9 +235,9 @@ describe('MetadataTransformationPipeline - Functional', () => {
         [],
       );
 
-      expect(result.individuals[0].metadata.lifespan).toBeUndefined();
-      expect(result.individuals[0].metadata.birthMonth).toBeUndefined();
-      expect(result.individuals[0].metadata.zodiacSign).toBeUndefined();
+      expect(result.individuals.I4.metadata.lifespan).toBeUndefined();
+      expect(result.individuals.I4.metadata.birthMonth).toBeUndefined();
+      expect(result.individuals.I4.metadata.zodiacSign).toBeUndefined();
     });
   });
 });
