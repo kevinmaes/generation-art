@@ -5,13 +5,13 @@ import { ErrorBoundary } from './display/components/ErrorBoundary';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
-import type { PipelineResult } from './transformers/pipeline';
-import { runPipeline, createSimplePipeline } from './transformers/pipeline';
+import type { PipelineResult } from './pipeline/pipeline';
+import { runPipeline, createSimplePipeline } from './pipeline/pipeline';
 import {
   transformers,
   HORIZONTAL_SPREAD,
   type TransformerId,
-} from './transformers/transformers';
+} from './pipeline/transformers';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
 
@@ -96,7 +96,9 @@ function App(): React.ReactElement {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleFileSelect = async (
@@ -206,8 +208,8 @@ function App(): React.ReactElement {
           transformerId
         ] ?? {
           dimensions: {
-            primary: transformer.defaultPrimaryDimension,
-            secondary: transformer.defaultSecondaryDimension,
+            primary: String(transformer.defaultPrimaryDimension || ''),
+            secondary: String(transformer.defaultSecondaryDimension || ''),
           },
           visual: {},
         };
@@ -272,7 +274,9 @@ function App(): React.ReactElement {
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onPipelineResult={handlePipelineResult}
-                onOpenPipelineClick={() => setIsPipelineModalOpen(true)}
+                onOpenPipelineClick={() => {
+                  setIsPipelineModalOpen(true);
+                }}
               />
             </>
           ) : (
@@ -372,10 +376,12 @@ function App(): React.ReactElement {
       <ErrorBoundary>
         <PipelineModal
           isOpen={isPipelineModalOpen}
-          onClose={() => setIsPipelineModalOpen(false)}
+          onClose={() => {
+            setIsPipelineModalOpen(false);
+          }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={dualData}
+          dualData={dualData ?? undefined}
           onTransformerSelect={handleTransformerSelect}
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}

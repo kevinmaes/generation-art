@@ -9,7 +9,7 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
-} from './types';
+} from '../types';
 
 /**
  * Calculate vertical position based on selected dimensions and parameters

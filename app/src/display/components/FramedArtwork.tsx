@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import { useShareArt } from '../../data-loading/hooks/useShareArt';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
-import type { PipelineResult } from '../../transformers/pipeline';
+import type { PipelineResult } from '../../pipeline/pipeline';
 
 interface FramedArtworkProps {
   title: string;
@@ -157,7 +157,7 @@ export function FramedArtwork({
         height={height}
         onExportClick={handleExportClick}
         onPrintClick={handlePrintClick}
-        onOpenPipelineClick={onOpenPipelineClick || (() => {})}
+        onOpenPipelineClick={onOpenPipelineClick ?? (() => { /* no-op */ })}
         exportState={shareState}
       />
     </div>

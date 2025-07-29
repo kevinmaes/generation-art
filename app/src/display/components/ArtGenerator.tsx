@@ -3,7 +3,7 @@ import p5 from 'p5';
 import { createWebSketch, type SketchConfig } from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
-import type { PipelineResult } from '../../transformers/pipeline';
+import type { PipelineResult } from '../../pipeline/pipeline';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;

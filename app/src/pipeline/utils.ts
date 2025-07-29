@@ -7,8 +7,8 @@ import type {
   TransformerOutput,
   VisualTransformerFn,
 } from './types';
-import type { VisualParameterValues } from './visual-parameters';
-import { VISUAL_PARAMETERS } from './visual-parameters';
+import type { VisualParameterValues } from './transformers/visual-parameters';
+import { VISUAL_PARAMETERS } from './transformers/visual-parameters';
 
 /**
  * Convert a transformer name to a slugified ID

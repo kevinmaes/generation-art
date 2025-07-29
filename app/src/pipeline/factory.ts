@@ -128,7 +128,7 @@ export function validateTransformer(transformer: VisualTransformerConfig): {
 } {
   const errors: string[] = [];
 
-  if (!transformer.id || transformer.id.trim() === '') {
+  if (!transformer.id?.trim()) {
     errors.push('Transformer must have a non-empty id');
   }
 

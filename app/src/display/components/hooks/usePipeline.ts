@@ -4,8 +4,8 @@ import {
   runPipeline,
   createSimplePipeline,
   type PipelineResult,
-} from '../../../transformers/pipeline';
-import { transformers } from '../../../transformers/transformers';
+} from '../../../pipeline/pipeline';
+import { transformers } from '../../../pipeline/transformers';
 
 interface UsePipelineOptions {
   temperature?: number;

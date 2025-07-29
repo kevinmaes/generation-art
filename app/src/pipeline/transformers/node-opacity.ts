@@ -2,7 +2,7 @@ import type {
   TransformerContext,
   VisualMetadata,
   TransformerOutput,
-} from './types';
+} from '../types';
 
 /**
  * Node Opacity Transformer

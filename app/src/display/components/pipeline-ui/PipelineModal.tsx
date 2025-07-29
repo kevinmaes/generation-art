@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { PipelineManager } from './PipelineManager';
-import type { PipelineResult } from '../../../transformers/types';
-import type { TransformerId } from '../../../transformers/transformers';
+import type { PipelineResult } from '../../../pipeline/types';
+import type { TransformerId } from '../../../pipeline/transformers';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
@@ -73,7 +73,7 @@ export function PipelineModal({
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => { window.removeEventListener('keydown', handleKeyDown); };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;

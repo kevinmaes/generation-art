@@ -8,7 +8,7 @@ import {
   type TransformerId,
 } from './transformers';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type { VisualParameterValues } from './visual-parameters';
+import type { VisualParameterValues } from './transformers/visual-parameters';
 
 describe('Transformers Registry', () => {
   it('should export transformers object', () => {

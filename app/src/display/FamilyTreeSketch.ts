@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type p5 from 'p5';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type {
-  CompleteVisualMetadata,
-  VisualMetadata,
-} from '../transformers/types';
+import type { CompleteVisualMetadata, VisualMetadata } from '../pipeline/types';
 
 export interface SketchConfig {
   width: number;
@@ -61,7 +58,11 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
       // Draw edges using visual metadata
       if (showRelations) {
-        for (const edge of gedcomData.metadata.edges) {
+        for (const edge of (
+          gedcomData.metadata as {
+            edges: { id: string; sourceId: string; targetId: string }[];
+          }
+        ).edges) {
           const coord1 = getIndividualCoord(
             edge.sourceId,
             width,

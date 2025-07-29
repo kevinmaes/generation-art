@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import ReactJson from 'react-json-view';
-import type { PipelineResult } from '../../../transformers/types';
-import { createInitialCompleteVisualMetadata } from '../../../transformers/pipeline';
+import type { PipelineResult } from '../../../pipeline/types';
+import { createInitialCompleteVisualMetadata } from '../../../pipeline/pipeline';
 import {
   transformers,
   type TransformerId,
   getTransformer,
   getTransformerIds,
   isTransformerId,
-} from '../../../transformers/transformers';
+} from '../../../pipeline/transformers';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
@@ -133,10 +133,11 @@ export function PipelineManager({
     const validParameters = {
       dimensions: {
         primary:
-          parameters.dimensions.primary ?? transformer.defaultPrimaryDimension,
+          parameters.dimensions.primary ??
+          String(transformer.defaultPrimaryDimension || ''),
         secondary:
           parameters.dimensions.secondary ??
-          transformer.defaultSecondaryDimension,
+          String(transformer.defaultSecondaryDimension || ''),
       },
       visual: parameters.visual,
     };
@@ -157,8 +158,8 @@ export function PipelineManager({
     const transformer = getTransformer(transformerId);
     const defaultParameters = {
       dimensions: {
-        primary: transformer.defaultPrimaryDimension,
-        secondary: transformer.defaultSecondaryDimension,
+        primary: String(transformer.defaultPrimaryDimension ?? ''),
+        secondary: String(transformer.defaultSecondaryDimension ?? ''),
       },
       visual: {},
     };
@@ -170,7 +171,7 @@ export function PipelineManager({
   };
 
   // Handle visualization
-  const handleVisualize = () => {
+  const _handleVisualize = () => {
     onVisualize?.();
   };
 
@@ -208,12 +209,11 @@ export function PipelineManager({
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
-  const isVisualizeEnabled =
+  const _isVisualizeEnabled =
     hasData && activeTransformerIds.length > 0 && !isVisualizing;
 
   return (
     <div className="h-full flex flex-col bg-white p-6">
-
       <div className="flex-1 grid grid-cols-2 gap-4 min-h-0">
         {/* Top-Left: Active Pipeline */}
         <div className="border rounded-lg p-4 flex flex-col min-h-0">
@@ -249,8 +249,12 @@ export function PipelineManager({
                     currentParameters={
                       transformerParameters[transformerId] ?? {
                         dimensions: {
-                          primary: transformer.defaultPrimaryDimension,
-                          secondary: transformer.defaultSecondaryDimension,
+                          primary: String(
+                            transformer.defaultPrimaryDimension ?? '',
+                          ),
+                          secondary: String(
+                            transformer.defaultSecondaryDimension ?? '',
+                          ),
                         },
                         visual: {},
                       }
@@ -320,13 +324,13 @@ export function PipelineManager({
                 <ReactJson
                   src={
                     showDiff && pipelineResult
-                      ? (calculateVisualMetadataDiff(
+                      ? calculateVisualMetadataDiff(
                           pipelineInput as unknown as Record<string, unknown>,
                           pipelineResult.visualMetadata as unknown as Record<
                             string,
                             unknown
                           >,
-                        ) ?? {})
+                        ) || {}
                       : pipelineInput
                   }
                   theme="rjv-default"
@@ -387,8 +391,12 @@ export function PipelineManager({
                     currentParameters={
                       transformerParameters[transformerId] ?? {
                         dimensions: {
-                          primary: transformer.defaultPrimaryDimension,
-                          secondary: transformer.defaultSecondaryDimension,
+                          primary: String(
+                            transformer.defaultPrimaryDimension ?? '',
+                          ),
+                          secondary: String(
+                            transformer.defaultSecondaryDimension ?? '',
+                          ),
                         },
                         visual: {},
                       }

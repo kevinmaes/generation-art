@@ -12,3 +12,5 @@ export type * from './pii-stripping';
 
 // Re-export LLM data types
 export type * from './llm-data';
+
+export type * from './type-predicates';

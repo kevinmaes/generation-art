@@ -9,7 +9,7 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
-} from './types';
+} from '../types';
 
 /**
  * Calculate node size based on importance score

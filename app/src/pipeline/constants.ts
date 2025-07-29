@@ -9,8 +9,9 @@
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 
 // Default position (center of canvas)
-export const DEFAULT_X = CANVAS_DIMENSIONS.WEB.WIDTH / 2;
-export const DEFAULT_Y = CANVAS_DIMENSIONS.WEB.HEIGHT / 2;
+export const DEFAULT_X = (CANVAS_DIMENSIONS.WEB as { WIDTH: number }).WIDTH / 2;
+export const DEFAULT_Y =
+  (CANVAS_DIMENSIONS.WEB as { HEIGHT: number }).HEIGHT / 2;
 
 // Default size and scale
 export const DEFAULT_SIZE = 20;

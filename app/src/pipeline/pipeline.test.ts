@@ -29,7 +29,7 @@ import {
   DEFAULT_PRIORITY,
   DEFAULT_CUSTOM,
 } from './constants';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { GedcomDataWithMetadata } from '../../shared/types';
 import {
   HORIZONTAL_SPREAD,
   VERTICAL_SPREAD,

@@ -1,8 +1,8 @@
 import React from 'react';
-import type { VisualTransformerConfig } from '../../../transformers/types';
-import type { TransformerId } from '../../../transformers/transformers';
-import { DIMENSIONS } from '../../../transformers/dimensions';
-import { VISUAL_PARAMETERS } from '../../../transformers/visual-parameters';
+import type { VisualTransformerConfig } from '../../../pipeline/types';
+import type { TransformerId } from '../../../pipeline/transformers';
+import { DIMENSIONS } from '../../../pipeline/transformers/dimensions';
+import { VISUAL_PARAMETERS } from '../../../pipeline/transformers/visual-parameters';
 
 interface TransformerItemProps {
   transformer: VisualTransformerConfig;
@@ -57,8 +57,8 @@ export function TransformerItem({
     }
     return {
       dimensions: {
-        primary: transformer.defaultPrimaryDimension,
-        secondary: transformer.defaultSecondaryDimension,
+        primary: String(transformer.defaultPrimaryDimension ?? ''),
+        secondary: String(transformer.defaultSecondaryDimension ?? ''),
       },
       visual: {},
     };
@@ -159,8 +159,8 @@ export function TransformerItem({
   const handleParameterReset = () => {
     const defaultParameters = {
       dimensions: {
-        primary: transformer.defaultPrimaryDimension,
-        secondary: transformer.defaultSecondaryDimension,
+        primary: String(transformer.defaultPrimaryDimension ?? ''),
+        secondary: String(transformer.defaultSecondaryDimension ?? ''),
       },
       visual: {},
     };

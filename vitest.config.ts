@@ -5,7 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: [
-      'client/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'app/src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'cli/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       'shared/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
@@ -14,7 +14,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'client/src/types/',
+        'app/src/types/',
         'cli/types/',
         'shared/types/',
         '**/*.d.ts',

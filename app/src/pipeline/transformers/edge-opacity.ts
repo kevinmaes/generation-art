@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type {
   TransformerContext,
   VisualMetadata,
   TransformerOutput,
-} from './types';
+} from '../types';
 
 /**
  * Edge Opacity Transformer

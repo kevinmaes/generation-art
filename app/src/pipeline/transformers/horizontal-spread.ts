@@ -9,8 +9,8 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
-} from './types';
-import { DEFAULT_COLOR } from './constants';
+} from '../types';
+import { DEFAULT_COLOR } from '../constants';
 
 /**
  * Calculate horizontal position based on selected dimensions and parameters

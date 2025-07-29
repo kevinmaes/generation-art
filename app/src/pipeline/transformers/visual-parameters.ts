@@ -4,7 +4,7 @@ import {
   DEFAULT_OPACITY,
   DEFAULT_SHAPE,
   DEFAULT_STROKE_STYLE,
-} from './constants';
+} from '../constants';
 
 export interface VisualParameterConfig {
   id: string;

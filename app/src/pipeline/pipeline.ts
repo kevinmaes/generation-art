@@ -9,19 +9,19 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
+import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import type {
   VisualMetadata,
   CompleteVisualMetadata,
   TransformerContext,
   PipelineResult,
 } from './types';
-import type { VisualParameterValues } from './visual-parameters';
+import type { VisualParameterValues } from './transformers/visual-parameters';
 import {
   getTransformer,
   type TransformerId,
   transformers,
 } from './transformers';
-import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
   DEFAULT_X,
   DEFAULT_Y,

@@ -5,13 +5,13 @@
  * which converts GEDCOM metadata into visual attributes for generative art.
  */
 
-import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type { LLMReadyData } from '../../../shared/types/llm-data';
-import type { DimensionId } from './dimensions';
+import type { GedcomDataWithMetadata } from '../../shared/types';
+import type { LLMReadyData } from '../../shared/types/llm-data';
+import type { DimensionId } from './transformers/dimensions';
 import type {
   VisualParameterId,
   VisualParameterValues,
-} from './visual-parameters';
+} from './transformers/visual-parameters';
 import type { TransformerId } from './transformers';
 
 /**

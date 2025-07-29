@@ -7,11 +7,11 @@
  */
 
 import type { VisualTransformerConfig } from './types';
-import { horizontalSpreadTransform } from './horizontal-spread';
-import { nodeSizeTransform } from './node-size';
-import { nodeOpacityTransform } from './node-opacity';
-import { edgeOpacityTransform } from './edge-opacity';
-import { verticalSpreadTransform } from './vertical-spread';
+import { horizontalSpreadTransform } from './transformers/horizontal-spread';
+import { nodeSizeTransform } from './transformers/node-size';
+import { nodeOpacityTransform } from './transformers/node-opacity';
+import { edgeOpacityTransform } from './transformers/edge-opacity';
+import { verticalSpreadTransform } from './transformers/vertical-spread';
 import type { VisualTransformerFn } from './types';
 import { createRuntimeTransformerFunction } from './utils';
 
