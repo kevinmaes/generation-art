@@ -16,6 +16,7 @@ interface FramedArtworkProps {
   pipelineResult?: PipelineResult | null;
   className?: string;
   onPipelineResult?: (result: PipelineResult | null) => void;
+  onOpenPipelineClick?: () => void;
 }
 
 export function FramedArtwork({
@@ -27,6 +28,7 @@ export function FramedArtwork({
   pipelineResult,
   className = '',
   onPipelineResult,
+  onOpenPipelineClick,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
@@ -155,6 +157,7 @@ export function FramedArtwork({
         height={height}
         onExportClick={handleExportClick}
         onPrintClick={handlePrintClick}
+        onOpenPipelineClick={onOpenPipelineClick || (() => {})}
         exportState={shareState}
       />
     </div>
