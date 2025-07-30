@@ -29,7 +29,7 @@ import {
   DEFAULT_PRIORITY,
   DEFAULT_CUSTOM,
 } from './constants';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { AppGedcomDataWithMetadata } from '../types/app-data';
 import {
   HORIZONTAL_SPREAD,
   VERTICAL_SPREAD,
@@ -37,10 +37,11 @@ import {
 } from './transformers';
 
 // Mock data for testing
-const mockMetadata: GedcomDataWithMetadata = {
-  individuals: {
-    I1: {
-      id: 'I1',
+const mockMetadata: AppGedcomDataWithMetadata = {
+  individuals: new Map([[
+    'I1' as any,
+    {
+      id: 'I1' as any,
       name: 'John Doe',
       parents: [],
       spouses: [],
@@ -53,8 +54,9 @@ const mockMetadata: GedcomDataWithMetadata = {
         relativeGenerationValue: 0.5,
       },
     },
-  },
-  families: {},
+  ]]),
+  families: new Map(),
+  edges: new Map(),
   metadata: {
     graphStructure: {
       totalIndividuals: 1,
@@ -199,12 +201,13 @@ describe('Pipeline', () => {
       expect(metadata.global.defaultNodeColor).toBe(DEFAULT_COLOR);
 
       // Test individual metadata
-      expect(metadata.individuals.I1).toBeDefined();
-      expect(metadata.individuals.I1.x).toBe(DEFAULT_X);
-      expect(metadata.individuals.I1.y).toBe(DEFAULT_Y);
-      expect(metadata.individuals.I1.size).toBe(DEFAULT_SIZE);
-      expect(metadata.individuals.I1.color).toBe(DEFAULT_COLOR);
-      expect(metadata.individuals.I1.shape).toBe(DEFAULT_SHAPE);
+      const individualMetadata = metadata.individuals.get('I1' as any);
+      expect(individualMetadata).toBeDefined();
+      expect(individualMetadata?.x).toBe(DEFAULT_X);
+      expect(individualMetadata?.y).toBe(DEFAULT_Y);
+      expect(individualMetadata?.size).toBe(DEFAULT_SIZE);
+      expect(individualMetadata?.color).toBe(DEFAULT_COLOR);
+      expect(individualMetadata?.shape).toBe(DEFAULT_SHAPE);
 
       // Test tree metadata
       expect(metadata.tree.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
@@ -217,29 +220,29 @@ describe('Pipeline', () => {
 
     it('should include all default properties for individuals', () => {
       const metadata = createInitialCompleteVisualMetadata(mockMetadata);
-      const individualMetadata = metadata.individuals.I1;
+      const individualMetadata = metadata.individuals.get('I1' as any);
 
       // Test all default properties
-      expect(individualMetadata.x).toBe(DEFAULT_X);
-      expect(individualMetadata.y).toBe(DEFAULT_Y);
-      expect(individualMetadata.size).toBe(DEFAULT_SIZE);
-      expect(individualMetadata.scale).toBe(DEFAULT_SCALE);
-      expect(individualMetadata.color).toBe(DEFAULT_COLOR);
-      expect(individualMetadata.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
-      expect(individualMetadata.strokeColor).toBe(DEFAULT_STROKE_COLOR);
-      expect(individualMetadata.opacity).toBe(DEFAULT_OPACITY);
-      expect(individualMetadata.alpha).toBe(DEFAULT_ALPHA);
-      expect(individualMetadata.shape).toBe(DEFAULT_SHAPE);
-      expect(individualMetadata.strokeWeight).toBe(DEFAULT_STROKE_WEIGHT);
-      expect(individualMetadata.strokeStyle).toBe(DEFAULT_STROKE_STYLE);
-      expect(individualMetadata.velocity).toEqual(DEFAULT_VELOCITY);
-      expect(individualMetadata.acceleration).toEqual(DEFAULT_ACCELERATION);
-      expect(individualMetadata.rotation).toBe(DEFAULT_ROTATION);
-      expect(individualMetadata.rotationSpeed).toBe(DEFAULT_ROTATION_SPEED);
-      expect(individualMetadata.group).toBe(DEFAULT_GROUP);
-      expect(individualMetadata.layer).toBe(DEFAULT_LAYER);
-      expect(individualMetadata.priority).toBe(DEFAULT_PRIORITY);
-      expect(individualMetadata.custom).toEqual(DEFAULT_CUSTOM);
+      expect(individualMetadata?.x).toBe(DEFAULT_X);
+      expect(individualMetadata?.y).toBe(DEFAULT_Y);
+      expect(individualMetadata?.size).toBe(DEFAULT_SIZE);
+      expect(individualMetadata?.scale).toBe(DEFAULT_SCALE);
+      expect(individualMetadata?.color).toBe(DEFAULT_COLOR);
+      expect(individualMetadata?.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
+      expect(individualMetadata?.strokeColor).toBe(DEFAULT_STROKE_COLOR);
+      expect(individualMetadata?.opacity).toBe(DEFAULT_OPACITY);
+      expect(individualMetadata?.alpha).toBe(DEFAULT_ALPHA);
+      expect(individualMetadata?.shape).toBe(DEFAULT_SHAPE);
+      expect(individualMetadata?.strokeWeight).toBe(DEFAULT_STROKE_WEIGHT);
+      expect(individualMetadata?.strokeStyle).toBe(DEFAULT_STROKE_STYLE);
+      expect(individualMetadata?.velocity).toEqual(DEFAULT_VELOCITY);
+      expect(individualMetadata?.acceleration).toEqual(DEFAULT_ACCELERATION);
+      expect(individualMetadata?.rotation).toBe(DEFAULT_ROTATION);
+      expect(individualMetadata?.rotationSpeed).toBe(DEFAULT_ROTATION_SPEED);
+      expect(individualMetadata?.group).toBe(DEFAULT_GROUP);
+      expect(individualMetadata?.layer).toBe(DEFAULT_LAYER);
+      expect(individualMetadata?.priority).toBe(DEFAULT_PRIORITY);
+      expect(individualMetadata?.custom).toEqual(DEFAULT_CUSTOM);
     });
 
     it('should create edge metadata with appropriate defaults', () => {
@@ -517,20 +520,19 @@ describe('Pipeline', () => {
       expect(result.debug.transformerResults[1].success).toBe(true);
 
       // Check that we have individual metadata
-      const individualId = Object.keys(result.visualMetadata.individuals)[0];
-      const individualMetadata =
-        result.visualMetadata.individuals[individualId];
+      const individualId = Array.from(result.visualMetadata.individuals.keys())[0];
+      const individualMetadata = result.visualMetadata.individuals.get(individualId);
       expect(individualMetadata).toBeDefined();
 
       // The final result should have both x and y positions from both transformers
       // If transformers are overwriting each other, this test will fail
-      expect(individualMetadata.x).toBeDefined();
-      expect(individualMetadata.y).toBeDefined();
+      expect(individualMetadata?.x).toBeDefined();
+      expect(individualMetadata?.y).toBeDefined();
 
       // Log the positions to see what's happening
       console.log('Final positions:', {
-        x: individualMetadata.x,
-        y: individualMetadata.y,
+        x: individualMetadata?.x,
+        y: individualMetadata?.y,
       });
     });
 
