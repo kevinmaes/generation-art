@@ -385,7 +385,7 @@ function App(): React.ReactElement {
           }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={dualData}
+          dualData={dualData ?? undefined}
           onTransformerSelect={handleTransformerSelect}
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}
