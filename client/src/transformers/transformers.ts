@@ -12,6 +12,9 @@ import { nodeSizeTransform } from './node-size';
 import { nodeOpacityTransform } from './node-opacity';
 import { edgeOpacityTransform } from './edge-opacity';
 import { verticalSpreadTransform } from './vertical-spread';
+import { nodeShapeTransform } from './node-shape';
+import { nodeRotationTransform } from './node-rotation';
+import { nodeScaleTransform } from './node-scale';
 import type { VisualTransformerFn } from './types';
 import { createRuntimeTransformerFunction } from './utils';
 
@@ -33,13 +36,28 @@ export const VERTICAL_SPREAD = {
   ID: 'vertical-spread',
   NAME: 'Vertical Spread',
 } as const;
+export const NODE_SHAPE = {
+  ID: 'node-shape',
+  NAME: 'Node Shape',
+} as const;
+export const NODE_ROTATION = {
+  ID: 'node-rotation',
+  NAME: 'Node Rotation',
+} as const;
+export const NODE_SCALE = {
+  ID: 'node-scale',
+  NAME: 'Node Scale',
+} as const;
 
 export type TransformerId =
   | typeof HORIZONTAL_SPREAD.ID
   | typeof NODE_SIZE.ID
   | typeof NODE_OPACITY.ID
   | typeof EDGE_OPACITY.ID
-  | typeof VERTICAL_SPREAD.ID;
+  | typeof VERTICAL_SPREAD.ID
+  | typeof NODE_SHAPE.ID
+  | typeof NODE_ROTATION.ID
+  | typeof NODE_SCALE.ID;
 
 /**
  * Registry of all available transformers
@@ -161,6 +179,72 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, verticalSpreadTransform),
+  },
+  [NODE_SHAPE.ID]: {
+    id: NODE_SHAPE.ID,
+    name: NODE_SHAPE.NAME,
+    description:
+      'Uses sophisticated algorithms to map genealogical patterns to geometric forms, creating meaningful visual distinctions across family structures.',
+    shortDescription: 'Changes node shapes based on generation or metadata',
+    transform: nodeShapeTransform as VisualTransformerFn,
+    categories: ['visual', 'shape'],
+    availableDimensions: [
+      'generation',
+      'childrenCount',
+      'lifespan',
+      'marriageCount',
+      'birthYear',
+      'nameLength',
+    ],
+    defaultPrimaryDimension: 'generation',
+    defaultSecondaryDimension: 'childrenCount',
+    visualParameters: ['variationFactor', 'temperature'],
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, nodeShapeTransform),
+  },
+  [NODE_ROTATION.ID]: {
+    id: NODE_ROTATION.ID,
+    name: NODE_ROTATION.NAME,
+    description:
+      'Applies precise angular calculations that reflect temporal and genealogical relationships, adding dynamic visual interest to family trees.',
+    shortDescription: 'Rotates nodes based on birth year or lifespan',
+    transform: nodeRotationTransform as VisualTransformerFn,
+    categories: ['visual', 'rotation'],
+    availableDimensions: [
+      'birthYear',
+      'generation',
+      'lifespan',
+      'childrenCount',
+      'marriageCount',
+      'nameLength',
+    ],
+    defaultPrimaryDimension: 'birthYear',
+    defaultSecondaryDimension: 'generation',
+    visualParameters: ['variationFactor', 'temperature'],
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, nodeRotationTransform),
+  },
+  [NODE_SCALE.ID]: {
+    id: NODE_SCALE.ID,
+    name: NODE_SCALE.NAME,
+    description:
+      'Applies independent width and height transformations that create compelling oval and rectangular forms reflecting individual significance.',
+    shortDescription: 'Scales node dimensions for oval or rectangular shapes',
+    transform: nodeScaleTransform as VisualTransformerFn,
+    categories: ['visual', 'scale'],
+    availableDimensions: [
+      'lifespan',
+      'childrenCount',
+      'generation',
+      'marriageCount',
+      'birthYear',
+      'nameLength',
+    ],
+    defaultPrimaryDimension: 'lifespan',
+    defaultSecondaryDimension: 'childrenCount',
+    visualParameters: ['variationFactor', 'temperature'],
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, nodeScaleTransform),
   },
 };
 
