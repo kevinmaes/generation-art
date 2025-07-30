@@ -157,7 +157,12 @@ export function FramedArtwork({
         height={height}
         onExportClick={handleExportClick}
         onPrintClick={handlePrintClick}
-        onOpenPipelineClick={onOpenPipelineClick || (() => {})}
+        onOpenPipelineClick={
+          onOpenPipelineClick ??
+          (() => {
+            // Empty function as default
+          })
+        }
         exportState={shareState}
       />
     </div>

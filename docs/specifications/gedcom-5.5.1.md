@@ -4,8 +4,8 @@ Release 5.5.1
 
 Prepared by the
 Family History Department
-The Church of 
-Jesus Christ 
+The Church of
+Jesus Christ
 of Latter-day Saints
 
 15 November 2019
@@ -24,10 +24,10 @@ Solution Provider Coordinator
 15 South Temple Street
 Salt Lake City, UT 84150 USA
 
-Copyright © 1987, 1989, 1992, 1993, 1995, 1999, 2019 by The Church of Jesus Christ of Latter-day Saints. This document may be 
+Copyright © 1987, 1989, 1992, 1993, 1995, 1999, 2019 by The Church of Jesus Christ of Latter-day Saints. This document may be
 copied for purposes of review or programming of genealogical software, provided this notice is included. All other rights reserved.
 
-TABLE OF CONTENTS
+TABLE OF CONTENTS
 
 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
 Purpose and Content of The GEDCOM Standard . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
@@ -60,7 +60,7 @@ Using Character Sets in GEDCOM . . . . . . . . . . . . . . . . . . . . . . . . .
 8-Bit ANSEL . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 77
 ASCII (USA Version) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 78
 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 78
-UNICODE 
+UNICODE
 UTF-8 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 79
 
 Chapter 4
@@ -76,7 +76,7 @@ Appendix B . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 LDS Temple Codes
 
-  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 96
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 96
 
 Appendix C . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 97
 ANSEL Character Set . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 97
@@ -84,7 +84,7 @@ Non-spacing graphic characters . . . . . . . . . . . . . . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 99
 Spacing graphic characters
 
-Introduction
+Introduction
 
 GEDCOM was developed by the Family History Department of The Church of Jesus Christ of Latter-
 day Saints (LDS Church) to provide a flexible, uniform format for exchanging computerized
@@ -112,7 +112,7 @@ identification of structured information in general, but it does not deal with t
 any particular kind of data. It is, therefore, also useful to people using GEDCOM for storing other  
 types of data, not just genealogical data.
 
-Chapter 2 of this document describes the higher level, known as a  GEDCOM form. Each type of data 
+Chapter 2 of this document describes the higher level, known as a GEDCOM form. Each type of data
 that uses the GEDCOM data format has a specific GEDCOM form. This document discusses only  
 one GEDCOM form: the Lineage-Linked GEDCOM Form. This is the form commercial software  
 developers use to create genealogical software systems that can exchange compiled information about  
@@ -121,12 +121,12 @@ Department's FamilySearch Systems and with each other if desired.
 
 Purposes for Version 5.x
 
-Earlier versions of  The GEDCOM Standard were released in October 1987 (3.0) and August 1989 
+Earlier versions of The GEDCOM Standard were released in October 1987 (3.0) and August 1989
 (4.0). Versions 1 and 2 were drafts for public discussion and were not established as a standard.
 
 5
 
-The 5.x series of drafts includes both the first standard definition of the Lineage-Linked GEDCOM
+The 5.x series of drafts includes both the first standard definition of the Lineage-Linked GEDCOM
 Form and also the first major expansion of the Lineage-Linked Form since its initial use in GEDCOM
 3.0. The GEDCOM 5.x compatible systems should be able to read previous GEDCOM versions. See
 "Compatibility with Previous GEDCOM Releases," (starting on page 67) for compatibility specifics.
@@ -150,12 +150,12 @@ data may not have been supplied in the transmission. (see <<FAMILY_RECORD>>, pag
 Also added a restriction notice tag to the <<EVENT_DETAIL>> structure page 32 to allow an
 event to be flagged so that it can be treated in special ways such as not to be printed on reports.
 
-! Added additional subordinate structure to the personal name structure  (see
+! Added additional subordinate structure to the personal name structure (see
 
 <<PERSONAL_NAME_STRUCTURE>>, page 38.) These changes are in preparation for
 handling more varied cultures as we move into the unicode character set environment.
 
-! Added subordinate map coordinates and other additional changes to the place structure  (see
+! Added subordinate map coordinates and other additional changes to the place structure (see
 
 <<PLACE_STRUCTURE>>, page 38.) These changes are in preparation for handling more
 varied cultures as we move into the unicode character set environment and to allow recording of
@@ -178,7 +178,7 @@ multimedia link by placing the FORM tag subordinate to the FILE tag rather than 
 
 6
 
-level. The BLOB tag was eliminated. See FILE tag and its subordinate FORM tag used in the
+level. The BLOB tag was eliminated. See FILE tag and its subordinate FORM tag used in the
 <<MULTIMEDIA_RECORD>> page 26 and the <<MULTIMEDIA_LINK>> page 37.
 
 ! The following tags were added:
@@ -209,9 +209,9 @@ BLOB
 
 7
 
-8
+8
 
-Chapter 1
+Chapter 1
 Data Representation Grammar
 
 Introduction
@@ -254,7 +254,7 @@ primary key in relational database terminology.
 
 9
 
-Grammar
+Grammar
 
 This chapter defines the grammar for the GEDCOM format. The grammar is a set of rules that specify
 the character sequences that are valid for creating the GEDCOM line. The character sequences are
@@ -276,13 +276,13 @@ Grammar Rules
 ! Long values can be broken into shorter GEDCOM lines by using a subordinate CONC or CONT
 tag. The CONC tag assumes that the accompanying subordinate value is concatenated to the
 previous line value without saving the carriage return prior to the line terminator. If a
-concatenated line is broken at a space, then the space must be carried over to the next line.  The
+concatenated line is broken at a space, then the space must be carried over to the next line. The
 CONT assumes that the subordinate line value is concatenated to the previous line, after inserting
 a carriage return.
 
 ! The beginning of a new logical record is designated by a line whose level number is 0 (zero).
 
-! Level numbers  must be between 0 to 99 and must not contain leading zeroes, for example, level
+! Level numbers must be between 0 to 99 and must not contain leading zeroes, for example, level
 
 one must be 1, not 01.
 
@@ -291,20 +291,20 @@ one must be 1, not 01.
 ! All GEDCOM lines have either a value or a pointer unless the line contains subordinate
 
 GEDCOM lines. The presence of a level number and a tag alone should not be used to assert data
-(i.e. 1 FLAG Y not just 1 FLAG  to imply that the flag is set).
+(i.e. 1 FLAG Y not just 1 FLAG to imply that the flag is set).
 
 ! Logical GEDCOM record sizes should be constrained so that they will fit in a memory buffer of
 less than 32K. GEDCOM files with records sizes greater than 32K run the risk of not being able
-to be loaded in some programs.  Use of pointers to records, particularly NOTE records, should
+to be loaded in some programs. Use of pointers to records, particularly NOTE records, should
 ensure that this limit will be sufficient.
 
-! Any length constraints are given in characters, not bytes.  When wide characters (characters
+! Any length constraints are given in characters, not bytes. When wide characters (characters
 
 10
 
-wider than 8 bits) are used, byte buffer lengths should be adjusted accordingly.
+wider than 8 bits) are used, byte buffer lengths should be adjusted accordingly.
 
-! The cross-reference ID has a maximum of 22 characters, including the enclosing ‘at’  signs (@),
+! The cross-reference ID has a maximum of 22 characters, including the enclosing ‘at’ signs (@),
 
 and it must be unique within the GEDCOM transmission.
 
@@ -352,7 +352,7 @@ where:
 
 11
 
-(0x5F)=(_) underscore
+(0x5F)=(\_) underscore
 
 alphanum:=
 
@@ -409,7 +409,7 @@ line_value:=
 
 12
 
-non_at:=
+non_at:=
 
 [alpha | digit | otherchar | (0x23) | (0x20 ) ]
 
@@ -426,12 +426,12 @@ optional_xref_ID:= xref_ID + delim
 
 otherchar:=
 
-[(0x21)-(0x22) | (0x24)-(0x2F) | (0x3A)-(0x3F) | (0x5B)-(0x5E) | (0x60) |  (0x7B)-(0x7E) |
+[(0x21)-(0x22) | (0x24)-(0x2F) | (0x3A)-(0x3F) | (0x5B)-(0x5E) | (0x60) | (0x7B)-(0x7E) |
 (0x80)-(0xFE)]
 where, respectively:
 
 (0x21)-(0x22)=! "
-(0x24)-(0x2F)=$ % & ' ( ) * + , - . /
+(0x24)-(0x2F)=$ % & ' ( ) \* + , - . /
 (0x3A)-(0x3F)=: ; < = > ?
 (0x5B)-(0x5E)=[ \ ] ^
 (0x60)=`
@@ -439,7 +439,7 @@ where, respectively:
 (0x80)-(0xFE)=ANSEL characters above 127
 
 Any 8-bit ASCII character except control characters (0x00–0x1F), alphanum, space ( ), number
-sign (#), at sign (@), _ underscore, and the DEL character (0x7F).
+sign (#), at sign (@), \_ underscore, and the DEL character (0x7F).
 
 pointer:=
 
@@ -462,7 +462,7 @@ tag:=
 
 13
 
-terminator:=
+terminator:=
 
 [carriage_return | line_feed | carriage_return + line_feed |
 line_feed + carriage_return ]
@@ -497,7 +497,7 @@ GEDCOM structure. The form of the escape sequence is:
 
 Receiving systems should discard any space character which follows the escape sequence’s
 closing at-sign (@). If the character following the escape sequence's closing at-sign (@) is not a
-space character then it should be kept as a part of the text following the escape.  Systems writing
+space character then it should be kept as a part of the text following the escape. Systems writing
 escape sequences should always output a space character following the escape sequence.
 
 The specific format of the escape sequence is defined for the specific GEDCOM form being
@@ -514,7 +514,7 @@ indented lines provide detail about the item under which they are indented. A li
 
 14
 
-enclosed by and pertains directly to the nearest preceding line at level L-1. The Level L may
+enclosed by and pertains directly to the nearest preceding line at level L-1. The Level L may
 increase by 1 at most. Level numbers must not contain leading zeroes, for example level one must
 be (1), not (01).
 
@@ -565,7 +565,7 @@ decoding. This is intended to reduce the decoding burden on the receiving softwa
 
 15
 
-GEDCOM-optimized data compression standard will be defined in the future to reduce space
+GEDCOM-optimized data compression standard will be defined in the future to reduce space
 requirements. Meanwhile, users may agree to compress and decompress GEDCOM files using
 any compression system available to both sender and receiver.
 
@@ -613,7 +613,7 @@ up table to support random access by xref_ID during subsequent passes.
 
 16
 
-tag:=
+tag:=
 
 A tag consists of a variable length sequence of alphanum characters. All user-defined tags that
 have not been defined in the GEDCOM standard, must begin with an underscore character
@@ -622,8 +622,8 @@ have not been defined in the GEDCOM standard, must begin with an underscore char
 The tag represents the meaning of the line_value within the context of the enclosing tags, and
 contributes to the meaning of the enclosed subordinate lines. Specific tags are defined in
 Appendix A (starting on page 83). The presence of a tag together with a value represents an
-assertion which the submitter wishes to communicate to a receiver.  A tag without a value does
-not represent an assertion.  If a tag is absent, no assertion is made.  Information of a negative
+assertion which the submitter wishes to communicate to a receiver. A tag without a value does
+not represent an assertion. If a tag is absent, no assertion is made. Information of a negative
 nature (such as knowing positively an event did not occur) is handled through the semantic
 definition of a different tag and its accompanying value that assert the information explicitly.
 
@@ -664,7 +664,7 @@ The following are examples of valid but unrelated GEDCOM lines:
 
 17
 
-. . .
+. . .
 
 1 CHIL @1234@
 
@@ -683,7 +683,7 @@ xref_ID named @1234@.
 
 18
 
-Chapter 2
+Chapter 2
 Lineage-Linked Grammar
 
 Introduction
@@ -728,7 +728,7 @@ page 31.
 
 19
 
-Indicates the name of the appropriate value for this GEDCOM line— <Primitive>. The specific
+Indicates the name of the appropriate value for this GEDCOM line— <Primitive>. The specific
 definition of this value is found in alphabetical order in "Primitive Elements of the Lineage-Linked
 Form," beginning on page 41.
 
@@ -767,10 +767,10 @@ Indicates an allowable hexadecimal character value where HH is that value, for e
 Lineage-Linked Form Usage Conventions
 
 ! The order in which GEDCOM lines are written to a GEDCOM file is controlled by the context
-and level number.  When the lines are of equal level number but have a different tag name then
-the order is not significant.  The occurrence of equal level numbers and equal tags within the
+and level number. When the lines are of equal level number but have a different tag name then
+the order is not significant. The occurrence of equal level numbers and equal tags within the
 same context imply that multiple opinions or multiple values of the data exist. The significance of
-the order in these cases is interpreted as the submitter's preference.  The most preferred value
+the order in these cases is interpreted as the submitter's preference. The most preferred value
 being the first with the least preferred data listed in subsequent lines by order of decreasing
 preference. For example, a researcher who discovers conflicting evidence about a person's birth
 event would list the most credible information first and the least credible or least preferred items
@@ -780,7 +780,7 @@ Systems that support multiple fields or structures should allow their users to i
 
 20
 
-preference opinion. Systems that only store single value structures should use the preferred
+preference opinion. Systems that only store single value structures should use the preferred
 information (the first occurrence listed) and store the remaining information as an exception,
 preferably within an appropriate NOTE field or in some way that the patron has ready access to
 the less-preferred data when viewing the record.
@@ -815,14 +815,14 @@ UPPERCASE.
 
 GEDCOM lines. In other words the presence of a level number and a tag alone should not be
 used to assert data (i.e. 1 DEAT Y should be used to imply a death known to have happened but
-date and place are unknown,  not 1 DEAT ). The Lineage-linked form does not allow a
+date and place are unknown, not 1 DEAT ). The Lineage-linked form does not allow a
 GEDCOM line with both a value and a pointer on the same line.
 
 21
 
-22
+22
 
-Record Structures of the Lineage-Linked Form
+Record Structures of the Lineage-Linked Form
 
 LINEAGE_LINKED_GEDCOM:=
 
@@ -830,9 +830,9 @@ This is a model of the lineage-linked GEDCOM structure for submitting data to ot
 GEDCOM processing systems. A header and a trailer record are required, and they can enclose any
 number of data records. Tags from Appendix A (see page 83) must be used in the same context as
 shown in the following form. User defined tags (see <NEW_TAG> on page 56) are discouraged but
-when used must begin with an under-score. Tags that are required within a desired context have been 
+when used must begin with an under-score. Tags that are required within a desired context have been
 bolded. Note that some contexts are not required but if they are used then the bolded tags are
-required. 
+required.
 
 0 <<HEADER>>
 0 <<SUBMISSION_RECORD>>
@@ -891,7 +891,7 @@ n HEAD
 {0:1)
 {0:1)
 {0:M}
-{0:1*
+{0:1\*
 {0:1}
 {0:1}
 {1:1}
@@ -940,14 +940,14 @@ p.50
 
 23
 
-+2 [CONC|CONT] <GEDCOM_CONTENT_DESCRIPTION>
++2 [CONC|CONT] <GEDCOM_CONTENT_DESCRIPTION>
 
 {0:M}
 
-* NOTE:
+- NOTE:
 
-Submissions to the Family History Department for Ancestral File submission or for clearing temple ordinances  must use a
-DESTination of ANSTFILE or TempleReady, respectively.  
+Submissions to the Family History Department for Ancestral File submission or for clearing temple ordinances must use a
+DESTination of ANSTFILE or TempleReady, respectively.
 
 The header structure provides information about the entire transmission. The SOURce system name
 identifies which system sent the data. The DESTination system name identifies the intended receiving
@@ -960,7 +960,7 @@ greater than 0x7F must be converted to ANSEL. (See Chapter 3, starting on page 7
 
 RECORD:=
 
-[ 
+[
 n <<FAM_RECORD>>
 |
 n <<INDIVIDUAL_RECORD>>
@@ -972,7 +972,7 @@ n <<NOTE_RECORD>>
 n <<REPOSITORY_RECORD>>
 |
 n <<SOURCE_RECORD>>
-|                                    
+|
 n <<SUBMITTER_RECORD>>
 ]
 
@@ -1041,7 +1041,7 @@ p.63, 64
 
 24
 
-+2 TYPE <USER_REFERENCE_TYPE>
++2 TYPE <USER_REFERENCE_TYPE>
 
 +1 RIN <AUTOMATED_RECORD_ID>
 +1 <<CHANGE_DATE>>
@@ -1146,29 +1146,29 @@ p.37
 p.39
 p.37, 26
 
-The individual record is a compilation of facts, known or discovered, about an individual.  Sometimes
-these facts are from different sources.  This form allows documentation of the source where each of
+The individual record is a compilation of facts, known or discovered, about an individual. Sometimes
+these facts are from different sources. This form allows documentation of the source where each of
 
 25
 
-the facts were discovered.
+the facts were discovered.
 
 The normal lineage links are shown through the use of pointers from the individual to a family
-through either the FAMC tag or the FAMS tag.  The FAMC tag provides a pointer to a family where
-this person is a child.  The FAMS tag provides a pointer to a family where this person is a spouse or
-parent.  The <<CHILD_TO_FAMILY_LINK>> (see page 31) structure contains a FAMC pointer
-which is required to show any child to parent linkage for pedigree navigation.  The
+through either the FAMC tag or the FAMS tag. The FAMC tag provides a pointer to a family where
+this person is a child. The FAMS tag provides a pointer to a family where this person is a spouse or
+parent. The <<CHILD_TO_FAMILY_LINK>> (see page 31) structure contains a FAMC pointer
+which is required to show any child to parent linkage for pedigree navigation. The
 <<CHILD_TO_FAMILY_LINK>> structure also indicates whether the pedigree link represents a
 birth lineage, an adoption lineage, or a sealing lineage.
 
 Linkage between a child and the family they belonged to at the time of an event can also be shown
-by a FAMC pointer subordinate to the appropriate event.  For example, a FAMC pointer subordinate
+by a FAMC pointer subordinate to the appropriate event. For example, a FAMC pointer subordinate
 to an adoption event indicates a relationship to family by adoption. Biological parents can be shown
 by a FAMC pointer subordinate to the birth event(optional).
 
-Other associations or relationships are represented by the ASSOciation tag.  The person's relation
+Other associations or relationships are represented by the ASSOciation tag. The person's relation
 or association is the person being pointed to. The association or relationship is stated by the value
-on the subordinate RELA line.   For example:
+on the subordinate RELA line. For example:
 
 0 @I1@ INDI
 
@@ -1220,14 +1220,14 @@ p.39
 p.31
 
 The BLOB context of the multimedia record was removed in version 5.5.1. A reference to a multimedia
-file was added to the record structure.  The file reference occurs one to many times so that multiple files
+file was added to the record structure. The file reference occurs one to many times so that multiple files
 can be grouped together, each pertaining to the same context. For example, if you wanted to associate a
 sound clip and a photo, you would reference each multimedia file and indicate the format using the
 FORM tag subordinate to each file reference.
 
 26
 
-NOTE_RECORD:=
+NOTE_RECORD:=
 
 n @<XREF:NOTE>@ NOTE <SUBMITTER_TEXT>
 
@@ -1362,7 +1362,7 @@ p.43
 
 27
 
-+1 <<CHANGE_DATE>>
++1 <<CHANGE_DATE>>
 +1 <<NOTE_STRUCTURE>>
 +1 <<MULTIMEDIA_LINK>>
 
@@ -1434,7 +1434,7 @@ n @<XREF:SUBM>@ SUBM
 
 {1:1}
 {1:1}
-{0:1}*
+{0:1}\*
 {0:M}
 {0:3}
 {0:1}
@@ -1458,13 +1458,13 @@ points at a different SUBMITTER record.
 
 28
 
-* Note: submissions to the ancestral file require the name and address of the submitter.
+\* Note: submissions to the ancestral file require the name and address of the submitter.
 
 29
 
-30
+30
 
-Substructures of the Lineage-Linked Form
+Substructures of the Lineage-Linked Form
 
 ADDRESS_STRUCTURE:=
 
@@ -1513,7 +1513,7 @@ p.41
 p.42
 
 The address structure should be formed as it would appear on a mailing label using the ADDR and
-the CONT lines to form the address structure.  The ADDR and CONT lines are required for any
+the CONT lines to form the address structure. The ADDR and CONT lines are required for any
 address. The additional subordinate address tags such as STAE and CTRY are provided to be used
 by systems that have structured their addresses for indexing and sorting. For backward compatibility
 these lines are not to be used in lieu of the required ADDR.and CONT line structure.
@@ -1553,7 +1553,7 @@ p.44
 p.63
 p.37
 
-The change date is intended to only record the last change to a record.  Some systems may want to
+The change date is intended to only record the last change to a record. Some systems may want to
 manage the change process with more detail, but it is sufficient for GEDCOM purposes to indicate
 the last time that a record was modified.
 
@@ -1566,7 +1566,7 @@ p.24
 
 31
 
-+1 PEDI <PEDIGREE_LINKAGE_TYPE>
++1 PEDI <PEDIGREE_LINKAGE_TYPE>
 +1 STAT <CHILD_LINKAGE_STATUS>
 +1 <<NOTE_STRUCTURE>>
 
@@ -1607,7 +1607,7 @@ n <<EVENT_DETAIL>>
 FAMILY_EVENT_STRUCTURE:=
 
 [
-n [ ANUL | CENS | DIV | DIVF ] 
+n [ ANUL | CENS | DIV | DIVF ]
 
 +1 <<FAMILY_EVENT_DETAIL>>
 
@@ -1617,7 +1617,7 @@ n [ ENGA | MARB | MARC ]
 +1 <<FAMILY_EVENT_DETAIL>>
 
 |
-n  MARR  [Y|<NULL>]
+n MARR [Y|<NULL>]
 
 +1 <<FAMILY_EVENT_DETAIL>>
 
@@ -1632,7 +1632,7 @@ n RESI
 +1 <<FAMILY_EVENT_DETAIL>>
 
 |
-n EVEN [<EVENT_DESCRIPTOR> | <NULL>] 
+n EVEN [<EVENT_DESCRIPTOR> | <NULL>]
 
 +1 <<FAMILY_EVENT_DETAIL>>
 
@@ -1703,142 +1703,142 @@ p.32
 
 32
 
-]
+]
 
 INDIVIDUAL_ATTRIBUTE_STRUCTURE:=
 
 [
-n CAST <CASTE_NAME> 
+n CAST <CASTE_NAME>
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n DSCR <PHYSICAL_DESCRIPTION> 
+n DSCR <PHYSICAL_DESCRIPTION>
 
 +1 [CONC | CONT ] <PHYSICAL_DESCRIPTION>
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n EDUC <SCHOLASTIC_ACHIEVEMENT> 
+n EDUC <SCHOLASTIC_ACHIEVEMENT>
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n IDNO <NATIONAL_ID_NUMBER> 
-
-+1 <<INDIVIDUAL_EVENT_DETAIL>>
-
-|
-n NATI <NATIONAL_OR_TRIBAL_ORIGIN> 
-+1 <<INDIVIDUAL_EVENT_DETAIL>>
-
-|
-n NCHI <COUNT_OF_CHILDREN> 
+n IDNO <NATIONAL_ID_NUMBER>
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n NMR <COUNT_OF_MARRIAGES> 
+n NATI <NATIONAL_OR_TRIBAL_ORIGIN>
++1 <<INDIVIDUAL_EVENT_DETAIL>>
+
+|
+n NCHI <COUNT_OF_CHILDREN>
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n OCCU <OCCUPATION> 
+n NMR <COUNT_OF_MARRIAGES>
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n PROP <POSSESSIONS> 
+n OCCU <OCCUPATION>
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n RELI <RELIGIOUS_AFFILIATION> 
+n PROP <POSSESSIONS>
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n RESI 
-
-/* Resides at */
+n RELI <RELIGIOUS_AFFILIATION>
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
-n SSN <SOCIAL_SECURITY_NUMBER> 
+n RESI
+
+/_ Resides at _/
+
++1 <<INDIVIDUAL_EVENT_DETAIL>>
+
+|
+n SSN <SOCIAL_SECURITY_NUMBER>
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
 n TITL <NOBILITY_TYPE_TITLE>
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.43
 p.34
 
 {1:1}
 {0:M}
-{0:1}*
+{0:1}\*
 
 p.58
 p.58
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.61
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.56
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.56
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.44
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.44
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.57
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.59
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.60
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.61
 p.34
@@ -1849,7 +1849,7 @@ p.57
 
 33
 
-+1 <<INDIVIDUAL_EVENT_DETAIL>>
++1 <<INDIVIDUAL_EVENT_DETAIL>>
 
 |
 n FACT <ATTRIBUTE_DESCRIPTOR>
@@ -1858,19 +1858,19 @@ n FACT <ATTRIBUTE_DESCRIPTOR>
 
 ]
 
-{0:1}*
+{0:1}\*
 
 p.34
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.43
 p.34
 
-* Note: The usage of IDNO or the FACT tag require that a subordinate TYPE tag be used to define
-what kind of identification number or fact classification is being defined.  The TYPE tag can be used
-with each of the above tags used in this structure.
+- Note: The usage of IDNO or the FACT tag require that a subordinate TYPE tag be used to define
+  what kind of identification number or fact classification is being defined. The TYPE tag can be used
+  with each of the above tags used in this structure.
 
 INDIVIDUAL_EVENT_DETAIL:=
 n <<EVENT_DETAIL>>
@@ -1885,12 +1885,12 @@ n [ BIRT | CHR ] [Y|<NULL>]
 +1 FAMC @<XREF:FAM>@
 |
 
-n DEAT  [Y|<NULL>] 
+n DEAT [Y|<NULL>]
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 |
 
-n [ BURI | CREM ]  
+n [ BURI | CREM ]
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 |
@@ -1931,31 +1931,31 @@ p.32
 p.42
 
 {1:1}
-{0:1}*
+{0:1}\*
 {0:1}
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 {1:1}
-{0:1}*
+{0:1}\*
 {0:1}
 {0:1}
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 {1:1}
-{0:1}*
+{0:1}\*
 
 p.34
 p.24
@@ -1978,7 +1978,7 @@ p.34
 
 34
 
-n[ GRAD | RETI ]
+n[ GRAD | RETI ]
 
 +1 <<INDIVIDUAL_EVENT_DETAIL>>
 |
@@ -1988,46 +1988,46 @@ nEVEN
 ]
 
 {1:1}
-{0:1}*  p.34
+{0:1}\* p.34
 
-{1:1} 
-{0:1}*  p.34
+{1:1}
+{0:1}\* p.34
 
 As a general rule, events are things that happen on a specific date. Use the date form ‘BET date
-AND date’  to indicate that an event took place at some time between two dates. Resist the
-temptation to use a ‘FROM date TO date’  form in an event structure.  If the subject of your
+AND date’ to indicate that an event took place at some time between two dates. Resist the
+temptation to use a ‘FROM date TO date’ form in an event structure. If the subject of your
 recording occurred over a period of time, then it is probably not an event, but rather an attribute or
 fact.
 
 The EVEN tag in this structure is for recording general events that are not shown in the above
-<<INDIVIDUAL_EVENT_STRUCTURE>>.  The event indicated by this general EVEN tag is
+<<INDIVIDUAL_EVENT_STRUCTURE>>. The event indicated by this general EVEN tag is
 defined by the value of the subordinate TYPE tag. For example, a person that signed a lease for land
-dated  October 2, 1837 and a lease for equipment dated November 4, 1837 would be written in
+dated October 2, 1837 and a lease for equipment dated November 4, 1837 would be written in
 GEDCOM as::
 
-1 EVEN 
+1 EVEN
 
 2 TYPE Land Lease
 2 DATE 2 OCT 1837
 
-1 EVEN 
+1 EVEN
 
 2 TYPE Equipment Lease
 2 DATE 4 NOV 1837
 
 The TYPE tag can be optionally used to modify the basic understanding of its superior event or
-attribute.  For example:
+attribute. For example:
 
 1 GRAD
 
-2 TYPE College  
+2 TYPE College
 
 The occurrence of an event is asserted by the presence of either a DATE tag and value or a PLACe
 tag and value in the event structure. When neither the date value nor the place value are known then
-a Y(es) value on the parent event tag line is required to assert that the event happened.  For example
+a Y(es) value on the parent event tag line is required to assert that the event happened. For example
 each of the following GEDCOM structures assert that a death happened:
 
-1 DEAT Y 
+1 DEAT Y
 1 DEAT
 
 2 DATE 2 OCT 1937
@@ -2038,12 +2038,12 @@ each of the following GEDCOM structures assert that a death happened:
 
 35
 
-Using this convention, as opposed to the just the presence of the tag, protects GEDCOM processors
-which removes (prunes) lines which have neither a value nor any subordinate line.  It also allows a
+Using this convention, as opposed to the just the presence of the tag, protects GEDCOM processors
+which removes (prunes) lines which have neither a value nor any subordinate line. It also allows a
 note or source to be attached to an event context without implying that the event occurred.
 
-It is not proper GEDCOM form to use a N(o) value with an event tag to infer that it did not happen. 
-A convention to handle events which never happened may be defined in the future.   
+It is not proper GEDCOM form to use a N(o) value with an event tag to infer that it did not happen.
+A convention to handle events which never happened may be defined in the future.
 
 LDS_INDIVIDUAL_ORDINANCE:=
 
@@ -2161,45 +2161,45 @@ p.58
 
 36
 
-+1 STAT <LDS_SPOUSE_SEALING_DATE_STATUS> 
++1 STAT <LDS_SPOUSE_SEALING_DATE_STATUS>
 
-+2 DATE <CHANGE_DATE> 
++2 DATE <CHANGE_DATE>
 
-+1 <<NOTE_STRUCTURE>> 
-+1 <<SOURCE_CITATION>> 
++1 <<NOTE_STRUCTURE>>
++1 <<SOURCE_CITATION>>
 
 MULTIMEDIA_LINK:=
 
-n OBJE @<XREF:OBJE>@ 
+n OBJE @<XREF:OBJE>@
 |
 n OBJE
 
-+1 FILE <MULTIMEDIA_FILE_REFN> 
++1 FILE <MULTIMEDIA_FILE_REFN>
 
-+2 FORM <MULTIMEDIA_FORMAT> 
++2 FORM <MULTIMEDIA_FORMAT>
 
-+3 MEDI  <SOURCE_MEDIA_TYPE> 
++3 MEDI <SOURCE_MEDIA_TYPE>
 
-+1 TITL <DESCRIPTIVE_TITLE> 
++1 TITL <DESCRIPTIVE_TITLE>
 
 p.52
-{0:1} 
-{1:1} 
+{0:1}
+{1:1}
 p.44
-{0:M}  p.37
-{0:M}  p.39
+{0:M} p.37
+{0:M} p.39
 
-{1:1} 
+{1:1}
 
 p.26
 
-{1:M}  p.54
+{1:M} p.54
 p.54
-{1:1} 
+{1:1}
 p.62
-{0:1} 
+{0:1}
 p.48
-{0:1} 
+{0:1}
 
 Note: some systems may have output the following 5.5 structure. The new context above was
 introduced in order to allow a grouping of related multimedia files to a particular context.
@@ -2214,18 +2214,18 @@ n OBJE
 NOTE_STRUCTURE:=
 
 [
-n NOTE @<XREF:NOTE>@ 
+n NOTE @<XREF:NOTE>@
 |
-n NOTE [<SUBMITTER_TEXT> | <NULL>] 
-+1 [CONC|CONT] <SUBMITTER_TEXT> 
+n NOTE [<SUBMITTER_TEXT> | <NULL>]
++1 [CONC|CONT] <SUBMITTER_TEXT>
 
 ]
 
-{1:1} 
+{1:1}
 
 p.27
 
-{1:1} 
+{1:1}
 {0:M}
 
 p.63
@@ -2235,19 +2235,19 @@ note string that can be concatenated together so that the display program can do
 wrapping according to its display window size. The requirement for usage is to either break the text
 line in the middle of a word, or if at the end of a word, to add a space to the first of the next CONC
 line. Otherwise most operating systems will strip off the trailing space and the space is lost in the
-reconstitution of the note. 
+reconstitution of the note.
 
 PERSONAL_NAME_PIECES:=
 
-n NPFX <NAME_PIECE_PREFIX> 
-n GIVN <NAME_PIECE_GIVEN> 
-n NICK <NAME_PIECE_NICKNAME> 
-n SPFX <NAME_PIECE_SURNAME_PREFIX 
+n NPFX <NAME_PIECE_PREFIX>
+n GIVN <NAME_PIECE_GIVEN>
+n NICK <NAME_PIECE_NICKNAME>
+n SPFX <NAME_PIECE_SURNAME_PREFIX
 
-{0:1} 
-{0:1} 
-{0:1} 
-{0:1} 
+{0:1}
+{0:1}
+{0:1}
+{0:1}
 
 p.55
 p.55
@@ -2256,81 +2256,80 @@ p.56
 
 37
 
- 
-n SURN <NAME_PIECE_SURNAME> 
-n NSFX <NAME_PIECE_SUFFIX> 
-n <<NOTE_STRUCTURE>> 
-n <<SOURCE_CITATION>> 
+n SURN <NAME_PIECE_SURNAME>
+n NSFX <NAME_PIECE_SUFFIX>
+n <<NOTE_STRUCTURE>>
+n <<SOURCE_CITATION>>
 
 PERSONAL_NAME_STRUCTURE:=
-n NAME <NAME_PERSONAL> 
-+1 TYPE <NAME_TYPE> 
-+1 <<PERSONAL_NAME_PIECES>> 
-+1 FONE <NAME_PHONETIC_VARIATION> 
+n NAME <NAME_PERSONAL>
++1 TYPE <NAME_TYPE>
++1 <<PERSONAL_NAME_PIECES>>
++1 FONE <NAME_PHONETIC_VARIATION>
 
-+2 TYPE <PHONETIC_TYPE> 
-+2 <<PERSONAL_NAME_PIECES>> 
++2 TYPE <PHONETIC_TYPE>
++2 <<PERSONAL_NAME_PIECES>>
 
-+1 ROMN <NAME_ROMANIZED_VARIATION> 
++1 ROMN <NAME_ROMANIZED_VARIATION>
 
-+2 TYPE <ROMANIZED_TYPE> 
-+2 <<PERSONAL_NAME_PIECES>> 
++2 TYPE <ROMANIZED_TYPE>
++2 <<PERSONAL_NAME_PIECES>>
 
 p.55
-{0:1} 
-{0:1} 
+{0:1}
+{0:1}
 p.55
-{0:M}  p.37
-{0:M}  p.39
+{0:M} p.37
+{0:M} p.39
 
 p.54
-{1:1} 
+{1:1}
 p.56
-{0:1} 
-{0:1} 
+{0:1}
+{0:1}
 p.37
-{0:M}  p.55
+{0:M} p.55
 p.57
-{1:1} 
-{0:1} 
+{1:1}
+{0:1}
 p.37
-{0:M}  p.56
+{0:M} p.56
 p.61
-{1:1} 
+{1:1}
 p.37
-{0:1} 
+{0:1}
 
 The name value is formed in the manner the name is normally spoken, with the given name and family
 name (surname) separated by slashes (/). (See <NAME_PERSONAL>, page 54.) Based on the
 dynamic nature or unknown compositions of naming conventions, it is difficult to provide more
 detailed name piece structure to handle every case. The NPFX, GIVN, NICK, SPFX, SURN, and
 NSFX tags are provided optionally for systems that cannot operate effectively with less structured
-information.  For current future compatibility, all systems must construct their names based on the
+information. For current future compatibility, all systems must construct their names based on the
 <NAME_PERSONAL> structure. Those using the optional name pieces should assume that few
 systems will process them, and most will not provide the name pieces.
 
-A <NAME_TYPE> is used to specify the particular variation that this name is.  For example; if the
+A <NAME_TYPE> is used to specify the particular variation that this name is. For example; if the
 name type is subordinate to the <NAME_PERSONAL> it could indicate that this name is a name
-taken at immigration or that it could be an ‘also known as’ name (see  page 56.)
+taken at immigration or that it could be an ‘also known as’ name (see page 56.)
 
 Future GEDCOM releases (6.0 or later) will likely apply a very different strategy to resolve this
 problem, possibly using a sophisticated parser and a name-knowledge database.
 
 PLACE_STRUCTURE:=
 
-n PLAC <PLACE_NAME> 
+n PLAC <PLACE_NAME>
 
-+1 FORM <PLACE_HIERARCHY> 
++1 FORM <PLACE_HIERARCHY>
 
-{1:1} 
-{0:1} 
+{1:1}
+{0:1}
 
 p.58
 p.58
 
 38
 
-+1 FONE <PLACE_PHONETIC_VARIATION>
++1 FONE <PLACE_PHONETIC_VARIATION>
 
 +2 TYPE <PHONETIC_TYPE>
 
@@ -2348,9 +2347,9 @@ p.58
 SOURCE_CITATION:=
 
 [
-n SOUR @<XREF:SOUR>@   
+n SOUR @<XREF:SOUR>@
 
-/* pointer to source record (preferred)*/
+/_ pointer to source record (preferred)_/
 
 +1 PAGE <WHERE_WITHIN_SOURCE>
 +1 EVEN <EVENT_TYPE_CITED_FROM>
@@ -2371,7 +2370,7 @@ n SOUR @<XREF:SOUR>@
 |
 n SOUR <SOURCE_DESCRIPTION>
 
-/* Systems not using source records */
+/_ Systems not using source records _/
 
 +1 [CONC|CONT] <SOURCE_DESCRIPTION>
 +1 TEXT <TEXT_FROM_SOURCE>
@@ -2444,7 +2443,7 @@ p.43
 
 The data provided in the <<SOURCE_CITATION>> structure is source-related information specific
 to the data being cited. (See GEDCOM examples starting on page 74.) Systems that do not use a
-(SOURCE_RECORD)  must use the non-preferred second SOURce citation structure option.  When
+(SOURCE_RECORD) must use the non-preferred second SOURce citation structure option. When
 systems that support the zero level source record format encounters a source citation that does not
 contain pointers to source records, then that system needs to create a SOURCE_RECORD format
 and store the source description information found in the non-structured source citation in the title
@@ -2455,20 +2454,20 @@ The information intended to be placed in the citation structure includes:
 
 39
 
-used for the fact being cited.
+used for the fact being cited.
 
 ! Information, such as a page number, to help the user find the cited data within the referenced
 
-source. This is stored in the “.SOUR.PAGE”  tag context.
+source. This is stored in the “.SOUR.PAGE” tag context.
 
 ! Actual text from the source that was used in making assertions, for example a date phrase as
 actually recorded in the source, or significant notes written by the recorder, or an applicable
-sentence from a letter. This is stored in the “.SOUR.DATA.TEXT”  tag context.
+sentence from a letter. This is stored in the “.SOUR.DATA.TEXT” tag context.
 
 ! Data that allows an assessment of the relative value of one source over another for making the
 
-recorded assertions (primary or secondary source, etc.).  Data needed for this assessment is data
-that would help determine  how much time from the date of the asserted fact and when the source
+recorded assertions (primary or secondary source, etc.). Data needed for this assessment is data
+that would help determine how much time from the date of the asserted fact and when the source
 was actually recorded, what type of event was cited, and what type of role did this person have in
 the cited source.
 
@@ -2476,7 +2475,7 @@ the cited source.
 
 ".SOUR.DATA.DATE" tag context.
 
-- The type of event that initiated the recording is stored in the “SOUR.EVEN”  tag context. The
+- The type of event that initiated the recording is stored in the “SOUR.EVEN” tag context. The
 
 value used is the event code taken from the table of choices shown in the
 EVENT_TYPE_CITED_FROM primitive on page 49
@@ -2502,12 +2501,12 @@ p.61
 p.62
 
 This structure is used within a source record to point to a name and address record of the holder of the
-source document.  Formal and informal repository name and addresses are stored in the
-REPOSITORY_RECORD.  Informal repositories include owner's of an unpublished work or of a rare
+source document. Formal and informal repository name and addresses are stored in the
+REPOSITORY_RECORD. Informal repositories include owner's of an unpublished work or of a rare
 published source, or a keeper of personal collections. An example would be the owner of a family Bible
 containing unpublished family genealogical entries. More formal repositories, such as the Family History
 Library, should show a call number of the source at that repository. The call number of that source
-should be recorded using a subordinate CALN tag.  Systems which do not use repository name and
+should be recorded using a subordinate CALN tag. Systems which do not use repository name and
 address record, should describe where the information cited is stored in the <<NOTE_STRUCTURE>>
 of the REPOsitory source citation structure.
 
@@ -2524,14 +2523,14 @@ p.37
 
 40
 
-Primitive Elements of the Lineage-Linked Form
+Primitive Elements of the Lineage-Linked Form
 
 The field sizes show the minimum recommended field length within a database that is constrained to fixed
 length fields. The field sizes are in addition to the GEDCOM level and tag overhead. GEDCOM lines are
 limited to 255 characters. However, the CONCatenation or CONTinuation tags can be used to expand a
-field beyond this limit. CONT line implies that a new line should appear to preserve formatting.  CONC
-implies concatenation to the previous line without a new line.  This is used so that a text note or
-description can be processed (word wrapped) in a text window without fixed carriage returns.  The
+field beyond this limit. CONT line implies that a new line should appear to preserve formatting. CONC
+implies concatenation to the previous line without a new line. This is used so that a text note or
+description can be processed (word wrapped) in a text window without fixed carriage returns. The
 CONT and CONC tags are being used to extend specified textual values.
 
 ADDRESS_CITY:=
@@ -2565,39 +2564,39 @@ ADDRESS_LINE:=
 
 Typically used to define a mailing address of an individual when used subordinate to a RESIdent tag.
 When it is used subordinate to an event tag it is the address of the place where the event took place.
-The address lines usually contain the addressee’s name and other street and city information so that it 
+The address lines usually contain the addressee’s name and other street and city information so that it
 forms an address that meets mailing requirements.
 
 ADDRESS_LINE1:=
 
 {Size=1:60}
 
-The first line of the address used for indexing.  This is the value of the line corresponding to the
+The first line of the address used for indexing. This is the value of the line corresponding to the
 ADDR tag line in the address structure.
 
 ADDRESS_LINE2:=
 
 {Size=1:60}
 
-The second line of the address used for indexing.  This is the value of the first CONT line subordinate
+The second line of the address used for indexing. This is the value of the first CONT line subordinate
 to the ADDR tag in the address structure.
 
 ADDRESS_LINE3:=
 
 {Size=1:60}
 
-The third line of the address used for indexing.  This is the value of the second CONT line subordinate
+The third line of the address used for indexing. This is the value of the second CONT line subordinate
 to the ADDR tag in the address structure.
 
 ADDRESS_POSTAL_CODE:=
 
 {Size=1:10}
 
-The ZIP or postal code used by the various localities in handling of mail.  Isolated for sorting or
+The ZIP or postal code used by the various localities in handling of mail. Isolated for sorting or
 
 41
 
-indexing.
+indexing.
 
 ADDRESS_STATE:=
 
@@ -2632,21 +2631,21 @@ BOTH
 AGE_AT_EVENT:=
 [ < | > | <NULL>]
 [ YYy MMm DDDd | YYy | MMm | DDDd |
-  YYy MMm | YYy DDDd | MMm DDDd |
-  CHILD | INFANT | STILLBORN ]
+YYy MMm | YYy DDDd | MMm DDDd |
+CHILD | INFANT | STILLBORN ]
 ]
 Where:
->
-<
-y
-m
-d
-YY
-MM
-DDD
-CHILD
-INFANT
-STILLBORN = died just prior, at, or near birth, 0 years
+
+> <
+> y
+> m
+> d
+> YY
+> MM
+> DDD
+> CHILD
+> INFANT
+> STILLBORN = died just prior, at, or near birth, 0 years
 
 = greater than indicated age
 = less than indicated age
@@ -2675,18 +2674,18 @@ APPROVED_SYSTEM_ID:=
 
 42
 
-A system identification name which was obtained through the GEDCOM registration process. This
+A system identification name which was obtained through the GEDCOM registration process. This
 name must be unique from any other product. Spaces within the name must be substituted with a 0x5F
-(underscore _) so as to create one word.
+(underscore \_) so as to create one word.
 
 ATTRIBUTE_DESCRIPTOR:=
 
 {Size=1:90}
 
 Text describing a particular characteristic or attribute assigned to an individual. This attribute value is
-assigned to the FACT tag.  The classification of this specific attribute or fact is specified by the value
-of the subordinate TYPE tag selected from the EVENT_DETAIL structure.  For example if you were
-classifying the skills a person had obtained; 
+assigned to the FACT tag. The classification of this specific attribute or fact is specified by the value
+of the subordinate TYPE tag selected from the EVENT_DETAIL structure. For example if you were
+classifying the skills a person had obtained;
 
 1 FACT Woodworking
 
@@ -2697,14 +2696,14 @@ ATTRIBUTE_TYPE:=
 {Size=1:4}
 
 [ CAST | EDUC | NATI | OCCU | PROP | RELI | RESI | TITL | FACT ]
-An attribute which may have caused name, addresses, phone numbers, family listings to be recorded. 
+An attribute which may have caused name, addresses, phone numbers, family listings to be recorded.
 Its application is in helping to classify sources used for information.
 
 AUTOMATED_RECORD_ID:=
 
 {Size=1:12}
 
-A unique record identification number assigned to the record by the source system.  This number is
+A unique record identification number assigned to the record by the source system. This number is
 intended to serve as a more sure means of identification of a record for reconciling differences in data
 between two interfacing systems.
 
@@ -2742,7 +2741,7 @@ for example, an autobiography)
 
 43
 
-CHANGE_DATE:=
+CHANGE_DATE:=
 <DATE_EXACT>
 The date that this data was changed.
 
@@ -2753,7 +2752,7 @@ CHARACTER_SET:=
 {Size=1:8}
 
 [ ANSEL |UTF-8 | UNICODE | ASCII ]
-A code value that represents the character set to be used to interpret this data. Currently, the 
+A code value that represents the character set to be used to interpret this data. Currently, the
 preferred character set is ANSEL, which includes ASCII as a subset. UNICODE is not widely
 supported by most operating systems; therefore, GEDCOM produced using the UNICODE character
 set will be limited in its interchangeability for a while but should eventually provide the international
@@ -2771,7 +2770,7 @@ challenged = Linking this child to this family is suspect, but the linkage has b
 
 disproven.
 
-disproven  = There has been a claim by some that this child belongs to this family, but the linkage
+disproven = There has been a claim by some that this child belongs to this family, but the linkage
 
 has been disproven.
 
@@ -2790,7 +2789,7 @@ COPYRIGHT_SOURCE_DATA:=
 
 {Size=1:90}
 
-A copyright statement required by the owner of data from which this information was down- loaded. 
+A copyright statement required by the owner of data from which this information was down- loaded.
 For example, when a GEDCOM down-load is requested from the Ancestral File, this would be the
 copyright statement to indicate that the data came from a copyrighted source.
 
@@ -2812,7 +2811,7 @@ parent, regardless of whether the associated families are represented in the GED
 
 44
 
-DATE:=
+DATE:=
 
 [ <DATE_CALENDAR_ESCAPE> | <NULL>]
 <DATE_CALENDAR>
@@ -2838,11 +2837,11 @@ DATE_CALENDAR:=
 {Size=4:35}
 
 [ <DATE_GREG> | <DATE_JULN> | <DATE_HEBR> | <DATE_FREN> |
-  <DATE_FUTURE> ]
+<DATE_FUTURE> ]
 The selection is based on the <DATE_CALENDAR_ESCAPE> that precedes the
-<DATE_CALENDAR> value immediately to the left.  If <DATE_CALENDAR_ESCAPE> doesn't
-appear at this point, then @#DGREGORIAN@ is assumed.  No future calendar types will use words
-(e.g., month names) from this list: FROM, TO, BEF, AFT, BET, AND, ABT, EST, CAL, or INT. 
+<DATE_CALENDAR> value immediately to the left. If <DATE_CALENDAR_ESCAPE> doesn't
+appear at this point, then @#DGREGORIAN@ is assumed. No future calendar types will use words
+(e.g., month names) from this list: FROM, TO, BEF, AFT, BET, AND, ABT, EST, CAL, or INT.
 When only a day and month appears as a DATE value it is considered a date phrase and not a valid
 date form.
 
@@ -2851,23 +2850,24 @@ Date Escape
 Syntax Selected
 
     @#DGREGORIAN@ <DATE_GREG>
+
 <DATE_JULN>
-    @#DJULIAN@
+@#DJULIAN@
 <DATE_HEBR>
-    @#DHEBREW@
+@#DHEBREW@
 <DATE_FREN>
-    @#DFRENCH R@
+@#DFRENCH R@
 for future definition
-    @#DROMAN@
+@#DROMAN@
 calendar not known
-    @#DUNKNOWN@ 
+@#DUNKNOWN@
 
 DATE_CALENDAR_ESCAPE:=
 
-{Size=4:15}   
+{Size=4:15}
 
 [ @#DHEBREW@ | @#DROMAN@ | @#DFRENCH R@ | @#DGREGORIAN@ |
-  @#DJULIAN@ | @#DUNKNOWN@ ]
+@#DJULIAN@ | @#DUNKNOWN@ ]
 The date escape determines the date interpretation by signifying which <DATE_CALENDAR> to use.
 The default calendar is the Gregorian calendar.
 
@@ -2885,21 +2885,21 @@ DATE_FREN:=
 
 45
 
- <DAY> <MONTH_FREN> <YEAR> ]
+<DAY> <MONTH_FREN> <YEAR> ]
 
 See <MONTH_FREN> page 53
 
 DATE_GREG:=
 
 [ <YEAR_GREG>[B.C.] | <MONTH> <YEAR_GREG> |
-  <DAY> <MONTH> <YEAR_GREG> ]
+<DAY> <MONTH> <YEAR_GREG> ]
 
 See <YEAR_GREG> page 65.
 
 DATE_HEBR:=
 
 [ <YEAR>[B.C.] | <MONTH_HEBR> <YEAR> |
-  <DAY> <MONTH_HEBR> <YEAR> ]
+<DAY> <MONTH_HEBR> <YEAR> ]
 
 See <MONTH_HEBR> page 53
 
@@ -2915,13 +2915,13 @@ DATE_JULN:=
 
 {Size=4:35}
 
-DATE_LDS_ORD:=
+DATE*LDS_ORD:=
 <DATE_VALUE>
 LDS ordinance dates use only the Gregorian date and most often use the form of day, month, and
 year. Only in rare instances is there a partial date. The temple tag and code should always accompany
-temple ordinance dates. Sometimes the LDS_(ordinance)_DATE_STATUS is used to indicate that an
+temple ordinance dates. Sometimes the LDS*(ordinance)_DATE_STATUS is used to indicate that an
 ordinance date and temple code is not required, such as when BIC is used. (See
-LDS_(ordinance)_DATE_STATUS definitions beginning on page 51.)
+LDS_(ordinance)\_DATE_STATUS definitions beginning on page 51.)
 
 DATE_PERIOD:=
 
@@ -2953,7 +2953,7 @@ TO 1915
 
 46
 
-DATE_PHRASE:=
+DATE_PHRASE:=
 
 {Size=1:35}
 
@@ -3012,18 +3012,18 @@ INT <DATE> (<DATE_PHRASE>) |
 
 The DATE_VALUE represents the date of an activity, attribute, or event where:
 
-INT = Interpreted from knowledge about the associated date phrase included in parentheses. 
+INT = Interpreted from knowledge about the associated date phrase included in parentheses.
 
 47
 
-An acceptable alternative to the date phrase choice is to use one of the other choices such as
+An acceptable alternative to the date phrase choice is to use one of the other choices such as
 <DATE_APPROXIMATED> choice as the DATE line value and then include the date phrase value
 as a NOTE value subordinate to the DATE line tag.
 
 The date value can take on the date form of just a date, an approximated date, between a date and
-another date, and from one date to another date.  The preferred form of showing date imprecision, is
-to show, for example, MAY 1890 rather than ABT 12 MAY 1890.  This is because limits have not
-been assigned to the precision of the prefixes such as ABT or EST.  
+another date, and from one date to another date. The preferred form of showing date imprecision, is
+to show, for example, MAY 1890 rather than ABT 12 MAY 1890. This is because limits have not
+been assigned to the precision of the prefixes such as ABT or EST.
 
 DAY:=
 dd
@@ -3047,7 +3047,7 @@ The date that this event data was entered into the original source document.
 
 EVENT_ATTRIBUTE_TYPE:=
 
-{Size=1:248}  
+{Size=1:248}
 
 {Size=1:1}
 
@@ -3056,10 +3056,10 @@ EVENT_ATTRIBUTE_TYPE:=
 {Size=1:15}
 
 [ <EVENT_TYPE_INDIVIDUAL> |
- <EVENT_TYPE_FAMILY> |
- <ATTRIBUTE_TYPE> ]
+<EVENT_TYPE_FAMILY> |
+<ATTRIBUTE_TYPE> ]
 A code that classifies the principal event or happening that caused the source record entry to be
-created.  If the event or attribute doesn't translate to one of these tag codes, then a user supplied value
+created. If the event or attribute doesn't translate to one of these tag codes, then a user supplied value
 is expected and will be generally classified in the category of other.
 
 EVENT_DESCRIPTOR:=
@@ -3067,9 +3067,9 @@ EVENT_DESCRIPTOR:=
 {Size=1:90}
 
 Text describing a particular event pertaining to the individual or family. This event value is usually
-assigned to the EVEN tag.  The classification as to the difference between this specific event and other
+assigned to the EVEN tag. The classification as to the difference between this specific event and other
 occurrences of the EVENt tag is indicated by the use of a subordinate TYPE tag selected from the
-EVENT_DETAIL structure.  For example; 
+EVENT_DETAIL structure. For example;
 
 1 EVEN Appointed Zoning Committee Chairperson
 
@@ -3080,12 +3080,12 @@ EVENT_DETAIL structure.  For example;
 
 48
 
-EVENT_OR_FACT_CLASSIFICATION:=
+EVENT_OR_FACT_CLASSIFICATION:=
 
 {Size=1:90}
 
 A descriptive word or phrase used to further classify the parent event or attribute tag. This should be
-used whenever either of  the generic EVEN or FACT tags are used. The value of this primative is
+used whenever either of the generic EVEN or FACT tags are used. The value of this primative is
 responsible for classifying the generic event or fact being cited. For example, if the attribute being
 defined was one of the persons skills, such as woodworking, the FACT tag would have the value of
 `Woodworking', followed by a subordinate TYPE tag with the value `Skills.'
@@ -3098,7 +3098,7 @@ This groups the fact into a generic skills attribute, and in particular this ent
 individual possessed the skill of woodworking. Using the subordinate TYPE tag classification method
 with any of the other defined event tags provides a further classification of the parent tag but does not
 change the basic meaning of the parent tag. For example, a MARR tag could be subordinated with a
-TYPE tag with an EVENT_DESCRIPTOR value of `Common Law.' 
+TYPE tag with an EVENT_DESCRIPTOR value of `Common Law.'
 
 1 MARR
 
@@ -3122,26 +3122,26 @@ used in asserting the cited fact.
 EVENT_TYPE_FAMILY:=
 
 [ ANUL | CENS | DIV | DIVF | ENGA | MARR |
- MARB | MARC | MARL | MARS | EVEN ]
+MARB | MARC | MARL | MARS | EVEN ]
 
 {Size=3:4}
 
-A code used to indicate the type of family event.  The definition is the same as the corresponding
+A code used to indicate the type of family event. The definition is the same as the corresponding
 event tag defined in Appendix A. (See Appendix A, starting on page 83).
 
 EVENT_TYPE_INDIVIDUAL:=
 
 [ ADOP | BIRT | BAPM | BARM | BASM |
- BLES | BURI | CENS | CHR | CHRA |
- CONF | CREM | DEAT | EMIG | FCOM |
- GRAD | IMMI | NATU | ORDN |
- RETI | PROB | WILL | EVEN ]
+BLES | BURI | CENS | CHR | CHRA |
+CONF | CREM | DEAT | EMIG | FCOM |
+GRAD | IMMI | NATU | ORDN |
+RETI | PROB | WILL | EVEN ]
 
 {Size=3:4}
 
 49
 
-A code used to indicate the type of family event.  The definition is the same as the corresponding
+A code used to indicate the type of family event. The definition is the same as the corresponding
 event tag defined in Appendix A. (See Appendix A, starting on page 83).
 
 EVENTS_RECORDED:=
@@ -3149,7 +3149,7 @@ EVENTS_RECORDED:=
 {Size=1:90}
 
 [<EVENT_ATTRIBUTE_TYPE> |
- <EVENTS_RECORDED>, <EVENT_ATTRIBUTE_TYPE>]
+<EVENTS_RECORDED>, <EVENT_ATTRIBUTE_TYPE>]
 An enumeration of the different kinds of events that were recorded in a particular source. Each
 enumeration is separated by a comma. Such as a parish register of births, deaths, and marriages would
 be BIRT, DEAT, MARR.
@@ -3176,7 +3176,7 @@ GEDCOM_FORM:=
 [ LINEAGE-LINKED ]
 The GEDCOM form used to construct this transmission. There maybe other forms used such as
 CommSoft's "EVENT_LINEAGE_LINKED" but these specifications define only the LINEAGE-
-LINKED Form.  Systems will use this value to specify GEDCOM compatible with these
+LINKED Form. Systems will use this value to specify GEDCOM compatible with these
 specifications.
 
 GENERATIONS_OF_ANCESTORS:=
@@ -3208,7 +3208,7 @@ Other languages not supported until UNICODE
 
 50
 
-[ Amharic | Arabic | Armenian | Assamese | Belorusian | Bengali | Braj | Bulgarian | Burmese |
+[ Amharic | Arabic | Armenian | Assamese | Belorusian | Bengali | Braj | Bulgarian | Burmese |
 Cantonese | Church-Slavic | Dogri | Georgian | Greek | Gujarati | Hebrew | Hindi | Japanese |
 Kannada | Khmer | Konkani | Korean | Lahnda | Lao | Macedonian | Maithili | Malayalam | Mandrin |
 Manipuri | Marathi | Mewari | Nepali | Oriya | Pahari | Pali | Panjabi | Persian | Prakrit | Pusto |
@@ -3217,7 +3217,7 @@ Vietnamese | Yiddish ]
 
 LANGUAGE_OF_TEXT:=
 [ <LANGUAGE_ID> ]
-The human language in which the data in the transmission is normally read or written.  It is used
+The human language in which the data in the transmission is normally read or written. It is used
 primarily by programs to select language-specific sorting sequences and phonetic name matching
 algorithms.
 
@@ -3229,13 +3229,13 @@ LANGUAGE_PREFERENCE:=
 
 {Size=1:90}
 
-The language in which a person prefers to communicate.  Multiple language preference is shown by
+The language in which a person prefers to communicate. Multiple language preference is shown by
 using multiple occurrences in order of priority.
 
 LDS_BAPTISM_DATE_STATUS:=
 
 [ CHILD | COMPLETED | EXCLUDED | PRE-1970 |
-  STILLBORN | SUBMITTED | UNCLEARED ]
+STILLBORN | SUBMITTED | UNCLEARED ]
 
 {Size=5:10}
 
@@ -3264,7 +3264,7 @@ UNCLEARED
 LDS_CHILD_SEALING_DATE_STATUS:=
 
 [ BIC | COMPLETED | EXCLUDED | DNS | PRE-1970 |
-  STILLBORN | SUBMITTED | UNCLEARED ]
+STILLBORN | SUBMITTED | UNCLEARED ]
 
 {Size=5:10}
 
@@ -3280,7 +3280,7 @@ STILLBORN
 
 51
 
-SUBMITTED
+SUBMITTED
 UNCLEARED = Data for clearing ordinance request was insufficient.
 
 = Ordinance was previously submitted.
@@ -3288,7 +3288,7 @@ UNCLEARED = Data for clearing ordinance request was insufficient.
 LDS_ENDOWMENT_DATE_STATUS:=
 
 [ CHILD | COMPLETED | EXCLUDED | PRE-1970 |
-  STILLBORN | SUBMITTED | UNCLEARED ]
+STILLBORN | SUBMITTED | UNCLEARED ]
 
 {Size=5:10}
 
@@ -3315,7 +3315,7 @@ UNCLEARED = Data for clearing ordinance request was insufficient.
 LDS_SPOUSE_SEALING_DATE_STATUS:=
 
 [ CANCELED | COMPLETED | DNS | EXCLUDED |
-  DNS/CAN | PRE-1970 | SUBMITTED | UNCLEARED ]
+DNS/CAN | PRE-1970 | SUBMITTED | UNCLEARED ]
 
 {Size=3:10}
 
@@ -3341,7 +3341,7 @@ MONTH:=
 {Size=3}
 
 [ JAN | FEB | MAR | APR | MAY | JUN |
-  JUL | AUG | SEP | OCT | NOV | DEC ]
+JUL | AUG | SEP | OCT | NOV | DEC ]
 Where:
 = January
 JAN
@@ -3361,7 +3361,7 @@ AUG
 
 52
 
-SEP
+SEP
 OCT
 NOV
 DEC
@@ -3374,7 +3374,7 @@ DEC
 MONTH_FREN:=
 
 [ VEND | BRUM | FRIM | NIVO | PLUV | VENT | GERM |
-  FLOR | PRAI | MESS | THER | FRUC | COMP ]
+FLOR | PRAI | MESS | THER | FRUC | COMP ]
 
 {Size=4}
 
@@ -3410,7 +3410,7 @@ COMP
 MONTH_HEBR:=
 
 [ TSH | CSH | KSL | TVT | SHV | ADR | ADS |
-  NSN | IYR | SVN | TMZ | AAV | ELL ]
+NSN | IYR | SVN | TMZ | AAV | ELL ]
 
 {Size=3}
 
@@ -3445,11 +3445,11 @@ ELL
 
 53
 
-MULTIMEDIA_FILE_REFERENCE:=
+MULTIMEDIA_FILE_REFERENCE:=
 
 {Size=1:30}
 
-A complete local or remote file reference to the auxiliary data to be linked to the GEDCOM context. 
+A complete local or remote file reference to the auxiliary data to be linked to the GEDCOM context.
 Remote reference would include a network address where the multimedia data may be obtained.
 
 MULTIMEDIA_FORMAT:=
@@ -3498,11 +3498,11 @@ NAME_PERSONAL:=
 {Size=1:120}
 
 [
- <NAME_TEXT> |
+<NAME_TEXT> |
 /<NAME_TEXT>/ |
- <NAME_TEXT> /<NAME_TEXT>/ |
+<NAME_TEXT> /<NAME_TEXT>/ |
 /<NAME_TEXT>/ <NAME_TEXT> |
- <NAME_TEXT> /<NAME_TEXT>/ <NAME_TEXT>
+<NAME_TEXT> /<NAME_TEXT>/ <NAME_TEXT>
 ]
 The surname of an individual, if known, is enclosed between two slash (/) characters. The order of the
 name parts should be the order that the person would, by custom of their culture, have used when
@@ -3510,11 +3510,11 @@ giving it to a recorder. Early versions of Personal Ancestral File ® and other 
 trailing slash when the surname was the last element of the name. If part of name is illegible, that part
 is indicated by an ellipsis (...). Capitalize the name of a person or place in the conventional
 manner—capitalize the first letter of each part and lowercase the other letters, unless conventional
-usage is otherwise. For example: McMurray. 
+usage is otherwise. For example: McMurray.
 
 54
 
-Examples:
+Examples:
 William Lee (given name only or surname not known)
 /Parry/ (surname only)
 William Lee /Parry/
@@ -3530,7 +3530,7 @@ superior <NAME_PERSONAL> primitive, but phonetically written using the method in
 subordinate <PHONETIC_TYPE> value, for example if hiragana was used to provide a reading of a
 name written in kanji, then the <PHONETIC_TYPE> value would indicate ‘kana’. See page 57.
 
-NAME_PIECE:=  
+NAME_PIECE:=
 
 {Size=1:90}
 
@@ -3577,7 +3577,7 @@ NAME_PIECE_SURNAME:=
 
 55
 
-[ <NAME_PIECE> | <NAME_PIECE_SURNAME>, <NAME_PIECE> ]
+[ <NAME_PIECE> | <NAME_PIECE_SURNAME>, <NAME_PIECE> ]
 Surname or family name. Different surnames are separated by a comma.
 
 NAME_PIECE_SURNAME_PREFIX:=
@@ -3596,19 +3596,19 @@ The romanized variation of the name is written in the same form prescribed for t
 superior <NAME_PERSONAL> context. The method used to romanize the name is indicated by the
 line_value of the subordinate <ROMANIZED_TYPE>, for example if romaji was used to provide a
 reading of a name written in kanji, then the ROMANIZED_TYPE subordinate to the ROMN tag
-would indicate romaji. See page 61. 
+would indicate romaji. See page 61.
 
 NAME_TEXT:=
 
 {Size=1:120}
 
-<TEXT> excluding commas, numbers, special characters not considered diacritics. 
+<TEXT> excluding commas, numbers, special characters not considered diacritics.
 
 NAME_TYPE:=
 
 {Size=5:30}
 
- [ aka | birth | immigrant | maiden | married | <user defined>]
+[ aka | birth | immigrant | maiden | married | <user defined>]
 Indicates the name type, for example the name issued or assumed as an immigrant.
 = also known as, alias, etc.
 aka
@@ -3648,7 +3648,7 @@ A user-defined tag that is contained in the GEDCOM current transmission. This ta
 
 56
 
-an underscore (_) and should only be interpreted in the context of the sending system.
+an underscore (\_) and should only be interpreted in the context of the sending system.
 
 NOBILITY_TYPE_TITLE:=
 
@@ -3677,7 +3677,7 @@ ORDINANCE_PROCESS_FLAG:=
 {Size=2:3}
 
 [ yes | no ]
-A flag that indicates whether submission should be processed for clearing temple ordinances. 
+A flag that indicates whether submission should be processed for clearing temple ordinances.
 
 PEDIGREE_LINKAGE_TYPE:=
 [ adopted | birth | foster | sealing ]
@@ -3686,15 +3686,15 @@ Where:
 adopted = indicates adoptive parents.
 birth
 foster = indicates child was included in a foster or guardian family.
-sealing = indicates child was sealed to parents other than birth parents. 
+sealing = indicates child was sealed to parents other than birth parents.
 
 = indicates birth parents.
 
 {Size=5:7}
 
-PERMANENT_RECORD_FILE_NUMBER:= 
+PERMANENT_RECORD_FILE_NUMBER:=
 
-{Size=1:90} 
+{Size=1:90}
 
 <REGISTERED_RESOURCE_IDENTIFIER>:<RECORD_IDENTIFIER>
 The record number that uniquely identifies this record within a registered network resource. The
@@ -3718,7 +3718,7 @@ PHONETIC_TYPE:=
 
 57
 
-Indicates the method used in transforming the text to the phonetic variation.
+Indicates the method used in transforming the text to the phonetic variation.
 <user define> record method used to arrive at the phonetic variation of the name.
 hangul Phonetic method for sounding Korean glifs.
 kana
@@ -3754,9 +3754,9 @@ PLACE_LATITUDE:=
 {Size=5:8}
 
 The value specifying the latitudinal coordinate of the place name. The latitude coordinate is the
-direction North or South from the equator in degrees and fraction of degrees carried out to give the 
-desired accuracy. For example:  18 degrees, 9 minutes, and 3.4 seconds North would be formatted as
-N18.150944.  Minutes and seconds are converted by dividing the minutes value by 60 and the seconds
+direction North or South from the equator in degrees and fraction of degrees carried out to give the
+desired accuracy. For example: 18 degrees, 9 minutes, and 3.4 seconds North would be formatted as
+N18.150944. Minutes and seconds are converted by dividing the minutes value by 60 and the seconds
 value by 3600 and adding the results together. This sum becomes the fractional part of the degree’s
 value.
 
@@ -3765,16 +3765,16 @@ PLACE_LIVING_ORDINANCE:=
 {Size=1:120}
 
 <PLACE_NAME>
-The locality of the place where a living LDS ordinance took place.  Typically, a living LDS baptism
+The locality of the place where a living LDS ordinance took place. Typically, a living LDS baptism
 place would be recorded in this field.
 
 PLACE_LONGITUDE:=
 
 {Size=5:8}
 
-The value specifying the longitudinal coordinate of the place name. The longitude coordinate is 
+The value specifying the longitudinal coordinate of the place name. The longitude coordinate is
 Degrees and fraction of degrees east or west of the zero or base meridian coordinate. For example:
-168 degrees, 9 minutes, and 3.4 seconds East would be formatted as E168.150944.  
+168 degrees, 9 minutes, and 3.4 seconds East would be formatted as E168.150944.
 
 PLACE_NAME:=
 
@@ -3784,9 +3784,9 @@ PLACE_NAME:=
 
 58
 
- <PLACE_TEXT> |                                
- <PLACE_TEXT>, <PLACE_NAME>                         
-]                                    
+<PLACE_TEXT> |  
+ <PLACE_TEXT>, <PLACE_NAME>  
+]  
 The jurisdictional name of the place where the event took place. Jurisdictions are separated by
 commas, for example, "Cove, Cache, Utah, USA." If the actual jurisdictional names of these places
 have been identified, they can be shown using a PLAC.FORM structure either in the HEADER or in
@@ -3796,7 +3796,7 @@ PLACE_PHONETIC_VARIATION:=
 
 {Size=1:120}
 
-The phonetic variation of the place name is written in the same form as  was the place name used in
+The phonetic variation of the place name is written in the same form as was the place name used in
 the superior <PLACE_NAME> primitive, but phonetically written using the method indicated by the
 subordinate <PHONETIC_TYPE> value, for example if hiragana was used to provide a reading of a a
 name written in kanji, then the <PHONETIC_TYPE> value would indicate kana. (See
@@ -3851,7 +3851,7 @@ RECORD_IDENTIFIER pertains is indicated by the REGISTERED_RESOURCE_NUMBER which
 
 59
 
-precedes the colon (:). If the RECORD_IDENTIFIER is not preceded by a colon, it is a reference to a
+precedes the colon (:). If the RECORD_IDENTIFIER is not preceded by a colon, it is a reference to a
 record within the current GEDCOM transmission.
 
 REGISTERED_RESOURCE_IDENTIFIER:=
@@ -3891,10 +3891,10 @@ RESTRICTION_NOTICE:=
 {Size=6:7}
 
 [confidential | locked | privacy ]
-The restriction notice is defined for Ancestral File usage.  Ancestral File download GEDCOM files
+The restriction notice is defined for Ancestral File usage. Ancestral File download GEDCOM files
 may contain this data.
 Where:
-confidential = This data was marked as confidential by the user.  In some systems data marked as
+confidential = This data was marked as confidential by the user. In some systems data marked as
 
 confidential will be treated differently, for example, there might be an option that
 would stop confidential data from appearing on printed reports or would prevent that
@@ -3917,14 +3917,14 @@ approved request for privacy. For example, data from requested downloads of the
 
 60
 
-Ancestral File may have individuals marked with ‘privacy’  if they are assumed living,
-that is they were born within the last 110 years and there isn’t a death date.  In certain
+Ancestral File may have individuals marked with ‘privacy’ if they are assumed living,
+that is they were born within the last 110 years and there isn’t a death date. In certain
 cases family records may also be marked with the RESN tag of privacy if either
 individual acting in the role of HUSB or WIFE is assumed living.
 
 ROLE_DESCRIPTOR:=
 
-{Size=1:25}   
+{Size=1:25}
 
 A word or phrase that identifies a person's role in an event being described. This should be the same
 word or phrase, and in the same language, that the recorder used to define the role in the actual
@@ -3942,7 +3942,7 @@ of the six relationship role tags listed above then enclose the role name within
 
 ROMANIZED_TYPE:=
 
- [<user defined> | pinyin | romaji | wadegiles]
+[<user defined> | pinyin | romaji | wadegiles]
 Indicates the method used in transforming the text to a romanized variation.
 
 SCHOLASTIC_ACHIEVEMENT:=
@@ -3979,19 +3979,19 @@ SOURCE_DESCRIPTION:=
 
 {Size=1:248}
 
-A free form text block used to describe the source from which information was obtained.  This text
+A free form text block used to describe the source from which information was obtained. This text
 block is used by those systems which cannot use a pointer to a source record. It must contain a
 descriptive title, who created the work, where and when it was created, and where the source data
 stored. The developer should encourage users to use an appropriate style for forming this free form
-bibliographic reference.  Developers are encouraged to support the SOURCE_RECORD method of
+bibliographic reference. Developers are encouraged to support the SOURCE_RECORD method of
 
 61
 
-reporting bibliographic reference descriptions. 
+reporting bibliographic reference descriptions.
 
 SOURCE_DESCRIPTIVE_TITLE:=
 
-{Size=1:248}  
+{Size=1:248}
 
 The title of the work, record, or item and, when appropriate, the title of the larger work or series of
 which it is a part.
@@ -4005,7 +4005,7 @@ For An unpublished work, such as:
 ! A transaction between a buyer and seller might have their names and the transaction date.
 ! A family Bible containing genealogical information might have past and present owners and a
 
-physical description of the book.   
+physical description of the book.
 
 ! A personal interview would cite the informant and interviewer.
 
@@ -4020,7 +4020,7 @@ SOURCE_JURISDICTION_PLACE:=
 {Size=1:120}
 
 <PLACE_NAME>
-The name of the lowest jurisdiction that encompasses all lower-level places named in this source.  For
+The name of the lowest jurisdiction that encompasses all lower-level places named in this source. For
 example, "Oneida, Idaho" would be used as a source jurisdiction place for events occurring in the
 various towns within Oneida County. "Idaho" would be the source jurisdiction place if the events
 recorded took place in other counties as well as Oneida County.
@@ -4030,7 +4030,7 @@ SOURCE_MEDIA_TYPE:=
 {Size=1:15}
 
 [ audio | book | card | electronic | fiche | film | magazine |
- manuscript | map | newspaper | photo | tombstone | video ]
+manuscript | map | newspaper | photo | tombstone | video ]
 A code, selected from one of the media classifications choices above, that indicates the type of
 material in which the referenced source is stored.
 
@@ -4053,7 +4053,7 @@ For an unpublished work, it includes the date the record was created and the pla
 
 62
 
-created. For example, the county and state of residence of a person making a declaration for a pension
+created. For example, the county and state of residence of a person making a declaration for a pension
 or the city and state of residence of the writer of a letter.
 
 SUBMITTER_NAME:=
@@ -4065,7 +4065,7 @@ The name of the submitter formatted for display and address generation.
 SUBMITTER_REGISTERED_RFN:=
 
 {Size=1:30}
-A registered number of a submitter of Ancestral File data.  This number is used in subsequent
+A registered number of a submitter of Ancestral File data. This number is used in subsequent
 submissions or inquiries by the submitter for identification purposes.
 
 SUBMITTER_TEXT:=
@@ -4127,7 +4127,7 @@ record number within the submitter's automated or manual system, or it may be a 
 
 63
 
-number on a pedigree chart.
+number on a pedigree chart.
 
 USER_REFERENCE_TYPE:=
 
@@ -4150,7 +4150,7 @@ volume of a multi-volume work and the page number(s). For a periodical, it could
 issue, and page numbers. For a newspaper, it could include a column number and page number. For an
 unpublished source or microfilmed works, this could be a film or sheet number, page number, frame
 number, etc. A census record might have an enumerating district, page number, line number, dwelling
-number, and family number.  The data in this field should be in the form of a label and value pair, such
+number, and family number. The data in this field should be in the form of a label and value pair, such
 as Label1: value, Label2: value, with each pair being separated by a comma. For example, Film:
 1234567, Frame: 344, Line: 28.
 
@@ -4199,7 +4199,7 @@ A pointer to, or a cross-reference identifier of, a repository record.
 
 64
 
-XREF:SOUR:=
+XREF:SOUR:=
 
 A pointer to, or a cross-reference identifier of, a SOURce record.
 
@@ -4231,22 +4231,22 @@ YEAR_GREG:=
 The slash "/" <DIGIT><DIGIT> a year modifier which shows the possible date alternatives for pre-
 1752 date brought about by a changing the beginning of the year from MAR to JAN in the English
 calendar change of 1752, for example, 15 APR 1699/00. A (B.C.) appended to the <YEAR> indicates
-a date before the birth of Christ. 
+a date before the birth of Christ.
 
 65
 
-66
+66
 
-Compatibility with Other GEDCOM Versions
+Compatibility with Other GEDCOM Versions
 
 GEDCOM compatibility is measured on a per tag basis, and depends on how similar the data models are
 for the two different communicating products and on how consistently they understood and complied
 with the GEDCOM Standard. A few inconsistencies in the use of specific tags also crept into different
-releases of the standard itself, due to lack of foresight or inadvertent errors.  Within these limits,
+releases of the standard itself, due to lack of foresight or inadvertent errors. Within these limits,
 GEDCOM compatible products can exchange data based on GEDCOM 2.0, 3.0, 4.0, and 5.x. Of course,
 newer GEDCOM releases significantly extend the data model for which the newer tag contexts will not
-be supported by older products.  Some products have introduced their own variations into their
-GEDCOM form.  This will likely provide unique compatibility problems.
+be supported by older products. Some products have introduced their own variations into their
+GEDCOM form. This will likely provide unique compatibility problems.
 
 The following are areas in which incompatibilities may arise:
 
@@ -4276,31 +4276,31 @@ File 2.31 writes the sealing date in the FAM.CHIL.SLGC structure but reads this 
 either format. A new major release of Personal Ancestral File will change to the newer approach.
 
 GEDCOM 5.4 places the sealing of child to parent event at the same level as all of the other events
-that are subordinate to the INDIvidual tag.  If a system is keeping track of which family the individual
+that are subordinate to the INDIvidual tag. If a system is keeping track of which family the individual
 is sealed to, then a FAMC pointer is additionally inserted subordinate to the SLGC event tag that
-points to the sealed-to-family. 
+points to the sealed-to-family.
 
 To accommodate previous GEDCOM imports, systems handling the LDS ordinance events should
 look for the child sealing information in either INDI.SLGC (see LDS_INDIVIDUAL_ORDINANCE
-page 35, 36, INDI.FAMC.SLGC or FAM.CHIL.SLGC structures.  Ancestral File exports did not
+page 35, 36, INDI.FAMC.SLGC or FAM.CHIL.SLGC structures. Ancestral File exports did not
 
 67
 
-separate the temple code from the ordinance date.  Ordinance dates down-loaded from Ancestral File
+separate the temple code from the ordinance date. Ordinance dates down-loaded from Ancestral File
 may contain an ordinance date followed by a two digit temple code rather than a separate temple code
-line. 
+line.
 
 GEDCOM 4.x systems used certain key words as part of the ordinance dates. GEDCOM 5.x
 separated these codes from the dates and specified that they should be values of a subordinate
 STATus tag. Previous GEDCOM 5.x implementations may have implemented this feature using a
-TYPE tag instead of the STATus tag. (See <LDS_(ordinance)_DATE_STATUS>, page 51, 52.)
+TYPE tag instead of the STATus tag. (See <LDS\_(ordinance)\_DATE_STATUS>, page 51, 52.)
 
 ! Adoption Events:
 
 In GEDCOM 5.x, the ADOPtion event was moved from the FAM.CHIL structure to the
 INDI.FAMC.ADOP structure, it also appears in the INDI.ADOP structure. In GEDCOM 5.4 the
 ADOPtion event appears only as an individual event which optionally contains a FAMC pointer to the
-adoptive family.  Subordinate to this pointer is another ADOPtion tag which indicates whether the
+adoptive family. Subordinate to this pointer is another ADOPtion tag which indicates whether the
 HUSB or WIFE in the pointed at family was the adoptive parent (see
 <ADOPTED_BY_WHICH_PARENTS> primitive on page 42). Pedigree navigation is provided only
 by <<CHILD_TO_FAMILY_LINK>> structure found on page 31.
@@ -4308,7 +4308,7 @@ by <<CHILD_TO_FAMILY_LINK>> structure found on page 31.
 ! Codes in Event Date:
 
 Some applications, such as Personal Ancestral File, pass key words as part of certain event dates.
-Some of these key words were INFANT, CHILD, STILLBORN, etc.  These have to do with being an
+Some of these key words were INFANT, CHILD, STILLBORN, etc. These have to do with being an
 approximate age at an event.
 
 In this version of GEDCOM, the information has been removed from the date value and specified by
@@ -4340,16 +4340,16 @@ system.
 
 68
 
-!Alias Names:
+!Alias Names:
 
-One or two systems used the  ALIAs tag for representing multiple names.  This form is not supported
+One or two systems used the ALIAs tag for representing multiple names. This form is not supported
 in the GEDCOM Standard version 5.5.
 
 !Event Structure:
 
 The address structure, as part of the place structure, provided more detail than desired for the PLACe
-structure.  Therefore it was removed from beneath the place structure and added to the
-<<EVENT_DETAIL>> structure at the same level as PLACe.  The SITE tag was also eliminated
+structure. Therefore it was removed from beneath the place structure and added to the
+<<EVENT_DETAIL>> structure at the same level as PLACe. The SITE tag was also eliminated
 from the PLACe structure since the site of an event is really part of an address, such as Primary
 Children's Hospital, 100N Medical Drive, Salt Lake City, Utah.
 
@@ -4359,28 +4359,28 @@ Sometimes other attributes or facts are used to describe an individual's actions
 employment, education, places of residence, etc. These are not generally thought of as events.
 However, they are often described like events because they were observed at a particular time and/or
 place. GEDCOM 5.x lists these attributes under the
-<<INDIVIDUAL_ATTRIBUTE_STRUCTURE>> on page  33 and allows them to be recorded in the
-same way as events.  The attribute definition allows a value on the same line as the attribute tag. In
+<<INDIVIDUAL_ATTRIBUTE_STRUCTURE>> on page 33 and allows them to be recorded in the
+same way as events. The attribute definition allows a value on the same line as the attribute tag. In
 addition, it allows a subordinate date period, place and/or address, etc. to be transmitted, just as the
 events are. Previous versions, which handled just a tag and value, can be read as usual by handling the
 subordinate attribute detail as an exception.
 
 Modifications in Version 5.5 as a result of the 5.4 (draft) review
 
-!Added tags for storing detailed address pieces  under the address structure.
+!Added tags for storing detailed address pieces under the address structure.
 
-!Added nickname and surname prefix name pieces to the personal name structure.  Removed the
+!Added nickname and surname prefix name pieces to the personal name structure. Removed the
 
-convention of specifying a nickname in double quotes.  This convention was introduced in GEDCOM
+convention of specifying a nickname in double quotes. This convention was introduced in GEDCOM
 5.4 (draft).
 
 !Added subordinate source citation to the note structure.
 
 !Added encoding rules for including embedded multimedia objects. (Removed in 5.51)
 
-!Added a RIN tag to the record structures.  The RIN tag is a record identification assigned to the
+!Added a RIN tag to the record structures. The RIN tag is a record identification assigned to the
 
-record by the source software.  Its intended use is to allow for automated access to that record upon
+record by the source software. Its intended use is to allow for automated access to that record upon
 receipt of return transactions or other reconciliation processes.
 
 !The meaning of a GEDCOM tag without a value on its line depends on its subordinate context for any
@@ -4391,15 +4391,15 @@ place without knowing a date or a place requires that a Y(es) value be added to 
 
 69
 
-Using this convention protects GEDCOM processors which may remove (prune) lines that have no
+Using this convention protects GEDCOM processors which may remove (prune) lines that have no
 value and also no subordinate lines. A N(o) value must not be used on an event tag line to assert that
 the event never happened. This requires the definition of a different tag.
 
 ! Returned the calendar escape sequence to support alternate calendars.
 
 ! The definition of the date value was refined to include many of the potential ways in which a person
-may define an imprecise date in a free form text field.  Systems which guide users through a date
-statement should not result in such a precise way of stating an imprecise date.  For example, if
+may define an imprecise date in a free form text field. Systems which guide users through a date
+statement should not result in such a precise way of stating an imprecise date. For example, if
 software was to estimate a marriage date based on an algorithm involving the birth date of the couple's
 first child, hardly needs to say "EST ABT 1881" but rather “EST 1881."
 
@@ -4410,7 +4410,7 @@ ADR1, ADR2, CITY, NICK, POST, SPFX
 Changes Introduced or Modified in Draft Version 5.4
 
 Some changes introduced in GEDCOM draft version 5.4 are not compatible with earlier 5.x draft forms.
-Some concepts have been removed with the intent to address them in a future release of GEDCOM.   The
+Some concepts have been removed with the intent to address them in a future release of GEDCOM. The
 following features are either new or different:
 
 ! The use of the SCHEMA has been eliminated. Although the schema concept is valid and essential to
@@ -4426,7 +4426,7 @@ the role of a so-called evidence record requires further study.
 
 ! Non-standard tags (see <NEW_TAG>, page 56) can be used within a GEDCOM transmission,
 
-provided that the first character is an underscore (for example _NUTAG). Non-standard tags should
+provided that the first character is an underscore (for example \_NUTAG). Non-standard tags should
 be used only when structured information cannot be represented using existing context. Using a Note
 field is a more universal way of transmitting genealogical data that does not fit into the standard
 GEDCOM structure.
@@ -4440,13 +4440,13 @@ inform subsequent researchers how to access the source data that the original re
 
 70
 
-! Added a <<SOURCE_CITATION>> structure subordinate to the fact being cited. It is generally best
+! Added a <<SOURCE_CITATION>> structure subordinate to the fact being cited. It is generally best
 if the source citation contains only information specific to the fact being cited and then points to the
 more general description of the source, defined in a SOURCE_RECORD. This reduces redundancy,
 provides a way of controlling the GEDCOM record size, and more closely represents the normalized
 data model.
 
-! Systems that describe sources using the AUTHor, TITLe, PUBLication, and REPOsitory fields  can
+! Systems that describe sources using the AUTHor, TITLe, PUBLication, and REPOsitory fields can
 and should always pass this information in GEDCOM using a SOURce record pointed to by the
 <<SOURCE_CITATION>>. Systems that only allow free form source notes should encourage
 forming the source information so that it include text about these categories:
@@ -4457,39 +4457,39 @@ forming the source information so that it include text about these categories:
 ! REPO: Where can it be obtained or viewed
 
 When possible provide the tag for these categories within the text so that a receiving system could
-parse them to fit the recommended source/citation structure.. 
+parse them to fit the recommended source/citation structure..
 
 ! Some attributes of individuals such as their EDUCation, OCCUpation, RESIdence, or nobility TITLe
-need to be described using a date and place.  Therefore, the structure to describe these attributes was
+need to be described using a date and place. Therefore, the structure to describe these attributes was
 formatted to be the same as for describing events. That is, these attributes are further defined using a
 date, place, and other attributes used to describe events. (See <<EVENT_DETAIL>>, page 32 and
 <<INDIVIDUAL_ATTRIBUTE_STRUCTURE, PAGE 33>>.)
 
 ! The LDS ordinance structure was extended to include the place of a living LDS ordinance. The TYPE
-tag line was changed to a STATus tag line.  This allows statements such as BIC, canceled, Infant,
+tag line was changed to a STATus tag line. This allows statements such as BIC, canceled, Infant,
 and so forth to be removed from the date line and be added here under the STATus tag. (See
-<LDS_(ordinance)_DATE_STATUS>, page 51, 52) where (ordinance) represents any of the
+<LDS\_(ordinance)\_DATE_STATUS>, page 51, 52) where (ordinance) represents any of the
 following: BAPTISM, ENDOWMENT, CHILD_SEALING, or SPOUSE_SEALING.
 
 ! Previous GEDCOM 5.x versions overloaded the FAMC pointer structure with subordinate events
-which connected individual events and an associated family.  An adoption event, for example, was
+which connected individual events and an associated family. An adoption event, for example, was
 shown subordinate to the FAMC pointer to indicate which was the adoptive family. The sealing of
-child to parent event (SLGC) was also shown in this manner.  GEDCOM 5.4 recognizes that these
-are events and should be at the same level as the other individual events.  To show the associated
+child to parent event (SLGC) was also shown in this manner. GEDCOM 5.4 recognizes that these
+are events and should be at the same level as the other individual events. To show the associated
 family, a subordinate FAMC pointer is placed subordinate to the appropriate event. (See
 <<INDIVIDUAL_EVENT_STRUCTURE>> page 34 and LDS_INDIVIDUAL_ORDINANCE at
 page 35, 36.)
 
 ! The date modifier (int) was added to the date format to indicate that the associated date phrase has
 
-been interpreted and the interpretation follows the int prefix in the date field.  The date phrase is also
+been interpreted and the interpretation follows the int prefix in the date field. The date phrase is also
 included in the date value enclosed in parentheses. (See <DATE_APPROXIMATED>, page 45.)
 
 ! The <AGE_AT_EVENT> primitive definition now includes the key words STILLBORN, INFANT,
 
 71
 
-and CHILD. These words should be interpreted as being an approximate age at an event. (See
+and CHILD. These words should be interpreted as being an approximate age at an event. (See
 <AGE_AT_EVENT>, page 42.)
 
 ! The family event context in the FAMily record now allows the ages of both the husband and wife at
@@ -4499,13 +4499,13 @@ the time of the event to be shown. (See FAM_RECORD page 24)
 ! The <<PERSONAL_NAME_STRUCTURE>> structure now allows name pieces to be specifically
 identified as subordinate parts of the name line. Most products will not use subordinate name pieces.
 A nickname can now be included on the name line by enclosing it in double quotation marks (changed
-in 5.5.)  Note: Systems using the subordinate name parts must still provide the name structure
+in 5.5.) Note: Systems using the subordinate name parts must still provide the name structure
 formed in the same way specified for <NAME_PERSONAL> (see page 54.)
 
 ! A submission record was added to GEDCOM to enable the sending system to transmit information
 
 which will enable the receiving system to more appropriately process the GEDCOM data. The format
-currently designed for the submission record was created specifically for TempleReady™  system and
+currently designed for the submission record was created specifically for TempleReady™ system and
 for GEDCOM files being downloaded from Ancestral File™ . (See SUBMISSION_RECORD, page
 28.)
 
@@ -4513,7 +4513,7 @@ for GEDCOM files being downloaded from Ancestral File™ . (See SUBMISSION_RECOR
 INDIVIDUAL_RECORD context. (Also added to the family record in 5.5.1.) This allows some
 records in Ancestral File to be marked for privacy (indicating some personal information is not
 included) and some records to be marked as locked (indicating that Ancestral File will not make
-changes to the record without authorization from an assigned record steward). 
+changes to the record without authorization from an assigned record steward).
 
 ! The following tags are no longer used in the Lineage-Linked Form:
 
@@ -4540,7 +4540,7 @@ was removed in version 5.4.)
 
 72
 
-!A mechanism for creating user-defined tags was added. These were defined in a SCHEMA definition
+!A mechanism for creating user-defined tags was added. These were defined in a SCHEMA definition
 
 in the header record of 5.3. (SCHEMA was removed in version 5.4.)
 
@@ -4586,9 +4586,9 @@ disk transmission would be:
 
 Disk DOS Filename
 SMITH.GED
- 1 
+1
 SMITH.G00
- 2 
+2
 
 Macintosh Filename
 SMITH
@@ -4596,7 +4596,7 @@ SMITH(00)
 
 73
 
- 3
+3
 
 SMITH.G01
 
@@ -4617,7 +4617,7 @@ the GEDCOM grammar.
 
 Sample Lineage-Linked GEDCOM Transmission
 The example below is a sample transmission of genealogical information about three individuals who are
-members of the same family—father, mother, and child.  In the example, "Joe/Williams/" is the value
+members of the same family—father, mother, and child. In the example, "Joe/Williams/" is the value
 specified by the tag NAME under the INDI tag for the record (@3@). Other values in other lines, such as
 the birth date and place, provide additional information about Joe Williams. The value (@4@) specified
 by the FAMC tag is a pointer to the FAM_RECORD (@4@) of which Joe Williams is a child. Included
@@ -4653,13 +4653,13 @@ Example: (Indentation and bolding are added for readability only.)
 2 SOUR @6@
 
 3 PAGE Sec. 2, p. 45
-3 EVEN BIRT               
+3 EVEN BIRT
 
 4 ROLE CHIL
 
 74
 
-1 DEAT
+1 DEAT
 
 2 DATE 14 APR 1905
 2 PLAC Stamford, Fairfield, CT
@@ -4698,7 +4698,7 @@ Example: (Indentation and bolding are added for readability only.)
 
 2 DATE 11 JUN 1861
 2 PLAC Idaho Falls, Bonneville, Idaho
-2 FAMC @4@                                       /* note: this ptr is not required but is allowed in 5.5 */ 
+2 FAMC @4@ /_ note: this ptr is not required but is allowed in 5.5 _/
 
 1 FAMC @4@
 1 FAMC @9@
@@ -4742,7 +4742,7 @@ Example: (Indentation and bolding are added for readability only.)
 
 75
 
-1 DATA
+1 DATA
 
 2 EVEN BIRT, DEAT, MARR
 
@@ -4791,12 +4791,12 @@ pointer to a SOURCE_RECORD. (This is not encouraged.)
 2 SOUR Waters, Henry F., Genealogical Gleanings in England: Abstracts of W
 3 CONC ills Relating to Early American Families. 2 vols., reprint 1901, 190
 3 CONC 7. Baltimore: Genealogical Publishing Co., 1981.
-3 CONT Stored in Family History Library book 942 D2wh; films 481,057-58 Vol 2, pa 
+3 CONT Stored in Family History Library book 942 D2wh; films 481,057-58 Vol 2, pa
 3 CONC ge 388.
 
 76
 
-Chapter 3
+Chapter 3
 Using Character Sets in GEDCOM
 
 Introduction
@@ -4817,7 +4817,7 @@ Systems using code pages to support diacritical characters, such as the windows 
 must convert all characters above character code 0x7F to its ANSEL representation for that code page.
 
 Most of the genealogy systems developed so far use ASCII, ANSEL, or both. ANSEL accommodates
-the set of Latin-based languages, as explained below. 
+the set of Latin-based languages, as explained below.
 
 8-Bit ANSEL
 
@@ -4826,7 +4826,7 @@ Bibliographic Use, Z39.47-1985 copyright) is currently the preferred character s
 However this will shortly change to UNICODE and UTF-8 as the support for these latter character forms
 becomes fully supported by the computer industry.
 
-ANSEL character set  makes it possible to preserve the integrity of most latin based languages by
+ANSEL character set makes it possible to preserve the integrity of most latin based languages by
 providing a method of using the standard ASCII character set and supplementing it with both non-
 spacing character modifiers (diacritic) as well as some useful spacing special characters.
 
@@ -4841,7 +4841,7 @@ languages. ANSEL is a super-set of ASCII. The standard ASCII characters includin
 
 77
 
-characters are preserved.
+characters are preserved.
 
 ANSEL is known by two other names:
 
@@ -4850,7 +4850,7 @@ ANSEL is known by two other names:
 
 MARC (Machine-Readable Catalog) format.
 
-The codes used for the ANSEL character set is described in Appendix C. The full definition  may be
+The codes used for the ANSEL character set is described in Appendix C. The full definition may be
 purchased from:
 
 American National Standards Institute
@@ -4867,7 +4867,7 @@ transmitting binary data, you will find it convenient to use ASCII (8-bit USA ve
 already supports it. This is a standard of the American National Standards Institute (ANSI). Most of the
 basic printable characters of ANSEL and ASCII (USA version—ANSI 8-Bit) are identical.
 
-UNICODE 
+UNICODE
 
 The Unicode standard is a character code designed to encode text for storage in computer files. It is
 being developed in close relationship to the ISO 10646 standard. The design of the Unicode standard is
@@ -4890,13 +4890,13 @@ before they could interpret the GEDCOM header.
 
 78
 
-UTF-8
+UTF-8
 
 UTF-8 is a transformation format that allows unicode characters to be transformed into an 8 bit form.
 The transformation scheme allows existing ASCII characters in the range of 0x0 to 0x7F to be
 represented using the normal 8 bit character code. Characters from the unicode character set from the
 range U+0080 to U+07FF can be represented in two 8-bit codes, and characters from the range U+0800
-to U+FFFF are represented by three 8-bit codes.  This method is used by many systems handling mostly
+to U+FFFF are represented by three 8-bit codes. This method is used by many systems handling mostly
 latin characters to save a significant amount of space. The UTF-8 transformation method allows for
 efficient transformation to and from the Unicode text. Basically, this 8-bit form uses the high order bits to
 determine how to decode each of the 8-bit forms back to the Unicode representation.
@@ -4933,9 +4933,9 @@ the GEDCOM ANSEL standard.
 
 79
 
-80
+80
 
-Chapter 4
+Chapter 4
 GEDCOM Product Registration
 
 Registering GEDCOM Products
@@ -4969,7 +4969,7 @@ other developers' products.
 !A proposed unique SOURce name that identifies the product, not the company. This identifier should
 be included in the GEDCOM header record as a value to the SOUR tag. This name can have up to 40
 characters, can have mixed upper and lower case, and cannot have embedded spaces. Use either an
-underscore (_) to connect multiple words or else a combination of upper and lower case letters (for
+underscore (\_) to connect multiple words or else a combination of upper and lower case letters (for
 example, FamilyRecords or Family_Records, not Family Records). The Family History Department
 will ensure uniqueness within the first 10 characters of this name.
 
@@ -4998,20 +4998,20 @@ TELEPHONE (USA):
 
 81
 
-82
+82
 
-Appendix A
+Appendix A
 Lineage-Linked GEDCOM Tag Definition
 
 Introduction
 
 Appendix A is a glossary of the tags used in the Lineage-Linked GEDCOM Form. These tags are used in a
 hierarchical structure to describe individuals in terms of their families, names, dates, places, events, roles,
-sources, relationships.  Control information and other kinds of data intended for computer processing is also
+sources, relationships. Control information and other kinds of data intended for computer processing is also
 included. (An example of the tags used in the Lineage-Linked Form begins on page 74.) To ensure all
 transmitted information in the Lineage-Linked GEDCOM is uniformly identified the standardized tags cannot
-be placed in any other context than shown in Chapter 2.  It is legal to extend the context of the form, but only
-by using user-defined tags which must begin with an underscore.  This will not violate the lineage-linked
+be placed in any other context than shown in Chapter 2. It is legal to extend the context of the form, but only
+by using user-defined tags which must begin with an underscore. This will not violate the lineage-linked
 GEDCOM standard unless the context for the grammar of the Lineage-Linked GEDCOM Form is violated.
 The use of the underscore in the user tag name is to signal a non-standard construct is being used. This
 notifies the reading system of a discrepancy and will avoid future conflicts with tags that may be standardized
@@ -5034,7 +5034,7 @@ information, a repository, a business, a school, or a company.
 
 ADR1 {ADDRESS1}:=
 
-The first line of an address. 
+The first line of an address.
 
 ADR2 {ADDRESS2}:=
 
@@ -5046,13 +5046,13 @@ Pertaining to creation of a legally approved child-parent relationship that does
 
 AFN {AFN}:=
 
-A unique permanent record file number of an individual record stored in Ancestral File. 
+A unique permanent record file number of an individual record stored in Ancestral File.
 
 AGE {AGE}:=
 
 83
 
-The age of the individual at the time an event occurred, or the age listed in the document.
+The age of the individual at the time an event occurred, or the age listed in the document.
 
 AGNC {AGENCY}:=
 
@@ -5111,7 +5111,7 @@ naming ceremony.
 
 84
 
-BURI {BURIAL}:=
+BURI {BURIAL}:=
 
 The event of the proper disposing of the mortal remains of a deceased person.
 
@@ -5119,9 +5119,9 @@ CALN {CALL_NUMBER}:=
 
 The number used by a repository to identify the specific items in its collections.
 
-CAST {CASTE}:=                               
-  The name of an individual's rank or status in society which is sometimes based on racial or religious
-differences, or differences in wealth, inherited  rank, profession, occupation, etc.
+CAST {CASTE}:=  
+ The name of an individual's rank or status in society which is sometimes based on racial or religious
+differences, or differences in wealth, inherited rank, profession, occupation, etc.
 
 CAUS {CAUSE}:=
 
@@ -5155,19 +5155,19 @@ The religious event (not LDS) of baptizing and/or naming an adult person.
 
 CITY {CITY}:=
 
-A lower level jurisdictional unit.  Normally an incorporated municipal unit.
+A lower level jurisdictional unit. Normally an incorporated municipal unit.
 
 CONC {CONCATENATION}:=
 
 An indicator that additional data belongs to the superior value. The information from the CONC value
 is to be connected to the value of the superior preceding line without a space and without a carriage
 return and/or new line character. Values that are split for a CONC tag must always be split at a non-
-space.  If the value is split on a space the space will be lost when concatenation takes place.  This is
+space. If the value is split on a space the space will be lost when concatenation takes place. This is
 because of the treatment that spaces get as a GEDCOM delimiter, many GEDCOM values are trimmed
 
 85
 
-of trailing spaces and some systems look for the first non-space starting after the tag to determine the
+of trailing spaces and some systems look for the first non-space starting after the tag to determine the
 beginning of the value.
 
 CONF {CONFIRMATION}:=
@@ -5225,7 +5225,7 @@ Indicates an interest in research to identify additional descendants of this ind
 
 86
 
-page 84.)
+page 84.)
 
 DEST {DESTINATION}:=
 
@@ -5283,7 +5283,7 @@ FAMC {FAMILY_CHILD}:=
 
 87
 
-Identifies the family in which an individual appears as a child.
+Identifies the family in which an individual appears as a child.
 
 FAMF {FAMILY_FILE}:=
 
@@ -5342,7 +5342,7 @@ IMMI {IMMIGRATION}:=
 
 88
 
-An event of entering into a new locality with the intent of residing there.
+An event of entering into a new locality with the intent of residing there.
 
 INDI {INDIVIDUAL}:=
 
@@ -5362,7 +5362,7 @@ A value indicating a coordinate position on a line, plane, or space.
 
 MAP {MAP}:=
 
-Pertains to a representation of  measurements usually presented in a graphical form.
+Pertains to a representation of measurements usually presented in a graphical form.
 
 MARB {MARRIAGE_BANN}:=
 
@@ -5399,7 +5399,7 @@ NAME line should be used for people who were known by multiple names.
 
 89
 
-NATI {NATIONALITY}:=
+NATI {NATIONALITY}:=
 
 The national heritage of an individual.
 
@@ -5442,7 +5442,7 @@ In this example jr. is considered as the name suffix portion.
 
 OBJE {OBJECT}:=
 
-Pertaining to a grouping of attributes used in describing something.  Usually referring to the data
+Pertaining to a grouping of attributes used in describing something. Usually referring to the data
 required to represent a multimedia object, such an audio recording, a photograph of a person, or an
 image of a document.
 
@@ -5460,7 +5460,7 @@ A religious event of receiving authority to act in religious matters.
 
 90
 
-PAGE {PAGE}:=
+PAGE {PAGE}:=
 
 A number or description to identify where information can be found in a referenced work.
 
@@ -5519,7 +5519,7 @@ An address or place of residence that a family or individual resided.
 
 91
 
-RESN {RESTRICTION}:=
+RESN {RESTRICTION}:=
 
 A processing indicator signifying access to information has been denied or otherwise restricted.
 
@@ -5578,7 +5578,7 @@ STAT {STATUS}:=
 
 92
 
-An assessment of the state or condition of something.
+An assessment of the state or condition of something.
 
 SUBM {SUBMITTER}:=
 
@@ -5600,7 +5600,7 @@ TEXT {TEXT}:=
 
 The exact wording found in an original source document.
 
-TIME {TIME}:= 
+TIME {TIME}:=
 
 A time value in a 24-hour clock format, including hours, minutes, and optional seconds, separated by a
 colon (:). Fractions of seconds are shown in decimal notation.
@@ -5626,7 +5626,7 @@ VERS {VERSION}:=
 Indicates which version of a product, item, or publication is being used or referenced.
 
 WIFE {WIFE}:=
-   An individual in the role as a mother and/or married woman.
+An individual in the role as a mother and/or married woman.
 
 WILL {WILL}:=
 
@@ -5635,7 +5635,7 @@ after death. The event date is the date the will was signed while the person was
 
 93
 
-PROBate, page 91.)
+PROBate, page 91.)
 
 WWW {WEB}:=
 
@@ -5643,17 +5643,17 @@ World Wide Web home page.
 
 94
 
-95
+95
 
-Appendix B
-Latter-day Saints 
+Appendix B
+Latter-day Saints
 Temple Codes
 
 (no longer available):
 
 96
 
-Appendix C
+Appendix C
 ANSEL Character Set
 
 The following tables show the spacing and non-spacing diacritic characters that are contained in the
@@ -5661,9 +5661,9 @@ ANSEL set required by the languages supported by GEDCOM 5. This table was added 
 those receiving the GEDCOM standard on disk. The graphic characters shown are not always accurate,
 however the name of the diacritic and the decimal equivalent should agree with the ANSEL standard.
 ANSEL is implemented by replacing any code page characters that are greater than hex 7E with its
-ANSEL equivalent from this table.  Sometimes this requires one character found from the spacing
-character table and sometimes this requires two characters.  Most diacritical markings require two
-characters.  In this case the non-spacing diacritical mark is found from the non-spacing character table
+ANSEL equivalent from this table. Sometimes this requires one character found from the spacing
+character table and sometimes this requires two characters. Most diacritical markings require two
+characters. In this case the non-spacing diacritical mark is found from the non-spacing character table
 followed by the base character, for example, an a with an angstrom or little circle above is represented by
 two characters, hex EA followed by the normal hex code for the letter a, which is hex 61.
 
@@ -5677,7 +5677,7 @@ two characters, hex EA followed by the normal hex code for the letter a, which i
 
 !
 
-HEX is the hexidecimal equivalent to the  column and row of the American National Standard
+HEX is the hexidecimal equivalent to the column and row of the American National Standard
 Z39.47-1985 table showing the ANSEL character graphic and its 8 bit binary representation. The
 hexadecimal equivalent is obtained from converting the C/R column in to a hexadecimal number,
 for example 14/10 converts to EA hex or 234 dec.
@@ -5699,7 +5699,7 @@ HEX
 
 wpcode Dec
 
-Graphic   Name
+Graphic Name
 
 example of use
 
@@ -5765,7 +5765,7 @@ g~j(cid:145)js
 
 97
 
-C/R
+C/R
 
 wpcode
 
@@ -5853,7 +5853,7 @@ FE
 
 E
 
-+
+-
 
 1
 
@@ -5863,7 +5863,7 @@ S
 
 O
 
-*
+-
 
 breve
 
@@ -5911,7 +5911,7 @@ g(cid:143)otermika
 
 98
 
-C/R
+C/R
 A1
 
 wpcode Dec
@@ -6200,7 +6200,7 @@ verður
 
 99
 
-CF
+CF
 
 1,23
 
@@ -6214,6 +6214,6 @@ Preußen
 
 100
 
-101
+101
 
-
+

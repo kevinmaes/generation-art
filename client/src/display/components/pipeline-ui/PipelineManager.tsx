@@ -170,7 +170,7 @@ export function PipelineManager({
   };
 
   // Handle visualization
-  const handleVisualize = () => {
+  const _handleVisualize = () => {
     onVisualize?.();
   };
 
@@ -208,12 +208,11 @@ export function PipelineManager({
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
-  const isVisualizeEnabled =
+  const _isVisualizeEnabled =
     hasData && activeTransformerIds.length > 0 && !isVisualizing;
 
   return (
     <div className="h-full flex flex-col bg-white p-6">
-
       <div className="flex-1 grid grid-cols-2 gap-4 min-h-0">
         {/* Top-Left: Active Pipeline */}
         <div className="border rounded-lg p-4 flex flex-col min-h-0">
