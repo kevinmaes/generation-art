@@ -4,7 +4,6 @@
  */
 
 import { transformGedcomDataWithMetadata } from './transformation-pipeline';
-import { isNumber } from '../../shared/types';
 import type {
   Individual,
   Family,
@@ -91,12 +90,16 @@ export const getMetadataStatistics = (
 
   // Calculate some basic statistics
   if (fieldValues.lifespan.length > 0) {
-    const lifespans = fieldValues.lifespan.filter(isNumber);
+    const lifespans = fieldValues.lifespan.filter(
+      (v): v is number => typeof v === 'number',
+    );
     if (lifespans.length > 0) {
       stats.lifespanStats = {
         min: Math.min(...lifespans),
         max: Math.max(...lifespans),
-        avg: lifespans.reduce((a, b) => a + b, 0) / lifespans.length,
+        avg:
+          lifespans.reduce((a: number, b: number) => a + b, 0) /
+          lifespans.length,
       };
     }
   }
@@ -110,8 +113,8 @@ export const getMetadataStatistics = (
   if (fieldValues.birthMonth.length > 0) {
     const monthCounts: Record<number, number> = {};
     fieldValues.birthMonth.forEach((month) => {
-      if (isNumber(month)) {
-        monthCounts[month] = (monthCounts[month] || 0) + 1;
+      if (typeof month === 'number') {
+        monthCounts[month] = (monthCounts[month] ?? 0) + 1;
       }
     });
     stats.birthMonthDistribution = monthCounts;

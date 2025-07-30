@@ -7,20 +7,28 @@
 import type {
   VisualTransformerConfig,
   VisualTransformerFn,
-  VisualMetadata,
+  CompleteVisualMetadata,
   TransformerContext,
+  TransformerOutput,
 } from './types';
+import type { TransformerId } from './transformers';
+import type { DimensionId } from './dimensions';
+import type { VisualParameterId } from './visual-parameters';
 
 /**
  * Create a VisualTransformer configuration
  */
 export function createTransformer(
-  id: string,
+  id: TransformerId,
   name: string,
   description: string,
   transform: VisualTransformerFn,
+  availableDimensions: DimensionId[],
+  defaultPrimaryDimension: DimensionId,
+  visualParameters: VisualParameterId[],
+  createRuntimeTransformerFunction: VisualTransformerConfig['createRuntimeTransformerFunction'],
   options?: {
-    parameters?: VisualTransformerConfig['parameters'];
+    defaultSecondaryDimension?: DimensionId;
     categories?: string[];
     requiresLLM?: boolean;
   },
@@ -30,7 +38,11 @@ export function createTransformer(
     name,
     description,
     transform,
-    parameters: options?.parameters,
+    availableDimensions,
+    defaultPrimaryDimension,
+    defaultSecondaryDimension: options?.defaultSecondaryDimension,
+    visualParameters,
+    createRuntimeTransformerFunction,
     categories: options?.categories,
     requiresLLM: options?.requiresLLM ?? false,
   };
@@ -40,14 +52,18 @@ export function createTransformer(
  * Create a simple transformer that only modifies specific visual properties
  */
 export function createSimpleTransformer(
-  id: string,
+  id: TransformerId,
   name: string,
   description: string,
   transformFn: (
     context: TransformerContext,
-  ) => Promise<Partial<VisualMetadata>>,
+  ) => Promise<Partial<CompleteVisualMetadata>>,
+  availableDimensions: DimensionId[],
+  defaultPrimaryDimension: DimensionId,
+  visualParameters: VisualParameterId[],
+  createRuntimeTransformerFunction: VisualTransformerConfig['createRuntimeTransformerFunction'],
   options?: {
-    parameters?: VisualTransformerConfig['parameters'];
+    defaultSecondaryDimension?: DimensionId;
     categories?: string[];
     requiresLLM?: boolean;
   },
@@ -60,22 +76,36 @@ export function createSimpleTransformer(
         ...context.visualMetadata,
         ...partialUpdate,
       },
-    };
+    } as TransformerOutput;
   };
 
-  return createTransformer(id, name, description, transform, options);
+  return createTransformer(
+    id,
+    name,
+    description,
+    transform,
+    availableDimensions,
+    defaultPrimaryDimension,
+    visualParameters,
+    createRuntimeTransformerFunction,
+    options,
+  );
 }
 
 /**
  * Create a transformer that merges visual metadata
  */
 export function createMergingTransformer(
-  id: string,
+  id: TransformerId,
   name: string,
   description: string,
-  transformFn: (context: TransformerContext) => Promise<VisualMetadata>,
+  transformFn: (context: TransformerContext) => Promise<CompleteVisualMetadata>,
+  availableDimensions: DimensionId[],
+  defaultPrimaryDimension: DimensionId,
+  visualParameters: VisualParameterId[],
+  createRuntimeTransformerFunction: VisualTransformerConfig['createRuntimeTransformerFunction'],
   options?: {
-    parameters?: VisualTransformerConfig['parameters'];
+    defaultSecondaryDimension?: DimensionId;
     categories?: string[];
     requiresLLM?: boolean;
   },
@@ -88,22 +118,36 @@ export function createMergingTransformer(
         ...context.visualMetadata,
         ...newVisualMetadata,
       },
-    };
+    } as TransformerOutput;
   };
 
-  return createTransformer(id, name, description, transform, options);
+  return createTransformer(
+    id,
+    name,
+    description,
+    transform,
+    availableDimensions,
+    defaultPrimaryDimension,
+    visualParameters,
+    createRuntimeTransformerFunction,
+    options,
+  );
 }
 
 /**
  * Create a transformer that completely replaces visual metadata
  */
 export function createReplacingTransformer(
-  id: string,
+  id: TransformerId,
   name: string,
   description: string,
-  transformFn: (context: TransformerContext) => Promise<VisualMetadata>,
+  transformFn: (context: TransformerContext) => Promise<CompleteVisualMetadata>,
+  availableDimensions: DimensionId[],
+  defaultPrimaryDimension: DimensionId,
+  visualParameters: VisualParameterId[],
+  createRuntimeTransformerFunction: VisualTransformerConfig['createRuntimeTransformerFunction'],
   options?: {
-    parameters?: VisualTransformerConfig['parameters'];
+    defaultSecondaryDimension?: DimensionId;
     categories?: string[];
     requiresLLM?: boolean;
   },
@@ -113,10 +157,20 @@ export function createReplacingTransformer(
 
     return {
       visualMetadata: newVisualMetadata,
-    };
+    } as TransformerOutput;
   };
 
-  return createTransformer(id, name, description, transform, options);
+  return createTransformer(
+    id,
+    name,
+    description,
+    transform,
+    availableDimensions,
+    defaultPrimaryDimension,
+    visualParameters,
+    createRuntimeTransformerFunction,
+    options,
+  );
 }
 
 /**
@@ -128,15 +182,15 @@ export function validateTransformer(transformer: VisualTransformerConfig): {
 } {
   const errors: string[] = [];
 
-  if (!transformer.id || transformer.id.trim() === '') {
+  if (!transformer.id.trim()) {
     errors.push('Transformer must have a non-empty id');
   }
 
-  if (!transformer.name || transformer.name.trim() === '') {
+  if (!transformer.name.trim()) {
     errors.push('Transformer must have a non-empty name');
   }
 
-  if (!transformer.description || transformer.description.trim() === '') {
+  if (!transformer.description.trim()) {
     errors.push('Transformer must have a non-empty description');
   }
 
@@ -144,29 +198,22 @@ export function validateTransformer(transformer: VisualTransformerConfig): {
     errors.push('Transformer must have a valid transform function');
   }
 
-  // Validate parameter configurations
-  if (transformer.parameters) {
-    for (const [, paramConfig] of Object.entries(transformer.parameters)) {
-      if (!paramConfig.description || paramConfig.description.trim() === '') {
-        errors.push(`Parameter must have a description`);
-      }
+  if (transformer.availableDimensions.length === 0) {
+    errors.push('Transformer must have at least one available dimension');
+  }
 
-      if (paramConfig.type === 'number') {
-        if (typeof paramConfig.defaultValue !== 'number') {
-          errors.push(`Parameter default value must be a number`);
-        }
-      } else if (paramConfig.type === 'string') {
-        if (typeof paramConfig.defaultValue !== 'string') {
-          errors.push(`Parameter default value must be a string`);
-        }
-      } else if (paramConfig.type === 'boolean') {
-        if (typeof paramConfig.defaultValue !== 'boolean') {
-          errors.push(`Parameter default value must be a boolean`);
-        }
-      } else if (typeof paramConfig.defaultValue !== 'string') {
-        errors.push('Parameter default value must be a string (color)');
-      }
-    }
+  if (!transformer.defaultPrimaryDimension) {
+    errors.push('Transformer must have a default primary dimension');
+  }
+
+  if (transformer.visualParameters.length === 0) {
+    errors.push('Transformer must have at least one visual parameter');
+  }
+
+  if (typeof transformer.createRuntimeTransformerFunction !== 'function') {
+    errors.push(
+      'Transformer must have a valid createRuntimeTransformerFunction',
+    );
   }
 
   return {

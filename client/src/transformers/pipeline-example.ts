@@ -25,8 +25,8 @@ export async function runSimpleExample(metadata: GedcomDataWithMetadata) {
 
   console.log('✅ Pipeline completed successfully!');
   console.log('📊 Results:', {
-    executionTime: `${result.executionTime.toFixed(2)}ms`,
-    transformersExecuted: result.transformerResults.length,
+    executionTime: `${String(result.debug.totalExecutionTime.toFixed(2))}ms`,
+    transformersExecuted: result.debug.transformerResults.length,
     finalVisualMetadata: result.visualMetadata,
   });
 
@@ -60,24 +60,26 @@ export async function runMultiTransformerExample(
 
   console.log('✅ Multi-transformer pipeline completed!');
   console.log('📊 Results:', {
-    executionTime: `${result.executionTime.toFixed(2)}ms`,
-    transformersExecuted: result.transformerResults.length,
-    successfulTransformers: result.transformerResults.filter((r) => r.success)
-      .length,
-    failedTransformers: result.transformerResults.filter((r) => !r.success)
-      .length,
+    executionTime: `${String(result.debug.totalExecutionTime.toFixed(2))}ms`,
+    transformersExecuted: result.debug.transformerResults.length,
+    successfulTransformers: result.debug.transformerResults.filter(
+      (r) => r.success,
+    ).length,
+    failedTransformers: result.debug.transformerResults.filter(
+      (r) => !r.success,
+    ).length,
   });
 
   // Log details for each transformer
-  result.transformerResults.forEach((transformerResult, index) => {
+  result.debug.transformerResults.forEach((transformerResult, index) => {
     console.log(
-      `  ${String(index + 1)}. ${transformerResult.transformerName}: ${
+      `  ${String(index + 1)}. ${String(transformerResult.transformerName)}: ${
         transformerResult.success ? '✅' : '❌'
-      } (${transformerResult.executionTime.toFixed(2)}ms)`,
+      } (${String(transformerResult.executionTime.toFixed(2))}ms)`,
     );
 
     if (!transformerResult.success && transformerResult.error) {
-      console.log(`     Error: ${transformerResult.error}`);
+      console.log(`     Error: ${String(transformerResult.error)}`);
     }
   });
 
@@ -108,16 +110,18 @@ export async function runErrorHandlingExample(
 
   console.log('✅ Error handling example completed!');
   console.log('📊 Results:', {
-    executionTime: `${result.executionTime.toFixed(2)}ms`,
-    totalTransformers: result.transformerResults.length,
-    successfulTransformers: result.transformerResults.filter((r) => r.success)
-      .length,
-    failedTransformers: result.transformerResults.filter((r) => !r.success)
-      .length,
+    executionTime: `${String(result.debug.totalExecutionTime.toFixed(2))}ms`,
+    totalTransformers: result.debug.transformerResults.length,
+    successfulTransformers: result.debug.transformerResults.filter(
+      (r) => r.success,
+    ).length,
+    failedTransformers: result.debug.transformerResults.filter(
+      (r) => !r.success,
+    ).length,
   });
 
   // Show that the pipeline continued despite failures
-  if (result.transformerResults.some((r) => r.success)) {
+  if (result.debug.transformerResults.some((r) => r.success)) {
     console.log(
       '✅ Pipeline continued execution despite some transformer failures',
     );
@@ -151,14 +155,14 @@ export async function runTemperatureComparisonExample(
     results.push({ temperature, result });
 
     console.log(
-      `  Result: ${result.transformerResults[0].success ? '✅' : '❌'}`,
+      `  Result: ${result.debug.transformerResults[0]?.success ? '✅' : '❌'}`,
     );
   }
 
   console.log('\n📊 Temperature Comparison Summary:');
   results.forEach(({ temperature, result }) => {
     console.log(
-      `  Temperature ${String(temperature)}: ${result.transformerResults[0].success ? 'Success' : 'Failed'}`,
+      `  Temperature ${String(temperature)}: ${result.debug.transformerResults[0]?.success ? 'Success' : 'Failed'}`,
     );
   });
 
