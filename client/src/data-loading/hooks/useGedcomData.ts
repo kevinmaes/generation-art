@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../../shared/types';
-import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import { convertToAppGedcomData, type AppGedcomDataWithMetadata } from '../../types/app-data';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
-  onDataLoaded?: (data: GedcomDataWithMetadata) => void;
+  onDataLoaded?: (data: AppGedcomDataWithMetadata) => void;
   onError?: (error: string) => void;
 }
 
 interface UseGedcomDataReturn {
-  data: GedcomDataWithMetadata | null;
+  data: AppGedcomDataWithMetadata | null;
   loading: boolean;
   error: string | null;
   refetch: () => void;
@@ -20,7 +20,7 @@ export function useGedcomData({
   onDataLoaded,
   onError,
 }: UseGedcomDataOptions): UseGedcomDataReturn {
-  const [data, setData] = useState<GedcomDataWithMetadata | null>(null);
+  const [data, setData] = useState<AppGedcomDataWithMetadata | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,9 +68,12 @@ export function useGedcomData({
 
       // Use Zod validation to handle flexible data formats
       const validatedData = validateFlexibleGedcomData(jsonData);
+      
+      // Convert to app-specific format with Maps and Sets
+      const appData = convertToAppGedcomData(validatedData);
 
-      setData(validatedData);
-      onDataLoadedRef.current?.(validatedData);
+      setData(appData);
+      onDataLoadedRef.current?.(appData);
     } catch (err) {
       let errorMessage: string;
 

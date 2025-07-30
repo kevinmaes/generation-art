@@ -90,28 +90,28 @@ export const getMetadataStatistics = (
   stats.fieldValues = fieldValues;
 
   // Calculate some basic statistics
-  if (fieldValues.lifespan.length > 0) {
+  if ('lifespan' in fieldValues && fieldValues.lifespan.length > 0) {
     const lifespans = fieldValues.lifespan.filter(isNumber);
     if (lifespans.length > 0) {
       stats.lifespanStats = {
         min: Math.min(...lifespans),
         max: Math.max(...lifespans),
-        avg: lifespans.reduce((a, b) => a + b, 0) / lifespans.length,
+        avg: lifespans.reduce((a: number, b: number) => a + b, 0) / lifespans.length,
       };
     }
   }
 
-  if (fieldValues.isAlive.length > 0) {
-    const aliveCount = fieldValues.isAlive.filter((v) => v === true).length;
+  if ('isAlive' in fieldValues && fieldValues.isAlive.length > 0) {
+    const aliveCount = (fieldValues.isAlive as unknown[]).filter((v: unknown) => v === true).length;
     stats.aliveCount = aliveCount;
     stats.deadCount = fieldValues.isAlive.length - aliveCount;
   }
 
-  if (fieldValues.birthMonth.length > 0) {
+  if ('birthMonth' in fieldValues && fieldValues.birthMonth.length > 0) {
     const monthCounts: Record<number, number> = {};
-    fieldValues.birthMonth.forEach((month) => {
+    (fieldValues.birthMonth as unknown[]).forEach((month: unknown) => {
       if (isNumber(month)) {
-        monthCounts[month] = (monthCounts[month] || 0) + 1;
+        monthCounts[month] = (monthCounts[month] ?? 0) + 1;
       }
     });
     stats.birthMonthDistribution = monthCounts;

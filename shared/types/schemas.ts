@@ -1,13 +1,27 @@
 import { z } from 'zod';
+import type { IndividualId, FamilyId, EdgeId } from './branded';
 
 /**
  * Zod schemas for shared types
  * These provide runtime validation and can be used to derive TypeScript types
  */
 
+// Branded type schemas - using transform to preserve branded types in z.infer
+export const IndividualIdSchema = z.string()
+  .refine((id) => typeof id === 'string' && id.length > 0, 'Invalid individual ID')
+  .transform((id): IndividualId => id as IndividualId);
+
+export const FamilyIdSchema = z.string()
+  .refine((id) => typeof id === 'string' && id.length > 0, 'Invalid family ID')
+  .transform((id): FamilyId => id as FamilyId);
+
+export const EdgeIdSchema = z.string()
+  .refine((id) => typeof id === 'string' && id.length > 0, 'Invalid edge ID')
+  .transform((id): EdgeId => id as EdgeId);
+
 // Base schemas
 export const IndividualSchema = z.object({
-  id: z.string(),
+  id: IndividualIdSchema,
   name: z.string(),
   gender: z.enum(['M', 'F', 'U']).optional(), // M = Male, F = Female, U = Unknown
   birth: z
@@ -22,22 +36,22 @@ export const IndividualSchema = z.object({
       place: z.string().optional(),
     })
     .optional(),
-  parents: z.array(z.string()),
-  spouses: z.array(z.string()),
-  children: z.array(z.string()),
-  siblings: z.array(z.string()),
+  parents: z.array(IndividualIdSchema),
+  spouses: z.array(IndividualIdSchema),
+  children: z.array(IndividualIdSchema),
+  siblings: z.array(IndividualIdSchema),
 });
 
 export const FamilySchema = z.object({
-  id: z.string(),
+  id: FamilyIdSchema,
   husband: IndividualSchema.optional(),
   wife: IndividualSchema.optional(),
   children: z.array(IndividualSchema),
 });
 
 export const GedcomDataSchema = z.object({
-  individuals: z.record(z.string(), IndividualSchema),
-  families: z.record(z.string(), FamilySchema),
+  individuals: z.array(IndividualSchema),
+  families: z.array(FamilySchema),
 });
 
 // Edge schemas
@@ -54,11 +68,11 @@ export const EdgeMetadataSchema = z.object({
 });
 
 export const EdgeSchema = z.object({
-  id: z.string(),
-  sourceId: z.string(),
-  targetId: z.string(),
+  id: EdgeIdSchema,
+  sourceId: IndividualIdSchema,
+  targetId: IndividualIdSchema,
   relationshipType: z.enum(['parent-child', 'spouse', 'sibling']),
-  familyId: z.string().optional(),
+  familyId: FamilyIdSchema.optional(),
   metadata: EdgeMetadataSchema,
 });
 
@@ -150,7 +164,7 @@ export const GeographicMetadataSchema = z.object({
       clusterId: z.string(),
       center: z.object({ lat: z.number(), lng: z.number() }),
       radius: z.number(),
-      individuals: z.array(z.string()),
+      individuals: z.array(IndividualIdSchema),
       count: z.number(),
     }),
   ),
@@ -207,7 +221,7 @@ export const RelationshipMetadataSchema = z.object({
     thirdCousins: z.number(),
     distantCousins: z.number(),
   }),
-  keyConnectors: z.array(z.string()),
+  keyConnectors: z.array(IndividualIdSchema),
   averageCentrality: z.number(),
   centralityDistribution: z.record(z.string(), z.number()),
 });
@@ -322,8 +336,8 @@ export const FamilyWithMetadataSchema = FamilySchema.extend({
 });
 
 export const GedcomDataWithMetadataSchema = z.object({
-  individuals: z.record(z.string(), AugmentedIndividualSchema),
-  families: z.record(z.string(), FamilyWithMetadataSchema),
+  individuals: z.record(IndividualIdSchema, AugmentedIndividualSchema),
+  families: z.record(FamilyIdSchema, FamilyWithMetadataSchema),
   metadata: TreeMetadataSchema,
 });
 
@@ -469,8 +483,8 @@ export const EnhancedIndividualArraySchema = z.array(AugmentedIndividualSchema);
 export const FlexibleGedcomDataSchema = z.union([
   GedcomDataWithMetadataSchema,
   z.object({
-    individuals: z.record(z.string(), AugmentedIndividualSchema),
-    families: z.record(z.string(), FamilyWithMetadataSchema),
+    individuals: z.record(IndividualIdSchema, AugmentedIndividualSchema),
+    families: z.record(FamilyIdSchema, FamilyWithMetadataSchema),
   }),
   z.object({
     individuals: z.array(AugmentedIndividualSchema),

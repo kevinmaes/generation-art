@@ -94,7 +94,7 @@ export function PipelineManager({
   onAddTransformer,
   onRemoveTransformer,
   onParameterChange,
-  onVisualize,
+  onVisualize: _onVisualize,
   isVisualizing = false,
   hasData = false,
   lastRunParameters,
@@ -169,10 +169,6 @@ export function PipelineManager({
     handleParameterChange(transformerId, defaultParameters);
   };
 
-  // Handle visualization
-  const handleVisualize = () => {
-    onVisualize?.();
-  };
 
   const handleTransformerSelect = (transformerId: TransformerId) => {
     setSelectedTransformerId(transformerId);
@@ -208,7 +204,7 @@ export function PipelineManager({
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
-  const isVisualizeEnabled =
+  const _isVisualizeEnabled =
     hasData && activeTransformerIds.length > 0 && !isVisualizing;
 
   return (

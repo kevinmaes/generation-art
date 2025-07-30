@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type {
   TransformerContext,
   VisualMetadata,
   TransformerOutput,
 } from './types';
+import type { EdgeId, Edge } from '../../../shared/types';
+import type { AppAugmentedIndividual } from '../types/app-data';
 
 /**
  * Edge Opacity Transformer
@@ -18,7 +19,7 @@ export async function edgeOpacityTransform(
   context: TransformerContext,
 ): Promise<TransformerOutput> {
   const { gedcomData, visualMetadata } = context;
-  const updatedEdges: Record<string, VisualMetadata> = {};
+  const updatedEdges = new Map<EdgeId, VisualMetadata>();
 
   // Get global defaults
   const baseOpacity = 0.7; // Base opacity for all edges
@@ -28,10 +29,10 @@ export async function edgeOpacityTransform(
   // Add a small delay to satisfy async requirement
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  gedcomData.metadata.edges.forEach((edge) => {
-    const currentMetadata = visualMetadata.edges[edge.id] ?? {};
-    const sourceIndividual = gedcomData.individuals[edge.sourceId];
-    const targetIndividual = gedcomData.individuals[edge.targetId];
+  gedcomData.edges.forEach((edge: Edge, edgeId: EdgeId) => {
+    const currentMetadata = visualMetadata.edges.get(edgeId) ?? {};
+    const sourceIndividual: AppAugmentedIndividual | undefined = gedcomData.individuals.get(edge.sourceId);
+    const targetIndividual: AppAugmentedIndividual | undefined = gedcomData.individuals.get(edge.targetId);
 
     if (!sourceIndividual || !targetIndividual) {
       return; // Skip if either individual is missing
@@ -57,16 +58,16 @@ export async function edgeOpacityTransform(
     const generationFactor = Math.max(0.6, 1 - genDistance * 0.1); // 10% reduction per generation gap
 
     // Factor 3: Family importance (more children = more opaque edges)
-    const sourceChildren = sourceIndividual.children.length;
-    const targetChildren = targetIndividual.children.length;
+    const sourceChildren = sourceIndividual.children.size;
+    const targetChildren = targetIndividual.children.size;
     const totalChildren = sourceChildren + targetChildren;
     const childrenFactor = Math.min(1.2, 1 + totalChildren * 0.03); // 3% per child, max 20%
 
     // Factor 4: Edge length (longer edges = more transparent)
-    const sourceX = visualMetadata.individuals[edge.sourceId]?.x ?? 0;
-    const sourceY = visualMetadata.individuals[edge.sourceId]?.y ?? 0;
-    const targetX = visualMetadata.individuals[edge.targetId]?.x ?? 0;
-    const targetY = visualMetadata.individuals[edge.targetId]?.y ?? 0;
+    const sourceX = visualMetadata.individuals.get(edge.sourceId)?.x ?? 0;
+    const sourceY = visualMetadata.individuals.get(edge.sourceId)?.y ?? 0;
+    const targetX = visualMetadata.individuals.get(edge.targetId)?.x ?? 0;
+    const targetY = visualMetadata.individuals.get(edge.targetId)?.y ?? 0;
     const distance = Math.sqrt(
       (targetX - sourceX) ** 2 + (targetY - sourceY) ** 2,
     );
@@ -84,10 +85,10 @@ export async function edgeOpacityTransform(
     // Clamp to valid range
     opacity = Math.max(minOpacity, Math.min(maxOpacity, opacity));
 
-    updatedEdges[edge.id] = {
+    updatedEdges.set(edgeId, {
       ...currentMetadata,
       opacity,
-    };
+    });
   });
 
   return {

@@ -5,8 +5,9 @@
  * which converts GEDCOM metadata into visual attributes for generative art.
  */
 
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { IndividualId, FamilyId, EdgeId } from '../../../shared/types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
+import type { AppGedcomDataWithMetadata } from '../types/app-data';
 import type { DimensionId } from './dimensions';
 import type {
   VisualParameterId,
@@ -63,13 +64,13 @@ export interface VisualMetadata {
  */
 export interface CompleteVisualMetadata {
   // Visual metadata for each individual (keyed by individual ID)
-  individuals: Record<string, VisualMetadata>;
+  individuals: Map<IndividualId, VisualMetadata>;
 
   // Visual metadata for each family (keyed by family ID)
-  families: Record<string, VisualMetadata>;
+  families: Map<FamilyId, VisualMetadata>;
 
   // Visual metadata for each edge (keyed by edge ID)
-  edges: Record<string, VisualMetadata>;
+  edges: Map<EdgeId, VisualMetadata>;
 
   // Visual metadata for the overall tree/canvas
   tree: VisualMetadata;
@@ -94,7 +95,7 @@ export interface CompleteVisualMetadata {
  */
 export interface TransformerContext {
   // The complete GEDCOM data with metadata (for local operations)
-  gedcomData: GedcomDataWithMetadata;
+  gedcomData: AppGedcomDataWithMetadata;
 
   // Pre-formatted LLM-ready data (PII stripped, for LLM calls)
   llmData: LLMReadyData;
@@ -128,7 +129,13 @@ export interface TransformerContext {
  */
 export interface TransformerOutput {
   // The transformed visual metadata (can be partial - only modified parts)
-  visualMetadata: Partial<CompleteVisualMetadata>;
+  visualMetadata: {
+    individuals?: Map<IndividualId, VisualMetadata>;
+    families?: Map<FamilyId, VisualMetadata>;
+    edges?: Map<EdgeId, VisualMetadata>;
+    tree?: VisualMetadata;
+    global?: CompleteVisualMetadata['global'];
+  };
 
   // Optional debug information
   debug?: {
