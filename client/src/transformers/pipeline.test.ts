@@ -38,23 +38,25 @@ import {
 
 // Mock data for testing
 const mockMetadata: AppGedcomDataWithMetadata = {
-  individuals: new Map([[
-    'I1' as any,
-    {
-      id: 'I1' as any,
-      name: 'John Doe',
-      parents: [],
-      spouses: [],
-      children: [],
-      siblings: [],
-      metadata: {
-        lifespan: 0.8,
-        isAlive: false,
-        generation: 1,
-        relativeGenerationValue: 0.5,
+  individuals: new Map([
+    [
+      'I1' as any,
+      {
+        id: 'I1' as any,
+        name: 'John Doe',
+        parents: [],
+        spouses: [],
+        children: [],
+        siblings: [],
+        metadata: {
+          lifespan: 0.8,
+          isAlive: false,
+          generation: 1,
+          relativeGenerationValue: 0.5,
+        },
       },
-    },
-  ]]),
+    ],
+  ]),
   families: new Map(),
   edges: new Map(),
   metadata: {
@@ -228,7 +230,9 @@ describe('Pipeline', () => {
       expect(individualMetadata?.size).toBe(DEFAULT_SIZE);
       expect(individualMetadata?.scale).toBe(DEFAULT_SCALE);
       expect(individualMetadata?.color).toBe(DEFAULT_COLOR);
-      expect(individualMetadata?.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
+      expect(individualMetadata?.backgroundColor).toBe(
+        DEFAULT_BACKGROUND_COLOR,
+      );
       expect(individualMetadata?.strokeColor).toBe(DEFAULT_STROKE_COLOR);
       expect(individualMetadata?.opacity).toBe(DEFAULT_OPACITY);
       expect(individualMetadata?.alpha).toBe(DEFAULT_ALPHA);
@@ -520,8 +524,11 @@ describe('Pipeline', () => {
       expect(result.debug.transformerResults[1].success).toBe(true);
 
       // Check that we have individual metadata
-      const individualId = Array.from(result.visualMetadata.individuals.keys())[0];
-      const individualMetadata = result.visualMetadata.individuals.get(individualId);
+      const individualId = Array.from(
+        result.visualMetadata.individuals.keys(),
+      )[0];
+      const individualMetadata =
+        result.visualMetadata.individuals.get(individualId);
       expect(individualMetadata).toBeDefined();
 
       // The final result should have both x and y positions from both transformers

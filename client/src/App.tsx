@@ -96,7 +96,9 @@ function App(): React.ReactElement {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => { window.removeEventListener('keydown', handleKeyDown); };
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleFileSelect = async (
@@ -272,7 +274,9 @@ function App(): React.ReactElement {
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onPipelineResult={handlePipelineResult}
-                onOpenPipelineClick={() => { setIsPipelineModalOpen(true); }}
+                onOpenPipelineClick={() => {
+                  setIsPipelineModalOpen(true);
+                }}
               />
             </>
           ) : (
@@ -372,7 +376,9 @@ function App(): React.ReactElement {
       <ErrorBoundary>
         <PipelineModal
           isOpen={isPipelineModalOpen}
-          onClose={() => { setIsPipelineModalOpen(false); }}
+          onClose={() => {
+            setIsPipelineModalOpen(false);
+          }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
           dualData={dualData}

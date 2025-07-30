@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../../shared/types';
-import { convertToAppGedcomData, type AppGedcomDataWithMetadata } from '../../types/app-data';
+import {
+  convertToAppGedcomData,
+  type AppGedcomDataWithMetadata,
+} from '../../types/app-data';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
@@ -68,7 +71,7 @@ export function useGedcomData({
 
       // Use Zod validation to handle flexible data formats
       const validatedData = validateFlexibleGedcomData(jsonData);
-      
+
       // Convert to app-specific format with Maps and Sets
       const appData = convertToAppGedcomData(validatedData);
 

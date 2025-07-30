@@ -1,4 +1,3 @@
- 
 import type p5 from 'p5';
 import type { EdgeId, IndividualId } from '../../../shared/types';
 import type { AppGedcomDataWithMetadata } from '../types/app-data';
@@ -291,7 +290,10 @@ function getIndividualCoord(
   visualMetadata: CompleteVisualMetadata,
 ): { x: number; y: number } {
   const individualMetadata = visualMetadata.individuals.get(id);
-  if (individualMetadata?.x !== undefined && individualMetadata.y !== undefined) {
+  if (
+    individualMetadata?.x !== undefined &&
+    individualMetadata.y !== undefined
+  ) {
     return { x: individualMetadata.x, y: individualMetadata.y };
   }
 

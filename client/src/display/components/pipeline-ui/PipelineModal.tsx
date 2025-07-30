@@ -62,7 +62,7 @@ export function PipelineModal({
       if (event.key === 'Escape' && isOpen) {
         onClose();
       }
-      
+
       // Handle Cmd+D or Ctrl+D
       if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
         event.preventDefault(); // Prevent browser bookmark
@@ -73,7 +73,9 @@ export function PipelineModal({
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => { window.removeEventListener('keydown', handleKeyDown); };
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -84,12 +86,14 @@ export function PipelineModal({
         {/* Modal Header */}
         <div className="flex items-center justify-between p-4 border-b relative">
           <h2 className="text-xl font-semibold">Visual Transformer Pipeline</h2>
-          
+
           {/* Centered Visualize Button */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <button
               onClick={onVisualize}
-              disabled={!hasData || activeTransformerIds.length === 0 || isVisualizing}
+              disabled={
+                !hasData || activeTransformerIds.length === 0 || isVisualizing
+              }
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 isVisualizing
                   ? 'bg-blue-500 text-white'
@@ -150,8 +154,16 @@ export function PipelineModal({
         {/* Modal Footer with keyboard shortcuts info */}
         <div className="p-3 border-t bg-gray-50 text-sm text-gray-600 flex justify-center items-center">
           <div className="flex space-x-4">
-            <span>Press <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">⌘D</kbd> to toggle</span>
-            <span>Press <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">Esc</kbd> to close</span>
+            <span>
+              Press{' '}
+              <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">⌘D</kbd> to
+              toggle
+            </span>
+            <span>
+              Press{' '}
+              <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">Esc</kbd>{' '}
+              to close
+            </span>
           </div>
         </div>
       </div>

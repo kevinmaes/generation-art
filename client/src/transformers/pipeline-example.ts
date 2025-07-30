@@ -62,24 +62,28 @@ export async function runMultiTransformerExample(
   console.log('📊 Results:', {
     executionTime: `${result.debug.totalExecutionTime.toFixed(2)}ms`,
     transformersExecuted: result.debug.transformerResults.length,
-    successfulTransformers: result.debug.transformerResults.filter((r) => r.success)
-      .length,
-    failedTransformers: result.debug.transformerResults.filter((r) => !r.success)
-      .length,
+    successfulTransformers: result.debug.transformerResults.filter(
+      (r) => r.success,
+    ).length,
+    failedTransformers: result.debug.transformerResults.filter(
+      (r) => !r.success,
+    ).length,
   });
 
   // Log details for each transformer
-  result.debug.transformerResults.forEach((transformerResult, index: number) => {
-    console.log(
-      `  ${String(index + 1)}. ${transformerResult.transformerName}: ${
-        transformerResult.success ? '✅' : '❌'
-      } (${transformerResult.executionTime.toFixed(2)}ms)`,
-    );
+  result.debug.transformerResults.forEach(
+    (transformerResult, index: number) => {
+      console.log(
+        `  ${String(index + 1)}. ${transformerResult.transformerName}: ${
+          transformerResult.success ? '✅' : '❌'
+        } (${transformerResult.executionTime.toFixed(2)}ms)`,
+      );
 
-    if (!transformerResult.success && transformerResult.error) {
-      console.log(`     Error: ${transformerResult.error}`);
-    }
-  });
+      if (!transformerResult.success && transformerResult.error) {
+        console.log(`     Error: ${transformerResult.error}`);
+      }
+    },
+  );
 
   return result;
 }
@@ -110,10 +114,12 @@ export async function runErrorHandlingExample(
   console.log('📊 Results:', {
     executionTime: `${result.debug.totalExecutionTime.toFixed(2)}ms`,
     totalTransformers: result.debug.transformerResults.length,
-    successfulTransformers: result.debug.transformerResults.filter((r) => r.success)
-      .length,
-    failedTransformers: result.debug.transformerResults.filter((r) => !r.success)
-      .length,
+    successfulTransformers: result.debug.transformerResults.filter(
+      (r) => r.success,
+    ).length,
+    failedTransformers: result.debug.transformerResults.filter(
+      (r) => !r.success,
+    ).length,
   });
 
   // Show that the pipeline continued despite failures

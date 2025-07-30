@@ -1,6 +1,6 @@
 /**
  * Branded types for stronger type safety
- * 
+ *
  * These types use TypeScript's branded type pattern to ensure that
  * strings representing IDs cannot be accidentally mixed with regular strings
  */
@@ -76,7 +76,10 @@ export function createEdgeId(id: string): EdgeId {
 /**
  * Helper to create an EdgeId from source and target IDs
  */
-export function createEdgeIdFromPair(sourceId: IndividualId, targetId: IndividualId): EdgeId {
+export function createEdgeIdFromPair(
+  sourceId: IndividualId,
+  targetId: IndividualId,
+): EdgeId {
   // Sort to ensure consistent edge IDs regardless of direction
   const [first, second] = [sourceId, targetId].sort();
   return createEdgeId(`${first}|${second}`);

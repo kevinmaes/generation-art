@@ -31,8 +31,10 @@ export async function edgeOpacityTransform(
 
   gedcomData.edges.forEach((edge: Edge, edgeId: EdgeId) => {
     const currentMetadata = visualMetadata.edges.get(edgeId) ?? {};
-    const sourceIndividual: AppAugmentedIndividual | undefined = gedcomData.individuals.get(edge.sourceId);
-    const targetIndividual: AppAugmentedIndividual | undefined = gedcomData.individuals.get(edge.targetId);
+    const sourceIndividual: AppAugmentedIndividual | undefined =
+      gedcomData.individuals.get(edge.sourceId);
+    const targetIndividual: AppAugmentedIndividual | undefined =
+      gedcomData.individuals.get(edge.targetId);
 
     if (!sourceIndividual || !targetIndividual) {
       return; // Skip if either individual is missing

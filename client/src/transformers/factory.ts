@@ -118,7 +118,9 @@ export function createReplacingTransformer(
 /**
  * Validate a transformer configuration
  */
-export function validateTransformer(transformer: Partial<VisualTransformerConfig>): {
+export function validateTransformer(
+  transformer: Partial<VisualTransformerConfig>,
+): {
   isValid: boolean;
   errors: string[];
 } {

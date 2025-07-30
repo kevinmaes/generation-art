@@ -169,7 +169,6 @@ export function PipelineManager({
     handleParameterChange(transformerId, defaultParameters);
   };
 
-
   const handleTransformerSelect = (transformerId: TransformerId) => {
     setSelectedTransformerId(transformerId);
     onTransformerSelect?.(transformerId);
@@ -209,7 +208,6 @@ export function PipelineManager({
 
   return (
     <div className="h-full flex flex-col bg-white p-6">
-
       <div className="flex-1 grid grid-cols-2 gap-4 min-h-0">
         {/* Top-Left: Active Pipeline */}
         <div className="border rounded-lg p-4 flex flex-col min-h-0">

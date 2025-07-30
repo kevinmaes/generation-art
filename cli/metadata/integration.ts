@@ -96,13 +96,17 @@ export const getMetadataStatistics = (
       stats.lifespanStats = {
         min: Math.min(...lifespans),
         max: Math.max(...lifespans),
-        avg: lifespans.reduce((a: number, b: number) => a + b, 0) / lifespans.length,
+        avg:
+          lifespans.reduce((a: number, b: number) => a + b, 0) /
+          lifespans.length,
       };
     }
   }
 
   if ('isAlive' in fieldValues && fieldValues.isAlive.length > 0) {
-    const aliveCount = (fieldValues.isAlive as unknown[]).filter((v: unknown) => v === true).length;
+    const aliveCount = (fieldValues.isAlive as unknown[]).filter(
+      (v: unknown) => v === true,
+    ).length;
     stats.aliveCount = aliveCount;
     stats.deadCount = fieldValues.isAlive.length - aliveCount;
   }

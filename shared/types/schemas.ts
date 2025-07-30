@@ -7,15 +7,21 @@ import type { IndividualId, FamilyId, EdgeId } from './branded';
  */
 
 // Branded type schemas - using transform to preserve branded types in z.infer
-export const IndividualIdSchema = z.string()
-  .refine((id) => typeof id === 'string' && id.length > 0, 'Invalid individual ID')
+export const IndividualIdSchema = z
+  .string()
+  .refine(
+    (id) => typeof id === 'string' && id.length > 0,
+    'Invalid individual ID',
+  )
   .transform((id): IndividualId => id as IndividualId);
 
-export const FamilyIdSchema = z.string()
+export const FamilyIdSchema = z
+  .string()
   .refine((id) => typeof id === 'string' && id.length > 0, 'Invalid family ID')
   .transform((id): FamilyId => id as FamilyId);
 
-export const EdgeIdSchema = z.string()
+export const EdgeIdSchema = z
+  .string()
   .refine((id) => typeof id === 'string' && id.length > 0, 'Invalid edge ID')
   .transform((id): EdgeId => id as EdgeId);
 

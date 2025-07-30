@@ -53,7 +53,11 @@ export const exampleUseMetadataInArtGeneration = (
   // Example: Use lifespan for node size
   const nodeSizes = individualsWithMetadata.map((individual) => {
     const lifespan = individual.metadata.lifespan;
-    if (typeof lifespan === 'number' && !isNaN(lifespan) && isFinite(lifespan)) {
+    if (
+      typeof lifespan === 'number' &&
+      !isNaN(lifespan) &&
+      isFinite(lifespan)
+    ) {
       // Normalize lifespan to node size (0.1 to 1.0)
       return 0.1 + lifespan * 0.9;
     }
@@ -63,7 +67,12 @@ export const exampleUseMetadataInArtGeneration = (
   // Example: Use birth month for color
   const nodeColors = individualsWithMetadata.map((individual) => {
     const birthMonth = individual.metadata.birthMonth;
-    if (typeof birthMonth === 'number' && Number.isInteger(birthMonth) && birthMonth >= 1 && birthMonth <= 12) {
+    if (
+      typeof birthMonth === 'number' &&
+      Number.isInteger(birthMonth) &&
+      birthMonth >= 1 &&
+      birthMonth <= 12
+    ) {
       // Map month to hue (0-360)
       return (birthMonth - 1) * 30;
     }
@@ -100,19 +109,35 @@ export const exampleFilterByMetadata = (
   // Find individuals born in summer (June, July, August)
   const summerBirths = individualsWithMetadata.filter((ind) => {
     const birthMonth = ind.metadata.birthMonth;
-    return typeof birthMonth === 'number' && Number.isInteger(birthMonth) && birthMonth >= 1 && birthMonth <= 12 && birthMonth >= 6 && birthMonth <= 8;
+    return (
+      typeof birthMonth === 'number' &&
+      Number.isInteger(birthMonth) &&
+      birthMonth >= 1 &&
+      birthMonth <= 12 &&
+      birthMonth >= 6 &&
+      birthMonth <= 8
+    );
   });
 
   // Find individuals with long lifespans (top 25%)
   const lifespans = individualsWithMetadata
     .map((ind) => ind.metadata.lifespan)
-    .filter((val): val is number => typeof val === 'number' && !isNaN(val) && isFinite(val))
+    .filter(
+      (val): val is number =>
+        typeof val === 'number' && !isNaN(val) && isFinite(val),
+    )
     .sort((a, b) => b - a);
 
   const top25Percentile = lifespans[Math.floor(lifespans.length * 0.25)];
   const longLivedIndividuals = individualsWithMetadata.filter((ind) => {
     const lifespan = ind.metadata.lifespan;
-    return typeof lifespan === 'number' && !isNaN(lifespan) && isFinite(lifespan) && typeof top25Percentile === 'number' && lifespan >= top25Percentile;
+    return (
+      typeof lifespan === 'number' &&
+      !isNaN(lifespan) &&
+      isFinite(lifespan) &&
+      typeof top25Percentile === 'number' &&
+      lifespan >= top25Percentile
+    );
   });
 
   return {

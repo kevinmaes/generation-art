@@ -25,16 +25,16 @@ export class GedcomTsParserFacade implements GedcomParserFacade {
       birth: person.birth as { date?: string; place?: string },
       death: person.death as { date?: string; place?: string },
       parents: Array.isArray(person.parents)
-        ? (person.parents as string[]).map(id => createIndividualId(id))
+        ? (person.parents as string[]).map((id) => createIndividualId(id))
         : [],
       spouses: Array.isArray(person.spouses)
-        ? (person.spouses as string[]).map(id => createIndividualId(id))
+        ? (person.spouses as string[]).map((id) => createIndividualId(id))
         : [],
       children: Array.isArray(person.children)
-        ? (person.children as string[]).map(id => createIndividualId(id))
+        ? (person.children as string[]).map((id) => createIndividualId(id))
         : [],
       siblings: Array.isArray(person.siblings)
-        ? (person.siblings as string[]).map(id => createIndividualId(id))
+        ? (person.siblings as string[]).map((id) => createIndividualId(id))
         : [],
     }));
 

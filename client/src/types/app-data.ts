@@ -3,7 +3,7 @@
  * These are converted from the serialized JSON data after Zod validation
  */
 
-import type { 
+import type {
   Individual as BaseIndividual,
   Family as BaseFamily,
   AugmentedIndividual as BaseAugmentedIndividual,
@@ -18,7 +18,11 @@ import type {
 /**
  * App Individual - uses Sets for relationship arrays for O(1) lookups
  */
-export interface AppIndividual extends Omit<BaseIndividual, 'parents' | 'spouses' | 'children' | 'siblings'> {
+export interface AppIndividual
+  extends Omit<
+    BaseIndividual,
+    'parents' | 'spouses' | 'children' | 'siblings'
+  > {
   parents: Set<IndividualId>;
   spouses: Set<IndividualId>;
   children: Set<IndividualId>;
@@ -28,7 +32,11 @@ export interface AppIndividual extends Omit<BaseIndividual, 'parents' | 'spouses
 /**
  * App AugmentedIndividual - includes metadata and uses Sets
  */
-export interface AppAugmentedIndividual extends Omit<BaseAugmentedIndividual, 'parents' | 'spouses' | 'children' | 'siblings'> {
+export interface AppAugmentedIndividual
+  extends Omit<
+    BaseAugmentedIndividual,
+    'parents' | 'spouses' | 'children' | 'siblings'
+  > {
   parents: Set<IndividualId>;
   spouses: Set<IndividualId>;
   children: Set<IndividualId>;
@@ -55,7 +63,9 @@ export interface AppGedcomDataWithMetadata {
 /**
  * Convert serialized Individual to App Individual with Sets
  */
-export function convertToAppIndividual(individual: BaseIndividual): AppIndividual {
+export function convertToAppIndividual(
+  individual: BaseIndividual,
+): AppIndividual {
   return {
     ...individual,
     parents: new Set(individual.parents),
@@ -68,7 +78,9 @@ export function convertToAppIndividual(individual: BaseIndividual): AppIndividua
 /**
  * Convert serialized AugmentedIndividual to App AugmentedIndividual with Sets
  */
-export function convertToAppAugmentedIndividual(individual: BaseAugmentedIndividual): AppAugmentedIndividual {
+export function convertToAppAugmentedIndividual(
+  individual: BaseAugmentedIndividual,
+): AppAugmentedIndividual {
   return {
     ...individual,
     parents: new Set(individual.parents),
@@ -81,18 +93,23 @@ export function convertToAppAugmentedIndividual(individual: BaseAugmentedIndivid
 /**
  * Convert serialized GedcomDataWithMetadata to App version using Maps and Sets
  */
-export function convertToAppGedcomData(data: BaseGedcomDataWithMetadata): AppGedcomDataWithMetadata {
+export function convertToAppGedcomData(
+  data: BaseGedcomDataWithMetadata,
+): AppGedcomDataWithMetadata {
   // Convert individuals to Map with Sets for relationships
   const individualsMap = new Map<IndividualId, AppAugmentedIndividual>();
   Object.entries(data.individuals).forEach(([id, individual]) => {
-    individualsMap.set(id as IndividualId, convertToAppAugmentedIndividual(individual));
+    individualsMap.set(
+      id as IndividualId,
+      convertToAppAugmentedIndividual(individual),
+    );
   });
 
   // Convert families to Map
   const familiesMap = new Map<FamilyId, AppFamily>();
   Object.entries(data.families).forEach(([id, family]) => {
     // Convert family children to reference actual individual objects
-    const children = family.children.map(child => {
+    const children = family.children.map((child) => {
       const appIndividual = individualsMap.get(child.id);
       if (!appIndividual) {
         throw new Error(`Family ${id} references unknown child ${child.id}`);
@@ -108,7 +125,7 @@ export function convertToAppGedcomData(data: BaseGedcomDataWithMetadata): AppGed
 
   // Convert edges to Map
   const edgesMap = new Map<EdgeId, Edge>();
-  data.metadata.edges.forEach(edge => {
+  data.metadata.edges.forEach((edge) => {
     edgesMap.set(edge.id, edge);
   });
 
@@ -144,10 +161,12 @@ export class AppGedcomHelpers {
     const individual = this.data.individuals.get(id1);
     if (!individual) return false;
 
-    return individual.parents.has(id2) ||
-           individual.spouses.has(id2) ||
-           individual.children.has(id2) ||
-           individual.siblings.has(id2);
+    return (
+      individual.parents.has(id2) ||
+      individual.spouses.has(id2) ||
+      individual.children.has(id2) ||
+      individual.siblings.has(id2)
+    );
   }
 
   /**
@@ -156,15 +175,15 @@ export class AppGedcomHelpers {
   getDescendants(id: IndividualId): Set<IndividualId> {
     const descendants = new Set<IndividualId>();
     const visited = new Set<IndividualId>();
-    
+
     const collectDescendants = (currentId: IndividualId) => {
       if (visited.has(currentId)) return;
       visited.add(currentId);
-      
+
       const individual = this.data.individuals.get(currentId);
       if (!individual) return;
 
-      individual.children.forEach(childId => {
+      individual.children.forEach((childId) => {
         descendants.add(childId);
         collectDescendants(childId);
       });
@@ -180,15 +199,15 @@ export class AppGedcomHelpers {
   getAncestors(id: IndividualId): Set<IndividualId> {
     const ancestors = new Set<IndividualId>();
     const visited = new Set<IndividualId>();
-    
+
     const collectAncestors = (currentId: IndividualId) => {
       if (visited.has(currentId)) return;
       visited.add(currentId);
-      
+
       const individual = this.data.individuals.get(currentId);
       if (!individual) return;
 
-      individual.parents.forEach(parentId => {
+      individual.parents.forEach((parentId) => {
         ancestors.add(parentId);
         collectAncestors(parentId);
       });
