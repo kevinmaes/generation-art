@@ -121,31 +121,6 @@ export function PipelineModal({
             </button>
           </div>
 
-          {/* Visualize Button - positioned below header */}
-          <div className="p-4 border-b bg-gray-50">
-            <button
-              onClick={onVisualize}
-              disabled={
-                !hasData || activeTransformerIds.length === 0 || isVisualizing
-              }
-              className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${
-                isVisualizing
-                  ? 'bg-blue-500 text-white'
-                  : hasData && activeTransformerIds.length > 0
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              {isVisualizing ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>Visualizing...</span>
-                </div>
-              ) : (
-                'Visualize'
-              )}
-            </button>
-          </div>
 
           {/* Panel Body - PipelineManager */}
           <div className="flex-1 overflow-hidden">

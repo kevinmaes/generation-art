@@ -176,7 +176,7 @@ export function TransformerItem({
   return (
     <div
       key={transformer.id}
-      className={`p-3 rounded border cursor-pointer transition-colors ${
+      className={`px-2 py-1 rounded border cursor-pointer transition-colors ${
         isSelected
           ? 'bg-purple-100 border-purple-300'
           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
@@ -188,24 +188,24 @@ export function TransformerItem({
       }}
     >
       <div className="flex items-center w-full">
-        <div className="flex items-center space-x-2 flex-1 text-left">
+        <div className="flex items-center space-x-1.5 flex-1 text-left">
           {isInPipeline && (
-            <span className="text-xs bg-gray-300 text-gray-700 px-2 py-1 rounded">
+            <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
               {index + 1}
             </span>
           )}
-          <span className="font-medium text-sm">
+          <span className="font-medium text-sm truncate">
             {transformer.name || transformer.id}
           </span>
           {hasBeenModified && (
-            <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">
+            <span className="text-xs bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded">
               Modified
             </span>
           )}
         </div>
         {isInPipeline ? (
           <button
-            className="text-gray-400 hover:text-red-500 text-sm flex-shrink-0"
+            className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
             onClick={(e) => {
               e.stopPropagation();
               if (!isDisabled) {
@@ -218,7 +218,7 @@ export function TransformerItem({
           </button>
         ) : (
           <button
-            className="text-gray-400 hover:text-green-500 text-sm flex-shrink-0"
+            className="text-gray-400 hover:text-green-500 text-xs flex-shrink-0"
             onClick={(e) => {
               e.stopPropagation();
               if (!isDisabled) {
@@ -231,9 +231,9 @@ export function TransformerItem({
           </button>
         )}
       </div>
-      {transformer.description && (
-        <p className="text-xs text-gray-600 mt-1 text-left">
-          {transformer.description}
+      {(transformer.shortDescription || transformer.description) && (
+        <p className="text-xs text-gray-600 mt-0.5 text-left">
+          {transformer.shortDescription || transformer.description}
         </p>
       )}
 
@@ -247,23 +247,16 @@ export function TransformerItem({
               e.stopPropagation();
             }}
           >
-            <summary className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-t-lg shadow-sm cursor-pointer flex items-center justify-between list-none hover:bg-gray-100 transition-colors">
+            <summary className="px-4 py-2 bg-gray-50 border border-gray-200 shadow-sm cursor-pointer flex items-center justify-between list-none hover:bg-gray-100 transition-colors">
               <div className="flex items-center space-x-2">
                 <span className="text-xs transition-transform duration-200 group-open:rotate-90">
                   ▶
                 </span>
                 <span className="text-xs font-medium text-gray-700">
-                  Parameters (
-                  {transformer.availableDimensions.length +
-                    transformer.visualParameters.length}
-                  )
+                  Parameters
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-gray-500">
-                  {transformer.availableDimensions.length} dimensions,{' '}
-                  {transformer.visualParameters.length} visual params
-                </span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -278,7 +271,7 @@ export function TransformerItem({
               </div>
             </summary>
 
-            <div className="bg-white border-l border-r border-b border-gray-200 rounded-b-lg shadow-sm overflow-hidden">
+            <div className="bg-white border-l border-r border-b border-gray-200 shadow-sm overflow-hidden">
               <div className="p-4 space-y-4">
                 {/* Dimensions Section */}
                 {transformer.availableDimensions.length > 0 && (
