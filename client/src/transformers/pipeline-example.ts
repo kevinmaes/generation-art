@@ -6,6 +6,7 @@
  */
 
 import { runPipeline, createSimplePipeline } from './pipeline';
+import { HORIZONTAL_SPREAD } from './transformers';
 import type { AppGedcomDataWithMetadata } from '../types/app-data';
 
 /**
@@ -14,14 +15,22 @@ import type { AppGedcomDataWithMetadata } from '../types/app-data';
 export async function runSimpleExample(metadata: AppGedcomDataWithMetadata) {
   console.log('🎨 Running Simple Pipeline Example...');
 
-  const config = createSimplePipeline(['horizontal-spread-by-generation'], {
+  const config = createSimplePipeline([HORIZONTAL_SPREAD.ID], {
     temperature: 0.5,
     seed: 'example-seed',
     canvasWidth: 800,
     canvasHeight: 600,
   });
 
-  const result = await runPipeline(metadata, config);
+  const result = await runPipeline({
+    fullData: metadata,
+    llmData: {
+      individuals: {},
+      families: {},
+      metadata: metadata.metadata,
+    },
+    config,
+  });
 
   console.log('✅ Pipeline completed successfully!');
   console.log('📊 Results:', {
@@ -44,7 +53,7 @@ export async function runMultiTransformerExample(
 
   const config = createSimplePipeline(
     [
-      'horizontal-spread-by-generation',
+      HORIZONTAL_SPREAD.ID,
       // 'color-by-generation',        // Future transformer
       // 'size-by-lifespan',          // Future transformer
     ],
@@ -56,7 +65,15 @@ export async function runMultiTransformerExample(
     },
   );
 
-  const result = await runPipeline(metadata, config);
+  const result = await runPipeline({
+    fullData: metadata,
+    llmData: {
+      individuals: {},
+      families: {},
+      metadata: metadata.metadata,
+    },
+    config,
+  });
 
   console.log('✅ Multi-transformer pipeline completed!');
   console.log('📊 Results:', {
@@ -89,28 +106,37 @@ export async function runMultiTransformerExample(
 }
 
 /**
- * Example: Demonstrate error handling with non-existent transformers
+ * Example: Demonstrate graceful handling of edge cases
  */
-export async function runErrorHandlingExample(
-  metadata: AppGedcomDataWithMetadata,
-) {
-  console.log('🎨 Running Error Handling Example...');
+export async function runEdgeCaseExample(metadata: AppGedcomDataWithMetadata) {
+  console.log('🎨 Running Edge Case Example...');
 
-  const config = createSimplePipeline(
-    [
-      'non-existent-transformer-1',
-      'horizontal-spread-by-generation', // This should still work
-      'non-existent-transformer-2',
-    ],
-    {
-      temperature: 0.3,
-      seed: 'error-example-seed',
+  // Create empty dataset to test transformer resilience
+  const emptyMetadata: AppGedcomDataWithMetadata = {
+    individuals: new Map(),
+    families: new Map(),
+    edges: new Map(),
+    metadata: metadata.metadata, // Keep metadata structure but empty data
+  };
+
+  const config = createSimplePipeline([HORIZONTAL_SPREAD.ID], {
+    temperature: 0.3,
+    seed: 'edge-case-seed',
+    canvasWidth: 800,
+    canvasHeight: 600,
+  });
+
+  const result = await runPipeline({
+    fullData: emptyMetadata,
+    llmData: {
+      individuals: {},
+      families: {},
+      metadata: emptyMetadata.metadata,
     },
-  );
+    config,
+  });
 
-  const result = await runPipeline(metadata, config);
-
-  console.log('✅ Error handling example completed!');
+  console.log('✅ Edge case example completed!');
   console.log('📊 Results:', {
     executionTime: `${result.debug.totalExecutionTime.toFixed(2)}ms`,
     totalTransformers: result.debug.transformerResults.length,
@@ -122,11 +148,11 @@ export async function runErrorHandlingExample(
     ).length,
   });
 
-  // Show that the pipeline continued despite failures
+  // Show how transformers handle empty datasets
   if (result.debug.transformerResults.some((r) => r.success)) {
-    console.log(
-      '✅ Pipeline continued execution despite some transformer failures',
-    );
+    console.log('✅ Transformers handled empty dataset gracefully');
+  } else {
+    console.log('⚠️ Transformers may need better empty data handling');
   }
 
   return result;
@@ -146,14 +172,22 @@ export async function runTemperatureComparisonExample(
   for (const temperature of temperatures) {
     console.log(`\n🌡️  Testing temperature: ${String(temperature)}`);
 
-    const config = createSimplePipeline(['horizontal-spread-by-generation'], {
+    const config = createSimplePipeline([HORIZONTAL_SPREAD.ID], {
       temperature,
       seed: 'temperature-comparison-seed',
       canvasWidth: 800,
       canvasHeight: 600,
     });
 
-    const result = await runPipeline(metadata, config);
+    const result = await runPipeline({
+      fullData: metadata,
+      llmData: {
+        individuals: {},
+        families: {},
+        metadata: metadata.metadata,
+      },
+      config,
+    });
     results.push({ temperature, result });
 
     console.log(
