@@ -78,10 +78,8 @@ function calculateEdgeOpacity(
         primaryValue = 1.0; // Strongest
       } else if (edge.relationshipType === 'spouse') {
         primaryValue = 0.8; // Strong
-      } else if (edge.relationshipType === 'sibling') {
-        primaryValue = 0.6; // Moderate
       } else {
-        primaryValue = 0.4; // Other relationships
+        primaryValue = 0.6; // Moderate (sibling or other)
       }
       break;
     }
@@ -127,10 +125,8 @@ function calculateEdgeOpacity(
           secondaryValue = 1.0;
         } else if (edge.relationshipType === 'spouse') {
           secondaryValue = 0.8;
-        } else if (edge.relationshipType === 'sibling') {
-          secondaryValue = 0.6;
         } else {
-          secondaryValue = 0.4;
+          secondaryValue = 0.6; // sibling or other
         }
         break;
       }
@@ -141,23 +137,18 @@ function calculateEdgeOpacity(
   const { edgeOpacity, variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
-  // Convert edge opacity string to base opacity values
-  const opacityMap = {
-    'very-transparent': { min: 0.1, max: 0.3 },
-    transparent: { min: 0.2, max: 0.5 },
-    'semi-transparent': { min: 0.4, max: 0.7 },
-    opaque: { min: 0.6, max: 0.9 },
-    'fully-opaque': { min: 0.8, max: 1.0 },
-  };
-  const opacityRange =
-    opacityMap[edgeOpacity as keyof typeof opacityMap] ??
-    opacityMap['semi-transparent'];
+  // Use edge opacity directly as base opacity (0.1 to 1.0 range)
+  const baseOpacity = typeof edgeOpacity === 'number' ? edgeOpacity : 0.7;
+  const opacityRange = { min: Math.max(0.1, baseOpacity - 0.2), max: Math.min(1.0, baseOpacity + 0.2) };
 
   // Factor in edge length (longer edges = more transparent)
-  const sourceX = visualMetadata.individuals[edge.sourceId]?.x ?? 0;
-  const sourceY = visualMetadata.individuals[edge.sourceId]?.y ?? 0;
-  const targetX = visualMetadata.individuals[edge.targetId]?.x ?? 0;
-  const targetY = visualMetadata.individuals[edge.targetId]?.y ?? 0;
+  const sourceIndividualVisual = visualMetadata.individuals[edge.sourceId];
+  const targetIndividualVisual = visualMetadata.individuals[edge.targetId];
+  
+  const sourceX = sourceIndividualVisual.x ?? 0;
+  const sourceY = sourceIndividualVisual.y ?? 0;
+  const targetX = targetIndividualVisual.x ?? 0;
+  const targetY = targetIndividualVisual.y ?? 0;
   const distance = Math.sqrt(
     (targetX - sourceX) ** 2 + (targetY - sourceY) ** 2,
   );
@@ -206,15 +197,9 @@ function calculateEdgeWidth(
   const { edgeWidth, variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
-  // Convert edge width string to base width values
-  const widthMap = {
-    thin: { min: 0.5, max: 1.5 },
-    medium: { min: 1, max: 3 },
-    thick: { min: 2, max: 5 },
-    'extra-thick': { min: 3, max: 8 },
-  };
-  const widthRange =
-    widthMap[edgeWidth as keyof typeof widthMap] ?? widthMap.medium;
+  // Use edge width directly as base width value
+  const baseWidth = typeof edgeWidth === 'number' ? edgeWidth : 2;
+  const widthRange = { min: Math.max(0.5, baseWidth - 1), max: baseWidth + 2 };
 
   // Base width on relationship type
   let baseValue = 0.5;
@@ -222,10 +207,8 @@ function calculateEdgeWidth(
     baseValue = 0.9; // Thickest
   } else if (edge.relationshipType === 'spouse') {
     baseValue = 0.7; // Thick
-  } else if (edge.relationshipType === 'sibling') {
-    baseValue = 0.5; // Medium
   } else {
-    baseValue = 0.3; // Thin
+    baseValue = 0.5; // Medium (sibling or other)
   }
 
   // Add temperature-based randomness
