@@ -13,6 +13,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../../../shared/types';
+import { convertToAppGedcomData } from '../../../types/app-data';
 import { TransformerItem } from './TransformerItem';
 
 // Type for the complete dual-data structure
@@ -186,11 +187,14 @@ export function PipelineManager({
       return null;
     }
 
+    // Convert object-based data to Map-based data for the pipeline
+    const appData = convertToAppGedcomData(dualData.full);
+    
     return {
-      fullData: dualData.full,
+      fullData: appData,
       llmData: dualData.llm,
       visualMetadata: createInitialCompleteVisualMetadata(
-        dualData.full,
+        appData,
         800, // Default canvas width
         600, // Default canvas height
       ),

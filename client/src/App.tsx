@@ -13,6 +13,7 @@ import {
   type TransformerId,
 } from './transformers/transformers';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
+import { convertToAppGedcomData } from './types/app-data';
 import './App.css';
 
 // Type for the complete dual-data structure
@@ -187,8 +188,11 @@ function App(): React.ReactElement {
         temperature: 0.5,
       });
 
+      // Convert object-based data to Map-based data for the pipeline
+      const appData = convertToAppGedcomData(dualData.full);
+      
       const result = await runPipeline({
-        fullData: dualData.full,
+        fullData: appData,
         llmData: dualData.llm,
         config: pipelineConfig,
       });

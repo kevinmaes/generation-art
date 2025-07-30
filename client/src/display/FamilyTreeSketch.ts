@@ -255,9 +255,9 @@ export function createPrintSketch(
 
   // Create initial complete visual metadata structure
   const visualMetadata: CompleteVisualMetadata = {
-    individuals: {},
-    families: {},
-    edges: {},
+    individuals: new Map(),
+    families: new Map(),
+    edges: new Map(),
     tree: {
       backgroundColor: '#ffffff',
       group: 'tree',

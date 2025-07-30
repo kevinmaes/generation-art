@@ -4,6 +4,7 @@ import { createWebSketch, type SketchConfig } from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { PipelineResult } from '../../transformers/pipeline';
+import { convertToAppGedcomData } from '../../types/app-data';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -61,9 +62,12 @@ export function ArtGenerator({
       showRelations,
     };
 
+    // Convert object-based data to Map-based data for the sketch
+    const appGedcomData = convertToAppGedcomData(gedcomData);
+    
     // Pass the pipeline result's visual metadata to the sketch
     const sketch = createWebSketch(
-      gedcomData,
+      appGedcomData,
       width,
       height,
       sketchConfig,
