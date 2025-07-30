@@ -47,6 +47,9 @@ export function TransformerItem({
   isVisualizing = false,
   lastRunParameters,
 }: TransformerItemProps) {
+  // State for expandable description (only for available transformers)
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
     dimensions: { primary?: string; secondary?: string };
@@ -176,19 +179,31 @@ export function TransformerItem({
   return (
     <div
       key={transformer.id}
-      className={`px-2 py-1 rounded border cursor-pointer transition-colors ${
+      className={`px-2 py-1 rounded border transition-colors ${
         isSelected
           ? 'bg-purple-100 border-purple-300'
           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
       } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
-      onClick={() => {
-        if (!isDisabled) {
-          handleTransformerSelect(transformer.id);
-        }
-      }}
     >
-      <div className="flex items-center w-full">
+      {/* Clickable Header */}
+      <div 
+        className="flex items-center w-full cursor-pointer"
+        onClick={() => {
+          if (!isDisabled) {
+            if (isInPipeline) {
+              handleTransformerSelect(transformer.id);
+            } else {
+              setIsExpanded(!isExpanded);
+            }
+          }
+        }}
+      >
         <div className="flex items-center space-x-1.5 flex-1 text-left">
+          {!isInPipeline && (
+            <span className={`text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+              ▶
+            </span>
+          )}
           {isInPipeline && (
             <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
               {index + 1}
@@ -231,10 +246,39 @@ export function TransformerItem({
           </button>
         )}
       </div>
-      {(transformer.shortDescription || transformer.description) && (
-        <p className="text-xs text-gray-600 mt-0.5 text-left">
-          {transformer.shortDescription || transformer.description}
+      
+      {/* Short Description - always visible */}
+      {transformer.shortDescription && (
+        <p className="text-xs text-gray-800 font-medium mt-0.5 text-left">
+          {transformer.shortDescription}
         </p>
+      )}
+      
+      {/* Expandable Full Description - only for available transformers */}
+      {!isInPipeline && isExpanded && (
+        <div className="mt-2 pt-2 border-t border-gray-200 space-y-1">
+          {transformer.description && (
+            <p className="text-xs text-gray-700 text-left">
+              {transformer.description}
+            </p>
+          )}
+          
+          {/* Dimensions line */}
+          <p className="text-xs text-left">
+            <span className="text-gray-800 font-medium">Dimensions:</span>{' '}
+            <span className="text-gray-600">
+              {transformer.availableDimensions.map((dimId) => DIMENSIONS[dimId].label).join(', ')}
+            </span>
+          </p>
+          
+          {/* Parameters line */}
+          <p className="text-xs text-left">
+            <span className="text-gray-800 font-medium">Parameters:</span>{' '}
+            <span className="text-gray-600">
+              {transformer.visualParameters.map((paramId) => VISUAL_PARAMETERS[paramId].label).join(', ')}
+            </span>
+          </p>
+        </div>
       )}
 
       {/* Parameter Controls */}
