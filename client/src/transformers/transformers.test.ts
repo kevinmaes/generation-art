@@ -7,7 +7,7 @@ import {
   getAllCategories,
   type TransformerId,
 } from './transformers';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { AppGedcomDataWithMetadata } from '../types/app-data';
 import type { VisualParameterValues } from './visual-parameters';
 
 describe('Transformers Registry', () => {
@@ -82,22 +82,26 @@ describe('Horizontal Spread Transformer', () => {
     const transformer = getTransformer('horizontal-spread');
     expect(transformer).toBeDefined();
 
-    const mockMetadata: GedcomDataWithMetadata = {
-      individuals: {
-        I1: {
-          id: 'I1',
-          name: 'John Doe',
-          parents: [],
-          spouses: [],
-          children: [],
-          siblings: [],
-          metadata: {
-            generation: 0,
-            relativeGenerationValue: 0.5,
+    const mockMetadata: AppGedcomDataWithMetadata = {
+      individuals: new Map([
+        [
+          'I1' as any,
+          {
+            id: 'I1' as any,
+            name: 'John Doe',
+            parents: [],
+            spouses: [],
+            children: [],
+            siblings: [],
+            metadata: {
+              generation: 0,
+              relativeGenerationValue: 0.5,
+            },
           },
-        },
-      },
-      families: {},
+        ],
+      ]),
+      families: new Map(),
+      edges: new Map(),
       metadata: {
         graphStructure: {
           totalIndividuals: 1,
@@ -238,32 +242,35 @@ describe('Horizontal Spread Transformer', () => {
         metadata: mockMetadata.metadata,
       },
       visualMetadata: {
-        individuals: {
-          I1: {
-            x: 0,
-            y: 250, // Set an initial y position to test preservation
-            size: 20,
-            scale: 1,
-            color: '#cccccc',
-            backgroundColor: '#ffffff',
-            strokeColor: '#000000',
-            opacity: 1,
-            alpha: 1,
-            shape: 'circle' as const,
-            strokeWeight: 1,
-            strokeStyle: 'solid' as const,
-            velocity: { x: 0, y: 0 },
-            acceleration: { x: 0, y: 0 },
-            rotation: 0,
-            rotationSpeed: 0,
-            group: 'default',
-            layer: 0,
-            priority: 0,
-            custom: {},
-          },
-        },
-        families: {},
-        edges: {},
+        individuals: new Map([
+          [
+            'I1' as any,
+            {
+              x: 0,
+              y: 250, // Set an initial y position to test preservation
+              size: 20,
+              scale: 1,
+              color: '#cccccc',
+              backgroundColor: '#ffffff',
+              strokeColor: '#000000',
+              opacity: 1,
+              alpha: 1,
+              shape: 'circle' as const,
+              strokeWeight: 1,
+              strokeStyle: 'solid' as const,
+              velocity: { x: 0, y: 0 },
+              acceleration: { x: 0, y: 0 },
+              rotation: 0,
+              rotationSpeed: 0,
+              group: 'default',
+              layer: 0,
+              priority: 0,
+              custom: {},
+            },
+          ],
+        ]),
+        families: new Map(),
+        edges: new Map(),
         tree: {},
         global: {
           canvasWidth: 1000,
@@ -289,14 +296,12 @@ describe('Horizontal Spread Transformer', () => {
 
     expect(result.visualMetadata).toBeDefined();
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
-      1,
-    );
-    const individualId = Object.keys(
-      result.visualMetadata.individuals ?? {},
+    expect(result.visualMetadata.individuals?.size).toBe(1);
+    const individualId = Array.from(
+      result.visualMetadata.individuals?.keys() ?? [],
     )[0];
     const individualMetadata =
-      result.visualMetadata.individuals?.[individualId];
+      result.visualMetadata.individuals?.get(individualId);
     expect(individualMetadata?.x).toBeDefined();
     // y position should be preserved from the initial context
     expect(individualMetadata?.y).toBe(250);
@@ -311,9 +316,10 @@ describe('Horizontal Spread Transformer', () => {
     const transformer = getTransformer('horizontal-spread');
     expect(transformer).toBeDefined();
 
-    const mockMetadata: GedcomDataWithMetadata = {
-      individuals: {},
-      families: {},
+    const mockMetadata: AppGedcomDataWithMetadata = {
+      individuals: new Map(),
+      families: new Map(),
+      edges: new Map(),
       metadata: {
         graphStructure: {
           totalIndividuals: 0,
@@ -454,9 +460,9 @@ describe('Horizontal Spread Transformer', () => {
         metadata: mockMetadata.metadata,
       },
       visualMetadata: {
-        individuals: {},
-        families: {},
-        edges: {},
+        individuals: new Map(),
+        families: new Map(),
+        edges: new Map(),
         tree: {},
         global: {},
       },
@@ -478,23 +484,27 @@ describe('Horizontal Spread Transformer', () => {
       const transformer = getTransformer('vertical-spread');
       expect(transformer).toBeDefined();
 
-      const mockMetadata: GedcomDataWithMetadata = {
-        individuals: {
-          I1: {
-            id: 'I1',
-            name: 'John Smith',
-            parents: [],
-            spouses: [],
-            children: [],
-            siblings: [],
-            metadata: {
-              generation: 1,
-              relativeGenerationValue: 0.5,
+      const mockMetadata: AppGedcomDataWithMetadata = {
+        individuals: new Map([
+          [
+            'I1' as any,
+            {
+              id: 'I1' as any,
+              name: 'John Smith',
+              parents: [],
+              spouses: [],
+              children: [],
+              siblings: [],
+              metadata: {
+                generation: 1,
+                relativeGenerationValue: 0.5,
+              },
+              gender: 'M' as any,
             },
-            gender: 'M',
-          },
-        },
-        families: {},
+          ],
+        ]),
+        families: new Map(),
+        edges: new Map(),
         metadata: {
           graphStructure: {
             totalIndividuals: 1,
@@ -637,32 +647,35 @@ describe('Horizontal Spread Transformer', () => {
           metadata: mockMetadata.metadata,
         },
         visualMetadata: {
-          individuals: {
-            I1: {
-              x: 400, // Set an initial x position to test preservation
-              y: 0,
-              size: 20,
-              scale: 1,
-              color: '#cccccc',
-              backgroundColor: '#ffffff',
-              strokeColor: '#000000',
-              opacity: 1,
-              alpha: 1,
-              shape: 'circle' as const,
-              strokeWeight: 1,
-              strokeStyle: 'solid' as const,
-              velocity: { x: 0, y: 0 },
-              acceleration: { x: 0, y: 0 },
-              rotation: 0,
-              rotationSpeed: 0,
-              group: 'default',
-              layer: 0,
-              priority: 0,
-              custom: {},
-            },
-          },
-          families: {},
-          edges: {},
+          individuals: new Map([
+            [
+              'I1' as any,
+              {
+                x: 400, // Set an initial x position to test preservation
+                y: 0,
+                size: 20,
+                scale: 1,
+                color: '#cccccc',
+                backgroundColor: '#ffffff',
+                strokeColor: '#000000',
+                opacity: 1,
+                alpha: 1,
+                shape: 'circle' as const,
+                strokeWeight: 1,
+                strokeStyle: 'solid' as const,
+                velocity: { x: 0, y: 0 },
+                acceleration: { x: 0, y: 0 },
+                rotation: 0,
+                rotationSpeed: 0,
+                group: 'default',
+                layer: 0,
+                priority: 0,
+                custom: {},
+              },
+            ],
+          ]),
+          families: new Map(),
+          edges: new Map(),
           tree: {},
           global: {
             canvasWidth: 1000,
@@ -688,14 +701,12 @@ describe('Horizontal Spread Transformer', () => {
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.visualMetadata.individuals).toBeDefined();
-      expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
-        1,
-      );
-      const individualId = Object.keys(
-        result.visualMetadata.individuals ?? {},
+      expect(result.visualMetadata.individuals?.size).toBe(1);
+      const individualId = Array.from(
+        result.visualMetadata.individuals?.keys() ?? [],
       )[0];
       const individualMetadata =
-        result.visualMetadata.individuals?.[individualId];
+        result.visualMetadata.individuals?.get(individualId);
       // x position should be preserved from the initial context
       expect(individualMetadata?.x).toBe(400);
       expect(individualMetadata?.y).toBeDefined();

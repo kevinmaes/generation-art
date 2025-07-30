@@ -567,19 +567,21 @@ describe('Pipeline', () => {
       expect(result.debug.transformerResults[1].success).toBe(true);
 
       // Check that we have individual metadata
-      const individualId = Object.keys(result.visualMetadata.individuals)[0];
+      const individualId = Array.from(
+        result.visualMetadata.individuals.keys(),
+      )[0];
       const individualMetadata =
-        result.visualMetadata.individuals[individualId];
+        result.visualMetadata.individuals.get(individualId);
       expect(individualMetadata).toBeDefined();
 
       // The final result should have both x and y positions from both transformers
-      expect(individualMetadata.x).toBeDefined();
-      expect(individualMetadata.y).toBeDefined();
+      expect(individualMetadata?.x).toBeDefined();
+      expect(individualMetadata?.y).toBeDefined();
 
       // Log the positions to see what's happening
       console.log('Final positions (reverse order):', {
-        x: individualMetadata.x,
-        y: individualMetadata.y,
+        x: individualMetadata?.x,
+        y: individualMetadata?.y,
       });
     });
   });

@@ -139,8 +139,8 @@ export function createInitialCompleteVisualMetadata(
   });
 
   // Initialize visual metadata for each family
-  Object.keys(gedcomData.families).forEach((familyId) => {
-    families[familyId] = {
+  gedcomData.families.forEach((_, familyId) => {
+    families.set(familyId, {
       ...createInitialEntityVisualMetadata(),
       // Family-specific defaults
       strokeColor: '#666',
@@ -151,12 +151,12 @@ export function createInitialCompleteVisualMetadata(
       y: undefined,
       size: undefined,
       shape: undefined,
-    };
+    });
   });
 
   // Initialize visual metadata for each edge
   gedcomData.metadata.edges.forEach((edge) => {
-    edges[edge.id] = {
+    edges.set(edge.id, {
       // Edge-specific defaults
       strokeColor: DEFAULT_STROKE_COLOR,
       strokeWeight: DEFAULT_STROKE_WEIGHT,
@@ -171,7 +171,7 @@ export function createInitialCompleteVisualMetadata(
       group: 'edges',
       layer: 1, // Edges typically rendered below nodes
       priority: 0,
-    };
+    });
   });
 
   return {
