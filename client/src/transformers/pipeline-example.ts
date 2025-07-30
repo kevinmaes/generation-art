@@ -6,27 +6,36 @@
  */
 
 import { runPipeline, createSimplePipeline } from './pipeline';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import { HORIZONTAL_SPREAD } from './transformers';
+import type { AppGedcomDataWithMetadata } from '../types/app-data';
 
 /**
  * Example: Run a simple pipeline with the horizontal spread transformer
  */
-export async function runSimpleExample(metadata: GedcomDataWithMetadata) {
+export async function runSimpleExample(metadata: AppGedcomDataWithMetadata) {
   console.log('🎨 Running Simple Pipeline Example...');
 
-  const config = createSimplePipeline(['horizontal-spread-by-generation'], {
+  const config = createSimplePipeline([HORIZONTAL_SPREAD.ID], {
     temperature: 0.5,
     seed: 'example-seed',
     canvasWidth: 800,
     canvasHeight: 600,
   });
 
-  const result = await runPipeline(metadata, config);
+  const result = await runPipeline({
+    fullData: metadata,
+    llmData: {
+      individuals: {},
+      families: {},
+      metadata: metadata.metadata,
+    },
+    config,
+  });
 
   console.log('✅ Pipeline completed successfully!');
   console.log('📊 Results:', {
-    executionTime: `${result.executionTime.toFixed(2)}ms`,
-    transformersExecuted: result.transformerResults.length,
+    executionTime: `${result.debug.totalExecutionTime.toFixed(2)}ms`,
+    transformersExecuted: result.debug.transformerResults.length,
     finalVisualMetadata: result.visualMetadata,
   });
 
@@ -38,13 +47,13 @@ export async function runSimpleExample(metadata: GedcomDataWithMetadata) {
  * (This will work once we add more transformers)
  */
 export async function runMultiTransformerExample(
-  metadata: GedcomDataWithMetadata,
+  metadata: AppGedcomDataWithMetadata,
 ) {
   console.log('🎨 Running Multi-Transformer Pipeline Example...');
 
   const config = createSimplePipeline(
     [
-      'horizontal-spread-by-generation',
+      HORIZONTAL_SPREAD.ID,
       // 'color-by-generation',        // Future transformer
       // 'size-by-lifespan',          // Future transformer
     ],
@@ -56,71 +65,94 @@ export async function runMultiTransformerExample(
     },
   );
 
-  const result = await runPipeline(metadata, config);
+  const result = await runPipeline({
+    fullData: metadata,
+    llmData: {
+      individuals: {},
+      families: {},
+      metadata: metadata.metadata,
+    },
+    config,
+  });
 
   console.log('✅ Multi-transformer pipeline completed!');
   console.log('📊 Results:', {
-    executionTime: `${result.executionTime.toFixed(2)}ms`,
-    transformersExecuted: result.transformerResults.length,
-    successfulTransformers: result.transformerResults.filter((r) => r.success)
-      .length,
-    failedTransformers: result.transformerResults.filter((r) => !r.success)
-      .length,
+    executionTime: `${result.debug.totalExecutionTime.toFixed(2)}ms`,
+    transformersExecuted: result.debug.transformerResults.length,
+    successfulTransformers: result.debug.transformerResults.filter(
+      (r) => r.success,
+    ).length,
+    failedTransformers: result.debug.transformerResults.filter(
+      (r) => !r.success,
+    ).length,
   });
 
   // Log details for each transformer
-  result.transformerResults.forEach((transformerResult, index) => {
-    console.log(
-      `  ${String(index + 1)}. ${transformerResult.transformerName}: ${
-        transformerResult.success ? '✅' : '❌'
-      } (${transformerResult.executionTime.toFixed(2)}ms)`,
-    );
+  result.debug.transformerResults.forEach(
+    (transformerResult, index: number) => {
+      console.log(
+        `  ${String(index + 1)}. ${transformerResult.transformerName}: ${
+          transformerResult.success ? '✅' : '❌'
+        } (${transformerResult.executionTime.toFixed(2)}ms)`,
+      );
 
-    if (!transformerResult.success && transformerResult.error) {
-      console.log(`     Error: ${transformerResult.error}`);
-    }
-  });
+      if (!transformerResult.success && transformerResult.error) {
+        console.log(`     Error: ${transformerResult.error}`);
+      }
+    },
+  );
 
   return result;
 }
 
 /**
- * Example: Demonstrate error handling with non-existent transformers
+ * Example: Demonstrate graceful handling of edge cases
  */
-export async function runErrorHandlingExample(
-  metadata: GedcomDataWithMetadata,
-) {
-  console.log('🎨 Running Error Handling Example...');
+export async function runEdgeCaseExample(metadata: AppGedcomDataWithMetadata) {
+  console.log('🎨 Running Edge Case Example...');
 
-  const config = createSimplePipeline(
-    [
-      'non-existent-transformer-1',
-      'horizontal-spread-by-generation', // This should still work
-      'non-existent-transformer-2',
-    ],
-    {
-      temperature: 0.3,
-      seed: 'error-example-seed',
-    },
-  );
+  // Create empty dataset to test transformer resilience
+  const emptyMetadata: AppGedcomDataWithMetadata = {
+    individuals: new Map(),
+    families: new Map(),
+    edges: new Map(),
+    metadata: metadata.metadata, // Keep metadata structure but empty data
+  };
 
-  const result = await runPipeline(metadata, config);
-
-  console.log('✅ Error handling example completed!');
-  console.log('📊 Results:', {
-    executionTime: `${result.executionTime.toFixed(2)}ms`,
-    totalTransformers: result.transformerResults.length,
-    successfulTransformers: result.transformerResults.filter((r) => r.success)
-      .length,
-    failedTransformers: result.transformerResults.filter((r) => !r.success)
-      .length,
+  const config = createSimplePipeline([HORIZONTAL_SPREAD.ID], {
+    temperature: 0.3,
+    seed: 'edge-case-seed',
+    canvasWidth: 800,
+    canvasHeight: 600,
   });
 
-  // Show that the pipeline continued despite failures
-  if (result.transformerResults.some((r) => r.success)) {
-    console.log(
-      '✅ Pipeline continued execution despite some transformer failures',
-    );
+  const result = await runPipeline({
+    fullData: emptyMetadata,
+    llmData: {
+      individuals: {},
+      families: {},
+      metadata: emptyMetadata.metadata,
+    },
+    config,
+  });
+
+  console.log('✅ Edge case example completed!');
+  console.log('📊 Results:', {
+    executionTime: `${result.debug.totalExecutionTime.toFixed(2)}ms`,
+    totalTransformers: result.debug.transformerResults.length,
+    successfulTransformers: result.debug.transformerResults.filter(
+      (r) => r.success,
+    ).length,
+    failedTransformers: result.debug.transformerResults.filter(
+      (r) => !r.success,
+    ).length,
+  });
+
+  // Show how transformers handle empty datasets
+  if (result.debug.transformerResults.some((r) => r.success)) {
+    console.log('✅ Transformers handled empty dataset gracefully');
+  } else {
+    console.log('⚠️ Transformers may need better empty data handling');
   }
 
   return result;
@@ -130,7 +162,7 @@ export async function runErrorHandlingExample(
  * Example: Compare different temperature settings
  */
 export async function runTemperatureComparisonExample(
-  metadata: GedcomDataWithMetadata,
+  metadata: AppGedcomDataWithMetadata,
 ) {
   console.log('🎨 Running Temperature Comparison Example...');
 
@@ -140,25 +172,33 @@ export async function runTemperatureComparisonExample(
   for (const temperature of temperatures) {
     console.log(`\n🌡️  Testing temperature: ${String(temperature)}`);
 
-    const config = createSimplePipeline(['horizontal-spread-by-generation'], {
+    const config = createSimplePipeline([HORIZONTAL_SPREAD.ID], {
       temperature,
       seed: 'temperature-comparison-seed',
       canvasWidth: 800,
       canvasHeight: 600,
     });
 
-    const result = await runPipeline(metadata, config);
+    const result = await runPipeline({
+      fullData: metadata,
+      llmData: {
+        individuals: {},
+        families: {},
+        metadata: metadata.metadata,
+      },
+      config,
+    });
     results.push({ temperature, result });
 
     console.log(
-      `  Result: ${result.transformerResults[0].success ? '✅' : '❌'}`,
+      `  Result: ${result.debug.transformerResults[0].success ? '✅' : '❌'}`,
     );
   }
 
   console.log('\n📊 Temperature Comparison Summary:');
   results.forEach(({ temperature, result }) => {
     console.log(
-      `  Temperature ${String(temperature)}: ${result.transformerResults[0].success ? 'Success' : 'Failed'}`,
+      `  Temperature ${String(temperature)}: ${result.debug.transformerResults[0]?.success ? 'Success' : 'Failed'}`,
     );
   });
 

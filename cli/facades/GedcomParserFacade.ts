@@ -1,6 +1,20 @@
 import { ReadGed } from 'gedcom-ts';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
-import type { Individual, Family, GedcomData } from '../../shared/types';
+import type {
+  Individual,
+  Family,
+  GedcomData,
+  IndividualId,
+} from '../../shared/types';
+import { createIndividualId, createFamilyId } from '../../shared/types';
+
+// Helper function to safely map string arrays to IndividualIds
+function mapToIndividualIds(value: unknown): IndividualId[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((id): id is string => typeof id === 'string')
+    .map(createIndividualId);
+}
 
 // Facade Interface
 export interface GedcomParserFacade {
@@ -19,26 +33,18 @@ export class GedcomTsParserFacade implements GedcomParserFacade {
 
     // Map importedData to GedcomData
     const individuals: Individual[] = importedData.map((person) => ({
-      id: person.id as string,
+      id: createIndividualId(person.id as string),
       name: person.name as string,
       birth: person.birth as { date?: string; place?: string },
       death: person.death as { date?: string; place?: string },
-      parents: Array.isArray(person.parents)
-        ? (person.parents as string[])
-        : [],
-      spouses: Array.isArray(person.spouses)
-        ? (person.spouses as string[])
-        : [],
-      children: Array.isArray(person.children)
-        ? (person.children as string[])
-        : [],
-      siblings: Array.isArray(person.siblings)
-        ? (person.siblings as string[])
-        : [],
+      parents: mapToIndividualIds(person.parents),
+      spouses: mapToIndividualIds(person.spouses),
+      children: mapToIndividualIds(person.children),
+      siblings: mapToIndividualIds(person.siblings),
     }));
 
     const families: Family[] = importedData.map((person) => ({
-      id: person.id as string,
+      id: createFamilyId(person.id as string),
       husband: person.husband as Individual,
       wife: person.wife as Individual,
       children: person.children as Individual[],
@@ -56,7 +62,7 @@ export class SimpleGedcomParserFacade implements GedcomParserFacade {
 
     // Convert the parsed data to match our GedcomData interface
     const individuals: Individual[] = parsedData.individuals.map((ind) => ({
-      id: ind.id,
+      id: createIndividualId(ind.id),
       name: ind.name,
       birth: { date: ind.birthDate },
       death: { date: ind.deathDate },
@@ -67,7 +73,7 @@ export class SimpleGedcomParserFacade implements GedcomParserFacade {
     }));
 
     const families: Family[] = parsedData.families.map((fam) => ({
-      id: fam.id,
+      id: createFamilyId(fam.id),
       husband: fam.husband
         ? individuals.find((ind) => ind.id === fam.husband)
         : undefined,

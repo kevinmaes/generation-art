@@ -13,6 +13,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../../../shared/types';
+import { convertToAppGedcomData } from '../../../types/app-data';
 import { TransformerItem } from './TransformerItem';
 
 // Type for the complete dual-data structure
@@ -94,7 +95,7 @@ export function PipelineManager({
   onAddTransformer,
   onRemoveTransformer,
   onParameterChange,
-  onVisualize,
+  onVisualize: _onVisualize,
   isVisualizing = false,
   hasData = false,
   lastRunParameters,
@@ -169,11 +170,6 @@ export function PipelineManager({
     handleParameterChange(transformerId, defaultParameters);
   };
 
-  // Handle visualization
-  const handleVisualize = () => {
-    onVisualize?.();
-  };
-
   const handleTransformerSelect = (transformerId: TransformerId) => {
     setSelectedTransformerId(transformerId);
     onTransformerSelect?.(transformerId);
@@ -191,11 +187,14 @@ export function PipelineManager({
       return null;
     }
 
+    // Convert object-based data to Map-based data for the pipeline
+    const appData = convertToAppGedcomData(dualData.full);
+
     return {
-      fullData: dualData.full,
+      fullData: appData,
       llmData: dualData.llm,
       visualMetadata: createInitialCompleteVisualMetadata(
-        dualData.full,
+        appData,
         800, // Default canvas width
         600, // Default canvas height
       ),
@@ -208,12 +207,11 @@ export function PipelineManager({
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
-  const isVisualizeEnabled =
+  const _isVisualizeEnabled =
     hasData && activeTransformerIds.length > 0 && !isVisualizing;
 
   return (
     <div className="h-full flex flex-col bg-white p-6">
-
       <div className="flex-1 grid grid-cols-2 gap-4 min-h-0">
         {/* Top-Left: Active Pipeline */}
         <div className="border rounded-lg p-4 flex flex-col min-h-0">

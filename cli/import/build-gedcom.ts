@@ -10,6 +10,7 @@ import { join, basename, extname } from 'path';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
 import { processGedcomWithLLMOptimization } from '../metadata/llm-optimized-processing';
 import type { Individual, Family } from '../../shared/types';
+import { createIndividualId } from '../../shared/types';
 
 // Local interfaces that match SimpleGedcomParser output
 interface ParsedIndividual {
@@ -45,7 +46,7 @@ function convertAndBuildRelationships(data: ParsedGedcomData): {
 } {
   // Convert ParsedIndividual to Individual
   const individuals: Individual[] = data.individuals.map((parsed) => ({
-    id: parsed.id,
+    id: createIndividualId(parsed.id),
     name: parsed.name,
     birth: parsed.birthDate ? { date: parsed.birthDate } : undefined,
     death: parsed.deathDate ? { date: parsed.deathDate } : undefined,

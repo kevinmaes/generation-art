@@ -13,6 +13,7 @@ import {
   type TransformerId,
 } from './transformers/transformers';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
+import { convertToAppGedcomData } from './types/app-data';
 import './App.css';
 
 // Type for the complete dual-data structure
@@ -65,12 +66,8 @@ function App(): React.ReactElement {
   // Use the new hook for loading both full and LLM data
   useGedcomDataWithLLM({
     baseFileName: currentDataset,
-    onDataLoaded: (data) => {
-      setDualData(data);
-    },
-    onError: (error) => {
-      setError(error);
-    },
+    onDataLoaded: (data) => setDualData(data),
+    onError: (error) => setError(error),
   });
 
   // Check for autoLoad parameter and load Kennedy data automatically
@@ -185,8 +182,11 @@ function App(): React.ReactElement {
         temperature: 0.5,
       });
 
+      // Convert object-based data to Map-based data for the pipeline
+      const appData = convertToAppGedcomData(dualData.full);
+
       const result = await runPipeline({
-        fullData: dualData.full,
+        fullData: appData,
         llmData: dualData.llm,
         config: pipelineConfig,
       });
@@ -252,9 +252,7 @@ function App(): React.ReactElement {
             </p>
             {currentView === 'artwork' && (
               <button
-                onClick={() => {
-                  setCurrentView('file-select');
-                }}
+                onClick={() => setCurrentView('file-select')}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-2"
               >
                 Load Different File
@@ -326,9 +324,7 @@ function App(): React.ReactElement {
                         type="file"
                         accept=".json"
                         className="sr-only"
-                        onChange={(event) => {
-                          void handleFileSelect(event);
-                        }}
+                        onChange={(event) => handleFileSelect(event)}
                         disabled={isLoading}
                       />
                     </div>
@@ -340,9 +336,7 @@ function App(): React.ReactElement {
                   <div className="text-center">
                     <div className="text-gray-500 mb-2">or</div>
                     <button
-                      onClick={() => {
-                        handleLoadKennedy();
-                      }}
+                      onClick={() => handleLoadKennedy()}
                       disabled={isLoading}
                       className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -375,14 +369,12 @@ function App(): React.ReactElement {
           onClose={() => setIsPipelineModalOpen(false)}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={dualData}
+          dualData={dualData ?? undefined}
           onTransformerSelect={handleTransformerSelect}
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}
           onParameterChange={handleParameterChange}
-          onVisualize={() => {
-            void handleVisualize();
-          }}
+          onVisualize={() => handleVisualize()}
           isVisualizing={isVisualizing}
           hasData={!!dualData}
           lastRunParameters={lastRunParameters}

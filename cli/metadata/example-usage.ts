@@ -4,12 +4,12 @@
  */
 
 import { addMetadataToAugmentedIndividuals } from './integration';
-import { isNumber, isBoolean, isBirthMonth } from '../../shared/types';
 import type {
   Individual,
   Family,
   AugmentedIndividual,
 } from '../../shared/types';
+import isNumber from 'lodash-es/isNumber';
 
 /**
  * Example: How to add metadata to the existing augmentIndividuals function
@@ -54,7 +54,7 @@ export const exampleUseMetadataInArtGeneration = (
   // Example: Use lifespan for node size
   const nodeSizes = individualsWithMetadata.map((individual) => {
     const lifespan = individual.metadata.lifespan;
-    if (isNumber(lifespan)) {
+    if (isNumber(lifespan) && isFinite(lifespan)) {
       // Normalize lifespan to node size (0.1 to 1.0)
       return 0.1 + lifespan * 0.9;
     }
@@ -64,7 +64,12 @@ export const exampleUseMetadataInArtGeneration = (
   // Example: Use birth month for color
   const nodeColors = individualsWithMetadata.map((individual) => {
     const birthMonth = individual.metadata.birthMonth;
-    if (isBirthMonth(birthMonth)) {
+    if (
+      isNumber(birthMonth) &&
+      Number.isInteger(birthMonth) &&
+      birthMonth >= 1 &&
+      birthMonth <= 12
+    ) {
       // Map month to hue (0-360)
       return (birthMonth - 1) * 30;
     }
@@ -74,7 +79,7 @@ export const exampleUseMetadataInArtGeneration = (
   // Example: Use isAlive for opacity
   const nodeOpacities = individualsWithMetadata.map((individual) => {
     const isAlive = individual.metadata.isAlive;
-    if (isBoolean(isAlive)) {
+    if (typeof isAlive === 'boolean') {
       return isAlive ? 1.0 : 0.6; // Living people more opaque
     }
     return 0.8; // Default opacity
@@ -101,19 +106,32 @@ export const exampleFilterByMetadata = (
   // Find individuals born in summer (June, July, August)
   const summerBirths = individualsWithMetadata.filter((ind) => {
     const birthMonth = ind.metadata.birthMonth;
-    return isBirthMonth(birthMonth) && birthMonth >= 6 && birthMonth <= 8;
+    return (
+      isNumber(birthMonth) &&
+      Number.isInteger(birthMonth) &&
+      birthMonth >= 1 &&
+      birthMonth <= 12 &&
+      birthMonth >= 6 &&
+      birthMonth <= 8
+    );
   });
 
   // Find individuals with long lifespans (top 25%)
   const lifespans = individualsWithMetadata
     .map((ind) => ind.metadata.lifespan)
     .filter(isNumber)
+    .filter(isFinite)
     .sort((a, b) => b - a);
 
   const top25Percentile = lifespans[Math.floor(lifespans.length * 0.25)];
   const longLivedIndividuals = individualsWithMetadata.filter((ind) => {
     const lifespan = ind.metadata.lifespan;
-    return isNumber(lifespan) && lifespan >= top25Percentile;
+    return (
+      isNumber(lifespan) &&
+      isFinite(lifespan) &&
+      isNumber(top25Percentile) &&
+      lifespan >= top25Percentile
+    );
   });
 
   return {

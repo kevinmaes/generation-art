@@ -60,9 +60,9 @@ export function advancedLLMAnalysisTransform(
   console.log('🧠 Advanced LLM Analysis: Using both full and LLM data...');
 
   // Use full data for local calculations
-  const totalIndividuals = Object.keys(gedcomData.individuals).length;
+  const totalIndividuals = gedcomData.individuals.size;
   const averageAge =
-    Object.values(gedcomData.individuals)
+    Array.from(gedcomData.individuals.values())
       .map((ind) => ind.metadata.lifespan ?? 0)
       .reduce((sum, age) => sum + age, 0) / totalIndividuals;
 

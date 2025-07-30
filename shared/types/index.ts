@@ -4,6 +4,9 @@
  * All types are now derived from Zod schemas for consistency and runtime validation
  */
 
+// Re-export branded types
+export * from './branded';
+
 // Re-export schemas and validation functions (source of truth)
 export * from './schemas';
 

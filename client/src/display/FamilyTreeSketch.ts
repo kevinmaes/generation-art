@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type p5 from 'p5';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { EdgeId, IndividualId } from '../../../shared/types';
+import type { AppGedcomDataWithMetadata } from '../types/app-data';
 import type {
   CompleteVisualMetadata,
   VisualMetadata,
@@ -26,7 +26,7 @@ export interface SketchConfig {
 export interface SketchProps {
   visualMetadata: CompleteVisualMetadata;
   config: SketchConfig;
-  gedcomData: GedcomDataWithMetadata;
+  gedcomData: AppGedcomDataWithMetadata;
 }
 
 /**
@@ -61,7 +61,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
       // Draw edges using visual metadata
       if (showRelations) {
-        for (const edge of gedcomData.metadata.edges) {
+        for (const edge of gedcomData.edges.values()) {
           const coord1 = getIndividualCoord(
             edge.sourceId,
             width,
@@ -76,7 +76,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
           );
 
           // Use edge visual metadata (if available)
-          const edgeMetadata = visualMetadata.edges[edge.id];
+          const edgeMetadata = visualMetadata.edges.get(edge.id);
           const strokeColor = p.color(
             edgeMetadata?.strokeColor ??
               visualMetadata.global.defaultEdgeColor ??
@@ -94,9 +94,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
       // Draw nodes (individuals) using per-entity visual metadata
       if (showIndividuals) {
-        const individuals = Object.values(gedcomData.individuals);
+        const individuals = Array.from(gedcomData.individuals.values());
         for (const ind of individuals) {
-          const individualMetadata = visualMetadata.individuals[ind.id];
+          const individualMetadata = visualMetadata.individuals.get(ind.id);
           const x = individualMetadata?.x ?? width / 2;
           const y = individualMetadata?.y ?? height / 2;
           const size =
@@ -159,7 +159,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
  * Create a web-optimized sketch
  */
 export function createWebSketch(
-  gedcomData: GedcomDataWithMetadata,
+  gedcomData: AppGedcomDataWithMetadata,
   width: number,
   height: number,
   options?: Partial<SketchConfig>,
@@ -185,9 +185,9 @@ export function createWebSketch(
     visualMetadata ??
     (() => {
       // Initialize edge visual metadata from actual edge data
-      const edges: Record<string, VisualMetadata> = {};
-      gedcomData.metadata.edges.forEach((edge) => {
-        edges[edge.id] = {
+      const edges = new Map<EdgeId, VisualMetadata>();
+      for (const [edgeId] of gedcomData.edges) {
+        edges.set(edgeId, {
           strokeColor: '#ccc',
           strokeWeight: config.strokeWeight,
           strokeStyle: 'solid',
@@ -195,12 +195,12 @@ export function createWebSketch(
           group: 'edges',
           layer: 1,
           priority: 0,
-        };
-      });
+        });
+      }
 
       return {
-        individuals: {},
-        families: {},
+        individuals: new Map(),
+        families: new Map(),
         edges,
         tree: {
           backgroundColor: '#ffffff',
@@ -233,7 +233,7 @@ export function createWebSketch(
  * Create a print-optimized sketch
  */
 export function createPrintSketch(
-  gedcomData: GedcomDataWithMetadata,
+  gedcomData: AppGedcomDataWithMetadata,
   width: number,
   height: number,
   options?: Partial<SketchConfig>,
@@ -255,9 +255,9 @@ export function createPrintSketch(
 
   // Create initial complete visual metadata structure
   const visualMetadata: CompleteVisualMetadata = {
-    individuals: {},
-    families: {},
-    edges: {},
+    individuals: new Map(),
+    families: new Map(),
+    edges: new Map(),
     tree: {
       backgroundColor: '#ffffff',
       group: 'tree',
@@ -284,23 +284,24 @@ export function createPrintSketch(
  * Get individual coordinates from visual metadata
  */
 function getIndividualCoord(
-  id: string,
+  id: IndividualId,
   width: number,
   height: number,
   visualMetadata: CompleteVisualMetadata,
 ): { x: number; y: number } {
-  const individualMetadata = visualMetadata.individuals[id];
+  const individualMetadata = visualMetadata.individuals.get(id);
   if (
     individualMetadata?.x !== undefined &&
-    individualMetadata?.y !== undefined
+    individualMetadata.y !== undefined
   ) {
     return { x: individualMetadata.x, y: individualMetadata.y };
   }
 
   // Fallback to hash-based positioning if no position data
+  const idString = id as string;
   let hash = 5381;
-  for (let i = 0; i < id.length; i++) {
-    hash = (hash << 5) + hash + id.charCodeAt(i);
+  for (let i = 0; i < idString.length; i++) {
+    hash = (hash << 5) + hash + idString.charCodeAt(i);
   }
   const x = (((hash >>> 0) % 1000) / 1000) * width * 0.8 + width * 0.1;
   const y = ((((hash * 31) >>> 0) % 1000) / 1000) * height * 0.8 + height * 0.1;

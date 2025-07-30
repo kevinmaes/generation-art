@@ -10,20 +10,24 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
+import type { IndividualId } from '../../../shared/types';
 
 /**
  * Calculate vertical position based on selected dimensions and parameters
  */
 function calculateVerticalPosition(
   context: TransformerContext,
-  individualId: string,
+  individualId: IndividualId,
 ): number {
   const { gedcomData, visualMetadata, dimensions, visual, temperature } =
     context;
   const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
 
   // Find the individual
-  const individual = gedcomData.individuals[individualId];
+  const individual = gedcomData.individuals.get(individualId);
+  if (!individual) {
+    return canvasHeight / 2; // Default to center if individual not found
+  }
 
   // Get the primary dimension value
   const primaryDimension = dimensions.primary;
@@ -35,7 +39,7 @@ function calculateVerticalPosition(
       break;
     case 'birthYear': {
       // Normalize birth year to 0-1 range
-      const allBirthYears = Object.values(gedcomData.individuals)
+      const allBirthYears = Array.from(gedcomData.individuals.values())
         .map((ind) => ind.metadata.birthYear)
         .filter((year): year is number => year !== undefined);
       if (allBirthYears.length > 0) {
@@ -47,23 +51,16 @@ function calculateVerticalPosition(
       break;
     }
     case 'childrenCount': {
-      // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals);
-      const childrenCounts = allIndividuals.map((ind) => {
-        const children = allIndividuals.filter((child) =>
-          child.parents.includes(ind.id),
-        );
-        return children.length;
-      });
+      // Count children using Set operations
+      const allIndividuals = Array.from(gedcomData.individuals.values());
+      const childrenCounts = allIndividuals.map((ind) => ind.children.size);
       const maxChildren = Math.max(...childrenCounts);
-      const individualChildren = allIndividuals.filter((child) =>
-        child.parents.includes(individual.id),
-      ).length;
+      const individualChildren = individual.children.size;
       primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
       break;
     }
     case 'lifespan': {
-      const allLifespans = Object.values(gedcomData.individuals)
+      const allLifespans = Array.from(gedcomData.individuals.values())
         .map((ind) => ind.metadata.lifespan)
         .filter((span): span is number => span !== undefined);
       if (allLifespans.length > 0) {
@@ -76,7 +73,7 @@ function calculateVerticalPosition(
       break;
     }
     case 'nameLength': {
-      const allNameLengths = Object.values(gedcomData.individuals).map(
+      const allNameLengths = Array.from(gedcomData.individuals.values()).map(
         (ind) => ind.name.length,
       );
       const maxNameLength = Math.max(...allNameLengths);
@@ -96,7 +93,7 @@ function calculateVerticalPosition(
         secondaryValue = individual.metadata.relativeGenerationValue ?? 0.5;
         break;
       case 'birthYear': {
-        const allBirthYears = Object.values(gedcomData.individuals)
+        const allBirthYears = Array.from(gedcomData.individuals.values())
           .map((ind) => ind.metadata.birthYear)
           .filter((year): year is number => year !== undefined);
         if (allBirthYears.length > 0) {
@@ -108,23 +105,16 @@ function calculateVerticalPosition(
         break;
       }
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals);
-        const childrenCounts = allIndividuals.map((ind) => {
-          const children = allIndividuals.filter((child) =>
-            child.parents.includes(ind.id),
-          );
-          return children.length;
-        });
+        const allIndividuals = Array.from(gedcomData.individuals.values());
+        const childrenCounts = allIndividuals.map((ind) => ind.children.size);
         const maxChildren = Math.max(...childrenCounts);
-        const individualChildren = allIndividuals.filter((child) =>
-          child.parents.includes(individual.id),
-        ).length;
+        const individualChildren = individual.children.size;
         secondaryValue =
           maxChildren > 0 ? individualChildren / maxChildren : 0.5;
         break;
       }
       case 'lifespan': {
-        const allLifespans = Object.values(gedcomData.individuals)
+        const allLifespans = Array.from(gedcomData.individuals.values())
           .map((ind) => ind.metadata.lifespan)
           .filter((span): span is number => span !== undefined);
         if (allLifespans.length > 0) {
@@ -137,7 +127,7 @@ function calculateVerticalPosition(
         break;
       }
       case 'nameLength': {
-        const allNameLengths = Object.values(gedcomData.individuals).map(
+        const allNameLengths = Array.from(gedcomData.individuals.values()).map(
           (ind) => ind.name.length,
         );
         const maxNameLength = Math.max(...allNameLengths);
@@ -198,17 +188,17 @@ export async function verticalSpreadTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
 
-  const individuals = Object.values(gedcomData.individuals);
+  const individuals = Array.from(gedcomData.individuals.values());
   if (individuals.length === 0) {
     return { visualMetadata: {} };
   }
 
   // Create updated individual visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals = new Map<IndividualId, VisualMetadata>();
 
   // Position each individual based on their generation
   individuals.forEach((individual) => {
-    const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
+    const currentMetadata = visualMetadata.individuals.get(individual.id) ?? {};
     // Don't calculate x - preserve existing x position from previous transformers
     const y = calculateVerticalPosition(context, individual.id);
 
@@ -235,7 +225,7 @@ export async function verticalSpreadTransform(
       baseSize * (1 + sizeVariation + variationSizeAdjustment),
     );
 
-    updatedIndividuals[individual.id] = {
+    updatedIndividuals.set(individual.id, {
       ...currentMetadata,
       y, // Only set y position (vertical spread responsibility)
       size: finalSize,
@@ -246,7 +236,7 @@ export async function verticalSpreadTransform(
       shape: visualMetadata.global.defaultNodeShape ?? 'circle',
       // Add opacity variation based on temperature
       opacity: Math.max(0.3, 1 - temp * 0.2), // Higher temp = slightly more transparent
-    };
+    });
   });
 
   // Small delay to simulate async work (will be useful for future LLM calls)

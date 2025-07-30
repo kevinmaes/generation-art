@@ -3,27 +3,29 @@
  * These types represent the core data structures for GEDCOM parsing and processing
  */
 
+import type { IndividualId, FamilyId } from './branded';
+
 /**
  * Base individual type - contains only raw GEDCOM data
  * All properties are directly extracted from GEDCOM tags
  */
 export interface Individual {
-  id: string;
+  id: IndividualId;
   name: string;
   gender?: 'M' | 'F' | 'U'; // M = Male, F = Female, U = Unknown
   birth?: { date?: string; place?: string };
   death?: { date?: string; place?: string };
-  parents: string[];
-  spouses: string[];
-  children: string[];
-  siblings: string[];
+  parents: IndividualId[];
+  spouses: IndividualId[];
+  children: IndividualId[];
+  siblings: IndividualId[];
 }
 
 /**
  * Base family type - used across parsing, augmentation, and metadata
  */
 export interface Family {
-  id: string;
+  id: FamilyId;
   husband?: Individual;
   wife?: Individual;
   children: Individual[];

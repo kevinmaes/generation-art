@@ -3,6 +3,7 @@ import type {
   VisualMetadata,
   TransformerOutput,
 } from './types';
+import type { IndividualId } from '../../../shared/types';
 
 /**
  * Node Opacity Transformer
@@ -17,7 +18,7 @@ export async function nodeOpacityTransform(
   context: TransformerContext,
 ): Promise<TransformerOutput> {
   const { gedcomData, visualMetadata } = context;
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals = new Map<IndividualId, VisualMetadata>();
 
   // Get global defaults
   const baseOpacity = 0.8; // Base opacity for all nodes
@@ -27,9 +28,8 @@ export async function nodeOpacityTransform(
   // Add a small delay to satisfy async requirement
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  Object.keys(gedcomData.individuals).forEach((individualId) => {
-    const individual = gedcomData.individuals[individualId];
-    const currentMetadata = visualMetadata.individuals[individualId] ?? {};
+  gedcomData.individuals.forEach((individual, individualId) => {
+    const currentMetadata = visualMetadata.individuals.get(individualId) ?? {};
 
     // Calculate opacity based on various factors
     let opacity = baseOpacity;
@@ -39,7 +39,7 @@ export async function nodeOpacityTransform(
     const generationFactor = Math.max(0.5, 1 - generation * 0.1); // 10% reduction per generation
 
     // Factor 2: Number of children (more children = more opaque)
-    const childCount = individual.children.length;
+    const childCount = individual.children.size;
     const childFactor = Math.min(1.2, 1 + childCount * 0.05); // 5% increase per child, max 20%
 
     // Factor 3: Lifespan (longer life = more opaque)
@@ -52,10 +52,10 @@ export async function nodeOpacityTransform(
     // Clamp to valid range
     opacity = Math.max(minOpacity, Math.min(maxOpacity, opacity));
 
-    updatedIndividuals[individualId] = {
+    updatedIndividuals.set(individualId, {
       ...currentMetadata,
       opacity,
-    };
+    });
   });
 
   return {

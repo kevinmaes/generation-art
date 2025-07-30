@@ -6,9 +6,12 @@
  */
 
 import type {
-  GedcomDataWithMetadata,
   LLMReadyData,
+  IndividualId,
+  FamilyId,
+  EdgeId,
 } from '../../../shared/types';
+import type { AppGedcomDataWithMetadata } from '../types/app-data';
 import type {
   VisualMetadata,
   CompleteVisualMetadata,
@@ -21,7 +24,6 @@ import {
   type TransformerId,
   transformers,
 } from './transformers';
-import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
   DEFAULT_X,
   DEFAULT_Y,
@@ -64,7 +66,7 @@ export interface PipelineConfig {
 }
 
 interface PipelineInput {
-  fullData: GedcomDataWithMetadata;
+  fullData: AppGedcomDataWithMetadata;
   llmData: LLMReadyData;
   config: PipelineConfig;
 }
@@ -123,22 +125,22 @@ function createInitialEntityVisualMetadata(): VisualMetadata {
  * Mirrors the data structure with visual metadata for every entity
  */
 export function createInitialCompleteVisualMetadata(
-  gedcomData: GedcomDataWithMetadata,
+  gedcomData: AppGedcomDataWithMetadata,
   canvasWidth = 800,
   canvasHeight = 600,
 ): CompleteVisualMetadata {
-  const individuals: Record<string, VisualMetadata> = {};
-  const families: Record<string, VisualMetadata> = {};
-  const edges: Record<string, VisualMetadata> = {};
+  const individuals = new Map<IndividualId, VisualMetadata>();
+  const families = new Map<FamilyId, VisualMetadata>();
+  const edges = new Map<EdgeId, VisualMetadata>();
 
   // Initialize visual metadata for each individual
-  Object.keys(gedcomData.individuals).forEach((individualId) => {
-    individuals[individualId] = createInitialEntityVisualMetadata();
+  gedcomData.individuals.forEach((_, individualId) => {
+    individuals.set(individualId, createInitialEntityVisualMetadata());
   });
 
   // Initialize visual metadata for each family
-  Object.keys(gedcomData.families).forEach((familyId) => {
-    families[familyId] = {
+  gedcomData.families.forEach((_, familyId) => {
+    families.set(familyId, {
       ...createInitialEntityVisualMetadata(),
       // Family-specific defaults
       strokeColor: '#666',
@@ -149,12 +151,12 @@ export function createInitialCompleteVisualMetadata(
       y: undefined,
       size: undefined,
       shape: undefined,
-    };
+    });
   });
 
   // Initialize visual metadata for each edge
   gedcomData.metadata.edges.forEach((edge) => {
-    edges[edge.id] = {
+    edges.set(edge.id, {
       // Edge-specific defaults
       strokeColor: DEFAULT_STROKE_COLOR,
       strokeWeight: DEFAULT_STROKE_WEIGHT,
@@ -169,7 +171,7 @@ export function createInitialCompleteVisualMetadata(
       group: 'edges',
       layer: 1, // Edges typically rendered below nodes
       priority: 0,
-    };
+    });
   });
 
   return {
@@ -235,34 +237,37 @@ function mergeVisualMetadata(
 
   // Merge individuals
   if (updates.individuals) {
-    result.individuals = { ...result.individuals };
-    Object.keys(updates.individuals).forEach((individualId) => {
-      result.individuals[individualId] = {
-        ...result.individuals[individualId],
-        ...(updates.individuals?.[individualId] ?? {}),
-      };
+    result.individuals = new Map(result.individuals);
+    updates.individuals.forEach((metadata, individualId) => {
+      const existing = result.individuals.get(individualId) ?? {};
+      result.individuals.set(individualId, {
+        ...existing,
+        ...metadata,
+      });
     });
   }
 
   // Merge families
   if (updates.families) {
-    result.families = { ...result.families };
-    Object.keys(updates.families).forEach((familyId) => {
-      result.families[familyId] = {
-        ...result.families[familyId],
-        ...(updates.families?.[familyId] ?? {}),
-      };
+    result.families = new Map(result.families);
+    updates.families.forEach((metadata, familyId) => {
+      const existing = result.families.get(familyId) ?? {};
+      result.families.set(familyId, {
+        ...existing,
+        ...metadata,
+      });
     });
   }
 
   // Merge edges
   if (updates.edges) {
-    result.edges = { ...result.edges };
-    Object.keys(updates.edges).forEach((edgeId) => {
-      result.edges[edgeId] = {
-        ...result.edges[edgeId],
-        ...(updates.edges?.[edgeId] ?? {}),
-      };
+    result.edges = new Map(result.edges);
+    updates.edges.forEach((metadata, edgeId) => {
+      const existing = result.edges.get(edgeId) ?? {};
+      result.edges.set(edgeId, {
+        ...existing,
+        ...metadata,
+      });
     });
   }
 
@@ -291,29 +296,14 @@ export async function runPipeline({
 }: PipelineInput): Promise<PipelineResult> {
   const startTime = performance.now();
 
-  // Validate input data with Zod
-  try {
-    console.log('🔍 Validating pipeline input data...');
-
-    // Validate full data structure
-    const validatedFullData = GedcomDataWithMetadataSchema.parse(fullData);
-    console.log(
-      `✅ Full data validated: ${String(Object.keys(validatedFullData.individuals).length)} individuals, ${String(Object.keys(validatedFullData.families).length)} families`,
-    );
-
-    // LLM data structure is guaranteed by TypeScript types
-    console.log(
-      `✅ LLM data validated: ${String(Object.keys(llmData.individuals).length)} anonymized individuals`,
-    );
-
-    // Use validated data
-    fullData = validatedFullData;
-  } catch (error) {
-    console.error('❌ Pipeline input validation failed:', error);
-    throw new Error(
-      `Pipeline input validation failed: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  }
+  // Log input data info (validation already done in data loading)
+  console.log('🔍 Pipeline input data info...');
+  console.log(
+    `✅ Full data: ${String(fullData.individuals.size)} individuals, ${String(fullData.families.size)} families`,
+  );
+  console.log(
+    `✅ LLM data: ${String(Object.keys(llmData.individuals).length)} anonymized individuals`,
+  );
 
   // Initialize complete visual metadata structure
   let visualMetadata = createInitialCompleteVisualMetadata(

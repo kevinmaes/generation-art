@@ -10,41 +10,39 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
+import type { IndividualId } from '../../../shared/types';
 
 /**
  * Calculate node size based on importance score
  */
 function calculateSizeByImportance(
   context: TransformerContext,
-  individualId: string,
+  individualId: IndividualId,
   baseSize: number,
   sizeMultiplier: number,
 ): number {
   const { gedcomData } = context;
-  const individual = gedcomData.individuals[individualId];
+  // Individual is already retrieved above
 
   // Calculate importance score based on various factors
   let importanceScore = 0;
 
   // Factor 1: Number of children
-  const children = Object.values(gedcomData.families)
-    .filter(
-      (family) =>
-        family.husband?.id === individualId || family.wife?.id === individualId,
-    )
-    .flatMap((family) => family.children);
-  importanceScore += children.length * 2;
+  const individual = gedcomData.individuals.get(individualId);
+  if (individual) {
+    importanceScore += individual.children.size * 2;
+  }
 
   // Factor 2: Number of marriages
-  const marriages = Object.values(gedcomData.families).filter(
-    (family) =>
-      family.husband?.id === individualId || family.wife?.id === individualId,
-  ).length;
-  importanceScore += marriages;
+  if (individual) {
+    importanceScore += individual.spouses.size;
+  }
 
   // Factor 3: Generation depth (earlier generations are more important)
-  const generation = individual.metadata.generation ?? 0;
-  importanceScore += Math.max(10 - generation, 0);
+  if (individual) {
+    const generation = individual.metadata.generation ?? 0;
+    importanceScore += Math.max(10 - generation, 0);
+  }
 
   // Factor 4: Has photos/media (not available in current schema, so skip)
   // if (individual.media?.length > 0) {
@@ -67,13 +65,13 @@ export async function nodeSizeTransform(
   const baseSize = visualMetadata.global.defaultNodeSize ?? 20;
   const sizeMultiplier = 2;
 
-  const individuals = Object.values(gedcomData.individuals);
+  const individuals = Array.from(gedcomData.individuals.values());
   if (individuals.length === 0) {
     return { visualMetadata: {} };
   }
 
   // Create updated individual visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals = new Map<IndividualId, VisualMetadata>();
 
   // Apply size calculations to each individual
   individuals.forEach((individual) => {
@@ -85,10 +83,10 @@ export async function nodeSizeTransform(
     );
 
     // Preserve existing visual metadata and update size
-    updatedIndividuals[individual.id] = {
-      ...visualMetadata.individuals[individual.id],
+    updatedIndividuals.set(individual.id, {
+      ...visualMetadata.individuals.get(individual.id),
       size: calculatedSize,
-    };
+    });
   });
 
   // Small delay to simulate async work
