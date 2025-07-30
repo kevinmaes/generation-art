@@ -1,0 +1,29 @@
+{
+  "name": "@generation-art/utils",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run",
+    "test:watch": "vitest watch"
+  },
+  "dependencies": {
+    "@generation-art/types": "workspace:*",
+    "@types/p5": "^1.7.6",
+    "p5": "^2.0.3"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "vitest": "^3.1.4"
+  }
+}

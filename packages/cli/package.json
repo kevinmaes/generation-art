@@ -1,0 +1,28 @@
+{
+  "name": "@generation-art/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch", 
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run",
+    "test:watch": "vitest watch"
+  },
+  "dependencies": {
+    "@generation-art/types": "workspace:*",
+    "@generation-art/utils": "workspace:*",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^22.15.29",
+    "gedcom-ts": "^1.1.1",
+    "lodash-es": "^4.17.21",
+    "tsx": "^4.19.4",
+    "zod": "^4.0.10"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "vitest": "^3.1.4"
+  }
+}

@@ -29,3 +29,5 @@ gedcom/*
 # Generated files derived from GEDCOM files
 generated/*
 app/public/generated/*
+packages/app/public/generated/*
+packages/cli/generated/*
