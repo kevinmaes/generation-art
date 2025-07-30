@@ -233,16 +233,10 @@ function App(): React.ReactElement {
   };
 
   return (
-    <div
-      className="min-h-screen w-full bg-gray-100 flex items-center justify-center"
-      style={{ minWidth, minHeight }}
-    >
-      <div
-        className="flex flex-col justify-center items-center w-full h-full"
-        style={{ minWidth, minHeight }}
-      >
+    <div className="min-h-screen w-full bg-gray-100">
+      <div className="flex flex-col justify-center items-center min-h-screen">
         <div
-          className="max-w-7xl w-full flex flex-col items-center"
+          className="w-full flex flex-col items-center"
           style={{ minWidth }}
         >
           <div className="pt-12 pb-8 text-center">
@@ -280,10 +274,7 @@ function App(): React.ReactElement {
               />
             </>
           ) : (
-            <div
-              className="flex flex-col items-center justify-center w-full"
-              style={{ minWidth, minHeight }}
-            >
+            <div className="flex flex-col items-center justify-center w-full px-4">
               <div
                 className="bg-white rounded-lg shadow-lg p-8 w-full max-w-4xl flex flex-col justify-center"
                 style={{
