@@ -9,6 +9,7 @@ import type {
   Family,
   AugmentedIndividual,
 } from '../../shared/types';
+import isNumber from 'lodash-es/isNumber';
 
 /**
  * Example: How to add metadata to the existing augmentIndividuals function
@@ -53,7 +54,7 @@ export const exampleUseMetadataInArtGeneration = (
   // Example: Use lifespan for node size
   const nodeSizes = individualsWithMetadata.map((individual) => {
     const lifespan = individual.metadata.lifespan;
-    if (typeof lifespan === 'number' && isFinite(lifespan)) {
+    if (isNumber(lifespan) && isFinite(lifespan)) {
       // Normalize lifespan to node size (0.1 to 1.0)
       return 0.1 + lifespan * 0.9;
     }
@@ -64,7 +65,7 @@ export const exampleUseMetadataInArtGeneration = (
   const nodeColors = individualsWithMetadata.map((individual) => {
     const birthMonth = individual.metadata.birthMonth;
     if (
-      typeof birthMonth === 'number' &&
+      isNumber(birthMonth) &&
       Number.isInteger(birthMonth) &&
       birthMonth >= 1 &&
       birthMonth <= 12
@@ -106,7 +107,7 @@ export const exampleFilterByMetadata = (
   const summerBirths = individualsWithMetadata.filter((ind) => {
     const birthMonth = ind.metadata.birthMonth;
     return (
-      typeof birthMonth === 'number' &&
+      isNumber(birthMonth) &&
       Number.isInteger(birthMonth) &&
       birthMonth >= 1 &&
       birthMonth <= 12 &&
@@ -118,20 +119,17 @@ export const exampleFilterByMetadata = (
   // Find individuals with long lifespans (top 25%)
   const lifespans = individualsWithMetadata
     .map((ind) => ind.metadata.lifespan)
-    .filter(
-      (val): val is number =>
-        typeof val === 'number' && !isNaN(val) && isFinite(val),
-    )
+    .filter(isNumber)
+    .filter(isFinite)
     .sort((a, b) => b - a);
 
   const top25Percentile = lifespans[Math.floor(lifespans.length * 0.25)];
   const longLivedIndividuals = individualsWithMetadata.filter((ind) => {
     const lifespan = ind.metadata.lifespan;
     return (
-      typeof lifespan === 'number' &&
-      !isNaN(lifespan) &&
+      isNumber(lifespan) &&
       isFinite(lifespan) &&
-      typeof top25Percentile === 'number' &&
+      isNumber(top25Percentile) &&
       lifespan >= top25Percentile
     );
   });
