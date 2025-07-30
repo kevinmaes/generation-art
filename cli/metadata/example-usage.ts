@@ -53,11 +53,7 @@ export const exampleUseMetadataInArtGeneration = (
   // Example: Use lifespan for node size
   const nodeSizes = individualsWithMetadata.map((individual) => {
     const lifespan = individual.metadata.lifespan;
-    if (
-      typeof lifespan === 'number' &&
-      !isNaN(lifespan) &&
-      isFinite(lifespan)
-    ) {
+    if (typeof lifespan === 'number' && isFinite(lifespan)) {
       // Normalize lifespan to node size (0.1 to 1.0)
       return 0.1 + lifespan * 0.9;
     }
