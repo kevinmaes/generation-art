@@ -1,9 +1,3 @@
-import type {
-  TransformerContext,
-  VisualMetadata,
-  TransformerOutput,
-} from './types';
-
 /**
  * Node Opacity Transformer
  *
@@ -13,50 +7,193 @@ import type {
  * - Age/lifespan (longer life = more opaque)
  * - Family importance (based on family size)
  */
+
+import type {
+  TransformerContext,
+  CompleteVisualMetadata,
+  VisualMetadata,
+} from './types';
+
+/**
+ * Calculate node opacity based on selected dimensions
+ */
+function calculateNodeOpacity(
+  context: TransformerContext,
+  individualId: string,
+): number {
+  const { gedcomData, dimensions, visual, temperature } = context;
+
+  // Find the individual
+  const individual = gedcomData.individuals[individualId];
+
+  // Get the primary dimension value
+  const primaryDimension = dimensions.primary;
+  let primaryValue = 0.5; // Default fallback
+
+  switch (primaryDimension) {
+    case 'generation': {
+      // Invert generation value so earlier generations are more opaque
+      const generationValue =
+        individual.metadata.relativeGenerationValue ?? 0.5;
+      primaryValue = 1 - generationValue;
+      break;
+    }
+    case 'childrenCount': {
+      // More children = more opaque
+      const allIndividuals = Object.values(gedcomData.individuals);
+      const childrenCounts = allIndividuals.map((ind) => {
+        const children = allIndividuals.filter((child) =>
+          child.parents.includes(ind.id),
+        );
+        return children.length;
+      });
+      const maxChildren = Math.max(...childrenCounts);
+      const individualChildren = allIndividuals.filter((child) =>
+        child.parents.includes(individual.id),
+      ).length;
+      primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+      break;
+    }
+    case 'lifespan': {
+      // Longer life = more opaque
+      const allLifespans = Object.values(gedcomData.individuals)
+        .map((ind) => ind.metadata.lifespan)
+        .filter((span): span is number => span !== undefined);
+      if (allLifespans.length > 0) {
+        const maxLifespan = Math.max(...allLifespans);
+        primaryValue =
+          maxLifespan > 0
+            ? (individual.metadata.lifespan ?? 0) / maxLifespan
+            : 0.5;
+      }
+      break;
+    }
+    case 'distanceFromRoot': {
+      // Calculate distance from root person (generation 0)
+      const individualGeneration = individual.metadata.generation ?? 0;
+      const maxDistance = 10; // Assume max 10 generations distance
+      primaryValue = Math.max(0, 1 - individualGeneration / maxDistance);
+      break;
+    }
+  }
+
+  // Get the secondary dimension value (if specified)
+  const secondaryDimension = dimensions.secondary;
+  let secondaryValue = 0.5; // Default fallback
+
+  if (secondaryDimension && secondaryDimension !== primaryDimension) {
+    switch (secondaryDimension) {
+      case 'generation': {
+        const generationValue =
+          individual.metadata.relativeGenerationValue ?? 0.5;
+        secondaryValue = 1 - generationValue;
+        break;
+      }
+      case 'childrenCount': {
+        const allIndividuals = Object.values(gedcomData.individuals);
+        const childrenCounts = allIndividuals.map((ind) => {
+          const children = allIndividuals.filter((child) =>
+            child.parents.includes(ind.id),
+          );
+          return children.length;
+        });
+        const maxChildren = Math.max(...childrenCounts);
+        const individualChildren = allIndividuals.filter((child) =>
+          child.parents.includes(individual.id),
+        ).length;
+        secondaryValue =
+          maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+        break;
+      }
+      case 'lifespan': {
+        const allLifespans = Object.values(gedcomData.individuals)
+          .map((ind) => ind.metadata.lifespan)
+          .filter((span): span is number => span !== undefined);
+        if (allLifespans.length > 0) {
+          const maxLifespan = Math.max(...allLifespans);
+          secondaryValue =
+            maxLifespan > 0
+              ? (individual.metadata.lifespan ?? 0) / maxLifespan
+              : 0.5;
+        }
+        break;
+      }
+      case 'distanceFromRoot': {
+        const individualGeneration = individual.metadata.generation ?? 0;
+        const maxDistance = 10;
+        secondaryValue = Math.max(0, 1 - individualGeneration / maxDistance);
+        break;
+      }
+    }
+  }
+
+  // Get visual parameters directly from context
+  const { nodeOpacity, variationFactor } = visual;
+  const temp = temperature ?? 0.5;
+
+  // Convert node opacity string to base opacity values
+  const opacityMap = {
+    'very-transparent': { min: 0.2, max: 0.4 },
+    transparent: { min: 0.3, max: 0.6 },
+    'semi-transparent': { min: 0.5, max: 0.8 },
+    opaque: { min: 0.7, max: 1.0 },
+    'fully-opaque': { min: 0.9, max: 1.0 },
+  };
+  const opacityRange = opacityMap[nodeOpacity as keyof typeof opacityMap];
+
+  // Combine primary and secondary dimensions with variation factor
+  const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
+
+  // Add temperature-based randomness with variation factor influence
+  const baseRandomness = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
+  const variationRandomness =
+    (Math.random() - 0.5) * (variationFactor as number) * 0.15; // Additional variation
+  const totalRandomFactor = baseRandomness + variationRandomness;
+
+  const adjustedDimensionValue = Math.max(
+    0,
+    Math.min(1, combinedValue + totalRandomFactor),
+  );
+
+  // Calculate final opacity within the range
+  const finalOpacity =
+    opacityRange.min +
+    adjustedDimensionValue * (opacityRange.max - opacityRange.min);
+
+  return Math.max(0.1, Math.min(1.0, finalOpacity)); // Ensure valid opacity range
+}
+
+/**
+ * Node opacity transform function
+ * Applies opacity calculations to all individuals based on selected dimensions
+ */
 export async function nodeOpacityTransform(
   context: TransformerContext,
-): Promise<TransformerOutput> {
+): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
+
+  const individuals = Object.values(gedcomData.individuals);
+  if (individuals.length === 0) {
+    return { visualMetadata: {} };
+  }
+
+  // Create updated individual visual metadata
   const updatedIndividuals: Record<string, VisualMetadata> = {};
 
-  // Get global defaults
-  const baseOpacity = 0.8; // Base opacity for all nodes
-  const minOpacity = 0.3; // Minimum opacity
-  const maxOpacity = 1.0; // Maximum opacity
+  // Apply opacity calculations to each individual
+  individuals.forEach((individual) => {
+    const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
+    const calculatedOpacity = calculateNodeOpacity(context, individual.id);
 
-  // Add a small delay to satisfy async requirement
-  await new Promise((resolve) => setTimeout(resolve, 0));
-
-  Object.keys(gedcomData.individuals).forEach((individualId) => {
-    const individual = gedcomData.individuals[individualId];
-    const currentMetadata = visualMetadata.individuals[individualId] ?? {};
-
-    // Calculate opacity based on various factors
-    let opacity = baseOpacity;
-
-    // Factor 1: Generation depth (deeper = more transparent)
-    const generation = individual.metadata.generation ?? 0;
-    const generationFactor = Math.max(0.5, 1 - generation * 0.1); // 10% reduction per generation
-
-    // Factor 2: Number of children (more children = more opaque)
-    const childCount = individual.children.length;
-    const childFactor = Math.min(1.2, 1 + childCount * 0.05); // 5% increase per child, max 20%
-
-    // Factor 3: Lifespan (longer life = more opaque)
-    const lifespan = individual.metadata.lifespan ?? 0;
-    const lifespanFactor = lifespan > 0 ? Math.min(1.1, 1 + lifespan / 100) : 1;
-
-    // Combine all factors
-    opacity = baseOpacity * generationFactor * childFactor * lifespanFactor;
-
-    // Clamp to valid range
-    opacity = Math.max(minOpacity, Math.min(maxOpacity, opacity));
-
-    updatedIndividuals[individualId] = {
+    // Preserve existing visual metadata and update opacity
+    updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      opacity,
+      opacity: calculatedOpacity,
     };
   });
+
+  // Small delay to simulate async work
+  await new Promise((resolve) => setTimeout(resolve, 1));
 
   return {
     visualMetadata: {
