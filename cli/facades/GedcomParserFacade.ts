@@ -1,7 +1,13 @@
 import { ReadGed } from 'gedcom-ts';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
-import type { Individual, Family, GedcomData } from '../../shared/types';
+import type { Individual, Family, GedcomData, IndividualId } from '../../shared/types';
 import { createIndividualId, createFamilyId } from '../../shared/types';
+
+// Helper function to safely map string arrays to IndividualIds
+function mapToIndividualIds(value: unknown): IndividualId[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((id): id is string => typeof id === 'string').map(createIndividualId);
+}
 
 // Facade Interface
 export interface GedcomParserFacade {
@@ -24,18 +30,10 @@ export class GedcomTsParserFacade implements GedcomParserFacade {
       name: person.name as string,
       birth: person.birth as { date?: string; place?: string },
       death: person.death as { date?: string; place?: string },
-      parents: Array.isArray(person.parents)
-        ? (person.parents as string[]).map((id) => createIndividualId(id))
-        : [],
-      spouses: Array.isArray(person.spouses)
-        ? (person.spouses as string[]).map((id) => createIndividualId(id))
-        : [],
-      children: Array.isArray(person.children)
-        ? (person.children as string[]).map((id) => createIndividualId(id))
-        : [],
-      siblings: Array.isArray(person.siblings)
-        ? (person.siblings as string[]).map((id) => createIndividualId(id))
-        : [],
+      parents: mapToIndividualIds(person.parents),
+      spouses: mapToIndividualIds(person.spouses),
+      children: mapToIndividualIds(person.children),
+      siblings: mapToIndividualIds(person.siblings),
     }));
 
     const families: Family[] = importedData.map((person) => ({
