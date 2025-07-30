@@ -587,7 +587,7 @@ export function PipelineManager({
                   <span>Visualizing...</span>
                 </div>
               ) : (
-                'Visualize'
+                'Generate art'
               )}
             </button>
           </div>
@@ -618,7 +618,7 @@ export function PipelineManager({
                   <span>Visualizing...</span>
                 </div>
               ) : (
-                'Visualize'
+                'Generate art'
               )}
             </button>
           </div>

@@ -271,6 +271,9 @@ function App(): React.ReactElement {
                 onOpenPipelineClick={() => {
                   setIsPipelineModalOpen(true);
                 }}
+                onVisualize={() => {
+                  void handleVisualize();
+                }}
               />
             </>
           ) : (
