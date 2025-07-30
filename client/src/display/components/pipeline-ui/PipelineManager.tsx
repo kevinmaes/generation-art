@@ -102,6 +102,10 @@ export function PipelineManager({
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
+  
+  // Collapsible panel states - collapsed by default
+  const [isPipelineInputCollapsed, setIsPipelineInputCollapsed] = useState(true);
+  const [isPipelineOutputCollapsed, setIsPipelineOutputCollapsed] = useState(true);
 
   // Store parameters for all transformers (persistent across pipeline changes)
   const [transformerParameters, setTransformerParameters] = React.useState<
@@ -211,6 +215,65 @@ export function PipelineManager({
   const _isVisualizeEnabled =
     hasData && activeTransformerIds.length > 0 && !isVisualizing;
 
+  // Collapsible Panel Component
+  const CollapsiblePanel: React.FC<{
+    title: string;
+    subtitle?: string;
+    isCollapsed: boolean;
+    onToggle: () => void;
+    buttons?: React.ReactNode;
+    children: React.ReactNode;
+  }> = ({ title, subtitle, isCollapsed, onToggle, buttons, children }) => (
+    <div className="border rounded-lg flex flex-col min-h-0">
+      {/* Clickable Header */}
+      <div
+        className="bg-gray-100 border-b p-4 flex items-center justify-between cursor-pointer hover:bg-gray-200 transition-colors"
+        onClick={onToggle}
+      >
+        <div className="flex items-center space-x-2">
+          {/* Rotating Arrow Caret */}
+          <svg
+            className={`w-4 h-4 transition-transform duration-200 ${
+              isCollapsed ? '-rotate-90' : 'rotate-0'
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+          <div>
+            <h4 className="font-medium text-gray-700">{title}</h4>
+            {subtitle && (
+              <span className="text-xs text-gray-500">{subtitle}</span>
+            )}
+          </div>
+        </div>
+        {/* Buttons - prevent click propagation */}
+        {buttons && (
+          <div
+            className="flex space-x-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {buttons}
+          </div>
+        )}
+      </div>
+      
+      {/* Collapsible Content */}
+      {!isCollapsed && (
+        <div className="flex-1 overflow-hidden min-h-0 p-4">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="h-full flex flex-col bg-white p-6">
       <div className="flex-1 grid grid-cols-2 gap-4 min-h-0">
@@ -264,21 +327,21 @@ export function PipelineManager({
         </div>
 
         {/* Top-Right: Pipeline Input */}
-        <div className="border rounded-lg p-4 flex flex-col min-h-0">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-gray-700">
-              Pipeline Input
-              {pipelineInput && activeTransformerIds.length > 0 && (
-                <span className="text-xs text-gray-500 ml-2">
-                  (Data going into "
-                  {transformers[activeTransformerIds[0]].name ||
-                    activeTransformerIds[0]}
-                  ")
-                </span>
-              )}
-            </h4>
-            {pipelineInput && (
-              <div className="flex space-x-2">
+        <CollapsiblePanel
+          title="Pipeline Input"
+          subtitle={
+            pipelineInput && activeTransformerIds.length > 0
+              ? `(Data going into "${
+                  transformers[activeTransformerIds[0]].name ||
+                  activeTransformerIds[0]
+                }")`
+              : undefined
+          }
+          isCollapsed={isPipelineInputCollapsed}
+          onToggle={() => setIsPipelineInputCollapsed(!isPipelineInputCollapsed)}
+          buttons={
+            pipelineInput && (
+              <>
                 <button
                   onClick={() => {
                     void navigator.clipboard.writeText(
@@ -301,57 +364,56 @@ export function PipelineManager({
                     {showDiff ? 'Hide Diff' : 'Show Diff'}
                   </button>
                 )}
-              </div>
-            )}
-          </div>
-          <div className="flex-1 overflow-hidden min-h-0">
-            {pipelineInput ? (
-              <div
-                className="h-full border rounded bg-gray-50"
+              </>
+            )
+          }
+        >
+          {pipelineInput ? (
+            <div
+              className="h-full border rounded bg-gray-50"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#888 #f1f1f1',
+                overflow: 'auto',
+                overflowX: 'auto',
+                overflowY: 'auto',
+              }}
+            >
+              <ReactJson
+                src={
+                  showDiff && pipelineResult
+                    ? (calculateVisualMetadataDiff(
+                        pipelineInput as unknown as Record<string, unknown>,
+                        pipelineResult.visualMetadata as unknown as Record<
+                          string,
+                          unknown
+                        >,
+                      ) ?? {})
+                    : pipelineInput
+                }
+                theme="rjv-default"
                 style={{
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: '#888 #f1f1f1',
-                  overflow: 'auto',
-                  overflowX: 'auto',
-                  overflowY: 'auto',
+                  backgroundColor: 'transparent',
+                  fontSize: '11px',
+                  textAlign: 'left',
+                  padding: '8px',
                 }}
-              >
-                <ReactJson
-                  src={
-                    showDiff && pipelineResult
-                      ? (calculateVisualMetadataDiff(
-                          pipelineInput as unknown as Record<string, unknown>,
-                          pipelineResult.visualMetadata as unknown as Record<
-                            string,
-                            unknown
-                          >,
-                        ) ?? {})
-                      : pipelineInput
-                  }
-                  theme="rjv-default"
-                  style={{
-                    backgroundColor: 'transparent',
-                    fontSize: '11px',
-                    textAlign: 'left',
-                    padding: '8px',
-                  }}
-                  name={null}
-                  collapsed={3}
-                  enableClipboard={false}
-                  displayDataTypes={false}
-                  displayObjectSize={true}
-                  indentWidth={2}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                {dualData
-                  ? 'Add transformers to see pipeline input'
-                  : 'Load data to see pipeline input'}
-              </div>
-            )}
-          </div>
-        </div>
+                name={null}
+                collapsed={3}
+                enableClipboard={false}
+                displayDataTypes={false}
+                displayObjectSize={true}
+                indentWidth={2}
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+              {dualData
+                ? 'Add transformers to see pipeline input'
+                : 'Load data to see pipeline input'}
+            </div>
+          )}
+        </CollapsiblePanel>
 
         {/* Bottom-Left: Available Transformers */}
         <div className="border rounded-lg p-4 flex flex-col min-h-0">
@@ -402,22 +464,22 @@ export function PipelineManager({
         </div>
 
         {/* Bottom-Right: Pipeline Output */}
-        <div className="border rounded-lg p-4 flex flex-col min-h-0">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-gray-700">
-              Pipeline Output
-              {pipelineResult && activeTransformerIds.length > 0 && (
-                <span className="text-xs text-gray-500 ml-2">
-                  (Result from "
-                  {transformers[
+        <CollapsiblePanel
+          title="Pipeline Output"
+          subtitle={
+            pipelineResult && activeTransformerIds.length > 0
+              ? `(Result from "${
+                  transformers[
                     activeTransformerIds[activeTransformerIds.length - 1]
                   ].name ||
-                    activeTransformerIds[activeTransformerIds.length - 1]}
-                  ")
-                </span>
-              )}
-            </h4>
-            {pipelineResult && (
+                  activeTransformerIds[activeTransformerIds.length - 1]
+                }")`
+              : undefined
+          }
+          isCollapsed={isPipelineOutputCollapsed}
+          onToggle={() => setIsPipelineOutputCollapsed(!isPipelineOutputCollapsed)}
+          buttons={
+            pipelineResult && (
               <button
                 onClick={() => {
                   void navigator.clipboard.writeText(
@@ -429,46 +491,45 @@ export function PipelineManager({
               >
                 Copy JSON
               </button>
-            )}
-          </div>
-          <div className="flex-1 overflow-hidden min-h-0">
-            {pipelineResult ? (
-              <div
-                className="h-full border rounded bg-gray-50"
+            )
+          }
+        >
+          {pipelineResult ? (
+            <div
+              className="h-full border rounded bg-gray-50"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#888 #f1f1f1',
+                overflow: 'auto',
+                overflowX: 'auto',
+                overflowY: 'auto',
+              }}
+            >
+              <ReactJson
+                src={pipelineResult}
+                theme="rjv-default"
                 style={{
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: '#888 #f1f1f1',
-                  overflow: 'auto',
-                  overflowX: 'auto',
-                  overflowY: 'auto',
+                  backgroundColor: 'transparent',
+                  fontSize: '11px',
+                  textAlign: 'left',
+                  padding: '8px',
                 }}
-              >
-                <ReactJson
-                  src={pipelineResult}
-                  theme="rjv-default"
-                  style={{
-                    backgroundColor: 'transparent',
-                    fontSize: '11px',
-                    textAlign: 'left',
-                    padding: '8px',
-                  }}
-                  name={null}
-                  collapsed={2}
-                  enableClipboard={false}
-                  displayDataTypes={false}
-                  displayObjectSize={true}
-                  indentWidth={2}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                {activeTransformerIds.length > 0
-                  ? 'Click Visualize to see pipeline output'
-                  : 'Add transformers and click Visualize to see output'}
-              </div>
-            )}
-          </div>
-        </div>
+                name={null}
+                collapsed={2}
+                enableClipboard={false}
+                displayDataTypes={false}
+                displayObjectSize={true}
+                indentWidth={2}
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+              {activeTransformerIds.length > 0
+                ? 'Click Visualize to see pipeline output'
+                : 'Add transformers and click Visualize to see output'}
+            </div>
+          )}
+        </CollapsiblePanel>
       </div>
 
       {/* Pipeline Status - Always visible at bottom */}
