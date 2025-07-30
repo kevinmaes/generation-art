@@ -31,10 +31,6 @@ function calculateEdgeOpacity(
   const sourceIndividual = gedcomData.individuals[edge.sourceId];
   const targetIndividual = gedcomData.individuals[edge.targetId];
 
-  // if (!sourceIndividual || !targetIndividual) {
-  //   return 0.3; // Low opacity for invalid edges
-  // }
-
   // Get the primary dimension value
   const primaryDimension = dimensions.primary;
   let primaryValue = 0.5; // Default fallback
@@ -139,12 +135,15 @@ function calculateEdgeOpacity(
 
   // Use edge opacity directly as base opacity (0.1 to 1.0 range)
   const baseOpacity = typeof edgeOpacity === 'number' ? edgeOpacity : 0.7;
-  const opacityRange = { min: Math.max(0.1, baseOpacity - 0.2), max: Math.min(1.0, baseOpacity + 0.2) };
+  const opacityRange = {
+    min: Math.max(0.1, baseOpacity - 0.2),
+    max: Math.min(1.0, baseOpacity + 0.2),
+  };
 
   // Factor in edge length (longer edges = more transparent)
   const sourceIndividualVisual = visualMetadata.individuals[edge.sourceId];
   const targetIndividualVisual = visualMetadata.individuals[edge.targetId];
-  
+
   const sourceX = sourceIndividualVisual.x ?? 0;
   const sourceY = sourceIndividualVisual.y ?? 0;
   const targetX = targetIndividualVisual.x ?? 0;
