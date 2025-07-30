@@ -189,7 +189,7 @@ export function PipelineManager({
 
     // Convert object-based data to Map-based data for the pipeline
     const appData = convertToAppGedcomData(dualData.full);
-    
+
     return {
       fullData: appData,
       llmData: dualData.llm,

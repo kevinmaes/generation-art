@@ -190,7 +190,7 @@ function App(): React.ReactElement {
 
       // Convert object-based data to Map-based data for the pipeline
       const appData = convertToAppGedcomData(dualData.full);
-      
+
       const result = await runPipeline({
         fullData: appData,
         llmData: dualData.llm,

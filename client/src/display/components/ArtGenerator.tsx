@@ -64,7 +64,7 @@ export function ArtGenerator({
 
     // Convert object-based data to Map-based data for the sketch
     const appGedcomData = convertToAppGedcomData(gedcomData);
-    
+
     // Pass the pipeline result's visual metadata to the sketch
     const sketch = createWebSketch(
       appGedcomData,

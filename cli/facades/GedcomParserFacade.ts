@@ -1,12 +1,19 @@
 import { ReadGed } from 'gedcom-ts';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
-import type { Individual, Family, GedcomData, IndividualId } from '../../shared/types';
+import type {
+  Individual,
+  Family,
+  GedcomData,
+  IndividualId,
+} from '../../shared/types';
 import { createIndividualId, createFamilyId } from '../../shared/types';
 
 // Helper function to safely map string arrays to IndividualIds
 function mapToIndividualIds(value: unknown): IndividualId[] {
   if (!Array.isArray(value)) return [];
-  return value.filter((id): id is string => typeof id === 'string').map(createIndividualId);
+  return value
+    .filter((id): id is string => typeof id === 'string')
+    .map(createIndividualId);
 }
 
 // Facade Interface
