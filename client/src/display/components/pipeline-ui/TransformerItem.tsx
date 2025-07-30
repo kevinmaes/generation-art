@@ -31,6 +31,9 @@ interface TransformerItemProps {
     dimensions: { primary?: string; secondary?: string };
     visual: Record<string, unknown>;
   };
+  // NEW: Expanded state management for available transformers
+  isExpanded?: boolean;
+  onToggleExpanded?: (transformerId: string) => void;
 }
 
 export function TransformerItem({
@@ -46,9 +49,9 @@ export function TransformerItem({
   currentParameters,
   isVisualizing = false,
   lastRunParameters,
+  isExpanded = false,
+  onToggleExpanded,
 }: TransformerItemProps) {
-  // State for expandable description (only for available transformers)
-  const [isExpanded, setIsExpanded] = React.useState(false);
   
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -193,7 +196,7 @@ export function TransformerItem({
             if (isInPipeline) {
               handleTransformerSelect(transformer.id);
             } else {
-              setIsExpanded(!isExpanded);
+              onToggleExpanded?.(transformer.id);
             }
           }
         }}

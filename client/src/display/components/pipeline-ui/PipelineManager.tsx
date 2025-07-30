@@ -119,6 +119,11 @@ export function PipelineManager({
     >
   >({});
 
+  // Store expanded state for available transformers (persistent across pipeline changes)
+  const [expandedTransformers, setExpandedTransformers] = React.useState<
+    Record<string, boolean>
+  >({});
+
   // Handle parameter changes (immediately apply to pipeline)
   const handleParameterChange = (
     transformerId: string,
@@ -178,6 +183,14 @@ export function PipelineManager({
   const handleTransformerSelect = (transformerId: TransformerId) => {
     setSelectedTransformerId(transformerId);
     onTransformerSelect?.(transformerId);
+  };
+
+  // Handle toggling expanded state for available transformers
+  const handleToggleExpanded = (transformerId: string) => {
+    setExpandedTransformers((prev) => ({
+      ...prev,
+      [transformerId]: !prev[transformerId],
+    }));
   };
 
   // Note: selectedTransformer is no longer used since we show complete pipeline data
@@ -334,6 +347,8 @@ export function PipelineManager({
                         }
                         isVisualizing={isVisualizing}
                         lastRunParameters={lastRunParameters?.[transformerId]}
+                        isExpanded={expandedTransformers[transformerId] || false}
+                        onToggleExpanded={handleToggleExpanded}
                       />
                     );
                   })
