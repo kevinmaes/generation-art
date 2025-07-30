@@ -64,6 +64,7 @@ export default [
         },
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-confusing-void-expression': 'off',
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',
       'react/prop-types': 'off',

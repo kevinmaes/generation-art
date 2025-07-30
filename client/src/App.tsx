@@ -66,12 +66,8 @@ function App(): React.ReactElement {
   // Use the new hook for loading both full and LLM data
   useGedcomDataWithLLM({
     baseFileName: currentDataset,
-    onDataLoaded: (data) => {
-      setDualData(data);
-    },
-    onError: (error) => {
-      setError(error);
-    },
+    onDataLoaded: (data) => setDualData(data),
+    onError: (error) => setError(error),
   });
 
   // Check for autoLoad parameter and load Kennedy data automatically
@@ -97,9 +93,7 @@ function App(): React.ReactElement {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleFileSelect = async (
@@ -258,9 +252,7 @@ function App(): React.ReactElement {
             </p>
             {currentView === 'artwork' && (
               <button
-                onClick={() => {
-                  setCurrentView('file-select');
-                }}
+                onClick={() => setCurrentView('file-select')}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-2"
               >
                 Load Different File
@@ -278,9 +270,7 @@ function App(): React.ReactElement {
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onPipelineResult={handlePipelineResult}
-                onOpenPipelineClick={() => {
-                  setIsPipelineModalOpen(true);
-                }}
+                onOpenPipelineClick={() => setIsPipelineModalOpen(true)}
               />
             </>
           ) : (
@@ -334,9 +324,7 @@ function App(): React.ReactElement {
                         type="file"
                         accept=".json"
                         className="sr-only"
-                        onChange={(event) => {
-                          void handleFileSelect(event);
-                        }}
+                        onChange={(event) => handleFileSelect(event)}
                         disabled={isLoading}
                       />
                     </div>
@@ -348,9 +336,7 @@ function App(): React.ReactElement {
                   <div className="text-center">
                     <div className="text-gray-500 mb-2">or</div>
                     <button
-                      onClick={() => {
-                        handleLoadKennedy();
-                      }}
+                      onClick={() => handleLoadKennedy()}
                       disabled={isLoading}
                       className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -380,9 +366,7 @@ function App(): React.ReactElement {
       <ErrorBoundary>
         <PipelineModal
           isOpen={isPipelineModalOpen}
-          onClose={() => {
-            setIsPipelineModalOpen(false);
-          }}
+          onClose={() => setIsPipelineModalOpen(false)}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
           dualData={dualData ?? undefined}
@@ -390,9 +374,7 @@ function App(): React.ReactElement {
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}
           onParameterChange={handleParameterChange}
-          onVisualize={() => {
-            void handleVisualize();
-          }}
+          onVisualize={() => handleVisualize()}
           isVisualizing={isVisualizing}
           hasData={!!dualData}
           lastRunParameters={lastRunParameters}
