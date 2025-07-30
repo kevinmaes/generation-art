@@ -50,7 +50,8 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     id: HORIZONTAL_SPREAD.ID,
     name: HORIZONTAL_SPREAD.NAME,
     description:
-      'Positions individuals horizontally based on selected dimensions, creating spread-out layouts',
+      'Uses advanced algorithms to create visually compelling horizontal arrangements with customizable spacing, padding, and variation factors.',
+    shortDescription: 'Spreads nodes horizontally by generation or age',
     transform: horizontalSpreadTransform as VisualTransformerFn,
     categories: ['layout', 'positioning'],
     availableDimensions: [
@@ -77,7 +78,8 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     id: NODE_SIZE.ID,
     name: NODE_SIZE.NAME,
     description:
-      'Controls the size of nodes based on metadata like number of children, age at death, or importance metrics',
+      'Intelligently scales visual elements using sophisticated algorithms that consider multiple family metrics and importance indicators.',
+    shortDescription: 'Adjusts node sizes by children or lifespan',
     transform: nodeSizeTransform as VisualTransformerFn,
     categories: ['visual', 'size'],
     availableDimensions: [
@@ -96,7 +98,8 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     id: NODE_OPACITY.ID,
     name: NODE_OPACITY.NAME,
     description:
-      'Adjusts node transparency based on generation depth, number of children, lifespan, and family importance',
+      'Creates sophisticated transparency effects by analyzing family relationships, generational depth, and genealogical significance patterns.',
+    shortDescription: 'Controls node transparency by generation or children',
     transform: nodeOpacityTransform as VisualTransformerFn,
     categories: ['visual', 'opacity'],
     availableDimensions: [
@@ -115,7 +118,8 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     id: EDGE_OPACITY.ID,
     name: EDGE_OPACITY.NAME,
     description:
-      'Controls edge transparency based on relationship type, generation distance, family importance, and edge length',
+      'Applies nuanced transparency and width variations to relationship lines, considering generational distance, family importance, and visual hierarchy.',
+    shortDescription: 'Controls edge transparency by relationship type',
     transform: edgeOpacityTransform as VisualTransformerFn,
     categories: ['visual', 'opacity'],
     availableDimensions: [
@@ -134,7 +138,8 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     id: VERTICAL_SPREAD.ID,
     name: VERTICAL_SPREAD.NAME,
     description:
-      'Positions individuals vertically based on selected dimensions, creating visual separation within generations',
+      'Employs sophisticated vertical positioning algorithms to create meaningful visual separations and hierarchies within family structures.',
+    shortDescription: 'Spreads nodes vertically by birth year or children',
     transform: verticalSpreadTransform as VisualTransformerFn,
     categories: ['layout', 'positioning'],
     availableDimensions: [

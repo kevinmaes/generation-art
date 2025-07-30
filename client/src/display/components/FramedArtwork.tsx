@@ -17,6 +17,7 @@ interface FramedArtworkProps {
   className?: string;
   onPipelineResult?: (result: PipelineResult | null) => void;
   onOpenPipelineClick?: () => void;
+  onVisualize?: () => void;
 }
 
 export function FramedArtwork({
@@ -29,6 +30,7 @@ export function FramedArtwork({
   className = '',
   onPipelineResult,
   onOpenPipelineClick,
+  onVisualize,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
@@ -147,6 +149,7 @@ export function FramedArtwork({
             showRelations={showRelations}
             onExportReady={handleExport}
             onPipelineResult={onPipelineResult}
+            onVisualize={onVisualize}
           />
         </div>
       </div>

@@ -17,6 +17,7 @@ interface ArtGeneratorProps {
   showRelations?: boolean;
   onExportReady?: (p5Instance: p5) => void;
   onPipelineResult?: (result: PipelineResult | null) => void;
+  onVisualize?: () => void;
 }
 
 export function ArtGenerator({
@@ -28,6 +29,7 @@ export function ArtGenerator({
   showRelations = true,
   onExportReady,
   onPipelineResult,
+  onVisualize,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
@@ -115,7 +117,12 @@ export function ArtGenerator({
           height: `${String(height)}px`,
         }}
       >
-        <p className="text-gray-500">Click Visualize to generate artwork</p>
+        <button
+          onClick={onVisualize}
+          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+        >
+          Generate art
+        </button>
       </div>
     );
   }

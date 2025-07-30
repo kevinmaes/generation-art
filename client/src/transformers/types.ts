@@ -159,6 +159,9 @@ export interface VisualTransformerConfig {
   // Description of what this transformer does
   description: string;
 
+  // Short one-line description for compact views
+  shortDescription?: string;
+
   // The transformer function
   transform: VisualTransformerFn;
 

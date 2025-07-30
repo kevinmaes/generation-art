@@ -31,6 +31,9 @@ interface TransformerItemProps {
     dimensions: { primary?: string; secondary?: string };
     visual: Record<string, unknown>;
   };
+  // NEW: Expanded state management for available transformers
+  isExpanded?: boolean;
+  onToggleExpanded?: (transformerId: string) => void;
 }
 
 export function TransformerItem({
@@ -46,7 +49,10 @@ export function TransformerItem({
   currentParameters,
   isVisualizing = false,
   lastRunParameters,
+  isExpanded = false,
+  onToggleExpanded,
 }: TransformerItemProps) {
+  
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
     dimensions: { primary?: string; secondary?: string };
@@ -176,36 +182,48 @@ export function TransformerItem({
   return (
     <div
       key={transformer.id}
-      className={`p-3 rounded border cursor-pointer transition-colors ${
+      className={`px-2 py-1 rounded border transition-colors ${
         isSelected
           ? 'bg-purple-100 border-purple-300'
           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
       } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
-      onClick={() => {
-        if (!isDisabled) {
-          handleTransformerSelect(transformer.id);
-        }
-      }}
     >
-      <div className="flex items-center w-full">
-        <div className="flex items-center space-x-2 flex-1 text-left">
+      {/* Clickable Header */}
+      <div 
+        className="flex items-center w-full cursor-pointer"
+        onClick={() => {
+          if (!isDisabled) {
+            if (isInPipeline) {
+              handleTransformerSelect(transformer.id);
+            } else {
+              onToggleExpanded?.(transformer.id);
+            }
+          }
+        }}
+      >
+        <div className="flex items-center space-x-1.5 flex-1 text-left">
+          {!isInPipeline && (
+            <span className={`text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+              ▶
+            </span>
+          )}
           {isInPipeline && (
-            <span className="text-xs bg-gray-300 text-gray-700 px-2 py-1 rounded">
+            <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
               {index + 1}
             </span>
           )}
-          <span className="font-medium text-sm">
+          <span className="font-medium text-sm truncate">
             {transformer.name || transformer.id}
           </span>
           {hasBeenModified && (
-            <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">
+            <span className="text-xs bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded">
               Modified
             </span>
           )}
         </div>
         {isInPipeline ? (
           <button
-            className="text-gray-400 hover:text-red-500 text-sm flex-shrink-0"
+            className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
             onClick={(e) => {
               e.stopPropagation();
               if (!isDisabled) {
@@ -218,7 +236,7 @@ export function TransformerItem({
           </button>
         ) : (
           <button
-            className="text-gray-400 hover:text-green-500 text-sm flex-shrink-0"
+            className="text-gray-400 hover:text-green-500 text-xs flex-shrink-0"
             onClick={(e) => {
               e.stopPropagation();
               if (!isDisabled) {
@@ -231,10 +249,39 @@ export function TransformerItem({
           </button>
         )}
       </div>
-      {transformer.description && (
-        <p className="text-xs text-gray-600 mt-1 text-left">
-          {transformer.description}
+      
+      {/* Short Description - always visible */}
+      {transformer.shortDescription && (
+        <p className="text-xs text-gray-800 font-medium mt-0.5 text-left">
+          {transformer.shortDescription}
         </p>
+      )}
+      
+      {/* Expandable Full Description - only for available transformers */}
+      {!isInPipeline && isExpanded && (
+        <div className="mt-2 pt-2 border-t border-gray-200 space-y-1">
+          {transformer.description && (
+            <p className="text-xs text-gray-700 text-left">
+              {transformer.description}
+            </p>
+          )}
+          
+          {/* Dimensions line */}
+          <p className="text-xs text-left">
+            <span className="text-gray-800 font-medium">Dimensions:</span>{' '}
+            <span className="text-gray-600">
+              {transformer.availableDimensions.map((dimId) => DIMENSIONS[dimId].label).join(', ')}
+            </span>
+          </p>
+          
+          {/* Parameters line */}
+          <p className="text-xs text-left">
+            <span className="text-gray-800 font-medium">Parameters:</span>{' '}
+            <span className="text-gray-600">
+              {transformer.visualParameters.map((paramId) => VISUAL_PARAMETERS[paramId].label).join(', ')}
+            </span>
+          </p>
+        </div>
       )}
 
       {/* Parameter Controls */}
@@ -247,23 +294,16 @@ export function TransformerItem({
               e.stopPropagation();
             }}
           >
-            <summary className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-t-lg shadow-sm cursor-pointer flex items-center justify-between list-none hover:bg-gray-100 transition-colors">
+            <summary className="px-4 py-2 bg-gray-50 border border-gray-200 shadow-sm cursor-pointer flex items-center justify-between list-none hover:bg-gray-100 transition-colors">
               <div className="flex items-center space-x-2">
                 <span className="text-xs transition-transform duration-200 group-open:rotate-90">
                   ▶
                 </span>
                 <span className="text-xs font-medium text-gray-700">
-                  Parameters (
-                  {transformer.availableDimensions.length +
-                    transformer.visualParameters.length}
-                  )
+                  Parameters
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-gray-500">
-                  {transformer.availableDimensions.length} dimensions,{' '}
-                  {transformer.visualParameters.length} visual params
-                </span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -278,12 +318,12 @@ export function TransformerItem({
               </div>
             </summary>
 
-            <div className="bg-white border-l border-r border-b border-gray-200 rounded-b-lg shadow-sm overflow-hidden">
+            <div className="bg-white border-l border-r border-b border-gray-200 shadow-sm overflow-hidden">
               <div className="p-4 space-y-4">
                 {/* Dimensions Section */}
                 {transformer.availableDimensions.length > 0 && (
                   <div>
-                    <h4 className="text-xs font-medium text-gray-700 mb-2">
+                    <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
                       Dimensions + Temperature
                     </h4>
 
@@ -387,24 +427,28 @@ export function TransformerItem({
                 {/* Visual Parameters Section */}
                 {transformer.visualParameters.length > 0 && (
                   <div>
-                    <h4 className="text-xs font-medium text-gray-700 mb-2">
+                    <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
                       Visual Parameters
                     </h4>
 
                     {/* Two-column layout: Sliders+Colors on left, Dropdowns+Numbers on right */}
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Left column: Sliders and Color pickers */}
+                      {/* Left column: Sliders first, then Color pickers */}
                       <div>
                         {(() => {
-                          const leftColumnParams =
-                            transformer.visualParameters.filter((paramId) => {
-                              const param = VISUAL_PARAMETERS[paramId];
-                              return (
-                                (param.type === 'range' ||
-                                  param.type === 'color') &&
-                                paramId !== 'temperature'
-                              );
-                            });
+                          // Separate sliders and color pickers, prioritizing sliders first
+                          const sliderParams = transformer.visualParameters.filter((paramId) => {
+                            const param = VISUAL_PARAMETERS[paramId];
+                            return param.type === 'range' && paramId !== 'temperature';
+                          });
+                          
+                          const colorParams = transformer.visualParameters.filter((paramId) => {
+                            const param = VISUAL_PARAMETERS[paramId];
+                            return param.type === 'color';
+                          });
+                          
+                          const leftColumnParams = [...sliderParams, ...colorParams];
+                          
                           if (leftColumnParams.length > 0) {
                             return (
                               <div className="space-y-3">
