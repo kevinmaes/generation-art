@@ -301,7 +301,7 @@ export function PipelineManager({
     <div className="h-full flex flex-col bg-white p-6">
       <div className="flex-1 flex gap-4 min-h-0">
         {/* Left Column: Vertical Accordion */}  
-        <div className="w-1/2 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0" style={{ width: '50%', minWidth: '50%', maxWidth: '50%' }}>
           <div className="flex-1 flex flex-col space-y-0 min-h-0">
             
             {/* Available Transformers Panel */}
@@ -501,7 +501,7 @@ export function PipelineManager({
         </div>
 
         {/* Right Column: Active Pipeline */}
-        <div className="w-1/2 border p-4 flex flex-col min-h-0">
+        <div className="flex-1 border p-4 flex flex-col min-h-0" style={{ width: '50%', minWidth: '50%', maxWidth: '50%' }}>
           <div className="mb-3">
             <h4 className="font-medium text-gray-700 text-left">
               Active Pipeline ({activeTransformerIds.length})
