@@ -141,14 +141,11 @@ export function PipelineModal({
 
           {/* Panel Footer with keyboard shortcuts info */}
           <div className="p-3 border-t bg-gray-50 text-sm text-gray-600">
-            <div className="flex flex-col space-y-1 text-center">
+            <div className="text-center">
               <span>
                 Press{' '}
                 <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">⌘D</kbd> to
-                toggle
-              </span>
-              <span>
-                Press{' '}
+                toggle • Press{' '}
                 <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">Esc</kbd>{' '}
                 to close
               </span>

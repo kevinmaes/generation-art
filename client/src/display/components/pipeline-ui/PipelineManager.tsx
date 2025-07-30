@@ -287,73 +287,7 @@ export function PipelineManager({
   return (
     <div className="h-full flex flex-col bg-white p-6">
       <div className="flex-1 flex gap-4 min-h-0">
-        {/* Left Column: Active Pipeline */}
-        <div className="w-1/2 border p-4 flex flex-col min-h-0">
-          <div className="mb-3">
-            <h4 className="font-medium text-gray-700 text-left">
-              Active Pipeline ({activeTransformerIds.length})
-            </h4>
-            {/* Pipeline Status Row */}
-            <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-              {pipelineResult ? (
-                <>
-                  <span className="text-green-600">✓ Completed</span>
-                  <span>
-                    {pipelineResult.debug.totalExecutionTime.toFixed(2)}ms
-                  </span>
-                </>
-              ) : (
-                <span>Ready to visualize</span>
-              )}
-            </div>
-          </div>
-          <div
-            className="flex-1 overflow-y-auto space-y-2 min-h-0"
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#888 #f1f1f1',
-            }}
-          >
-            {activeTransformerIds.length === 0 ? (
-              <p className="text-gray-500 text-sm">
-                No transformers in pipeline
-              </p>
-            ) : (
-              activeTransformerIds.map((transformerId, index) => {
-                const transformer = getTransformer(transformerId);
-                const isSelected = selectedTransformerId === transformerId;
-
-                return (
-                  <TransformerItem
-                    key={transformerId}
-                    transformer={transformer}
-                    isSelected={isSelected}
-                    handleTransformerSelect={handleTransformerSelect}
-                    index={index}
-                    isInPipeline={true}
-                    onAddTransformer={onAddTransformer}
-                    onRemoveTransformer={onRemoveTransformer}
-                    onParameterChange={handleParameterChange}
-                    onParameterReset={handleParameterReset}
-                    currentParameters={
-                      transformerParameters[transformerId] ?? {
-                        dimensions: {
-                          primary: transformer.defaultPrimaryDimension,
-                          secondary: transformer.defaultSecondaryDimension,
-                        },
-                        visual: {},
-                      }
-                    }
-                    isVisualizing={isVisualizing}
-                    lastRunParameters={lastRunParameters?.[transformerId]}
-                  />
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Vertical Accordion */}
+        {/* Left Column: Vertical Accordion */}  
         <div className="w-1/2 flex flex-col min-h-0">
           <div className="flex-1 flex flex-col space-y-0 min-h-0">
             
@@ -548,6 +482,72 @@ export function PipelineManager({
               )}
             </CollapsiblePanel>
 
+          </div>
+        </div>
+
+        {/* Right Column: Active Pipeline */}
+        <div className="w-1/2 border p-4 flex flex-col min-h-0">
+          <div className="mb-3">
+            <h4 className="font-medium text-gray-700 text-left">
+              Active Pipeline ({activeTransformerIds.length})
+            </h4>
+            {/* Pipeline Status Row */}
+            <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+              {pipelineResult ? (
+                <>
+                  <span className="text-green-600">✓ Completed</span>
+                  <span>
+                    {pipelineResult.debug.totalExecutionTime.toFixed(2)}ms
+                  </span>
+                </>
+              ) : (
+                <span>Ready to visualize</span>
+              )}
+            </div>
+          </div>
+          <div
+            className="flex-1 overflow-y-auto space-y-2 min-h-0"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#888 #f1f1f1',
+            }}
+          >
+            {activeTransformerIds.length === 0 ? (
+              <p className="text-gray-500 text-sm">
+                No transformers in pipeline
+              </p>
+            ) : (
+              activeTransformerIds.map((transformerId, index) => {
+                const transformer = getTransformer(transformerId);
+                const isSelected = selectedTransformerId === transformerId;
+
+                return (
+                  <TransformerItem
+                    key={transformerId}
+                    transformer={transformer}
+                    isSelected={isSelected}
+                    handleTransformerSelect={handleTransformerSelect}
+                    index={index}
+                    isInPipeline={true}
+                    onAddTransformer={onAddTransformer}
+                    onRemoveTransformer={onRemoveTransformer}
+                    onParameterChange={handleParameterChange}
+                    onParameterReset={handleParameterReset}
+                    currentParameters={
+                      transformerParameters[transformerId] ?? {
+                        dimensions: {
+                          primary: transformer.defaultPrimaryDimension,
+                          secondary: transformer.defaultSecondaryDimension,
+                        },
+                        visual: {},
+                      }
+                    }
+                    isVisualizing={isVisualizing}
+                    lastRunParameters={lastRunParameters?.[transformerId]}
+                  />
+                );
+              })
+            )}
           </div>
         </div>
       </div>
