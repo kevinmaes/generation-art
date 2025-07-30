@@ -9,6 +9,7 @@ import {
 } from './transformers';
 import type { AppGedcomDataWithMetadata } from '../types/app-data';
 import type { VisualParameterValues } from './visual-parameters';
+import type { IndividualId } from '../../../shared/types';
 
 describe('Transformers Registry', () => {
   it('should export transformers object', () => {
@@ -83,11 +84,11 @@ describe('Horizontal Spread Transformer', () => {
     expect(transformer).toBeDefined();
 
     const mockMetadata: AppGedcomDataWithMetadata = {
-      individuals: new Map([
+      individuals: new Map<IndividualId, any>([
         [
-          'I1' as any,
+          'I1' as IndividualId,
           {
-            id: 'I1' as any,
+            id: 'I1' as IndividualId,
             name: 'John Doe',
             parents: [],
             spouses: [],
@@ -485,11 +486,11 @@ describe('Horizontal Spread Transformer', () => {
       expect(transformer).toBeDefined();
 
       const mockMetadata: AppGedcomDataWithMetadata = {
-        individuals: new Map([
+        individuals: new Map<IndividualId, any>([
           [
-            'I1' as any,
+            'I1' as IndividualId,
             {
-              id: 'I1' as any,
+              id: 'I1' as IndividualId,
               name: 'John Smith',
               parents: [],
               spouses: [],

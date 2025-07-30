@@ -35,14 +35,15 @@ import {
   VERTICAL_SPREAD,
   type TransformerId,
 } from './transformers';
+import type { IndividualId } from '../../../shared/types';
 
 // Mock data for testing
 const mockMetadata: AppGedcomDataWithMetadata = {
-  individuals: new Map([
+  individuals: new Map<IndividualId, any>([
     [
-      'I1' as any,
+      'I1' as IndividualId,
       {
-        id: 'I1' as any,
+        id: 'I1' as IndividualId,
         name: 'John Doe',
         parents: [],
         spouses: [],
