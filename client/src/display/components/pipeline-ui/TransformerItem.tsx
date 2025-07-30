@@ -276,7 +276,7 @@ export function TransformerItem({
                 {/* Dimensions Section */}
                 {transformer.availableDimensions.length > 0 && (
                   <div>
-                    <h4 className="text-xs font-medium text-gray-700 mb-2">
+                    <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
                       Dimensions + Temperature
                     </h4>
 
@@ -380,24 +380,28 @@ export function TransformerItem({
                 {/* Visual Parameters Section */}
                 {transformer.visualParameters.length > 0 && (
                   <div>
-                    <h4 className="text-xs font-medium text-gray-700 mb-2">
+                    <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
                       Visual Parameters
                     </h4>
 
                     {/* Two-column layout: Sliders+Colors on left, Dropdowns+Numbers on right */}
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Left column: Sliders and Color pickers */}
+                      {/* Left column: Sliders first, then Color pickers */}
                       <div>
                         {(() => {
-                          const leftColumnParams =
-                            transformer.visualParameters.filter((paramId) => {
-                              const param = VISUAL_PARAMETERS[paramId];
-                              return (
-                                (param.type === 'range' ||
-                                  param.type === 'color') &&
-                                paramId !== 'temperature'
-                              );
-                            });
+                          // Separate sliders and color pickers, prioritizing sliders first
+                          const sliderParams = transformer.visualParameters.filter((paramId) => {
+                            const param = VISUAL_PARAMETERS[paramId];
+                            return param.type === 'range' && paramId !== 'temperature';
+                          });
+                          
+                          const colorParams = transformer.visualParameters.filter((paramId) => {
+                            const param = VISUAL_PARAMETERS[paramId];
+                            return param.type === 'color';
+                          });
+                          
+                          const leftColumnParams = [...sliderParams, ...colorParams];
+                          
                           if (leftColumnParams.length > 0) {
                             return (
                               <div className="space-y-3">
