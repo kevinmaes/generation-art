@@ -11,6 +11,7 @@ import {
   type TransformerId,
 } from '../transformers/transformers';
 import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
+import { DEFAULT_COLOR } from '../transformers/constants';
 
 export interface SketchConfig {
   width: number;
@@ -122,7 +123,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const color =
             individualMetadata?.color ??
             visualMetadata.global.defaultNodeColor ??
-            '#cccccc';
+            DEFAULT_COLOR;
           const shape =
             individualMetadata?.shape ??
             visualMetadata.global.defaultNodeShape ??

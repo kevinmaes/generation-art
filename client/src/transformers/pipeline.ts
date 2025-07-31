@@ -107,32 +107,34 @@ export interface PipelineError {
   step: number;
 }
 
+export const initialEntityVisualMetadata: VisualMetadata = {
+  x: DEFAULT_X,
+  y: DEFAULT_Y,
+  size: DEFAULT_SIZE,
+  scale: DEFAULT_SCALE,
+  color: DEFAULT_COLOR,
+  backgroundColor: DEFAULT_BACKGROUND_COLOR,
+  strokeColor: DEFAULT_STROKE_COLOR,
+  opacity: DEFAULT_OPACITY,
+  alpha: DEFAULT_ALPHA,
+  shape: DEFAULT_SHAPE,
+  strokeWeight: DEFAULT_STROKE_WEIGHT,
+  strokeStyle: DEFAULT_STROKE_STYLE,
+  velocity: DEFAULT_VELOCITY,
+  acceleration: DEFAULT_ACCELERATION,
+  rotation: DEFAULT_ROTATION,
+  rotationSpeed: DEFAULT_ROTATION_SPEED,
+  group: DEFAULT_GROUP,
+  layer: DEFAULT_LAYER,
+  priority: DEFAULT_PRIORITY,
+  custom: DEFAULT_CUSTOM,
+};
+
 /**
  * Create initial visual metadata for a single entity
  */
 function createInitialEntityVisualMetadata(): VisualMetadata {
-  return {
-    x: DEFAULT_X,
-    y: DEFAULT_Y,
-    size: DEFAULT_SIZE,
-    scale: DEFAULT_SCALE,
-    color: DEFAULT_COLOR,
-    backgroundColor: DEFAULT_BACKGROUND_COLOR,
-    strokeColor: DEFAULT_STROKE_COLOR,
-    opacity: DEFAULT_OPACITY,
-    alpha: DEFAULT_ALPHA,
-    shape: DEFAULT_SHAPE,
-    strokeWeight: DEFAULT_STROKE_WEIGHT,
-    strokeStyle: DEFAULT_STROKE_STYLE,
-    velocity: DEFAULT_VELOCITY,
-    acceleration: DEFAULT_ACCELERATION,
-    rotation: DEFAULT_ROTATION,
-    rotationSpeed: DEFAULT_ROTATION_SPEED,
-    group: DEFAULT_GROUP,
-    layer: DEFAULT_LAYER,
-    priority: DEFAULT_PRIORITY,
-    custom: DEFAULT_CUSTOM,
-  };
+  return initialEntityVisualMetadata;
 }
 
 /**

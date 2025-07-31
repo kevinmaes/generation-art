@@ -9,6 +9,7 @@ import {
 } from './transformers';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { VisualParameterValues } from './visual-parameters';
+import { initialEntityVisualMetadata } from './pipeline';
 
 describe('Transformers Registry', () => {
   it('should export transformers object', () => {
@@ -244,12 +245,12 @@ describe('Horizontal Spread Transformer', () => {
             y: 250, // Set an initial y position to test preservation
             size: 20,
             scale: 1,
-            color: '#cccccc',
-            backgroundColor: '#ffffff',
-            strokeColor: '#000000',
-            opacity: 1,
-            alpha: 1,
-            shape: 'circle' as const,
+            color: initialEntityVisualMetadata.color,
+            backgroundColor: initialEntityVisualMetadata.backgroundColor,
+            strokeColor: initialEntityVisualMetadata.strokeColor,
+            opacity: initialEntityVisualMetadata.opacity,
+            alpha: initialEntityVisualMetadata.alpha,
+            shape: initialEntityVisualMetadata.shape,
             strokeWeight: 1,
             strokeStyle: 'solid' as const,
             velocity: { x: 0, y: 0 },
@@ -302,8 +303,8 @@ describe('Horizontal Spread Transformer', () => {
     expect(individualMetadata?.y).toBe(250);
     // Horizontal spread should only set x position, not size, color, or shape
     expect(individualMetadata?.size).toBe(20); // Should preserve initial size
-    expect(individualMetadata?.color).toBe('#cccccc'); // Should preserve initial color
-    expect(individualMetadata?.shape).toBe('circle'); // Should preserve initial shape
+    expect(individualMetadata?.color).toBe(initialEntityVisualMetadata.color); // Should preserve initial color
+    expect(individualMetadata?.shape).toBe(initialEntityVisualMetadata.shape); // Should preserve initial shape
   });
 
   it('should handle empty individuals array', async () => {
@@ -642,12 +643,12 @@ describe('Horizontal Spread Transformer', () => {
               y: 0,
               size: 20,
               scale: 1,
-              color: '#cccccc',
-              backgroundColor: '#ffffff',
-              strokeColor: '#000000',
-              opacity: 1,
-              alpha: 1,
-              shape: 'circle' as const,
+              color: initialEntityVisualMetadata.color,
+              backgroundColor: initialEntityVisualMetadata.backgroundColor,
+              strokeColor: initialEntityVisualMetadata.strokeColor,
+              opacity: initialEntityVisualMetadata.opacity,
+              alpha: initialEntityVisualMetadata.alpha,
+              shape: initialEntityVisualMetadata.shape,
               strokeWeight: 1,
               strokeStyle: 'solid' as const,
               velocity: { x: 0, y: 0 },
@@ -700,8 +701,8 @@ describe('Horizontal Spread Transformer', () => {
       expect(individualMetadata?.y).toBeDefined();
       // Vertical spread should only set y position, not size, color, or shape
       expect(individualMetadata?.size).toBe(20); // Should preserve initial size
-      expect(individualMetadata?.color).toBe('#cccccc'); // Should preserve initial color
-      expect(individualMetadata?.shape).toBe('circle'); // Should preserve initial shape
+      expect(individualMetadata?.color).toBe(initialEntityVisualMetadata.color); // Should preserve initial color
+      expect(individualMetadata?.shape).toBe(initialEntityVisualMetadata.shape); // Should preserve initial shape
     });
   });
 });
