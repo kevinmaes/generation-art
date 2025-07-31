@@ -10,6 +10,7 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
+import { getIndividualOrWarn } from './utils/transformer-guards';
 
 /**
  * Calculate vertical position based on selected dimensions and parameters
@@ -22,8 +23,15 @@ function calculateVerticalPosition(
     context;
   const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
 
-  // Find the individual
-  const individual = gedcomData.individuals[individualId];
+  // Find the individual with null check
+  const individual = getIndividualOrWarn(
+    gedcomData,
+    individualId,
+    'Vertical spread transformer',
+  );
+  if (!individual) {
+    return canvasHeight / 2; // Return center position
+  }
 
   // Get the primary dimension value
   const primaryDimension = dimensions.primary;
@@ -31,27 +39,30 @@ function calculateVerticalPosition(
 
   switch (primaryDimension) {
     case 'generation':
-      primaryValue = individual.metadata.relativeGenerationValue ?? 0.5;
+      primaryValue = individual.metadata?.relativeGenerationValue ?? 0.5;
       break;
     case 'birthYear': {
       // Normalize birth year to 0-1 range
       const allBirthYears = Object.values(gedcomData.individuals)
-        .map((ind) => ind.metadata.birthYear)
+        .filter((ind) => ind !== null && ind !== undefined)
+        .map((ind) => ind.metadata?.birthYear)
         .filter((year): year is number => year !== undefined);
       if (allBirthYears.length > 0) {
         const minYear = Math.min(...allBirthYears);
         const maxYear = Math.max(...allBirthYears);
-        const year = individual.metadata.birthYear ?? minYear;
+        const year = individual.metadata?.birthYear ?? minYear;
         primaryValue = (year - minYear) / (maxYear - minYear);
       }
       break;
     }
     case 'childrenCount': {
       // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals);
+      const allIndividuals = Object.values(gedcomData.individuals).filter(
+        (ind) => ind !== null && ind !== undefined,
+      );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
-          child.parents.includes(ind.id),
+          child?.parents?.includes(ind.id),
         );
         return children.length;
       });
@@ -108,7 +119,9 @@ function calculateVerticalPosition(
         break;
       }
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals);
+        const allIndividuals = Object.values(gedcomData.individuals).filter(
+          (ind) => ind !== null && ind !== undefined,
+        );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
             child.parents.includes(ind.id),
@@ -212,40 +225,9 @@ export async function verticalSpreadTransform(
     // Don't calculate x - preserve existing x position from previous transformers
     const y = calculateVerticalPosition(context, individual.id);
 
-    // Get visual parameters directly from context
-    const { nodeSize, primaryColor, variationFactor, temperature } =
-      context.visual;
-    const temp = (temperature as number) || 0.5;
-
-    // Convert node size string to actual size with temperature-based variation
-    const sizeMap = {
-      small: 15,
-      medium: 20,
-      large: 30,
-      'extra-large': 40,
-    };
-    const baseSize = sizeMap[nodeSize as keyof typeof sizeMap] || 20;
-
-    // Add size variation based on temperature and variation factor
-    const sizeVariation = (Math.random() - 0.5) * temp * 0.3; // ±15% size variation
-    const variationSizeAdjustment =
-      (Math.random() - 0.5) * (variationFactor as number) * 0.2;
-    const finalSize = Math.max(
-      5,
-      baseSize * (1 + sizeVariation + variationSizeAdjustment),
-    );
-
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
       y, // Only set y position (vertical spread responsibility)
-      size: finalSize,
-      color:
-        (primaryColor as string | undefined) ??
-        visualMetadata.global.defaultNodeColor ??
-        '#cccccc',
-      shape: visualMetadata.global.defaultNodeShape ?? 'circle',
-      // Add opacity variation based on temperature
-      opacity: Math.max(0.3, 1 - temp * 0.2), // Higher temp = slightly more transparent
     };
   });
 

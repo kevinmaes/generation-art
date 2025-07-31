@@ -20,7 +20,7 @@ export const DEFAULT_SCALE = 1.0;
 export const DEFAULT_COLOR = '#cccccc';
 export const DEFAULT_BACKGROUND_COLOR = '#ffffff';
 export const DEFAULT_STROKE_COLOR = '#000000';
-export const DEFAULT_OPACITY = 1.0;
+export const DEFAULT_OPACITY = 0.8;
 export const DEFAULT_ALPHA = 1.0;
 
 // Default shape and style

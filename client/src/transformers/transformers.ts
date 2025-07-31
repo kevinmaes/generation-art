@@ -12,6 +12,9 @@ import { nodeSizeTransform } from './node-size';
 import { nodeOpacityTransform } from './node-opacity';
 import { edgeOpacityTransform } from './edge-opacity';
 import { verticalSpreadTransform } from './vertical-spread';
+import { nodeShapeTransform } from './node-shape';
+import { nodeRotationTransform } from './node-rotation';
+import { nodeScaleTransform } from './node-scale';
 import type { VisualTransformerFn } from './types';
 import { createRuntimeTransformerFunction } from './utils';
 
@@ -33,13 +36,28 @@ export const VERTICAL_SPREAD = {
   ID: 'vertical-spread',
   NAME: 'Vertical Spread',
 } as const;
+export const NODE_SHAPE = {
+  ID: 'node-shape',
+  NAME: 'Node Shape',
+} as const;
+export const NODE_ROTATION = {
+  ID: 'node-rotation',
+  NAME: 'Node Rotation',
+} as const;
+export const NODE_SCALE = {
+  ID: 'node-scale',
+  NAME: 'Node Scale',
+} as const;
 
 export type TransformerId =
   | typeof HORIZONTAL_SPREAD.ID
   | typeof NODE_SIZE.ID
   | typeof NODE_OPACITY.ID
   | typeof EDGE_OPACITY.ID
-  | typeof VERTICAL_SPREAD.ID;
+  | typeof VERTICAL_SPREAD.ID
+  | typeof NODE_SHAPE.ID
+  | typeof NODE_ROTATION.ID
+  | typeof NODE_SCALE.ID;
 
 /**
  * Registry of all available transformers
@@ -64,15 +82,88 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     defaultPrimaryDimension: 'generation',
     defaultSecondaryDimension: 'birthYear',
     visualParameters: [
-      'horizontalPadding',
-      'nodeSize',
-      'primaryColor',
-      'spacing',
-      'temperature',
-      'variationFactor',
+      {
+        name: 'horizontalPadding',
+        type: 'range',
+        defaultValue: 80,
+        label: 'Horizontal Padding',
+        description: 'Padding from left and right of canvas',
+        min: 10,
+        max: 200,
+        step: 5,
+      },
+      {
+        name: 'nodeSize',
+        type: 'select',
+        defaultValue: 'medium',
+        label: 'Node Size',
+        description: 'Size of individual nodes',
+        options: [
+          { value: 'small', label: 'Small' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'large', label: 'Large' },
+          { value: 'extra-large', label: 'Extra Large' },
+        ],
+      },
+      {
+        name: 'primaryColor',
+        type: 'color',
+        defaultValue: '#4A90E2',
+        label: 'Primary Color',
+        description: 'Main color for nodes',
+      },
+      {
+        name: 'spacing',
+        type: 'select',
+        defaultValue: 'normal',
+        label: 'Spacing',
+        description: 'General spacing between elements',
+        options: [
+          { value: 'tight', label: 'Tight' },
+          { value: 'compact', label: 'Compact' },
+          { value: 'normal', label: 'Normal' },
+          { value: 'loose', label: 'Loose' },
+          { value: 'sparse', label: 'Sparse' },
+        ],
+      },
+      {
+        name: 'temperature',
+        type: 'range',
+        defaultValue: 0.3,
+        label: 'Temperature',
+        description: 'Randomness factor for non-deterministic behavior',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+      {
+        name: 'variationFactor',
+        type: 'range',
+        defaultValue: 0.2,
+        label: 'Variation Factor',
+        description: 'Amount of random variation to apply',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
     ],
+    getDefaults: () => ({
+      horizontalPadding: 80,
+      nodeSize: 'medium',
+      primaryColor: '#4A90E2',
+      spacing: 'normal',
+      temperature: 0.3,
+      variationFactor: 0.2,
+    }),
     createRuntimeTransformerFunction: (params) =>
-      createRuntimeTransformerFunction(params, horizontalSpreadTransform),
+      createRuntimeTransformerFunction(params, horizontalSpreadTransform, [
+        { name: 'horizontalPadding', defaultValue: 80 },
+        { name: 'nodeSize', defaultValue: 'medium' },
+        { name: 'primaryColor', defaultValue: '#4A90E2' },
+        { name: 'spacing', defaultValue: 'normal' },
+        { name: 'temperature', defaultValue: 0.3 },
+        { name: 'variationFactor', defaultValue: 0.2 },
+      ]),
   },
   [NODE_SIZE.ID]: {
     id: NODE_SIZE.ID,
@@ -90,7 +181,41 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'childrenCount',
     defaultSecondaryDimension: 'lifespan',
-    visualParameters: ['variationFactor', 'nodeSize', 'temperature'],
+    visualParameters: [
+      {
+        name: 'variationFactor',
+        type: 'range',
+        defaultValue: 0.3,
+        label: 'Variation Factor',
+        description: 'Amount of random variation to apply',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+      {
+        name: 'nodeSize',
+        type: 'select',
+        defaultValue: 'medium',
+        label: 'Node Size',
+        description: 'Size of individual nodes',
+        options: [
+          { value: 'small', label: 'Small' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'large', label: 'Large' },
+          { value: 'extra-large', label: 'Extra Large' },
+        ],
+      },
+      {
+        name: 'temperature',
+        type: 'range',
+        defaultValue: 0.4,
+        label: 'Temperature',
+        description: 'Randomness factor for non-deterministic behavior',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+    ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeSizeTransform),
   },
@@ -110,7 +235,28 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'generation',
     defaultSecondaryDimension: 'childrenCount',
-    visualParameters: ['nodeOpacity', 'variationFactor'],
+    visualParameters: [
+      {
+        name: 'nodeOpacity',
+        type: 'range',
+        defaultValue: 0.9,
+        label: 'Node Opacity',
+        description: 'Opacity of individual nodes',
+        min: 0.1,
+        max: 1.0,
+        step: 0.1,
+      },
+      {
+        name: 'variationFactor',
+        type: 'range',
+        defaultValue: 0.2,
+        label: 'Variation Factor',
+        description: 'Amount of random variation to apply',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+    ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeOpacityTransform),
   },
@@ -130,7 +276,38 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'generation',
     defaultSecondaryDimension: 'childrenCount',
-    visualParameters: ['edgeOpacity', 'edgeWidth', 'secondaryColor'],
+    visualParameters: [
+      {
+        name: 'edgeOpacity',
+        type: 'range',
+        defaultValue: 0.5,
+        label: 'Edge Opacity',
+        description: 'Opacity of relationship lines',
+        min: 0.1,
+        max: 1.0,
+        step: 0.1,
+      },
+      {
+        name: 'edgeWidth',
+        type: 'select',
+        defaultValue: 'normal',
+        label: 'Edge Width',
+        description: 'Width of relationship lines',
+        options: [
+          { value: 'thin', label: 'Thin' },
+          { value: 'normal', label: 'Normal' },
+          { value: 'thick', label: 'Thick' },
+          { value: 'bold', label: 'Bold' },
+        ],
+      },
+      {
+        name: 'secondaryColor',
+        type: 'color',
+        defaultValue: '#666666',
+        label: 'Secondary Color',
+        description: 'Secondary color for edges',
+      },
+    ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, edgeOpacityTransform),
   },
@@ -152,15 +329,217 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     defaultPrimaryDimension: 'birthYear',
     defaultSecondaryDimension: 'childrenCount',
     visualParameters: [
-      'verticalPadding',
-      'nodeSize',
-      'primaryColor',
-      'spacing',
-      'temperature',
-      'variationFactor',
+      {
+        name: 'verticalPadding',
+        type: 'range',
+        defaultValue: 60,
+        label: 'Vertical Padding',
+        description: 'Padding from top and bottom of canvas',
+        min: 10,
+        max: 200,
+        step: 5,
+      },
+      {
+        name: 'nodeSize',
+        type: 'select',
+        defaultValue: 'medium',
+        label: 'Node Size',
+        description: 'Size of individual nodes',
+        options: [
+          { value: 'small', label: 'Small' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'large', label: 'Large' },
+          { value: 'extra-large', label: 'Extra Large' },
+        ],
+      },
+      {
+        name: 'primaryColor',
+        type: 'color',
+        defaultValue: '#7B68EE',
+        label: 'Primary Color',
+        description: 'Main color for nodes',
+      },
+      {
+        name: 'spacing',
+        type: 'select',
+        defaultValue: 'normal',
+        label: 'Spacing',
+        description: 'General spacing between elements',
+        options: [
+          { value: 'tight', label: 'Tight' },
+          { value: 'compact', label: 'Compact' },
+          { value: 'normal', label: 'Normal' },
+          { value: 'loose', label: 'Loose' },
+          { value: 'sparse', label: 'Sparse' },
+        ],
+      },
+      {
+        name: 'temperature',
+        type: 'range',
+        defaultValue: 0.4,
+        label: 'Temperature',
+        description: 'Randomness factor for non-deterministic behavior',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+      {
+        name: 'variationFactor',
+        type: 'range',
+        defaultValue: 0.25,
+        label: 'Variation Factor',
+        description: 'Amount of random variation to apply',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+    ],
+    getDefaults: () => ({
+      verticalPadding: 60,
+      nodeSize: 'medium',
+      primaryColor: '#7B68EE',
+      spacing: 'normal',
+      temperature: 0.4,
+      variationFactor: 0.25,
+    }),
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, verticalSpreadTransform, [
+        { name: 'verticalPadding', defaultValue: 60 },
+        { name: 'nodeSize', defaultValue: 'medium' },
+        { name: 'primaryColor', defaultValue: '#7B68EE' },
+        { name: 'spacing', defaultValue: 'normal' },
+        { name: 'temperature', defaultValue: 0.4 },
+        { name: 'variationFactor', defaultValue: 0.25 },
+      ]),
+  },
+  [NODE_SHAPE.ID]: {
+    id: NODE_SHAPE.ID,
+    name: NODE_SHAPE.NAME,
+    description:
+      'Uses sophisticated algorithms to map genealogical patterns to geometric forms, creating meaningful visual distinctions across family structures.',
+    shortDescription: 'Changes node shapes based on generation or metadata',
+    transform: nodeShapeTransform as VisualTransformerFn,
+    categories: ['visual', 'shape'],
+    availableDimensions: [
+      'generation',
+      'childrenCount',
+      'lifespan',
+      'marriageCount',
+      'birthYear',
+      'nameLength',
+    ],
+    defaultPrimaryDimension: 'generation',
+    defaultSecondaryDimension: 'childrenCount',
+    visualParameters: [
+      {
+        name: 'variationFactor',
+        type: 'range',
+        defaultValue: 0.15,
+        label: 'Variation Factor',
+        description: 'Amount of random variation to apply',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+      {
+        name: 'temperature',
+        type: 'range',
+        defaultValue: 0.2,
+        label: 'Temperature',
+        description: 'Randomness factor for non-deterministic behavior',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
     ],
     createRuntimeTransformerFunction: (params) =>
-      createRuntimeTransformerFunction(params, verticalSpreadTransform),
+      createRuntimeTransformerFunction(params, nodeShapeTransform),
+  },
+  [NODE_ROTATION.ID]: {
+    id: NODE_ROTATION.ID,
+    name: NODE_ROTATION.NAME,
+    description:
+      'Applies precise angular calculations that reflect temporal and genealogical relationships, adding dynamic visual interest to family trees.',
+    shortDescription: 'Rotates nodes based on birth year or lifespan',
+    transform: nodeRotationTransform as VisualTransformerFn,
+    categories: ['visual', 'rotation'],
+    availableDimensions: [
+      'birthYear',
+      'generation',
+      'lifespan',
+      'childrenCount',
+      'marriageCount',
+      'nameLength',
+    ],
+    defaultPrimaryDimension: 'birthYear',
+    defaultSecondaryDimension: 'generation',
+    visualParameters: [
+      {
+        name: 'variationFactor',
+        type: 'range',
+        defaultValue: 0.3,
+        label: 'Variation Factor',
+        description: 'Amount of random variation to apply',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+      {
+        name: 'temperature',
+        type: 'range',
+        defaultValue: 0.6,
+        label: 'Temperature',
+        description: 'Randomness factor for non-deterministic behavior',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+    ],
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, nodeRotationTransform),
+  },
+  [NODE_SCALE.ID]: {
+    id: NODE_SCALE.ID,
+    name: NODE_SCALE.NAME,
+    description:
+      'Applies independent width and height transformations that create compelling oval and rectangular forms reflecting individual significance.',
+    shortDescription: 'Scales node dimensions for oval or rectangular shapes',
+    transform: nodeScaleTransform as VisualTransformerFn,
+    categories: ['visual', 'scale'],
+    availableDimensions: [
+      'lifespan',
+      'childrenCount',
+      'generation',
+      'marriageCount',
+      'birthYear',
+      'nameLength',
+    ],
+    defaultPrimaryDimension: 'lifespan',
+    defaultSecondaryDimension: 'childrenCount',
+    visualParameters: [
+      {
+        name: 'variationFactor',
+        type: 'range',
+        defaultValue: 0.25,
+        label: 'Variation Factor',
+        description: 'Amount of random variation to apply',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+      {
+        name: 'temperature',
+        type: 'range',
+        defaultValue: 0.3,
+        label: 'Temperature',
+        description: 'Randomness factor for non-deterministic behavior',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+    ],
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, nodeScaleTransform),
   },
 };
 

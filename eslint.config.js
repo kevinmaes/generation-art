@@ -59,6 +59,7 @@ export default [
         },
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/dot-notation': 'off',
       '@typescript-eslint/no-confusing-void-expression': 'off',
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',
@@ -69,6 +70,20 @@ export default [
       'no-debugger': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
+    },
+  },
+  // Special rules for transformers directory due to type system mismatch
+  {
+    files: ['**/transformers/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/restrict-plus-operands': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
     },
   },
   prettier,

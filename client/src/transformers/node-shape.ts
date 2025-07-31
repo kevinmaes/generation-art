@@ -1,8 +1,8 @@
 /**
- * Node Size Transformer
+ * Node Shape Transformer
  *
- * This transformer controls the size of nodes based on metadata like
- * number of children, age at death, or importance metrics.
+ * This transformer controls the shape of nodes based on metadata like
+ * generation, gender, marriage status, or number of children.
  */
 
 import type {
@@ -10,25 +10,43 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
-import { getIndividualOrWarn } from './utils/transformer-guards';
+import { getIndividualSafe } from './utils/safe-access';
 
 /**
- * Calculate node size based on selected dimensions
+ * Available node shapes
  */
-function calculateNodeSize(
+const SHAPES = ['circle', 'square', 'triangle', 'hexagon', 'star'] as const;
+type NodeShape = (typeof SHAPES)[number];
+
+/**
+ * Calculate node shape based on selected dimensions
+ */
+let debugCallCount = 0;
+
+function calculateNodeShape(
   context: TransformerContext,
   individualId: string,
-): number {
+): NodeShape {
   const { gedcomData, dimensions, visual, temperature } = context;
 
-  // Find the individual with null check
-  const individual = getIndividualOrWarn(
-    gedcomData,
-    individualId,
-    'Node size transformer',
-  );
+  // Only log first 3 calls to avoid spam
+  if (debugCallCount < 3) {
+    console.log(`🔍 calculateNodeShape called for ${individualId}:`, {
+      primaryDimension: dimensions.primary,
+      secondaryDimension: dimensions.secondary,
+      visual: Object.keys(visual),
+      temperature,
+    });
+    debugCallCount++;
+  }
+
+  // Find the individual
+  const individual = getIndividualSafe(gedcomData, individualId);
   if (!individual) {
-    return 15; // Return default size
+    console.warn(
+      `Node shape transformer: Individual ${individualId} not found`,
+    );
+    return 'circle'; // Return default shape
   }
 
   // Get the primary dimension value
@@ -36,6 +54,12 @@ function calculateNodeSize(
   let primaryValue = 0.5; // Default fallback
 
   switch (primaryDimension) {
+    case 'generation': {
+      const generationValue =
+        individual.metadata?.relativeGenerationValue ?? 0.5;
+      primaryValue = generationValue;
+      break;
+    }
     case 'childrenCount': {
       // Count children by looking at parent relationships
       const allIndividuals = Object.values(gedcomData.individuals).filter(
@@ -68,13 +92,6 @@ function calculateNodeSize(
       }
       break;
     }
-    case 'generation': {
-      // Invert generation value so earlier generations are larger
-      const generationValue =
-        individual.metadata?.relativeGenerationValue ?? 0.5;
-      primaryValue = 1 - generationValue;
-      break;
-    }
     case 'marriageCount': {
       // Count marriages by checking families where individual is spouse
       const families = Object.values(gedcomData.families).filter(
@@ -97,6 +114,23 @@ function calculateNodeSize(
       primaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
       break;
     }
+    case 'birthYear': {
+      const allBirthYears = Object.values(gedcomData.individuals)
+        .filter((ind) => ind !== null && ind !== undefined)
+        .map((ind) => ind.metadata?.birthYear)
+        .filter((year): year is number => year !== undefined);
+      if (allBirthYears.length > 0) {
+        const minYear = Math.min(...allBirthYears);
+        const maxYear = Math.max(...allBirthYears);
+        const yearRange = maxYear - minYear;
+        primaryValue =
+          yearRange > 0
+            ? ((individual.metadata?.birthYear ?? minYear) - minYear) /
+              yearRange
+            : 0.5;
+      }
+      break;
+    }
   }
 
   // Get the secondary dimension value (if specified)
@@ -105,6 +139,12 @@ function calculateNodeSize(
 
   if (secondaryDimension && secondaryDimension !== primaryDimension) {
     switch (secondaryDimension) {
+      case 'generation': {
+        const generationValue =
+          individual.metadata?.relativeGenerationValue ?? 0.5;
+        secondaryValue = generationValue;
+        break;
+      }
       case 'childrenCount': {
         const allIndividuals = Object.values(gedcomData.individuals).filter(
           (ind) => ind !== null && ind !== undefined,
@@ -137,12 +177,6 @@ function calculateNodeSize(
         }
         break;
       }
-      case 'generation': {
-        const generationValue =
-          individual.metadata?.relativeGenerationValue ?? 0.5;
-        secondaryValue = 1 - generationValue;
-        break;
-      }
       case 'marriageCount': {
         const families = Object.values(gedcomData.families).filter(
           (family) => family !== null && family !== undefined,
@@ -164,29 +198,42 @@ function calculateNodeSize(
         secondaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
         break;
       }
+      case 'birthYear': {
+        const allBirthYears = Object.values(gedcomData.individuals)
+          .filter((ind) => ind !== null && ind !== undefined)
+          .map((ind) => ind.metadata?.birthYear)
+          .filter((year): year is number => year !== undefined);
+        if (allBirthYears.length > 0) {
+          const minYear = Math.min(...allBirthYears);
+          const maxYear = Math.max(...allBirthYears);
+          const yearRange = maxYear - minYear;
+          secondaryValue =
+            yearRange > 0
+              ? ((individual.metadata?.birthYear ?? minYear) - minYear) /
+                yearRange
+              : 0.5;
+        }
+        break;
+      }
     }
   }
 
   // Get visual parameters directly from context
-  const { nodeSize, variationFactor } = visual;
+  const { variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
-  // Convert node size string to base size values
-  const sizeMap = {
-    small: { min: 10, max: 20 },
-    medium: { min: 15, max: 35 },
-    large: { min: 25, max: 50 },
-    'extra-large': { min: 35, max: 70 },
-  };
-  const sizeRange = sizeMap[nodeSize as keyof typeof sizeMap];
+  // Combine primary and secondary dimensions (ensure no NaN values)
+  const safePrimaryValue = isNaN(primaryValue) ? 0.5 : primaryValue;
+  const safeSecondaryValue = isNaN(secondaryValue) ? 0.5 : secondaryValue;
+  const combinedValue = safePrimaryValue * 0.7 + safeSecondaryValue * 0.3;
 
-  // Combine primary and secondary dimensions with variation factor
-  const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
-
-  // Add temperature-based randomness with variation factor influence
+  // Add temperature-based randomness with variation factor influence (ensure no NaN)
   const baseRandomness = (Math.random() - 0.5) * temp * 0.3; // ±15% max variation
-  const variationRandomness =
-    (Math.random() - 0.5) * (variationFactor as number) * 0.2; // Additional variation
+  const safeVariationFactor =
+    typeof variationFactor === 'number' && !isNaN(variationFactor)
+      ? variationFactor
+      : 0.5;
+  const variationRandomness = (Math.random() - 0.5) * safeVariationFactor * 0.2; // Additional variation
   const totalRandomFactor = baseRandomness + variationRandomness;
 
   const adjustedDimensionValue = Math.max(
@@ -194,46 +241,81 @@ function calculateNodeSize(
     Math.min(1, combinedValue + totalRandomFactor),
   );
 
-  // Calculate final size within the range
-  const finalSize =
-    sizeRange.min + adjustedDimensionValue * (sizeRange.max - sizeRange.min);
+  // Map the adjusted value to one of the available shapes
+  const shapeIndex = Math.floor(adjustedDimensionValue * SHAPES.length);
+  const clampedIndex = Math.min(shapeIndex, SHAPES.length - 1);
+  const selectedShape = SHAPES[clampedIndex];
 
-  return finalSize;
+  // Only log first 3 calculations
+  if (debugCallCount <= 3) {
+    console.log(
+      `🔍 ${individualId} shape calculation: primaryValue=${String(primaryValue.toFixed(3))}, secondaryValue=${String(secondaryValue.toFixed(3))}, combinedValue=${String(combinedValue.toFixed(3))}, variationFactor=${String(safeVariationFactor)}, totalRandomFactor=${String(totalRandomFactor.toFixed(3))}, adjustedValue=${String(adjustedDimensionValue.toFixed(3))}, shapeIndex=${String(shapeIndex)}, selectedShape=${selectedShape}`,
+    );
+  }
+
+  return selectedShape;
 }
 
 /**
- * Node size transform function
- * Applies size calculations to all individuals based on selected dimensions
+ * Node shape transform function
+ * Applies shape calculations to all individuals based on selected dimensions
  */
-export async function nodeSizeTransform(
+export async function nodeShapeTransform(
   context: TransformerContext,
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
+
+  console.log('🔍 nodeShapeTransform called with context:', {
+    individualCount: Object.keys(gedcomData.individuals).length,
+    dimensions: context.dimensions,
+    visual: Object.keys(context.visual),
+  });
 
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual) => individual !== null && individual !== undefined,
   );
   if (individuals.length === 0) {
+    console.log('🔍 No individuals found, returning empty metadata');
     return { visualMetadata: {} };
   }
+
+  console.log(`🔍 Processing ${String(individuals.length)} individuals`);
 
   // Create updated individual visual metadata
   const updatedIndividuals: Record<string, VisualMetadata> = {};
 
-  // Apply size calculations to each individual
-  individuals.forEach((individual) => {
+  // Apply shape calculations to each individual
+  individuals.forEach((individual, index) => {
     const currentMetadata = visualMetadata.individuals?.[individual.id] ?? {};
-    const calculatedSize = calculateNodeSize(context, individual.id);
+    const calculatedShape = calculateNodeShape(context, individual.id);
 
-    // Preserve existing visual metadata and update size
+    // Only log first 3 for debugging
+    if (index < 3) {
+      console.log(
+        `🔍 Individual ${individual.id}: calculated shape = ${String(calculatedShape)}`,
+      );
+    }
+
+    // Preserve existing visual metadata and update shape
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      size: calculatedSize,
+      shape: calculatedShape,
     };
   });
 
   // Small delay to simulate async work
   await new Promise((resolve) => setTimeout(resolve, 1));
+
+  // Simple verification that shapes are being set
+  const shapeCounts = Object.values(updatedIndividuals).reduce<
+    Record<string, number>
+  >((acc, individual) => {
+    const shape = individual.shape || 'undefined';
+    acc[shape] = (acc[shape] || 0) + 1;
+    return acc;
+  }, {});
+
+  console.log('🔍 Node shape transformer output summary:', shapeCounts);
 
   return {
     visualMetadata: {

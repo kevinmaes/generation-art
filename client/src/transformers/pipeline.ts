@@ -18,8 +18,11 @@ import type {
 import type { VisualParameterValues } from './visual-parameters';
 import {
   getTransformer,
+  HORIZONTAL_SPREAD,
+  NODE_OPACITY,
   type TransformerId,
   transformers,
+  VERTICAL_SPREAD,
 } from './transformers';
 import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
@@ -45,6 +48,12 @@ import {
   DEFAULT_CUSTOM,
 } from './constants';
 
+export const PIPELINE_DEFAULTS: {
+  TRANSFORMER_IDS: TransformerId[];
+} = {
+  TRANSFORMER_IDS: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID, NODE_OPACITY.ID],
+};
+
 /**
  * Pipeline configuration
  */
@@ -61,6 +70,15 @@ export interface PipelineConfig {
   // Canvas dimensions for reference
   canvasWidth?: number;
   canvasHeight?: number;
+
+  // Transformer parameters (dimensions and visual parameters for each transformer)
+  transformerParameters?: Record<
+    string,
+    {
+      dimensions: { primary?: string; secondary?: string };
+      visual: VisualParameterValues;
+    }
+  >;
 }
 
 interface PipelineInput {
@@ -90,32 +108,34 @@ export interface PipelineError {
   step: number;
 }
 
+export const initialEntityVisualMetadata: VisualMetadata = {
+  x: DEFAULT_X,
+  y: DEFAULT_Y,
+  size: DEFAULT_SIZE,
+  scale: DEFAULT_SCALE,
+  color: DEFAULT_COLOR,
+  backgroundColor: DEFAULT_BACKGROUND_COLOR,
+  strokeColor: DEFAULT_STROKE_COLOR,
+  opacity: DEFAULT_OPACITY,
+  alpha: DEFAULT_ALPHA,
+  shape: DEFAULT_SHAPE,
+  strokeWeight: DEFAULT_STROKE_WEIGHT,
+  strokeStyle: DEFAULT_STROKE_STYLE,
+  velocity: DEFAULT_VELOCITY,
+  acceleration: DEFAULT_ACCELERATION,
+  rotation: DEFAULT_ROTATION,
+  rotationSpeed: DEFAULT_ROTATION_SPEED,
+  group: DEFAULT_GROUP,
+  layer: DEFAULT_LAYER,
+  priority: DEFAULT_PRIORITY,
+  custom: DEFAULT_CUSTOM,
+};
+
 /**
  * Create initial visual metadata for a single entity
  */
 function createInitialEntityVisualMetadata(): VisualMetadata {
-  return {
-    x: DEFAULT_X,
-    y: DEFAULT_Y,
-    size: DEFAULT_SIZE,
-    scale: DEFAULT_SCALE,
-    color: DEFAULT_COLOR,
-    backgroundColor: DEFAULT_BACKGROUND_COLOR,
-    strokeColor: DEFAULT_STROKE_COLOR,
-    opacity: DEFAULT_OPACITY,
-    alpha: DEFAULT_ALPHA,
-    shape: DEFAULT_SHAPE,
-    strokeWeight: DEFAULT_STROKE_WEIGHT,
-    strokeStyle: DEFAULT_STROKE_STYLE,
-    velocity: DEFAULT_VELOCITY,
-    acceleration: DEFAULT_ACCELERATION,
-    rotation: DEFAULT_ROTATION,
-    rotationSpeed: DEFAULT_ROTATION_SPEED,
-    group: DEFAULT_GROUP,
-    layer: DEFAULT_LAYER,
-    priority: DEFAULT_PRIORITY,
-    custom: DEFAULT_CUSTOM,
-  };
+  return initialEntityVisualMetadata;
 }
 
 /**
@@ -159,7 +179,7 @@ export function createInitialCompleteVisualMetadata(
       strokeColor: DEFAULT_STROKE_COLOR,
       strokeWeight: DEFAULT_STROKE_WEIGHT,
       strokeStyle: DEFAULT_STROKE_STYLE,
-      opacity: 1.0,
+      opacity: 0.5, // More transparent initial edges
       // Remove position attributes for edges (they're connections, not positioned entities)
       x: undefined,
       y: undefined,
@@ -333,6 +353,17 @@ export async function runPipeline({
       // Get transformer from registry
       const transformer = getTransformer(transformerId);
 
+      // Get transformer parameters from config (or use defaults)
+      const transformerParams = config.transformerParameters?.[
+        transformerId
+      ] ?? {
+        dimensions: {
+          primary: transformer.defaultPrimaryDimension,
+          secondary: transformer.defaultSecondaryDimension,
+        },
+        visual: {},
+      };
+
       // Create context for this transformer
       const context: TransformerContext = {
         gedcomData: fullData,
@@ -342,14 +373,28 @@ export async function runPipeline({
         seed: config.seed,
         canvasWidth: config.canvasWidth,
         canvasHeight: config.canvasHeight,
-        dimensions: { primary: 'generation' },
-        visual: {} as VisualParameterValues, // Will be overridden by factory function
+        dimensions: {
+          primary:
+            transformerParams.dimensions.primary ??
+            transformer.defaultPrimaryDimension,
+          secondary:
+            transformerParams.dimensions.secondary ??
+            transformer.defaultSecondaryDimension,
+        },
+        visual: transformerParams.visual,
       };
 
       // Execute transformer using factory function to inject parameters
       const runtimeTransformer = transformer.createRuntimeTransformerFunction({
-        dimensions: { primary: 'generation' },
-        visual: {},
+        dimensions: {
+          primary:
+            transformerParams.dimensions.primary ??
+            transformer.defaultPrimaryDimension,
+          secondary:
+            transformerParams.dimensions.secondary ??
+            transformer.defaultSecondaryDimension,
+        },
+        visual: transformerParams.visual,
       });
       const result = await runtimeTransformer(context);
 
@@ -358,6 +403,27 @@ export async function runPipeline({
         visualMetadata,
         result.visualMetadata,
       );
+
+      // Debug: check if shape transformer updated shapes
+      if (transformerId === 'node-shape' && result.visualMetadata.individuals) {
+        const sampleShapes = Object.entries(result.visualMetadata.individuals)
+          .slice(0, 3)
+          .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
+          .join(', ');
+        console.log(
+          `🔍 After ${transformerId}: Sample shapes in result:`,
+          sampleShapes,
+        );
+
+        const sampleFinalShapes = Object.entries(visualMetadata.individuals)
+          .slice(0, 3)
+          .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
+          .join(', ');
+        console.log(
+          `🔍 After ${transformerId}: Sample shapes in final metadata:`,
+          sampleFinalShapes,
+        );
+      }
 
       // Record successful execution
       transformerResults.push({
@@ -451,6 +517,13 @@ export function createSimplePipeline(
     seed?: string;
     canvasWidth?: number;
     canvasHeight?: number;
+    transformerParameters?: Record<
+      string,
+      {
+        dimensions: { primary?: string; secondary?: string };
+        visual: VisualParameterValues;
+      }
+    >;
   },
 ): PipelineConfig {
   return {
@@ -459,5 +532,6 @@ export function createSimplePipeline(
     seed: options?.seed,
     canvasWidth: options?.canvasWidth,
     canvasHeight: options?.canvasHeight,
+    transformerParameters: options?.transformerParameters,
   };
 }

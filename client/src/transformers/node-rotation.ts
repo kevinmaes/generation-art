@@ -1,8 +1,9 @@
 /**
- * Node Size Transformer
+ * Node Rotation Transformer
  *
- * This transformer controls the size of nodes based on metadata like
- * number of children, age at death, or importance metrics.
+ * This transformer controls the rotation of nodes based on metadata like
+ * birth year, generation, lifespan, or number of children.
+ * Rotation values are in radians (0 to 2π).
  */
 
 import type {
@@ -13,9 +14,9 @@ import type {
 import { getIndividualOrWarn } from './utils/transformer-guards';
 
 /**
- * Calculate node size based on selected dimensions
+ * Calculate node rotation based on selected dimensions
  */
-function calculateNodeSize(
+function calculateNodeRotation(
   context: TransformerContext,
   individualId: string,
 ): number {
@@ -25,10 +26,10 @@ function calculateNodeSize(
   const individual = getIndividualOrWarn(
     gedcomData,
     individualId,
-    'Node size transformer',
+    'Node rotation transformer',
   );
   if (!individual) {
-    return 15; // Return default size
+    return 0; // Return default rotation
   }
 
   // Get the primary dimension value
@@ -36,22 +37,27 @@ function calculateNodeSize(
   let primaryValue = 0.5; // Default fallback
 
   switch (primaryDimension) {
-    case 'childrenCount': {
-      // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals).filter(
-        (ind) => ind !== null && ind !== undefined,
-      );
-      const childrenCounts = allIndividuals.map((ind) => {
-        const children = allIndividuals.filter((child) =>
-          child?.parents?.includes(ind.id),
-        );
-        return children.length;
-      });
-      const maxChildren = Math.max(...childrenCounts);
-      const individualChildren = allIndividuals.filter((child) =>
-        child?.parents?.includes(individual.id),
-      ).length;
-      primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+    case 'birthYear': {
+      const allBirthYears = Object.values(gedcomData.individuals)
+        .filter((ind) => ind !== null && ind !== undefined)
+        .map((ind) => ind.metadata?.birthYear)
+        .filter((year): year is number => year !== undefined);
+      if (allBirthYears.length > 0) {
+        const minYear = Math.min(...allBirthYears);
+        const maxYear = Math.max(...allBirthYears);
+        const yearRange = maxYear - minYear;
+        primaryValue =
+          yearRange > 0
+            ? ((individual.metadata?.birthYear ?? minYear) - minYear) /
+              yearRange
+            : 0.5;
+      }
+      break;
+    }
+    case 'generation': {
+      const generationValue =
+        individual.metadata?.relativeGenerationValue ?? 0.5;
+      primaryValue = generationValue;
       break;
     }
     case 'lifespan': {
@@ -68,11 +74,22 @@ function calculateNodeSize(
       }
       break;
     }
-    case 'generation': {
-      // Invert generation value so earlier generations are larger
-      const generationValue =
-        individual.metadata?.relativeGenerationValue ?? 0.5;
-      primaryValue = 1 - generationValue;
+    case 'childrenCount': {
+      // Count children by looking at parent relationships
+      const allIndividuals = Object.values(gedcomData.individuals).filter(
+        (ind) => ind !== null && ind !== undefined,
+      );
+      const childrenCounts = allIndividuals.map((ind) => {
+        const children = allIndividuals.filter((child) =>
+          child?.parents?.includes(ind.id),
+        );
+        return children.length;
+      });
+      const maxChildren = Math.max(...childrenCounts);
+      const individualChildren = allIndividuals.filter((child) =>
+        child?.parents?.includes(individual.id),
+      ).length;
+      primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
       break;
     }
     case 'marriageCount': {
@@ -97,6 +114,17 @@ function calculateNodeSize(
       primaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
       break;
     }
+    case 'nameLength': {
+      const fullName = String(individual.name || '').trim();
+      const allNameLengths = Object.values(gedcomData.individuals)
+        .filter((ind) => ind !== null && ind !== undefined)
+        .map((ind) => {
+          return String(ind.name || '').trim().length;
+        });
+      const maxNameLength = Math.max(...allNameLengths);
+      primaryValue = maxNameLength > 0 ? fullName.length / maxNameLength : 0.5;
+      break;
+    }
   }
 
   // Get the secondary dimension value (if specified)
@@ -105,22 +133,27 @@ function calculateNodeSize(
 
   if (secondaryDimension && secondaryDimension !== primaryDimension) {
     switch (secondaryDimension) {
-      case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals).filter(
-          (ind) => ind !== null && ind !== undefined,
-        );
-        const childrenCounts = allIndividuals.map((ind) => {
-          const children = allIndividuals.filter((child) =>
-            child?.parents?.includes(ind.id),
-          );
-          return children.length;
-        });
-        const maxChildren = Math.max(...childrenCounts);
-        const individualChildren = allIndividuals.filter((child) =>
-          child?.parents?.includes(individual.id),
-        ).length;
-        secondaryValue =
-          maxChildren > 0 ? individualChildren / maxChildren : 0.5;
+      case 'birthYear': {
+        const allBirthYears = Object.values(gedcomData.individuals)
+          .filter((ind) => ind !== null && ind !== undefined)
+          .map((ind) => ind.metadata?.birthYear)
+          .filter((year): year is number => year !== undefined);
+        if (allBirthYears.length > 0) {
+          const minYear = Math.min(...allBirthYears);
+          const maxYear = Math.max(...allBirthYears);
+          const yearRange = maxYear - minYear;
+          secondaryValue =
+            yearRange > 0
+              ? ((individual.metadata?.birthYear ?? minYear) - minYear) /
+                yearRange
+              : 0.5;
+        }
+        break;
+      }
+      case 'generation': {
+        const generationValue =
+          individual.metadata?.relativeGenerationValue ?? 0.5;
+        secondaryValue = generationValue;
         break;
       }
       case 'lifespan': {
@@ -137,10 +170,22 @@ function calculateNodeSize(
         }
         break;
       }
-      case 'generation': {
-        const generationValue =
-          individual.metadata?.relativeGenerationValue ?? 0.5;
-        secondaryValue = 1 - generationValue;
+      case 'childrenCount': {
+        const allIndividuals = Object.values(gedcomData.individuals).filter(
+          (ind) => ind !== null && ind !== undefined,
+        );
+        const childrenCounts = allIndividuals.map((ind) => {
+          const children = allIndividuals.filter((child) =>
+            child?.parents?.includes(ind.id),
+          );
+          return children.length;
+        });
+        const maxChildren = Math.max(...childrenCounts);
+        const individualChildren = allIndividuals.filter((child) =>
+          child?.parents?.includes(individual.id),
+        ).length;
+        secondaryValue =
+          maxChildren > 0 ? individualChildren / maxChildren : 0.5;
         break;
       }
       case 'marriageCount': {
@@ -164,23 +209,26 @@ function calculateNodeSize(
         secondaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
         break;
       }
+      case 'nameLength': {
+        const fullName = String(individual.name || '').trim();
+        const allNameLengths = Object.values(gedcomData.individuals)
+          .filter((ind) => ind !== null && ind !== undefined)
+          .map((ind) => {
+            return String(ind.name || '').trim().length;
+          });
+        const maxNameLength = Math.max(...allNameLengths);
+        secondaryValue =
+          maxNameLength > 0 ? fullName.length / maxNameLength : 0.5;
+        break;
+      }
     }
   }
 
   // Get visual parameters directly from context
-  const { nodeSize, variationFactor } = visual;
+  const { variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
-  // Convert node size string to base size values
-  const sizeMap = {
-    small: { min: 10, max: 20 },
-    medium: { min: 15, max: 35 },
-    large: { min: 25, max: 50 },
-    'extra-large': { min: 35, max: 70 },
-  };
-  const sizeRange = sizeMap[nodeSize as keyof typeof sizeMap];
-
-  // Combine primary and secondary dimensions with variation factor
+  // Combine primary and secondary dimensions
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
 
   // Add temperature-based randomness with variation factor influence
@@ -194,18 +242,18 @@ function calculateNodeSize(
     Math.min(1, combinedValue + totalRandomFactor),
   );
 
-  // Calculate final size within the range
-  const finalSize =
-    sizeRange.min + adjustedDimensionValue * (sizeRange.max - sizeRange.min);
+  // Convert to rotation in radians (0 to 2π)
+  // Full rotation represents the full range of the dimension
+  const rotationRadians = adjustedDimensionValue * 2 * Math.PI;
 
-  return finalSize;
+  return rotationRadians;
 }
 
 /**
- * Node size transform function
- * Applies size calculations to all individuals based on selected dimensions
+ * Node rotation transform function
+ * Applies rotation calculations to all individuals based on selected dimensions
  */
-export async function nodeSizeTransform(
+export async function nodeRotationTransform(
   context: TransformerContext,
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
@@ -220,15 +268,15 @@ export async function nodeSizeTransform(
   // Create updated individual visual metadata
   const updatedIndividuals: Record<string, VisualMetadata> = {};
 
-  // Apply size calculations to each individual
+  // Apply rotation calculations to each individual
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals?.[individual.id] ?? {};
-    const calculatedSize = calculateNodeSize(context, individual.id);
+    const calculatedRotation = calculateNodeRotation(context, individual.id);
 
-    // Preserve existing visual metadata and update size
+    // Preserve existing visual metadata and update rotation
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      size: calculatedSize,
+      rotation: calculatedRotation,
     };
   });
 
