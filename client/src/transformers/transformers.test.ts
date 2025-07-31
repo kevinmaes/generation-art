@@ -300,11 +300,10 @@ describe('Horizontal Spread Transformer', () => {
     expect(individualMetadata?.x).toBeDefined();
     // y position should be preserved from the initial context
     expect(individualMetadata?.y).toBe(250);
-    // Size now includes temperature-based variation, so check it's within reasonable bounds
-    expect(individualMetadata?.size).toBeGreaterThan(5);
-    expect(individualMetadata?.size).toBeLessThan(50);
-    expect(individualMetadata?.color).toBe('#4CAF50');
-    expect(individualMetadata?.shape).toBe('circle');
+    // Horizontal spread should only set x position, not size, color, or shape
+    expect(individualMetadata?.size).toBe(20); // Should preserve initial size
+    expect(individualMetadata?.color).toBe('#cccccc'); // Should preserve initial color
+    expect(individualMetadata?.shape).toBe('circle'); // Should preserve initial shape
   });
 
   it('should handle empty individuals array', async () => {
@@ -699,11 +698,10 @@ describe('Horizontal Spread Transformer', () => {
       // x position should be preserved from the initial context
       expect(individualMetadata?.x).toBe(400);
       expect(individualMetadata?.y).toBeDefined();
-      // Size now includes temperature-based variation, so check it's within reasonable bounds
-      expect(individualMetadata?.size).toBeGreaterThan(5);
-      expect(individualMetadata?.size).toBeLessThan(50);
-      expect(individualMetadata?.color).toBe('#4CAF50');
-      expect(individualMetadata?.shape).toBe('circle');
+      // Vertical spread should only set y position, not size, color, or shape
+      expect(individualMetadata?.size).toBe(20); // Should preserve initial size
+      expect(individualMetadata?.color).toBe('#cccccc'); // Should preserve initial color
+      expect(individualMetadata?.shape).toBe('circle'); // Should preserve initial shape
     });
   });
 });

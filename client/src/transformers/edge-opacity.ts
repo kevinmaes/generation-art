@@ -121,12 +121,14 @@ function calculateEdgeOpacity(
         break;
       }
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals);
+        const allIndividuals = Object.values(gedcomData.individuals).filter(
+          (ind) => ind !== null && ind !== undefined,
+        );
         const sourceChildren = allIndividuals.filter((child) =>
-          child.parents.includes(sourceIndividual.id),
+          child?.parents?.includes(sourceIndividual.id),
         ).length;
         const targetChildren = allIndividuals.filter((child) =>
-          child.parents.includes(targetIndividual.id),
+          child?.parents?.includes(targetIndividual.id),
         ).length;
         const totalChildren = sourceChildren + targetChildren;
         const maxChildrenSum = 20;
@@ -134,8 +136,8 @@ function calculateEdgeOpacity(
         break;
       }
       case 'lifespan': {
-        const sourceLifespan = sourceIndividual.metadata.lifespan ?? 0;
-        const targetLifespan = targetIndividual.metadata.lifespan ?? 0;
+        const sourceLifespan = sourceIndividual.metadata?.lifespan ?? 0;
+        const targetLifespan = targetIndividual.metadata?.lifespan ?? 0;
         const avgLifespan = (sourceLifespan + targetLifespan) / 2;
         const maxLifespan = 100;
         secondaryValue = avgLifespan / maxLifespan;
@@ -158,8 +160,9 @@ function calculateEdgeOpacity(
   const { edgeOpacity, variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
-  // Use edge opacity as target opacity
-  const targetOpacity = typeof edgeOpacity === 'number' ? edgeOpacity : 0.7;
+  // Use edge opacity as target opacity (with proper fallback)
+  const targetOpacity =
+    typeof edgeOpacity === 'number' && !isNaN(edgeOpacity) ? edgeOpacity : 0.7;
 
   // Factor in edge length (longer edges = more transparent)
   const sourceIndividualVisual = visualMetadata.individuals?.[edge.sourceId];
@@ -177,14 +180,23 @@ function calculateEdgeOpacity(
   const maxDistance = Math.sqrt(canvasWidth ** 2 + canvasHeight ** 2);
   const distanceFactor = Math.max(0.5, 1 - (distance / maxDistance) * 0.3);
 
+  // Ensure no NaN values before combining
+  const safePrimaryValue = isNaN(primaryValue) ? 0.5 : primaryValue;
+  const safeSecondaryValue = isNaN(secondaryValue) ? 0.5 : secondaryValue;
+  const safeDistanceFactor = isNaN(distanceFactor) ? 1.0 : distanceFactor;
+
   // Combine primary and secondary dimensions with distance factor
   const combinedValue =
-    (primaryValue * 0.6 + secondaryValue * 0.2) * distanceFactor;
+    (safePrimaryValue * 0.6 + safeSecondaryValue * 0.2) * safeDistanceFactor;
 
   // Add temperature-based randomness with variation factor influence
+  const safeVariationFactor =
+    typeof variationFactor === 'number' && !isNaN(variationFactor)
+      ? variationFactor
+      : 0.5;
   const baseRandomness = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
   const variationRandomness =
-    (Math.random() - 0.5) * (variationFactor as number) * 0.15; // Additional variation
+    (Math.random() - 0.5) * safeVariationFactor * 0.15; // Additional variation
   const totalRandomFactor = baseRandomness + variationRandomness;
 
   const adjustedDimensionValue = Math.max(
@@ -193,10 +205,15 @@ function calculateEdgeOpacity(
   );
 
   // Use target opacity more directly with minimal dimension influence
-  const dimensionInfluence = adjustedDimensionValue * 0.3 + 0.7; // Range: 0.7 to 1.0
+  const dimensionInfluence = isNaN(adjustedDimensionValue)
+    ? 1.0
+    : adjustedDimensionValue * 0.3 + 0.7; // Range: 0.7 to 1.0
   const finalOpacity = targetOpacity * dimensionInfluence;
 
-  return Math.max(0.1, Math.min(1.0, finalOpacity)); // Ensure valid opacity range
+  // Ensure we don't return NaN
+  const safeOpacity = isNaN(finalOpacity) ? 0.7 : finalOpacity;
+
+  return Math.max(0.1, Math.min(1.0, safeOpacity)); // Ensure valid opacity range
 }
 
 /**
@@ -216,8 +233,9 @@ function calculateEdgeWidth(
   const { edgeWidth, variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
-  // Use edge width directly as base width value
-  const baseWidth = typeof edgeWidth === 'number' ? edgeWidth : 2;
+  // Use edge width directly as base width value (with proper fallback)
+  const baseWidth =
+    typeof edgeWidth === 'number' && !isNaN(edgeWidth) ? edgeWidth : 2;
   const widthRange = { min: Math.max(0.5, baseWidth - 1), max: baseWidth + 2 };
 
   // Base width on relationship type
@@ -231,9 +249,12 @@ function calculateEdgeWidth(
   }
 
   // Add temperature-based randomness
+  const safeVariationFactor =
+    typeof variationFactor === 'number' && !isNaN(variationFactor)
+      ? variationFactor
+      : 0.5;
   const randomness = (Math.random() - 0.5) * temp * 0.3;
-  const variationRandomness =
-    (Math.random() - 0.5) * (variationFactor as number) * 0.2;
+  const variationRandomness = (Math.random() - 0.5) * safeVariationFactor * 0.2;
   const adjustedValue = Math.max(
     0,
     Math.min(1, baseValue + randomness + variationRandomness),
@@ -243,7 +264,10 @@ function calculateEdgeWidth(
   const finalWidth =
     widthRange.min + adjustedValue * (widthRange.max - widthRange.min);
 
-  return finalWidth;
+  // Ensure we don't return NaN
+  const safeWidth = isNaN(finalWidth) ? 2 : finalWidth;
+
+  return safeWidth;
 }
 
 /**
@@ -277,7 +301,7 @@ export async function edgeOpacityTransform(
       ...currentMetadata,
       opacity: calculatedOpacity,
       strokeWeight: calculatedWidth,
-      color:
+      strokeColor:
         (secondaryColor as string | undefined) ??
         visualMetadata.global.defaultEdgeColor ??
         '#666666',

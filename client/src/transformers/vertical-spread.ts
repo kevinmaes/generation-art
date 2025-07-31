@@ -225,7 +225,6 @@ export async function verticalSpreadTransform(
     // Don't calculate x - preserve existing x position from previous transformers
     const y = calculateVerticalPosition(context, individual.id);
 
-
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
       y, // Only set y position (vertical spread responsibility)

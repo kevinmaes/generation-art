@@ -59,6 +59,7 @@ export default [
         },
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/dot-notation': 'off',
       '@typescript-eslint/no-confusing-void-expression': 'off',
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',

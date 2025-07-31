@@ -81,13 +81,14 @@ function createSketch(props: SketchProps): (p: p5) => void {
               '#ccc',
           );
           const opacity = edgeMetadata?.opacity ?? 0.8;
+          const weight =
+            edgeMetadata?.strokeWeight ??
+            visualMetadata.global.defaultEdgeWeight ??
+            strokeWeight;
+
           strokeColor.setAlpha(opacity * 255);
           p.stroke(strokeColor);
-          p.strokeWeight(
-            edgeMetadata?.strokeWeight ??
-              visualMetadata.global.defaultEdgeWeight ??
-              strokeWeight,
-          );
+          p.strokeWeight(weight);
           p.line(coord1.x, coord1.y, coord2.x, coord2.y);
         }
       }

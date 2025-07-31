@@ -225,7 +225,6 @@ export async function horizontalSpreadTransform(
     const x = calculateHorizontalPosition(context, individual.id);
     // Don't calculate y - preserve existing y position from previous transformers
 
-
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
       x, // Only set x position (horizontal spread responsibility)
