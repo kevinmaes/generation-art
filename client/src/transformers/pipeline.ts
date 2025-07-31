@@ -18,8 +18,10 @@ import type {
 import type { VisualParameterValues } from './visual-parameters';
 import {
   getTransformer,
+  HORIZONTAL_SPREAD,
   type TransformerId,
   transformers,
+  VERTICAL_SPREAD,
 } from './transformers';
 import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
@@ -44,6 +46,12 @@ import {
   DEFAULT_PRIORITY,
   DEFAULT_CUSTOM,
 } from './constants';
+
+export const PIPELINE_DEFAULTS: {
+  TRANSFORMER_IDS: TransformerId[];
+} = {
+  TRANSFORMER_IDS: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID],
+};
 
 /**
  * Pipeline configuration

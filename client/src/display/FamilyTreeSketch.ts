@@ -5,6 +5,12 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from '../transformers/types';
+import {
+  HORIZONTAL_SPREAD,
+  VERTICAL_SPREAD,
+  type TransformerId,
+} from '../transformers/transformers';
+import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
 
 export interface SketchConfig {
   width: number;
@@ -15,7 +21,7 @@ export interface SketchConfig {
   nodeSize?: number;
   colors?: string[];
   // VisualTransformer pipeline configuration
-  transformerIds?: string[];
+  transformerIds?: TransformerId[];
   temperature?: number;
   seed?: string;
   // Visibility controls
@@ -39,7 +45,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
     height,
     showNames = false,
     strokeWeight = 0.2,
-    transformerIds = ['horizontal-spread-by-generation', 'node-shape'],
+    transformerIds = PIPELINE_DEFAULTS.TRANSFORMER_IDS,
     temperature = 0.5,
     seed,
     showIndividuals = true,
@@ -220,7 +226,7 @@ export function createWebSketch(
     textSize: 5,
     nodeSize: 10,
     colors: ['#0000ff', '#ffff00'],
-    transformerIds: ['horizontal-spread-by-generation', 'node-shape'],
+    transformerIds: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID],
     temperature: 0.5,
     showIndividuals: true,
     showRelations: true,
@@ -293,7 +299,7 @@ export function createPrintSketch(
     textSize: 12,
     nodeSize: 20,
     colors: ['#000000', '#666666'],
-    transformerIds: ['horizontal-spread-by-generation', 'node-shape'],
+    transformerIds: PIPELINE_DEFAULTS.TRANSFORMER_IDS,
     temperature: 0.3,
     showIndividuals: true,
     showRelations: true,
