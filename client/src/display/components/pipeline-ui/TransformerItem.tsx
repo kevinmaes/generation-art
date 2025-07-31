@@ -16,20 +16,20 @@ interface TransformerItemProps {
     transformerId: TransformerId,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, unknown>;
+      visual: Record<string, string | number | boolean>;
     },
   ) => void;
   onParameterReset?: (transformerId: TransformerId) => void;
   currentParameters?: {
     dimensions: { primary?: string; secondary?: string };
-    visual: Record<string, unknown>;
+    visual: Record<string, string | number | boolean>;
   };
   // NEW: Disable controls during visualization
   isVisualizing?: boolean;
   // NEW: Last run parameters to compare for "Modified" badge
   lastRunParameters?: {
     dimensions: { primary?: string; secondary?: string };
-    visual: Record<string, unknown>;
+    visual: Record<string, string | number | boolean>;
   };
   // NEW: Expanded state management for available transformers
   isExpanded?: boolean;
@@ -55,7 +55,7 @@ export function TransformerItem({
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
     dimensions: { primary?: string; secondary?: string };
-    visual: Record<string, unknown>;
+    visual: Record<string, string | number | boolean>;
   }>(() => {
     if (currentParameters) {
       return currentParameters;
@@ -71,7 +71,7 @@ export function TransformerItem({
 
   // Separate state for slider values during dragging
   const [sliderValues, setSliderValues] = React.useState<
-    Record<string, unknown>
+    Record<string, string | number | boolean | undefined>
   >({});
 
   // Update local state when currentParameters change (from parent)
@@ -123,7 +123,10 @@ export function TransformerItem({
   };
 
   // Handle visual parameter changes (non-sliders)
-  const handleVisualParameterChange = (key: string, value: unknown) => {
+  const handleVisualParameterChange = (
+    key: string,
+    value: string | number | boolean,
+  ) => {
     const newParameters = {
       ...parameters,
       visual: {
@@ -136,7 +139,10 @@ export function TransformerItem({
   };
 
   // Handle slider input during dragging
-  const handleSliderInput = (key: string, value: unknown) => {
+  const handleSliderInput = (
+    key: string,
+    value: string | number | boolean | undefined,
+  ) => {
     setSliderValues((prev) => ({
       ...prev,
       [key]: value,
@@ -144,7 +150,10 @@ export function TransformerItem({
   };
 
   // Handle slider change completion
-  const handleSliderChangeComplete = (key: string, value: unknown) => {
+  const handleSliderChangeComplete = (
+    key: string,
+    value: string | number | boolean,
+  ) => {
     const newParameters = {
       ...parameters,
       visual: {

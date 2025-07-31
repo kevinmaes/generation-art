@@ -24,7 +24,7 @@ interface DualGedcomData {
 interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;
   activeTransformerIds: TransformerId[];
-  dualData?: DualGedcomData;
+  dualData?: DualGedcomData | null;
   onTransformerSelect?: (transformerId: TransformerId) => void;
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
@@ -32,7 +32,7 @@ interface PipelineManagerProps {
     transformerId: TransformerId,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, unknown>;
+      visual: Record<string, string | number | boolean>;
     },
   ) => void;
   onVisualize?: () => void;
@@ -43,7 +43,7 @@ interface PipelineManagerProps {
     string,
     {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, unknown>;
+      visual: Record<string, string | number | boolean>;
     }
   >;
 }
@@ -119,7 +119,7 @@ export function PipelineManager({
       string,
       {
         dimensions: { primary?: string; secondary?: string };
-        visual: Record<string, unknown>;
+        visual: Record<string, string | number | boolean>;
       }
     >
   >({});
@@ -134,7 +134,7 @@ export function PipelineManager({
     transformerId: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, unknown>;
+      visual: Record<string, string | number | boolean>;
     },
   ) => {
     // Use type guard to ensure valid transformer ID

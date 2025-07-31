@@ -17,7 +17,7 @@ interface PipelineModalProps {
   onClose: () => void;
   pipelineResult: PipelineResult | null;
   activeTransformerIds: TransformerId[];
-  dualData?: DualGedcomData;
+  dualData?: DualGedcomData | null;
   onTransformerSelect?: (transformerId: TransformerId) => void;
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
@@ -25,7 +25,7 @@ interface PipelineModalProps {
     transformerId: TransformerId,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, unknown>;
+      visual: Record<string, string | number | boolean>;
     },
   ) => void;
   onVisualize?: () => void;
@@ -35,7 +35,7 @@ interface PipelineModalProps {
     string,
     {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, unknown>;
+      visual: Record<string, string | number | boolean>;
     }
   >;
 }

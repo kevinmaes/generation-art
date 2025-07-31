@@ -95,8 +95,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
       // Draw nodes (individuals) using per-entity visual metadata
       if (showIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
-        
-        
+
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
@@ -122,7 +121,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
             visualMetadata.global.defaultNodeShape ??
             'circle';
           const opacity = individualMetadata?.opacity ?? 0.8;
-
 
           // Skip rendering if no position data from transformers
           if (!individualMetadata?.x || !individualMetadata?.y) {

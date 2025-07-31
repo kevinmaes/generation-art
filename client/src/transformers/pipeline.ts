@@ -343,7 +343,9 @@ export async function runPipeline({
       const transformer = getTransformer(transformerId);
 
       // Get transformer parameters from config (or use defaults)
-      const transformerParams = config.transformerParameters?.[transformerId] ?? {
+      const transformerParams = config.transformerParameters?.[
+        transformerId
+      ] ?? {
         dimensions: {
           primary: transformer.defaultPrimaryDimension,
           secondary: transformer.defaultSecondaryDimension,
@@ -361,8 +363,12 @@ export async function runPipeline({
         canvasWidth: config.canvasWidth,
         canvasHeight: config.canvasHeight,
         dimensions: {
-          primary: transformerParams.dimensions.primary ?? transformer.defaultPrimaryDimension,
-          secondary: transformerParams.dimensions.secondary ?? transformer.defaultSecondaryDimension,
+          primary:
+            transformerParams.dimensions.primary ??
+            transformer.defaultPrimaryDimension,
+          secondary:
+            transformerParams.dimensions.secondary ??
+            transformer.defaultSecondaryDimension,
         },
         visual: transformerParams.visual as VisualParameterValues,
       };
@@ -370,8 +376,12 @@ export async function runPipeline({
       // Execute transformer using factory function to inject parameters
       const runtimeTransformer = transformer.createRuntimeTransformerFunction({
         dimensions: {
-          primary: transformerParams.dimensions.primary ?? transformer.defaultPrimaryDimension,
-          secondary: transformerParams.dimensions.secondary ?? transformer.defaultSecondaryDimension,
+          primary:
+            transformerParams.dimensions.primary ??
+            transformer.defaultPrimaryDimension,
+          secondary:
+            transformerParams.dimensions.secondary ??
+            transformer.defaultSecondaryDimension,
         },
         visual: transformerParams.visual,
       });
@@ -389,13 +399,19 @@ export async function runPipeline({
           .slice(0, 3)
           .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
           .join(', ');
-        console.log(`🔍 After ${transformerId}: Sample shapes in result:`, sampleShapes);
-        
+        console.log(
+          `🔍 After ${transformerId}: Sample shapes in result:`,
+          sampleShapes,
+        );
+
         const sampleFinalShapes = Object.entries(visualMetadata.individuals)
-          .slice(0, 3)  
+          .slice(0, 3)
           .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
           .join(', ');
-        console.log(`🔍 After ${transformerId}: Sample shapes in final metadata:`, sampleFinalShapes);
+        console.log(
+          `🔍 After ${transformerId}: Sample shapes in final metadata:`,
+          sampleFinalShapes,
+        );
       }
 
       // Record successful execution

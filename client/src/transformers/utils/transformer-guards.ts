@@ -6,11 +6,13 @@
 /**
  * Validates that a transformer context has all required data
  */
-export function isValidTransformerContext(
-  context: any,
-): boolean {
+export function isValidTransformerContext(context: any): boolean {
   // All fields are required in TransformerContext, so this is just a type guard
-  return !!(context?.gedcomData && context?.visualMetadata && context?.dimensions);
+  return !!(
+    context?.gedcomData &&
+    context?.visualMetadata &&
+    context?.dimensions
+  );
 }
 
 /**
@@ -25,7 +27,9 @@ export function getIndividualOrThrow(
   if (!individual) {
     throw new Error(
       `${transformerName}: Individual '${individualId}' not found in GEDCOM data. ` +
-      `Available IDs: ${Object.keys(gedcomData.individuals || {}).slice(0, 5).join(', ')}...`
+        `Available IDs: ${Object.keys(gedcomData.individuals || {})
+          .slice(0, 5)
+          .join(', ')}...`,
     );
   }
   return individual;
@@ -43,7 +47,7 @@ export function getIndividualOrWarn(
   if (!individual) {
     console.warn(
       `${transformerName}: Individual '${individualId}' not found. ` +
-      `This may indicate corrupted data or invalid references.`
+        `This may indicate corrupted data or invalid references.`,
     );
     return undefined;
   }
@@ -74,15 +78,15 @@ export function validateEdgeReferences(
 ): boolean {
   const hasSource = sourceId in (gedcomData.individuals || {});
   const hasTarget = targetId in (gedcomData.individuals || {});
-  
+
   if (!hasSource || !hasTarget) {
     console.error(
       `Edge '${edgeId}' references invalid individuals: ` +
-      `source '${sourceId}' (${hasSource ? 'exists' : 'missing'}), ` +
-      `target '${targetId}' (${hasTarget ? 'exists' : 'missing'})`
+        `source '${sourceId}' (${hasSource ? 'exists' : 'missing'}), ` +
+        `target '${targetId}' (${hasTarget ? 'exists' : 'missing'})`,
     );
     return false;
   }
-  
+
   return true;
 }

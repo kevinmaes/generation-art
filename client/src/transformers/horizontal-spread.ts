@@ -25,7 +25,11 @@ function calculateHorizontalPosition(
   const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
 
   // Find the individual with null check
-  const individual = getIndividualOrWarn(gedcomData, individualId, 'Horizontal spread transformer');
+  const individual = getIndividualOrWarn(
+    gedcomData,
+    individualId,
+    'Horizontal spread transformer',
+  );
   if (!individual) {
     return canvasWidth / 2; // Return center position
   }
@@ -54,8 +58,9 @@ function calculateHorizontalPosition(
     }
     case 'childrenCount': {
       // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined);
+      const allIndividuals = Object.values(gedcomData.individuals).filter(
+        (ind) => ind !== null && ind !== undefined,
+      );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
           child?.parents?.includes(ind.id),
@@ -115,8 +120,9 @@ function calculateHorizontalPosition(
         break;
       }
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined);
+        const allIndividuals = Object.values(gedcomData.individuals).filter(
+          (ind) => ind !== null && ind !== undefined,
+        );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
             child.parents.includes(ind.id),

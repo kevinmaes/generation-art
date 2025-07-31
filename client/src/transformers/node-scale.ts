@@ -24,7 +24,11 @@ function calculateNodeScale(
   const { gedcomData, dimensions, visual, temperature } = context;
 
   // Find the individual with null check
-  const individual = getIndividualOrWarn(gedcomData, individualId, 'Node scale transformer');
+  const individual = getIndividualOrWarn(
+    gedcomData,
+    individualId,
+    'Node scale transformer',
+  );
   if (!individual) {
     return { width: 1, height: 1 }; // Return default scale
   }
@@ -50,8 +54,9 @@ function calculateNodeScale(
     }
     case 'childrenCount': {
       // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined);
+      const allIndividuals = Object.values(gedcomData.individuals).filter(
+        (ind) => ind !== null && ind !== undefined,
+      );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
           child?.parents?.includes(ind.id),
@@ -73,8 +78,9 @@ function calculateNodeScale(
     }
     case 'marriageCount': {
       // Count marriages by checking families where individual is spouse
-      const families = Object.values(gedcomData.families)
-        .filter((family) => family !== null && family !== undefined);
+      const families = Object.values(gedcomData.families).filter(
+        (family) => family !== null && family !== undefined,
+      );
       const marriageCount = families.filter(
         (family) =>
           family.husband?.id === individualId ||
@@ -103,7 +109,8 @@ function calculateNodeScale(
         const yearRange = maxYear - minYear;
         primaryValue =
           yearRange > 0
-            ? ((individual.metadata?.birthYear ?? minYear) - minYear) / yearRange
+            ? ((individual.metadata?.birthYear ?? minYear) - minYear) /
+              yearRange
             : 0.5;
       }
       break;
@@ -142,8 +149,9 @@ function calculateNodeScale(
         break;
       }
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals)
-          .filter((ind) => ind !== null && ind !== undefined);
+        const allIndividuals = Object.values(gedcomData.individuals).filter(
+          (ind) => ind !== null && ind !== undefined,
+        );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
             child?.parents?.includes(ind.id),
@@ -165,8 +173,9 @@ function calculateNodeScale(
         break;
       }
       case 'marriageCount': {
-        const families = Object.values(gedcomData.families)
-          .filter((family) => family !== null && family !== undefined);
+        const families = Object.values(gedcomData.families).filter(
+          (family) => family !== null && family !== undefined,
+        );
         const marriageCount = families.filter(
           (family) =>
             family.husband?.id === individualId ||
@@ -262,8 +271,9 @@ export async function nodeScaleTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
 
-  const individuals = Object.values(gedcomData.individuals)
-    .filter((individual) => individual !== null && individual !== undefined);
+  const individuals = Object.values(gedcomData.individuals).filter(
+    (individual) => individual !== null && individual !== undefined,
+  );
   if (individuals.length === 0) {
     return { visualMetadata: {} };
   }

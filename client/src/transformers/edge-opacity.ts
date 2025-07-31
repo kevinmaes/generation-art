@@ -13,7 +13,10 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
-import { getIndividualOrWarn, validateEdgeReferences } from './utils/transformer-guards';
+import {
+  getIndividualOrWarn,
+  validateEdgeReferences,
+} from './utils/transformer-guards';
 
 /**
  * Calculate edge opacity based on selected dimensions and edge properties
@@ -30,13 +33,23 @@ function calculateEdgeOpacity(
   if (!edge) return 0.5;
 
   // Validate edge references
-  if (!validateEdgeReferences(gedcomData, edge.sourceId, edge.targetId, edgeId)) {
+  if (
+    !validateEdgeReferences(gedcomData, edge.sourceId, edge.targetId, edgeId)
+  ) {
     return 0.1; // Return very low opacity for invalid edges
   }
 
-  const sourceIndividual = getIndividualOrWarn(gedcomData, edge.sourceId, 'Edge opacity transformer');
-  const targetIndividual = getIndividualOrWarn(gedcomData, edge.targetId, 'Edge opacity transformer');
-  
+  const sourceIndividual = getIndividualOrWarn(
+    gedcomData,
+    edge.sourceId,
+    'Edge opacity transformer',
+  );
+  const targetIndividual = getIndividualOrWarn(
+    gedcomData,
+    edge.targetId,
+    'Edge opacity transformer',
+  );
+
   if (!sourceIndividual || !targetIndividual) {
     return 0.1; // Return very low opacity if individuals not found
   }
@@ -57,8 +70,9 @@ function calculateEdgeOpacity(
     }
     case 'childrenCount': {
       // Combined children count of connected individuals
-      const allIndividuals = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined);
+      const allIndividuals = Object.values(gedcomData.individuals).filter(
+        (ind) => ind !== null && ind !== undefined,
+      );
       const sourceChildren = allIndividuals.filter((child) =>
         child?.parents?.includes(sourceIndividual.id),
       ).length;

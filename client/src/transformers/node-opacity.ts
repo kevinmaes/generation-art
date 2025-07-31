@@ -25,7 +25,11 @@ function calculateNodeOpacity(
   const { gedcomData, dimensions, visual, temperature } = context;
 
   // Find the individual with null check
-  const individual = getIndividualOrWarn(gedcomData, individualId, 'Node opacity transformer');
+  const individual = getIndividualOrWarn(
+    gedcomData,
+    individualId,
+    'Node opacity transformer',
+  );
   if (!individual) {
     return 0.5; // Return default opacity
   }
@@ -44,8 +48,9 @@ function calculateNodeOpacity(
     }
     case 'childrenCount': {
       // More children = more opaque
-      const allIndividuals = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined);
+      const allIndividuals = Object.values(gedcomData.individuals).filter(
+        (ind) => ind !== null && ind !== undefined,
+      );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
           child?.parents?.includes(ind.id),
@@ -96,8 +101,9 @@ function calculateNodeOpacity(
         break;
       }
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals)
-          .filter((ind) => ind !== null && ind !== undefined);
+        const allIndividuals = Object.values(gedcomData.individuals).filter(
+          (ind) => ind !== null && ind !== undefined,
+        );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
             child?.parents?.includes(ind.id),
@@ -180,8 +186,9 @@ export async function nodeOpacityTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
 
-  const individuals = Object.values(gedcomData.individuals)
-    .filter((individual) => individual !== null && individual !== undefined);
+  const individuals = Object.values(gedcomData.individuals).filter(
+    (individual) => individual !== null && individual !== undefined,
+  );
   if (individuals.length === 0) {
     return { visualMetadata: {} };
   }

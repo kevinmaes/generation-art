@@ -22,7 +22,11 @@ function calculateNodeSize(
   const { gedcomData, dimensions, visual, temperature } = context;
 
   // Find the individual with null check
-  const individual = getIndividualOrWarn(gedcomData, individualId, 'Node size transformer');
+  const individual = getIndividualOrWarn(
+    gedcomData,
+    individualId,
+    'Node size transformer',
+  );
   if (!individual) {
     return 15; // Return default size
   }
@@ -34,8 +38,9 @@ function calculateNodeSize(
   switch (primaryDimension) {
     case 'childrenCount': {
       // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined);
+      const allIndividuals = Object.values(gedcomData.individuals).filter(
+        (ind) => ind !== null && ind !== undefined,
+      );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
           child?.parents?.includes(ind.id),
@@ -72,8 +77,9 @@ function calculateNodeSize(
     }
     case 'marriageCount': {
       // Count marriages by checking families where individual is spouse
-      const families = Object.values(gedcomData.families)
-        .filter((family) => family !== null && family !== undefined);
+      const families = Object.values(gedcomData.families).filter(
+        (family) => family !== null && family !== undefined,
+      );
       const marriageCount = families.filter(
         (family) =>
           family.husband?.id === individualId ||
@@ -100,8 +106,9 @@ function calculateNodeSize(
   if (secondaryDimension && secondaryDimension !== primaryDimension) {
     switch (secondaryDimension) {
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals)
-          .filter((ind) => ind !== null && ind !== undefined);
+        const allIndividuals = Object.values(gedcomData.individuals).filter(
+          (ind) => ind !== null && ind !== undefined,
+        );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
             child?.parents?.includes(ind.id),
@@ -137,8 +144,9 @@ function calculateNodeSize(
         break;
       }
       case 'marriageCount': {
-        const families = Object.values(gedcomData.families)
-          .filter((family) => family !== null && family !== undefined);
+        const families = Object.values(gedcomData.families).filter(
+          (family) => family !== null && family !== undefined,
+        );
         const marriageCount = families.filter(
           (family) =>
             family.husband?.id === individualId ||
@@ -202,8 +210,9 @@ export async function nodeSizeTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
 
-  const individuals = Object.values(gedcomData.individuals)
-    .filter((individual) => individual !== null && individual !== undefined);
+  const individuals = Object.values(gedcomData.individuals).filter(
+    (individual) => individual !== null && individual !== undefined,
+  );
   if (individuals.length === 0) {
     return { visualMetadata: {} };
   }

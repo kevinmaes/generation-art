@@ -41,7 +41,7 @@ function App(): React.ReactElement {
       string,
       {
         dimensions: { primary?: string; secondary?: string };
-        visual: Record<string, unknown>;
+        visual: Record<string, string | number | boolean>;
       }
     >
   >({});
@@ -164,7 +164,7 @@ function App(): React.ReactElement {
     transformerId: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, unknown>;
+      visual: Record<string, string | number | boolean>;
     },
   ) => {
     setTransformerParameters((prev) => ({

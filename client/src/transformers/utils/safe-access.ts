@@ -16,10 +16,7 @@ interface GedcomDataRuntime {
  * @param individualId - The ID of the individual to retrieve
  * @returns The individual if found, undefined otherwise
  */
-export function getIndividualSafe(
-  gedcomData: any,
-  individualId: string,
-): any {
+export function getIndividualSafe(gedcomData: any, individualId: string): any {
   const data = gedcomData as GedcomDataRuntime;
   return data.individuals?.[individualId];
 }
@@ -30,10 +27,7 @@ export function getIndividualSafe(
  * @param familyId - The ID of the family to retrieve
  * @returns The family if found, undefined otherwise
  */
-export function getFamilySafe(
-  gedcomData: any,
-  familyId: string,
-): any {
+export function getFamilySafe(gedcomData: any, familyId: string): any {
   const data = gedcomData as GedcomDataRuntime;
   return data.families?.[familyId];
 }
@@ -41,19 +35,14 @@ export function getFamilySafe(
 /**
  * Type guard to check if an individual exists
  */
-export function isValidIndividual<T>(
-  value: T | undefined | null,
-): value is T {
+export function isValidIndividual<T>(value: T | undefined | null): value is T {
   return value !== undefined && value !== null;
 }
 
 /**
  * Get a safe default value when accessing nested properties
  */
-export function getSafeValue<T>(
-  getValue: () => T,
-  defaultValue: T,
-): T {
+export function getSafeValue<T>(getValue: () => T, defaultValue: T): T {
   try {
     const value = getValue();
     return value ?? defaultValue;
