@@ -19,6 +19,7 @@ import type { VisualParameterValues } from './visual-parameters';
 import {
   getTransformer,
   HORIZONTAL_SPREAD,
+  NODE_OPACITY,
   type TransformerId,
   transformers,
   VERTICAL_SPREAD,
@@ -50,7 +51,7 @@ import {
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID],
+  TRANSFORMER_IDS: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID, NODE_OPACITY.ID],
 };
 
 /**

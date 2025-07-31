@@ -57,7 +57,7 @@ function calculateNodeOpacity(
         );
         return children.length;
       });
-      const maxChildren = Math.max(...childrenCounts);
+      const maxChildren = childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
       const individualChildren = allIndividuals.filter((child) =>
         child?.parents?.includes(individual.id),
       ).length;
@@ -69,13 +69,16 @@ function calculateNodeOpacity(
       const allLifespans = Object.values(gedcomData.individuals)
         .filter((ind) => ind !== null && ind !== undefined)
         .map((ind) => ind.metadata?.lifespan)
-        .filter((span): span is number => span !== undefined);
+        .filter((span): span is number => span !== undefined && span > 0);
       if (allLifespans.length > 0) {
         const maxLifespan = Math.max(...allLifespans);
+        const individualLifespan = individual.metadata?.lifespan ?? 0;
         primaryValue =
-          maxLifespan > 0
-            ? (individual.metadata?.lifespan ?? 0) / maxLifespan
+          maxLifespan > 0 && individualLifespan > 0
+            ? individualLifespan / maxLifespan
             : 0.5;
+      } else {
+        primaryValue = 0.5;
       }
       break;
     }
@@ -110,7 +113,7 @@ function calculateNodeOpacity(
           );
           return children.length;
         });
-        const maxChildren = Math.max(...childrenCounts);
+        const maxChildren = childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
         const individualChildren = allIndividuals.filter((child) =>
           child?.parents?.includes(individual.id),
         ).length;
@@ -122,13 +125,16 @@ function calculateNodeOpacity(
         const allLifespans = Object.values(gedcomData.individuals)
           .filter((ind) => ind !== null && ind !== undefined)
           .map((ind) => ind.metadata?.lifespan)
-          .filter((span): span is number => span !== undefined);
+          .filter((span): span is number => span !== undefined && span > 0);
         if (allLifespans.length > 0) {
           const maxLifespan = Math.max(...allLifespans);
+          const individualLifespan = individual.metadata?.lifespan ?? 0;
           secondaryValue =
-            maxLifespan > 0
-              ? (individual.metadata?.lifespan ?? 0) / maxLifespan
+            maxLifespan > 0 && individualLifespan > 0
+              ? individualLifespan / maxLifespan
               : 0.5;
+        } else {
+          secondaryValue = 0.5;
         }
         break;
       }
@@ -145,15 +151,31 @@ function calculateNodeOpacity(
   const { nodeOpacity, variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
-  // Convert node opacity string to base opacity values
-  const opacityMap = {
-    'very-transparent': { min: 0.2, max: 0.4 },
-    transparent: { min: 0.3, max: 0.6 },
-    'semi-transparent': { min: 0.5, max: 0.8 },
-    opaque: { min: 0.7, max: 1.0 },
-    'fully-opaque': { min: 0.9, max: 1.0 },
-  };
-  const opacityRange = opacityMap[nodeOpacity as keyof typeof opacityMap];
+  // Handle both numeric and string nodeOpacity values
+  let baseOpacity: number;
+  let opacityRange: { min: number; max: number };
+
+  if (typeof nodeOpacity === 'number') {
+    // Numeric nodeOpacity (from slider): use as base opacity
+    baseOpacity = nodeOpacity;
+    // Create range around the base opacity for variation
+    const variation = 0.2; // ±20% variation range
+    opacityRange = {
+      min: Math.max(0.1, baseOpacity - variation),
+      max: Math.min(1.0, baseOpacity + variation),
+    };
+  } else {
+    // String nodeOpacity (legacy): map to ranges
+    const opacityMap = {
+      'very-transparent': { min: 0.2, max: 0.4 },
+      transparent: { min: 0.3, max: 0.6 },
+      'semi-transparent': { min: 0.5, max: 0.8 },
+      opaque: { min: 0.7, max: 1.0 },
+      'fully-opaque': { min: 0.9, max: 1.0 },
+    };
+    opacityRange = opacityMap[nodeOpacity as keyof typeof opacityMap] || opacityMap['semi-transparent'];
+    baseOpacity = (opacityRange.min + opacityRange.max) / 2;
+  }
 
   // Combine primary and secondary dimensions with variation factor
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
@@ -174,7 +196,9 @@ function calculateNodeOpacity(
     opacityRange.min +
     adjustedDimensionValue * (opacityRange.max - opacityRange.min);
 
-  return Math.max(0.1, Math.min(1.0, finalOpacity)); // Ensure valid opacity range
+  // Ensure valid opacity range and handle NaN
+  const safeOpacity = Math.max(0.1, Math.min(1.0, finalOpacity));
+  return isNaN(safeOpacity) || !isFinite(safeOpacity) ? 0.5 : safeOpacity;
 }
 
 /**
