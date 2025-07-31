@@ -67,7 +67,7 @@ function _getDefaultVisualParams(): VisualParameterValues {
 export function createRuntimeTransformerFunction(
   params: {
     dimensions: { primary?: string; secondary?: string };
-    visual: Record<string, string | number | boolean>;
+    visual: VisualParameterValues;
   },
   transformFn: VisualTransformerFn,
   visualParameters?: {
@@ -77,7 +77,7 @@ export function createRuntimeTransformerFunction(
 ): VisualTransformerFn {
   return async (context: TransformerContext): Promise<TransformerOutput> => {
     // Get transformer-specific defaults
-    const transformerDefaults: Record<string, string | number | boolean> = {};
+    const transformerDefaults: VisualParameterValues = {} as VisualParameterValues;
     if (visualParameters) {
       for (const param of visualParameters) {
         transformerDefaults[param.name] = param.defaultValue;

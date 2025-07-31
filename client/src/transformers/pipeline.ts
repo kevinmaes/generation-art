@@ -75,7 +75,7 @@ export interface PipelineConfig {
     string,
     {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, string | number | boolean>;
+      visual: VisualParameterValues;
     }
   >;
 }
@@ -378,7 +378,7 @@ export async function runPipeline({
             transformerParams.dimensions.secondary ??
             transformer.defaultSecondaryDimension,
         },
-        visual: transformerParams.visual as VisualParameterValues,
+        visual: transformerParams.visual,
       };
 
       // Execute transformer using factory function to inject parameters
@@ -518,7 +518,7 @@ export function createSimplePipeline(
       string,
       {
         dimensions: { primary?: string; secondary?: string };
-        visual: Record<string, string | number | boolean>;
+        visual: VisualParameterValues;
       }
     >;
   },

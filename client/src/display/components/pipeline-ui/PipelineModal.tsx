@@ -6,6 +6,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../../../shared/types';
+import type { VisualParameterValues } from '../../../transformers/visual-parameters';
 
 interface DualGedcomData {
   full: GedcomDataWithMetadata;
@@ -25,7 +26,7 @@ interface PipelineModalProps {
     transformerId: TransformerId,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, string | number | boolean>;
+      visual: VisualParameterValues;
     },
   ) => void;
   onVisualize?: () => void;
@@ -35,7 +36,7 @@ interface PipelineModalProps {
     string,
     {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, string | number | boolean>;
+      visual: VisualParameterValues;
     }
   >;
 }

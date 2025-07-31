@@ -190,11 +190,11 @@ export interface VisualTransformerConfig {
       primary?: DimensionId;
       secondary?: DimensionId;
     };
-    visual: Record<string, string | number | boolean>;
+    visual: VisualParameterValues;
   }) => VisualTransformerFn;
 
   // Helper method to get default values for this transformer
-  getDefaults?: () => Record<string, string | number | boolean>;
+  getDefaults?: () => VisualParameterValues;
 
   // Categories for organization
   categories?: string[];

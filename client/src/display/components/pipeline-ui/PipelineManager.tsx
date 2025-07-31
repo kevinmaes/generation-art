@@ -13,6 +13,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../../../shared/types';
+import type { VisualParameterValues } from '../../../transformers/visual-parameters';
 import { TransformerItem } from './TransformerItem';
 
 // Type for the complete dual-data structure
@@ -32,7 +33,7 @@ interface PipelineManagerProps {
     transformerId: TransformerId,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, string | number | boolean>;
+      visual: VisualParameterValues;
     },
   ) => void;
   onVisualize?: () => void;
@@ -43,7 +44,7 @@ interface PipelineManagerProps {
     string,
     {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, string | number | boolean>;
+      visual: VisualParameterValues;
     }
   >;
 }
@@ -119,7 +120,7 @@ export function PipelineManager({
       string,
       {
         dimensions: { primary?: string; secondary?: string };
-        visual: Record<string, string | number | boolean>;
+        visual: VisualParameterValues;
       }
     >
   >({});
@@ -134,7 +135,7 @@ export function PipelineManager({
     transformerId: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, string | number | boolean>;
+      visual: VisualParameterValues;
     },
   ) => {
     // Use type guard to ensure valid transformer ID

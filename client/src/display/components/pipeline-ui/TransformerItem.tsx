@@ -2,7 +2,7 @@ import React from 'react';
 import type { VisualTransformerConfig } from '../../../transformers/types';
 import type { TransformerId } from '../../../transformers/transformers';
 import { DIMENSIONS } from '../../../transformers/dimensions';
-import { VISUAL_PARAMETERS } from '../../../transformers/visual-parameters';
+import { VISUAL_PARAMETERS, type VisualParameterValues } from '../../../transformers/visual-parameters';
 
 interface TransformerItemProps {
   transformer: VisualTransformerConfig;
@@ -16,20 +16,20 @@ interface TransformerItemProps {
     transformerId: TransformerId,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, string | number | boolean>;
+      visual: VisualParameterValues;
     },
   ) => void;
   onParameterReset?: (transformerId: TransformerId) => void;
   currentParameters?: {
     dimensions: { primary?: string; secondary?: string };
-    visual: Record<string, string | number | boolean>;
+    visual: VisualParameterValues;
   };
   // NEW: Disable controls during visualization
   isVisualizing?: boolean;
   // NEW: Last run parameters to compare for "Modified" badge
   lastRunParameters?: {
     dimensions: { primary?: string; secondary?: string };
-    visual: Record<string, string | number | boolean>;
+    visual: VisualParameterValues;
   };
   // NEW: Expanded state management for available transformers
   isExpanded?: boolean;
@@ -55,7 +55,7 @@ export function TransformerItem({
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
     dimensions: { primary?: string; secondary?: string };
-    visual: Record<string, string | number | boolean>;
+    visual: VisualParameterValues;
   }>(() => {
     if (currentParameters) {
       return currentParameters;

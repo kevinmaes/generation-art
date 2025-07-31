@@ -12,6 +12,7 @@ import {
   HORIZONTAL_SPREAD,
   type TransformerId,
 } from './transformers/transformers';
+import type { VisualParameterValues } from './transformers/visual-parameters';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
 
@@ -41,7 +42,7 @@ function App(): React.ReactElement {
       string,
       {
         dimensions: { primary?: string; secondary?: string };
-        visual: Record<string, string | number | boolean>;
+        visual: VisualParameterValues;
       }
     >
   >({});
@@ -164,7 +165,7 @@ function App(): React.ReactElement {
     transformerId: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
-      visual: Record<string, string | number | boolean>;
+      visual: VisualParameterValues;
     },
   ) => {
     setTransformerParameters((prev) => ({
