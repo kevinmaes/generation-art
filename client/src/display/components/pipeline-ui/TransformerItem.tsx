@@ -2,7 +2,10 @@ import React from 'react';
 import type { VisualTransformerConfig } from '../../../transformers/types';
 import type { TransformerId } from '../../../transformers/transformers';
 import { DIMENSIONS } from '../../../transformers/dimensions';
-import { VISUAL_PARAMETERS, type VisualParameterValues } from '../../../transformers/visual-parameters';
+import {
+  VISUAL_PARAMETERS,
+  type VisualParameterValues,
+} from '../../../transformers/visual-parameters';
 
 interface TransformerItemProps {
   transformer: VisualTransformerConfig;

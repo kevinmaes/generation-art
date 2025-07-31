@@ -125,7 +125,9 @@ describe('nodeOpacityTransform', () => {
     const transparentResult = await nodeOpacityTransform(transparentContext);
     const transparentOpacities = Object.values(
       transparentResult.visualMetadata.individuals || {},
-    ).map((ind) => ind.opacity).filter(op => op !== undefined);
+    )
+      .map((ind) => ind.opacity)
+      .filter((op) => op !== undefined);
 
     // Should all be in low opacity range (around 0.3 ± 0.2)
     transparentOpacities.forEach((opacity) => {
@@ -154,7 +156,7 @@ describe('nodeOpacityTransform', () => {
     const opacity1 = individuals.person1?.opacity ?? 0;
     const opacity2 = individuals.person2?.opacity ?? 0;
     const opacity3 = individuals.person3?.opacity ?? 0;
-    
+
     expect(opacity1).toBeGreaterThan(opacity2);
     expect(opacity2).toBeGreaterThan(opacity3);
   });
@@ -236,7 +238,7 @@ describe('nodeOpacityTransform', () => {
 
     const result = await nodeOpacityTransform(edgeCaseContext);
     const individuals = result.visualMetadata.individuals || {};
-    
+
     Object.values(individuals).forEach((individual) => {
       const opacity = individual.opacity;
       expect(opacity).toBeDefined();

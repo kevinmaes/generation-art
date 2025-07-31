@@ -77,7 +77,8 @@ export function createRuntimeTransformerFunction(
 ): VisualTransformerFn {
   return async (context: TransformerContext): Promise<TransformerOutput> => {
     // Get transformer-specific defaults
-    const transformerDefaults: VisualParameterValues = {} as VisualParameterValues;
+    const transformerDefaults: VisualParameterValues =
+      {} as VisualParameterValues;
     if (visualParameters) {
       for (const param of visualParameters) {
         transformerDefaults[param.name] = param.defaultValue;

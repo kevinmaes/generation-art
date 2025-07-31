@@ -57,7 +57,8 @@ function calculateNodeOpacity(
         );
         return children.length;
       });
-      const maxChildren = childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
+      const maxChildren =
+        childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
       const individualChildren = allIndividuals.filter((child) =>
         child?.parents?.includes(individual.id),
       ).length;
@@ -113,7 +114,8 @@ function calculateNodeOpacity(
           );
           return children.length;
         });
-        const maxChildren = childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
+        const maxChildren =
+          childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
         const individualChildren = allIndividuals.filter((child) =>
           child?.parents?.includes(individual.id),
         ).length;
@@ -173,7 +175,9 @@ function calculateNodeOpacity(
       opaque: { min: 0.7, max: 1.0 },
       'fully-opaque': { min: 0.9, max: 1.0 },
     };
-    opacityRange = opacityMap[nodeOpacity as keyof typeof opacityMap] || opacityMap['semi-transparent'];
+    opacityRange =
+      opacityMap[nodeOpacity as keyof typeof opacityMap] ||
+      opacityMap['semi-transparent'];
     baseOpacity = (opacityRange.min + opacityRange.max) / 2;
   }
 
