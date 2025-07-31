@@ -10,7 +10,6 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
-import { DEFAULT_COLOR } from './constants';
 import { getIndividualOrWarn } from './utils/transformer-guards';
 
 /**
@@ -226,41 +225,10 @@ export async function horizontalSpreadTransform(
     const x = calculateHorizontalPosition(context, individual.id);
     // Don't calculate y - preserve existing y position from previous transformers
 
-    // Get visual parameters directly from context
-    const { nodeSize, primaryColor, variationFactor, temperature } =
-      context.visual;
-
-    const temp = (temperature as number) || 0.5;
-
-    // Convert node size string to actual size with temperature-based variation
-    const sizeMap = {
-      small: 15,
-      medium: 20,
-      large: 30,
-      'extra-large': 40,
-    };
-    const baseSize = sizeMap[nodeSize as keyof typeof sizeMap] || 20;
-
-    // Add size variation based on temperature and variation factor
-    const sizeVariation = (Math.random() - 0.5) * temp * 0.3; // ±15% size variation
-    const variationSizeAdjustment =
-      (Math.random() - 0.5) * (variationFactor as number) * 0.2;
-    const finalSize = Math.max(
-      5,
-      baseSize * (1 + sizeVariation + variationSizeAdjustment),
-    );
 
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
       x, // Only set x position (horizontal spread responsibility)
-      size: finalSize,
-      color:
-        (primaryColor as string | undefined) ??
-        visualMetadata.global.defaultNodeColor ??
-        DEFAULT_COLOR,
-      shape: visualMetadata.global.defaultNodeShape ?? 'circle',
-      // Add opacity variation based on temperature
-      opacity: Math.max(0.3, 1 - temp * 0.2), // Higher temp = slightly more transparent
     };
   });
 
