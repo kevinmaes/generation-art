@@ -52,7 +52,6 @@ export function TransformerItem({
   isExpanded = false,
   onToggleExpanded,
 }: TransformerItemProps) {
-  
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
     dimensions: { primary?: string; secondary?: string };
@@ -189,7 +188,7 @@ export function TransformerItem({
       } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
     >
       {/* Clickable Header */}
-      <div 
+      <div
         className="flex items-center w-full cursor-pointer"
         onClick={() => {
           if (!isDisabled) {
@@ -203,7 +202,9 @@ export function TransformerItem({
       >
         <div className="flex items-center space-x-1.5 flex-1 text-left">
           {!isInPipeline && (
-            <span className={`text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+            <span
+              className={`text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+            >
               ▶
             </span>
           )}
@@ -249,14 +250,14 @@ export function TransformerItem({
           </button>
         )}
       </div>
-      
+
       {/* Short Description - always visible */}
       {transformer.shortDescription && (
         <p className="text-xs text-gray-800 font-medium mt-0.5 text-left">
           {transformer.shortDescription}
         </p>
       )}
-      
+
       {/* Expandable Full Description - only for available transformers */}
       {!isInPipeline && isExpanded && (
         <div className="mt-2 pt-2 border-t border-gray-200 space-y-1">
@@ -265,20 +266,24 @@ export function TransformerItem({
               {transformer.description}
             </p>
           )}
-          
+
           {/* Dimensions line */}
           <p className="text-xs text-left">
             <span className="text-gray-800 font-medium">Dimensions:</span>{' '}
             <span className="text-gray-600">
-              {transformer.availableDimensions.map((dimId) => DIMENSIONS[dimId].label).join(', ')}
+              {transformer.availableDimensions
+                .map((dimId) => DIMENSIONS[dimId].label)
+                .join(', ')}
             </span>
           </p>
-          
+
           {/* Parameters line */}
           <p className="text-xs text-left">
             <span className="text-gray-800 font-medium">Parameters:</span>{' '}
             <span className="text-gray-600">
-              {transformer.visualParameters.map((paramId) => VISUAL_PARAMETERS[paramId].label).join(', ')}
+              {transformer.visualParameters
+                .map((param) => param.label ?? param.name)
+                .join(', ')}
             </span>
           </p>
         </div>
@@ -437,25 +442,30 @@ export function TransformerItem({
                       <div>
                         {(() => {
                           // Separate sliders and color pickers, prioritizing sliders first
-                          const sliderParams = transformer.visualParameters.filter((paramId) => {
-                            const param = VISUAL_PARAMETERS[paramId];
-                            return param.type === 'range' && paramId !== 'temperature';
-                          });
-                          
-                          const colorParams = transformer.visualParameters.filter((paramId) => {
-                            const param = VISUAL_PARAMETERS[paramId];
-                            return param.type === 'color';
-                          });
-                          
-                          const leftColumnParams = [...sliderParams, ...colorParams];
-                          
+                          const sliderParams =
+                            transformer.visualParameters.filter((param) => {
+                              return (
+                                param.type === 'range' &&
+                                param.name !== 'temperature'
+                              );
+                            });
+
+                          const colorParams =
+                            transformer.visualParameters.filter((param) => {
+                              return param.type === 'color';
+                            });
+
+                          const leftColumnParams = [
+                            ...sliderParams,
+                            ...colorParams,
+                          ];
+
                           if (leftColumnParams.length > 0) {
                             return (
                               <div className="space-y-3">
-                                {leftColumnParams.map((paramId) => {
-                                  const param = VISUAL_PARAMETERS[paramId];
+                                {leftColumnParams.map((param) => {
                                   return (
-                                    <div key={paramId}>
+                                    <div key={param.name}>
                                       <label className="block text-xs text-gray-600 mb-1 text-left">
                                         {param.label}
                                       </label>
@@ -467,19 +477,19 @@ export function TransformerItem({
                                             max={param.max}
                                             step={param.step}
                                             value={
-                                              sliderValues[paramId] !==
+                                              sliderValues[param.name] !==
                                               undefined
                                                 ? (sliderValues[
-                                                    paramId
+                                                    param.name
                                                   ] as number)
                                                 : (parameters.visual[
-                                                    paramId
+                                                    param.name
                                                   ] as number) ||
                                                   (param.defaultValue as number)
                                             }
                                             onInput={(e) => {
                                               handleSliderInput(
-                                                paramId,
+                                                param.name,
                                                 Number(
                                                   (e.target as HTMLInputElement)
                                                     .value,
@@ -488,7 +498,7 @@ export function TransformerItem({
                                             }}
                                             onChange={(e) => {
                                               handleSliderChangeComplete(
-                                                paramId,
+                                                param.name,
                                                 Number(e.target.value),
                                               );
                                             }}
@@ -505,13 +515,13 @@ export function TransformerItem({
                                           type="color"
                                           value={
                                             (parameters.visual[
-                                              paramId
+                                              param.name
                                             ] as string) ||
                                             (param.defaultValue as string)
                                           }
                                           onChange={(e) => {
                                             handleVisualParameterChange(
-                                              paramId,
+                                              param.name,
                                               e.target.value,
                                             );
                                           }}
@@ -533,8 +543,7 @@ export function TransformerItem({
                       <div>
                         {(() => {
                           const rightColumnParams =
-                            transformer.visualParameters.filter((paramId) => {
-                              const param = VISUAL_PARAMETERS[paramId];
+                            transformer.visualParameters.filter((param) => {
                               return (
                                 param.type === 'select' ||
                                 param.type === 'number' ||
@@ -544,10 +553,9 @@ export function TransformerItem({
                           if (rightColumnParams.length > 0) {
                             return (
                               <div className="space-y-3">
-                                {rightColumnParams.map((paramId) => {
-                                  const param = VISUAL_PARAMETERS[paramId];
+                                {rightColumnParams.map((param) => {
                                   return (
-                                    <div key={paramId}>
+                                    <div key={param.name}>
                                       <label className="block text-xs text-gray-600 mb-1 text-left">
                                         {param.label}
                                       </label>
@@ -556,13 +564,13 @@ export function TransformerItem({
                                         <select
                                           value={
                                             (parameters.visual[
-                                              paramId
+                                              param.name
                                             ] as string) ||
                                             (param.defaultValue as string)
                                           }
                                           onChange={(e) => {
                                             handleVisualParameterChange(
-                                              paramId,
+                                              param.name,
                                               e.target.value,
                                             );
                                           }}
@@ -586,13 +594,13 @@ export function TransformerItem({
                                           step={param.step}
                                           value={
                                             (parameters.visual[
-                                              paramId
+                                              param.name
                                             ] as number) ||
                                             (param.defaultValue as number)
                                           }
                                           onChange={(e) => {
                                             handleVisualParameterChange(
-                                              paramId,
+                                              param.name,
                                               Number(e.target.value),
                                             );
                                           }}
@@ -604,13 +612,13 @@ export function TransformerItem({
                                           type="checkbox"
                                           checked={
                                             (parameters.visual[
-                                              paramId
+                                              param.name
                                             ] as boolean) ||
                                             (param.defaultValue as boolean)
                                           }
                                           onChange={(e) => {
                                             handleVisualParameterChange(
-                                              paramId,
+                                              param.name,
                                               e.target.checked,
                                             );
                                           }}

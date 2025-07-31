@@ -11,6 +11,7 @@ import type {
   VisualMetadata,
 } from './types';
 import { DEFAULT_COLOR } from './constants';
+import { getIndividualOrWarn } from './utils/transformer-guards';
 
 /**
  * Calculate horizontal position based on selected dimensions and parameters
@@ -23,8 +24,11 @@ function calculateHorizontalPosition(
     context;
   const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
 
-  // Find the individual
-  const individual = gedcomData.individuals[individualId];
+  // Find the individual with null check
+  const individual = getIndividualOrWarn(gedcomData, individualId, 'Horizontal spread transformer');
+  if (!individual) {
+    return canvasWidth / 2; // Return center position
+  }
 
   // Get the primary dimension value
   const primaryDimension = dimensions.primary;
@@ -32,27 +36,29 @@ function calculateHorizontalPosition(
 
   switch (primaryDimension) {
     case 'generation':
-      primaryValue = individual.metadata.relativeGenerationValue ?? 0.5;
+      primaryValue = individual.metadata?.relativeGenerationValue ?? 0.5;
       break;
     case 'birthYear': {
       // Normalize birth year to 0-1 range
       const allBirthYears = Object.values(gedcomData.individuals)
-        .map((ind) => ind.metadata.birthYear)
+        .filter((ind) => ind !== null && ind !== undefined)
+        .map((ind) => ind.metadata?.birthYear)
         .filter((year): year is number => year !== undefined);
       if (allBirthYears.length > 0) {
         const minYear = Math.min(...allBirthYears);
         const maxYear = Math.max(...allBirthYears);
-        const year = individual.metadata.birthYear ?? minYear;
+        const year = individual.metadata?.birthYear ?? minYear;
         primaryValue = (year - minYear) / (maxYear - minYear);
       }
       break;
     }
     case 'childrenCount': {
       // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals);
+      const allIndividuals = Object.values(gedcomData.individuals)
+        .filter((ind) => ind !== null && ind !== undefined);
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
-          child.parents.includes(ind.id),
+          child?.parents?.includes(ind.id),
         );
         return children.length;
       });
@@ -109,7 +115,8 @@ function calculateHorizontalPosition(
         break;
       }
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals);
+        const allIndividuals = Object.values(gedcomData.individuals)
+        .filter((ind) => ind !== null && ind !== undefined);
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
             child.parents.includes(ind.id),

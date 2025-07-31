@@ -144,7 +144,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     min: 0.1,
     max: 1.0,
     step: 0.1,
-    defaultValue: DEFAULT_OPACITY,
+    defaultValue: 0.5,
   },
 
   // Style Parameters

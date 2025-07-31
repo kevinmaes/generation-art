@@ -8,10 +8,7 @@
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
 import type { DimensionId } from './dimensions';
-import type {
-  VisualParameterId,
-  VisualParameterValues,
-} from './visual-parameters';
+import type { VisualParameterValues } from './visual-parameters';
 import type { TransformerId } from './transformers';
 
 /**
@@ -174,8 +171,18 @@ export interface VisualTransformerConfig {
   // Default secondary dimension (optional)
   defaultSecondaryDimension?: DimensionId;
 
-  // Available visual parameters for this transformer
-  visualParameters: VisualParameterId[];
+  // Visual parameters configuration for this transformer
+  visualParameters: {
+    name: string;
+    type: 'select' | 'range' | 'number' | 'boolean' | 'color';
+    defaultValue: string | number | boolean;
+    label?: string;
+    description?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    options?: { value: string | number; label: string }[];
+  }[];
 
   // Factory function to create runtime transformer with parameters
   createRuntimeTransformerFunction: (params: {
@@ -183,8 +190,11 @@ export interface VisualTransformerConfig {
       primary?: DimensionId;
       secondary?: DimensionId;
     };
-    visual: Partial<VisualParameterValues>;
+    visual: Record<string, string | number | boolean>;
   }) => VisualTransformerFn;
+
+  // Helper method to get default values for this transformer
+  getDefaults?: () => Record<string, string | number | boolean>;
 
   // Categories for organization
   categories?: string[];

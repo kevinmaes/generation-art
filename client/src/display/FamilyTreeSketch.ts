@@ -39,10 +39,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
     height,
     showNames = false,
     strokeWeight = 0.2,
-    textSize = 5,
-    nodeSize = 10,
-    colors = ['#0000ff', '#ffff00'],
-    transformerIds = ['horizontal-spread-by-generation'],
+    transformerIds = ['horizontal-spread-by-generation', 'node-shape'],
     temperature = 0.5,
     seed,
     showIndividuals = true,
@@ -79,9 +76,12 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const edgeMetadata = visualMetadata.edges[edge.id];
           const strokeColor = p.color(
             edgeMetadata?.strokeColor ??
+              edgeMetadata?.color ??
               visualMetadata.global.defaultEdgeColor ??
               '#ccc',
           );
+          const opacity = edgeMetadata?.opacity ?? 0.8;
+          strokeColor.setAlpha(opacity * 255);
           p.stroke(strokeColor);
           p.strokeWeight(
             edgeMetadata?.strokeWeight ??
@@ -95,50 +95,98 @@ function createSketch(props: SketchProps): (p: p5) => void {
       // Draw nodes (individuals) using per-entity visual metadata
       if (showIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
+        
+        
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
-          const x = individualMetadata?.x ?? width / 2;
-          const y = individualMetadata?.y ?? height / 2;
+
+          // Only use visual metadata - no config fallbacks
+          const x =
+            individualMetadata?.x ?? visualMetadata.global.defaultNodeSize ?? 0;
+          const y =
+            individualMetadata?.y ?? visualMetadata.global.defaultNodeSize ?? 0;
           const size =
             individualMetadata?.size ??
             visualMetadata.global.defaultNodeSize ??
-            nodeSize;
+            20;
+          const width = individualMetadata?.width ?? 1.0;
+          const height = individualMetadata?.height ?? 1.0;
+          const scale = individualMetadata?.scale ?? 1.0;
+          const rotation = individualMetadata?.rotation ?? 0;
           const color =
             individualMetadata?.color ??
             visualMetadata.global.defaultNodeColor ??
-            colors[0];
+            '#cccccc';
           const shape =
             individualMetadata?.shape ??
             visualMetadata.global.defaultNodeShape ??
             'circle';
-          const opacity = individualMetadata?.opacity ?? 1.0;
+          const opacity = individualMetadata?.opacity ?? 0.8;
+
+
+          // Skip rendering if no position data from transformers
+          if (!individualMetadata?.x || !individualMetadata?.y) {
+            continue;
+          }
 
           const pColor = p.color(color);
           pColor.setAlpha(opacity * 255);
           p.fill(pColor);
-
           p.noStroke();
+
+          // Apply transformations
+          p.push();
+          p.translate(x, y);
+          p.rotate(rotation);
+          p.scale(scale);
+
+          // Calculate final dimensions
+          const finalWidth = size * width;
+          const finalHeight = size * height;
+
+          // Render based on shape
           if (shape === 'circle') {
-            p.circle(x, y, size);
+            p.ellipse(0, 0, finalWidth, finalHeight);
           } else if (shape === 'square') {
             p.rectMode(p.CENTER);
-            p.rect(x, y, size, size);
+            p.rect(0, 0, finalWidth, finalHeight);
           } else if (shape === 'triangle') {
             p.triangle(
-              x,
-              y - size / 2,
-              x - size / 2,
-              y + size / 2,
-              x + size / 2,
-              y + size / 2,
+              0,
+              -finalHeight / 2,
+              -finalWidth / 2,
+              finalHeight / 2,
+              finalWidth / 2,
+              finalHeight / 2,
             );
+          } else if (shape === 'hexagon') {
+            p.beginShape();
+            for (let i = 0; i < 6; i++) {
+              const angle = (p.TWO_PI / 6) * i;
+              const vx = (finalWidth / 2) * p.cos(angle);
+              const vy = (finalHeight / 2) * p.sin(angle);
+              p.vertex(vx, vy);
+            }
+            p.endShape(p.CLOSE);
+          } else if (shape === 'star') {
+            p.beginShape();
+            for (let i = 0; i < 10; i++) {
+              const angle = (p.TWO_PI / 10) * i;
+              const radius = i % 2 === 0 ? finalWidth / 2 : finalWidth / 4;
+              const vx = radius * p.cos(angle);
+              const vy = radius * p.sin(angle);
+              p.vertex(vx, vy);
+            }
+            p.endShape(p.CLOSE);
           }
+
+          p.pop();
 
           if (showNames) {
             p.fill(0);
-            p.textSize(textSize);
+            p.textSize(size * 0.3); // Text size based on node size from visual metadata
             p.textAlign(p.CENTER);
-            p.text(ind.name, x, y + size + textSize);
+            p.text('', x, y + size + size * 0.3); // Names disabled in visual-only mode
           }
         }
       }
@@ -173,7 +221,7 @@ export function createWebSketch(
     textSize: 5,
     nodeSize: 10,
     colors: ['#0000ff', '#ffff00'],
-    transformerIds: ['horizontal-spread-by-generation'],
+    transformerIds: ['horizontal-spread-by-generation', 'node-shape'],
     temperature: 0.5,
     showIndividuals: true,
     showRelations: true,
@@ -246,7 +294,7 @@ export function createPrintSketch(
     textSize: 12,
     nodeSize: 20,
     colors: ['#000000', '#666666'],
-    transformerIds: ['horizontal-spread-by-generation'],
+    transformerIds: ['horizontal-spread-by-generation', 'node-shape'],
     temperature: 0.3,
     showIndividuals: true,
     showRelations: true,

@@ -10,6 +10,7 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
+import { getIndividualOrWarn } from './utils/transformer-guards';
 
 /**
  * Calculate node size based on selected dimensions
@@ -20,8 +21,11 @@ function calculateNodeSize(
 ): number {
   const { gedcomData, dimensions, visual, temperature } = context;
 
-  // Find the individual
-  const individual = gedcomData.individuals[individualId];
+  // Find the individual with null check
+  const individual = getIndividualOrWarn(gedcomData, individualId, 'Node size transformer');
+  if (!individual) {
+    return 15; // Return default size
+  }
 
   // Get the primary dimension value
   const primaryDimension = dimensions.primary;
@@ -30,29 +34,31 @@ function calculateNodeSize(
   switch (primaryDimension) {
     case 'childrenCount': {
       // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals);
+      const allIndividuals = Object.values(gedcomData.individuals)
+        .filter((ind) => ind !== null && ind !== undefined);
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
-          child.parents.includes(ind.id),
+          child?.parents?.includes(ind.id),
         );
         return children.length;
       });
       const maxChildren = Math.max(...childrenCounts);
       const individualChildren = allIndividuals.filter((child) =>
-        child.parents.includes(individual.id),
+        child?.parents?.includes(individual.id),
       ).length;
       primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
       break;
     }
     case 'lifespan': {
       const allLifespans = Object.values(gedcomData.individuals)
-        .map((ind) => ind.metadata.lifespan)
+        .filter((ind) => ind !== null && ind !== undefined)
+        .map((ind) => ind.metadata?.lifespan)
         .filter((span): span is number => span !== undefined);
       if (allLifespans.length > 0) {
         const maxLifespan = Math.max(...allLifespans);
         primaryValue =
           maxLifespan > 0
-            ? (individual.metadata.lifespan ?? 0) / maxLifespan
+            ? (individual.metadata?.lifespan ?? 0) / maxLifespan
             : 0.5;
       }
       break;
@@ -60,26 +66,27 @@ function calculateNodeSize(
     case 'generation': {
       // Invert generation value so earlier generations are larger
       const generationValue =
-        individual.metadata.relativeGenerationValue ?? 0.5;
+        individual.metadata?.relativeGenerationValue ?? 0.5;
       primaryValue = 1 - generationValue;
       break;
     }
     case 'marriageCount': {
       // Count marriages by checking families where individual is spouse
-      const families = Object.values(gedcomData.families);
+      const families = Object.values(gedcomData.families)
+        .filter((family) => family !== null && family !== undefined);
       const marriageCount = families.filter(
         (family) =>
           family.husband?.id === individualId ||
           family.wife?.id === individualId,
       ).length;
-      const allMarriageCounts = Object.values(gedcomData.individuals).map(
-        (ind) => {
+      const allMarriageCounts = Object.values(gedcomData.individuals)
+        .filter((ind) => ind !== null && ind !== undefined)
+        .map((ind) => {
           return families.filter(
             (family) =>
               family.husband?.id === ind.id || family.wife?.id === ind.id,
           ).length;
-        },
-      );
+        });
       const maxMarriages = Math.max(...allMarriageCounts);
       primaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
       break;
@@ -93,16 +100,17 @@ function calculateNodeSize(
   if (secondaryDimension && secondaryDimension !== primaryDimension) {
     switch (secondaryDimension) {
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals);
+        const allIndividuals = Object.values(gedcomData.individuals)
+          .filter((ind) => ind !== null && ind !== undefined);
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
-            child.parents.includes(ind.id),
+            child?.parents?.includes(ind.id),
           );
           return children.length;
         });
         const maxChildren = Math.max(...childrenCounts);
         const individualChildren = allIndividuals.filter((child) =>
-          child.parents.includes(individual.id),
+          child?.parents?.includes(individual.id),
         ).length;
         secondaryValue =
           maxChildren > 0 ? individualChildren / maxChildren : 0.5;
@@ -110,38 +118,40 @@ function calculateNodeSize(
       }
       case 'lifespan': {
         const allLifespans = Object.values(gedcomData.individuals)
-          .map((ind) => ind.metadata.lifespan)
+          .filter((ind) => ind !== null && ind !== undefined)
+          .map((ind) => ind.metadata?.lifespan)
           .filter((span): span is number => span !== undefined);
         if (allLifespans.length > 0) {
           const maxLifespan = Math.max(...allLifespans);
           secondaryValue =
             maxLifespan > 0
-              ? (individual.metadata.lifespan ?? 0) / maxLifespan
+              ? (individual.metadata?.lifespan ?? 0) / maxLifespan
               : 0.5;
         }
         break;
       }
       case 'generation': {
         const generationValue =
-          individual.metadata.relativeGenerationValue ?? 0.5;
+          individual.metadata?.relativeGenerationValue ?? 0.5;
         secondaryValue = 1 - generationValue;
         break;
       }
       case 'marriageCount': {
-        const families = Object.values(gedcomData.families);
+        const families = Object.values(gedcomData.families)
+          .filter((family) => family !== null && family !== undefined);
         const marriageCount = families.filter(
           (family) =>
             family.husband?.id === individualId ||
             family.wife?.id === individualId,
         ).length;
-        const allMarriageCounts = Object.values(gedcomData.individuals).map(
-          (ind) => {
+        const allMarriageCounts = Object.values(gedcomData.individuals)
+          .filter((ind) => ind !== null && ind !== undefined)
+          .map((ind) => {
             return families.filter(
               (family) =>
                 family.husband?.id === ind.id || family.wife?.id === ind.id,
             ).length;
-          },
-        );
+          });
         const maxMarriages = Math.max(...allMarriageCounts);
         secondaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
         break;
@@ -192,7 +202,8 @@ export async function nodeSizeTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata } = context;
 
-  const individuals = Object.values(gedcomData.individuals);
+  const individuals = Object.values(gedcomData.individuals)
+    .filter((individual) => individual !== null && individual !== undefined);
   if (individuals.length === 0) {
     return { visualMetadata: {} };
   }
@@ -202,7 +213,7 @@ export async function nodeSizeTransform(
 
   // Apply size calculations to each individual
   individuals.forEach((individual) => {
-    const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
+    const currentMetadata = visualMetadata.individuals?.[individual.id] ?? {};
     const calculatedSize = calculateNodeSize(context, individual.id);
 
     // Preserve existing visual metadata and update size

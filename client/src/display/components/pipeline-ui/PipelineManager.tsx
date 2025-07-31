@@ -102,11 +102,16 @@ export function PipelineManager({
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
-  
+
   // Collapsible panel states
-  const [isAvailableTransformersCollapsed, setIsAvailableTransformersCollapsed] = useState(false); // Open by default
-  const [isPipelineInputCollapsed, setIsPipelineInputCollapsed] = useState(true); // Collapsed by default
-  const [isPipelineOutputCollapsed, setIsPipelineOutputCollapsed] = useState(true); // Collapsed by default
+  const [
+    isAvailableTransformersCollapsed,
+    setIsAvailableTransformersCollapsed,
+  ] = useState(false); // Open by default
+  const [isPipelineInputCollapsed, setIsPipelineInputCollapsed] =
+    useState(true); // Collapsed by default
+  const [isPipelineOutputCollapsed, setIsPipelineOutputCollapsed] =
+    useState(true); // Collapsed by default
 
   // Store parameters for all transformers (persistent across pipeline changes)
   const [transformerParameters, setTransformerParameters] = React.useState<
@@ -179,7 +184,6 @@ export function PipelineManager({
     handleParameterChange(transformerId, defaultParameters);
   };
 
-
   const handleTransformerSelect = (transformerId: TransformerId) => {
     setSelectedTransformerId(transformerId);
     onTransformerSelect?.(transformerId);
@@ -222,12 +226,11 @@ export function PipelineManager({
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
-
   // Calculate how many panels are open to distribute space dynamically
   const openPanelsCount = [
     !isAvailableTransformersCollapsed,
     !isPipelineInputCollapsed,
-    !isPipelineOutputCollapsed
+    !isPipelineOutputCollapsed,
   ].filter(Boolean).length;
 
   // Collapsible Panel Component with dynamic sizing
@@ -239,13 +242,21 @@ export function PipelineManager({
     buttons?: React.ReactNode;
     children: React.ReactNode;
     flexGrow?: number;
-  }> = ({ title, subtitle, isCollapsed, onToggle, buttons, children, flexGrow = 0 }) => (
-    <div 
+  }> = ({
+    title,
+    subtitle,
+    isCollapsed,
+    onToggle,
+    buttons,
+    children,
+    flexGrow = 0,
+  }) => (
+    <div
       className="border flex flex-col min-h-0"
-      style={{ 
+      style={{
         flexGrow: isCollapsed ? 0 : flexGrow,
         flexShrink: isCollapsed ? 0 : 1,
-        flexBasis: isCollapsed ? 'auto' : 0
+        flexBasis: isCollapsed ? 'auto' : 0,
       }}
     >
       {/* Clickable Header */}
@@ -271,9 +282,13 @@ export function PipelineManager({
             />
           </svg>
           <div className="min-w-0 flex-1">
-            <h4 className="font-medium text-sm text-gray-700 truncate text-left">{title}</h4>
+            <h4 className="font-medium text-sm text-gray-700 truncate text-left">
+              {title}
+            </h4>
             {subtitle && (
-              <span className="text-xs text-gray-500 truncate block text-left">{subtitle}</span>
+              <span className="text-xs text-gray-500 truncate block text-left">
+                {subtitle}
+              </span>
             )}
           </div>
         </div>
@@ -287,12 +302,10 @@ export function PipelineManager({
           </div>
         )}
       </div>
-      
+
       {/* Collapsible Content */}
       {!isCollapsed && (
-        <div className="flex-1 overflow-hidden min-h-0 p-4">
-          {children}
-        </div>
+        <div className="flex-1 overflow-hidden min-h-0 p-4">{children}</div>
       )}
     </div>
   );
@@ -300,15 +313,21 @@ export function PipelineManager({
   return (
     <div className="h-full flex flex-col bg-white p-6">
       <div className="flex-1 flex gap-4 min-h-0">
-        {/* Left Column: Vertical Accordion */}  
-        <div className="flex-1 flex flex-col min-h-0" style={{ width: '50%', minWidth: '50%', maxWidth: '50%' }}>
+        {/* Left Column: Vertical Accordion */}
+        <div
+          className="flex-1 flex flex-col min-h-0"
+          style={{ width: '50%', minWidth: '50%', maxWidth: '50%' }}
+        >
           <div className="flex-1 flex flex-col space-y-0 min-h-0">
-            
             {/* Available Transformers Panel */}
             <CollapsiblePanel
               title="Available Transformers"
               isCollapsed={isAvailableTransformersCollapsed}
-              onToggle={() => setIsAvailableTransformersCollapsed(!isAvailableTransformersCollapsed)}
+              onToggle={() =>
+                setIsAvailableTransformersCollapsed(
+                  !isAvailableTransformersCollapsed,
+                )
+              }
               flexGrow={openPanelsCount > 0 ? 1 : 0}
             >
               <div
@@ -319,7 +338,9 @@ export function PipelineManager({
                 }}
               >
                 {availableTransformerIds.length === 0 ? (
-                  <p className="text-gray-500 text-sm">All transformers in use</p>
+                  <p className="text-gray-500 text-sm">
+                    All transformers in use
+                  </p>
                 ) : (
                   availableTransformerIds.map((transformerId) => {
                     const transformer = transformers[transformerId];
@@ -347,7 +368,9 @@ export function PipelineManager({
                         }
                         isVisualizing={isVisualizing}
                         lastRunParameters={lastRunParameters?.[transformerId]}
-                        isExpanded={expandedTransformers[transformerId] || false}
+                        isExpanded={
+                          expandedTransformers[transformerId] || false
+                        }
                         onToggleExpanded={handleToggleExpanded}
                       />
                     );
@@ -360,7 +383,9 @@ export function PipelineManager({
             <CollapsiblePanel
               title="Pipeline Input"
               isCollapsed={isPipelineInputCollapsed}
-              onToggle={() => setIsPipelineInputCollapsed(!isPipelineInputCollapsed)}
+              onToggle={() =>
+                setIsPipelineInputCollapsed(!isPipelineInputCollapsed)
+              }
               flexGrow={openPanelsCount > 0 ? 1 : 0}
               buttons={
                 pipelineInput && (
@@ -442,7 +467,9 @@ export function PipelineManager({
             <CollapsiblePanel
               title="Pipeline Output"
               isCollapsed={isPipelineOutputCollapsed}
-              onToggle={() => setIsPipelineOutputCollapsed(!isPipelineOutputCollapsed)}
+              onToggle={() =>
+                setIsPipelineOutputCollapsed(!isPipelineOutputCollapsed)
+              }
               flexGrow={openPanelsCount > 0 ? 1 : 0}
               buttons={
                 pipelineResult && (
@@ -496,12 +523,14 @@ export function PipelineManager({
                 </div>
               )}
             </CollapsiblePanel>
-
           </div>
         </div>
 
         {/* Right Column: Active Pipeline */}
-        <div className="flex-1 border p-4 flex flex-col min-h-0" style={{ width: '50%', minWidth: '50%', maxWidth: '50%' }}>
+        <div
+          className="flex-1 border p-4 flex flex-col min-h-0"
+          style={{ width: '50%', minWidth: '50%', maxWidth: '50%' }}
+        >
           <div className="mb-3">
             <h4 className="font-medium text-gray-700 text-left">
               Active Pipeline ({activeTransformerIds.length})
@@ -609,7 +638,8 @@ export function PipelineManager({
         ) : (
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-500">
-              No pipeline results yet. Configure transformers and click Visualize.
+              No pipeline results yet. Configure transformers and click
+              Visualize.
             </div>
             <div></div> {/* Empty spacer */}
             {/* Visualize Button */}

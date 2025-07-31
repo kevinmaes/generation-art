@@ -48,7 +48,7 @@ export function generateTransformerId(name: string): string {
 /**
  * Get all default visual parameter values
  */
-function getDefaultVisualParams(): VisualParameterValues {
+function _getDefaultVisualParams(): VisualParameterValues {
   return Object.fromEntries(
     Object.entries(VISUAL_PARAMETERS).map(([key, config]) => [
       key,
@@ -61,20 +61,30 @@ function getDefaultVisualParams(): VisualParameterValues {
  * Creates a runtime transformer function that injects parameters into the context
  * @param params - User-selected dimensions and visual parameters
  * @param transformFn - The actual transformer function to execute
+ * @param transformerConfig - The transformer configuration with parameter defaults
  * @returns A runtime transformer function with enhanced context
  */
 export function createRuntimeTransformerFunction(
   params: {
     dimensions: { primary?: string; secondary?: string };
-    visual: Partial<VisualParameterValues>;
+    visual: Record<string, string | number | boolean>;
   },
   transformFn: VisualTransformerFn,
+  visualParameters?: {
+    name: string;
+    defaultValue: string | number | boolean;
+  }[],
 ): VisualTransformerFn {
   return async (context: TransformerContext): Promise<TransformerOutput> => {
-    // Get all default values
-    const defaultVisualParams = getDefaultVisualParams();
+    // Get transformer-specific defaults
+    const transformerDefaults: Record<string, string | number | boolean> = {};
+    if (visualParameters) {
+      for (const param of visualParameters) {
+        transformerDefaults[param.name] = param.defaultValue;
+      }
+    }
 
-    // Merge parameters into the context with full defaults
+    // Merge parameters into the context with transformer defaults
     const enhancedContext = {
       ...context,
       dimensions: {
@@ -82,9 +92,9 @@ export function createRuntimeTransformerFunction(
         secondary: params.dimensions.secondary,
       },
       visual: {
-        ...defaultVisualParams,
+        ...transformerDefaults,
         ...params.visual,
-      } as VisualParameterValues,
+      },
       temperature:
         (Number(params.visual.temperature) || context.temperature) ?? 0.5,
     };

@@ -9,9 +9,9 @@ import type { TransformerContext } from './types';
 // Mock GEDCOM data for testing
 const mockGedcomData = {
   individuals: {
-    'I1': {
+    I1: {
       id: 'I1',
-      name: { given: 'John', surname: 'Doe' },
+      name: 'John Doe',
       parents: [],
       metadata: {
         generation: 1,
@@ -20,9 +20,9 @@ const mockGedcomData = {
         birthYear: 1920,
       },
     },
-    'I2': {
+    I2: {
       id: 'I2',
-      name: { given: 'Jane', surname: 'Smith' },
+      name: 'Jane Smith',
       parents: ['I1'],
       metadata: {
         generation: 2,
@@ -31,9 +31,9 @@ const mockGedcomData = {
         birthYear: 1950,
       },
     },
-    'I3': {
+    I3: {
       id: 'I3',
-      name: { given: 'Bob', surname: 'Johnson' },
+      name: 'Bob Johnson',
       parents: ['I2'],
       metadata: {
         generation: 3,
@@ -44,7 +44,7 @@ const mockGedcomData = {
     },
   },
   families: {
-    'F1': {
+    F1: {
       id: 'F1',
       husband: { id: 'I1' },
       wife: { id: 'I2' },
@@ -69,9 +69,9 @@ const mockLLMData = {
 
 const mockVisualMetadata = {
   individuals: {
-    'I1': { x: 100, y: 100 },
-    'I2': { x: 200, y: 200 },
-    'I3': { x: 300, y: 300 },
+    I1: { x: 100, y: 100 },
+    I2: { x: 200, y: 200 },
+    I3: { x: 300, y: 300 },
   },
   families: {},
   edges: {},
@@ -94,28 +94,30 @@ describe('nodeRotationTransform', () => {
 
     // Should have rotation metadata for all individuals
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals!)).toHaveLength(3);
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+      3,
+    );
 
     // Each individual should have a rotation assigned
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I1']).toHaveProperty('rotation');
-    expect(individuals['I2']).toHaveProperty('rotation');
-    expect(individuals['I3']).toHaveProperty('rotation');
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I1).toHaveProperty('rotation');
+    expect(individuals.I2).toHaveProperty('rotation');
+    expect(individuals.I3).toHaveProperty('rotation');
 
     // Rotation values should be numbers between 0 and 2π
-    expect(typeof individuals['I1'].rotation).toBe('number');
-    expect(typeof individuals['I2'].rotation).toBe('number');
-    expect(typeof individuals['I3'].rotation).toBe('number');
-    
-    expect(individuals['I1'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I1'].rotation).toBeLessThanOrEqual(2 * Math.PI);
-    expect(individuals['I2'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I2'].rotation).toBeLessThanOrEqual(2 * Math.PI);
-    expect(individuals['I3'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I3'].rotation).toBeLessThanOrEqual(2 * Math.PI);
+    expect(typeof individuals.I1.rotation).toBe('number');
+    expect(typeof individuals.I2.rotation).toBe('number');
+    expect(typeof individuals.I3.rotation).toBe('number');
+
+    expect(individuals.I1.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I1.rotation).toBeLessThanOrEqual(2 * Math.PI);
+    expect(individuals.I2.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I2.rotation).toBeLessThanOrEqual(2 * Math.PI);
+    expect(individuals.I3.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I3.rotation).toBeLessThanOrEqual(2 * Math.PI);
 
     // I1 (1920) should have smallest rotation, I3 (1980) should have largest
-    expect(individuals['I1'].rotation).toBeLessThan(individuals['I3'].rotation);
+    expect(individuals.I1.rotation).toBeLessThan(individuals.I3.rotation);
   });
 
   it('should assign rotation based on generation dimension', async () => {
@@ -132,12 +134,14 @@ describe('nodeRotationTransform', () => {
 
     // Should have rotation metadata for all individuals
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals!)).toHaveLength(3);
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+      3,
+    );
 
     // I1 (gen 1, relativeValue 0.0) should have smallest rotation
     // I3 (gen 3, relativeValue 1.0) should have largest rotation
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I1'].rotation).toBeLessThan(individuals['I3'].rotation);
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I1.rotation).toBeLessThan(individuals.I3.rotation);
   });
 
   it('should assign rotation based on children count dimension', async () => {
@@ -154,17 +158,23 @@ describe('nodeRotationTransform', () => {
 
     // Should have rotation metadata for all individuals
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals!)).toHaveLength(3);
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+      3,
+    );
 
     // I1 has 1 child (I2), I2 has 1 child (I3), I3 has 0 children
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I1']).toHaveProperty('rotation');
-    expect(individuals['I2']).toHaveProperty('rotation');
-    expect(individuals['I3']).toHaveProperty('rotation');
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I1).toHaveProperty('rotation');
+    expect(individuals.I2).toHaveProperty('rotation');
+    expect(individuals.I3).toHaveProperty('rotation');
 
     // I3 (no children) should have smallest rotation
-    expect(individuals['I3'].rotation).toBeLessThanOrEqual(individuals['I1'].rotation);
-    expect(individuals['I3'].rotation).toBeLessThanOrEqual(individuals['I2'].rotation);
+    expect(individuals.I3.rotation).toBeLessThanOrEqual(
+      individuals.I1.rotation,
+    );
+    expect(individuals.I3.rotation).toBeLessThanOrEqual(
+      individuals.I2.rotation,
+    );
   });
 
   it('should assign rotation based on name length dimension', async () => {
@@ -181,12 +191,16 @@ describe('nodeRotationTransform', () => {
 
     // Should have rotation metadata for all individuals
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals!)).toHaveLength(3);
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+      3,
+    );
 
     // Names: "John Doe" (8), "Jane Smith" (10), "Bob Johnson" (11)
     // Bob Johnson should have the largest rotation
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I3'].rotation).toBeGreaterThanOrEqual(individuals['I1'].rotation);
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I3.rotation).toBeGreaterThanOrEqual(
+      individuals.I1.rotation,
+    );
   });
 
   it('should preserve existing visual metadata while adding rotation', async () => {
@@ -202,15 +216,15 @@ describe('nodeRotationTransform', () => {
     const result = await nodeRotationTransform(context);
 
     // Should preserve existing x, y coordinates
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I1']).toMatchObject({ x: 100, y: 100 });
-    expect(individuals['I2']).toMatchObject({ x: 200, y: 200 });
-    expect(individuals['I3']).toMatchObject({ x: 300, y: 300 });
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I1).toMatchObject({ x: 100, y: 100 });
+    expect(individuals.I2).toMatchObject({ x: 200, y: 200 });
+    expect(individuals.I3).toMatchObject({ x: 300, y: 300 });
 
     // Should also have rotation
-    expect(individuals['I1']).toHaveProperty('rotation');
-    expect(individuals['I2']).toHaveProperty('rotation');
-    expect(individuals['I3']).toHaveProperty('rotation');
+    expect(individuals.I1).toHaveProperty('rotation');
+    expect(individuals.I2).toHaveProperty('rotation');
+    expect(individuals.I3).toHaveProperty('rotation');
   });
 
   it('should handle empty individuals gracefully', async () => {
@@ -247,14 +261,14 @@ describe('nodeRotationTransform', () => {
     const result = await nodeRotationTransform(context);
 
     // Should still have valid rotations despite randomness
-    const individuals = result.visualMetadata.individuals!;
-    
-    expect(individuals['I1'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I1'].rotation).toBeLessThanOrEqual(2 * Math.PI);
-    expect(individuals['I2'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I2'].rotation).toBeLessThanOrEqual(2 * Math.PI);
-    expect(individuals['I3'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I3'].rotation).toBeLessThanOrEqual(2 * Math.PI);
+    const individuals = result.visualMetadata.individuals ?? {};
+
+    expect(individuals.I1.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I1.rotation).toBeLessThanOrEqual(2 * Math.PI);
+    expect(individuals.I2.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I2.rotation).toBeLessThanOrEqual(2 * Math.PI);
+    expect(individuals.I3.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I3.rotation).toBeLessThanOrEqual(2 * Math.PI);
   });
 
   it('should handle secondary dimension', async () => {
@@ -271,15 +285,17 @@ describe('nodeRotationTransform', () => {
 
     // Should have rotation metadata for all individuals
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals!)).toHaveLength(3);
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+      3,
+    );
 
     // Rotations should still be valid
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I1'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I1'].rotation).toBeLessThanOrEqual(2 * Math.PI);
-    expect(individuals['I2'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I2'].rotation).toBeLessThanOrEqual(2 * Math.PI);
-    expect(individuals['I3'].rotation).toBeGreaterThanOrEqual(0);
-    expect(individuals['I3'].rotation).toBeLessThanOrEqual(2 * Math.PI);
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I1.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I1.rotation).toBeLessThanOrEqual(2 * Math.PI);
+    expect(individuals.I2.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I2.rotation).toBeLessThanOrEqual(2 * Math.PI);
+    expect(individuals.I3.rotation).toBeGreaterThanOrEqual(0);
+    expect(individuals.I3.rotation).toBeLessThanOrEqual(2 * Math.PI);
   });
 });

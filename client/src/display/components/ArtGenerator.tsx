@@ -56,6 +56,7 @@ export function ArtGenerator({
     const sketchConfig: Partial<SketchConfig> = {
       transformerIds: pipelineResult?.config.transformerIds ?? [
         'horizontal-spread-by-generation',
+        'node-shape',
       ],
       temperature: pipelineResult?.config.temperature ?? 0.5,
       seed: pipelineResult?.config.seed,

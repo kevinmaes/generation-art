@@ -98,8 +98,10 @@ export function PipelineModal({
         <div className="flex flex-col h-full">
           {/* Panel Header */}
           <div className="flex items-center justify-between p-4 border-b bg-white">
-            <h2 className="text-xl font-semibold">Visual Transformer Pipeline</h2>
-            
+            <h2 className="text-xl font-semibold">
+              Visual Transformer Pipeline
+            </h2>
+
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -120,7 +122,6 @@ export function PipelineModal({
               </svg>
             </button>
           </div>
-
 
           {/* Panel Body - PipelineManager */}
           <div className="flex-1 overflow-hidden">
@@ -144,8 +145,8 @@ export function PipelineModal({
             <div className="text-center">
               <span>
                 Press{' '}
-                <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">⌘D</kbd> to
-                toggle • Press{' '}
+                <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">⌘D</kbd>{' '}
+                to toggle • Press{' '}
                 <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">Esc</kbd>{' '}
                 to close
               </span>

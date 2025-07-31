@@ -185,6 +185,7 @@ function App(): React.ReactElement {
         canvasWidth: minWidth,
         canvasHeight: minHeight,
         temperature: 0.5,
+        transformerParameters,
       });
 
       const result = await runPipeline({
@@ -235,10 +236,7 @@ function App(): React.ReactElement {
   return (
     <div className="min-h-screen w-full bg-gray-100">
       <div className="flex flex-col justify-center items-center min-h-screen">
-        <div
-          className="w-full flex flex-col items-center"
-          style={{ minWidth }}
-        >
+        <div className="w-full flex flex-col items-center" style={{ minWidth }}>
           <div className="pt-12 pb-8 text-center">
             <h1 className="text-5xl font-extrabold mb-3 text-gray-800 tracking-tight drop-shadow-sm">
               Generation Art

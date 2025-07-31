@@ -9,9 +9,9 @@ import type { TransformerContext } from './types';
 // Mock GEDCOM data for testing
 const mockGedcomData = {
   individuals: {
-    'I1': {
+    I1: {
       id: 'I1',
-      name: { given: 'John', surname: 'Doe' },
+      name: 'John Doe',
       parents: [],
       metadata: {
         generation: 1,
@@ -20,9 +20,9 @@ const mockGedcomData = {
         birthYear: 1920,
       },
     },
-    'I2': {
+    I2: {
       id: 'I2',
-      name: { given: 'Jane', surname: 'Doe' },
+      name: 'Jane Doe',
       parents: ['I1'],
       metadata: {
         generation: 2,
@@ -31,9 +31,9 @@ const mockGedcomData = {
         birthYear: 1950,
       },
     },
-    'I3': {
+    I3: {
       id: 'I3',
-      name: { given: 'Bob', surname: 'Doe' },
+      name: 'Bob Doe',
       parents: ['I2'],
       metadata: {
         generation: 3,
@@ -44,7 +44,7 @@ const mockGedcomData = {
     },
   },
   families: {
-    'F1': {
+    F1: {
       id: 'F1',
       husband: { id: 'I1' },
       wife: { id: 'I2' },
@@ -69,9 +69,9 @@ const mockLLMData = {
 
 const mockVisualMetadata = {
   individuals: {
-    'I1': { x: 100, y: 100 },
-    'I2': { x: 200, y: 200 },
-    'I3': { x: 300, y: 300 },
+    I1: { x: 100, y: 100 },
+    I2: { x: 200, y: 200 },
+    I3: { x: 300, y: 300 },
   },
   families: {},
   edges: {},
@@ -94,19 +94,21 @@ describe('nodeShapeTransform', () => {
 
     // Should have shape metadata for all individuals
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals!)).toHaveLength(3);
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+      3,
+    );
 
     // Each individual should have a shape assigned
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I1']).toHaveProperty('shape');
-    expect(individuals['I2']).toHaveProperty('shape');
-    expect(individuals['I3']).toHaveProperty('shape');
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I1).toHaveProperty('shape');
+    expect(individuals.I2).toHaveProperty('shape');
+    expect(individuals.I3).toHaveProperty('shape');
 
     // Shapes should be valid values
     const validShapes = ['circle', 'square', 'triangle', 'hexagon', 'star'];
-    expect(validShapes).toContain(individuals['I1'].shape);
-    expect(validShapes).toContain(individuals['I2'].shape);
-    expect(validShapes).toContain(individuals['I3'].shape);
+    expect(validShapes).toContain(individuals.I1.shape);
+    expect(validShapes).toContain(individuals.I2.shape);
+    expect(validShapes).toContain(individuals.I3.shape);
   });
 
   it('should assign shapes based on children count dimension', async () => {
@@ -123,13 +125,15 @@ describe('nodeShapeTransform', () => {
 
     // Should have shape metadata for all individuals
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals!)).toHaveLength(3);
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+      3,
+    );
 
     // I1 has 1 child (I2), I2 has 1 child (I3), I3 has 0 children
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I1']).toHaveProperty('shape');
-    expect(individuals['I2']).toHaveProperty('shape');
-    expect(individuals['I3']).toHaveProperty('shape');
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I1).toHaveProperty('shape');
+    expect(individuals.I2).toHaveProperty('shape');
+    expect(individuals.I3).toHaveProperty('shape');
   });
 
   it('should preserve existing visual metadata while adding shape', async () => {
@@ -145,15 +149,15 @@ describe('nodeShapeTransform', () => {
     const result = await nodeShapeTransform(context);
 
     // Should preserve existing x, y coordinates
-    const individuals = result.visualMetadata.individuals!;
-    expect(individuals['I1']).toMatchObject({ x: 100, y: 100 });
-    expect(individuals['I2']).toMatchObject({ x: 200, y: 200 });
-    expect(individuals['I3']).toMatchObject({ x: 300, y: 300 });
+    const individuals = result.visualMetadata.individuals ?? {};
+    expect(individuals.I1).toMatchObject({ x: 100, y: 100 });
+    expect(individuals.I2).toMatchObject({ x: 200, y: 200 });
+    expect(individuals.I3).toMatchObject({ x: 300, y: 300 });
 
     // Should also have shape
-    expect(individuals['I1']).toHaveProperty('shape');
-    expect(individuals['I2']).toHaveProperty('shape');
-    expect(individuals['I3']).toHaveProperty('shape');
+    expect(individuals.I1).toHaveProperty('shape');
+    expect(individuals.I2).toHaveProperty('shape');
+    expect(individuals.I3).toHaveProperty('shape');
   });
 
   it('should handle empty individuals gracefully', async () => {
@@ -190,12 +194,12 @@ describe('nodeShapeTransform', () => {
     const result = await nodeShapeTransform(context);
 
     // Should still have valid shapes despite randomness
-    const individuals = result.visualMetadata.individuals!;
+    const individuals = result.visualMetadata.individuals ?? {};
     const validShapes = ['circle', 'square', 'triangle', 'hexagon', 'star'];
-    
-    expect(validShapes).toContain(individuals['I1'].shape);
-    expect(validShapes).toContain(individuals['I2'].shape);
-    expect(validShapes).toContain(individuals['I3'].shape);
+
+    expect(validShapes).toContain(individuals.I1.shape);
+    expect(validShapes).toContain(individuals.I2.shape);
+    expect(validShapes).toContain(individuals.I3.shape);
   });
 
   it('should handle secondary dimension', async () => {
@@ -212,13 +216,15 @@ describe('nodeShapeTransform', () => {
 
     // Should have shape metadata for all individuals
     expect(result.visualMetadata.individuals).toBeDefined();
-    expect(Object.keys(result.visualMetadata.individuals!)).toHaveLength(3);
+    expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+      3,
+    );
 
     // Shapes should still be valid
-    const individuals = result.visualMetadata.individuals!;
+    const individuals = result.visualMetadata.individuals ?? {};
     const validShapes = ['circle', 'square', 'triangle', 'hexagon', 'star'];
-    expect(validShapes).toContain(individuals['I1'].shape);
-    expect(validShapes).toContain(individuals['I2'].shape);
-    expect(validShapes).toContain(individuals['I3'].shape);
+    expect(validShapes).toContain(individuals.I1.shape);
+    expect(validShapes).toContain(individuals.I2.shape);
+    expect(validShapes).toContain(individuals.I3.shape);
   });
 });

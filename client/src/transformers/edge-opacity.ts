@@ -13,6 +13,7 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
 } from './types';
+import { getIndividualOrWarn, validateEdgeReferences } from './utils/transformer-guards';
 
 /**
  * Calculate edge opacity based on selected dimensions and edge properties
@@ -28,8 +29,17 @@ function calculateEdgeOpacity(
   const edge = gedcomData.metadata.edges.find((e) => e.id === edgeId);
   if (!edge) return 0.5;
 
-  const sourceIndividual = gedcomData.individuals[edge.sourceId];
-  const targetIndividual = gedcomData.individuals[edge.targetId];
+  // Validate edge references
+  if (!validateEdgeReferences(gedcomData, edge.sourceId, edge.targetId, edgeId)) {
+    return 0.1; // Return very low opacity for invalid edges
+  }
+
+  const sourceIndividual = getIndividualOrWarn(gedcomData, edge.sourceId, 'Edge opacity transformer');
+  const targetIndividual = getIndividualOrWarn(gedcomData, edge.targetId, 'Edge opacity transformer');
+  
+  if (!sourceIndividual || !targetIndividual) {
+    return 0.1; // Return very low opacity if individuals not found
+  }
 
   // Get the primary dimension value
   const primaryDimension = dimensions.primary;
@@ -38,8 +48,8 @@ function calculateEdgeOpacity(
   switch (primaryDimension) {
     case 'generation': {
       // Generation distance (closer generations = higher value)
-      const sourceGen = sourceIndividual.metadata.generation ?? 0;
-      const targetGen = targetIndividual.metadata.generation ?? 0;
+      const sourceGen = sourceIndividual.metadata?.generation ?? 0;
+      const targetGen = targetIndividual.metadata?.generation ?? 0;
       const genDistance = Math.abs(sourceGen - targetGen);
       const maxGenDistance = 5; // Assume max 5 generations apart
       primaryValue = Math.max(0, 1 - genDistance / maxGenDistance);
@@ -47,12 +57,13 @@ function calculateEdgeOpacity(
     }
     case 'childrenCount': {
       // Combined children count of connected individuals
-      const allIndividuals = Object.values(gedcomData.individuals);
+      const allIndividuals = Object.values(gedcomData.individuals)
+        .filter((ind) => ind !== null && ind !== undefined);
       const sourceChildren = allIndividuals.filter((child) =>
-        child.parents.includes(sourceIndividual.id),
+        child?.parents?.includes(sourceIndividual.id),
       ).length;
       const targetChildren = allIndividuals.filter((child) =>
-        child.parents.includes(targetIndividual.id),
+        child?.parents?.includes(targetIndividual.id),
       ).length;
       const totalChildren = sourceChildren + targetChildren;
       const maxChildrenSum = 20; // Assume max 20 combined children
@@ -61,8 +72,8 @@ function calculateEdgeOpacity(
     }
     case 'lifespan': {
       // Average lifespan of connected individuals
-      const sourceLifespan = sourceIndividual.metadata.lifespan ?? 0;
-      const targetLifespan = targetIndividual.metadata.lifespan ?? 0;
+      const sourceLifespan = sourceIndividual.metadata?.lifespan ?? 0;
+      const targetLifespan = targetIndividual.metadata?.lifespan ?? 0;
       const avgLifespan = (sourceLifespan + targetLifespan) / 2;
       const maxLifespan = 100; // Assume max 100 years
       primaryValue = avgLifespan / maxLifespan;
@@ -88,8 +99,8 @@ function calculateEdgeOpacity(
   if (secondaryDimension && secondaryDimension !== primaryDimension) {
     switch (secondaryDimension) {
       case 'generation': {
-        const sourceGen = sourceIndividual.metadata.generation ?? 0;
-        const targetGen = targetIndividual.metadata.generation ?? 0;
+        const sourceGen = sourceIndividual.metadata?.generation ?? 0;
+        const targetGen = targetIndividual.metadata?.generation ?? 0;
         const genDistance = Math.abs(sourceGen - targetGen);
         const maxGenDistance = 5;
         secondaryValue = Math.max(0, 1 - genDistance / maxGenDistance);
@@ -133,21 +144,17 @@ function calculateEdgeOpacity(
   const { edgeOpacity, variationFactor } = visual;
   const temp = temperature ?? 0.5;
 
-  // Use edge opacity directly as base opacity (0.1 to 1.0 range)
-  const baseOpacity = typeof edgeOpacity === 'number' ? edgeOpacity : 0.7;
-  const opacityRange = {
-    min: Math.max(0.1, baseOpacity - 0.2),
-    max: Math.min(1.0, baseOpacity + 0.2),
-  };
+  // Use edge opacity as target opacity
+  const targetOpacity = typeof edgeOpacity === 'number' ? edgeOpacity : 0.7;
 
   // Factor in edge length (longer edges = more transparent)
-  const sourceIndividualVisual = visualMetadata.individuals[edge.sourceId];
-  const targetIndividualVisual = visualMetadata.individuals[edge.targetId];
+  const sourceIndividualVisual = visualMetadata.individuals?.[edge.sourceId];
+  const targetIndividualVisual = visualMetadata.individuals?.[edge.targetId];
 
-  const sourceX = sourceIndividualVisual.x ?? 0;
-  const sourceY = sourceIndividualVisual.y ?? 0;
-  const targetX = targetIndividualVisual.x ?? 0;
-  const targetY = targetIndividualVisual.y ?? 0;
+  const sourceX = sourceIndividualVisual?.x ?? 0;
+  const sourceY = sourceIndividualVisual?.y ?? 0;
+  const targetX = targetIndividualVisual?.x ?? 0;
+  const targetY = targetIndividualVisual?.y ?? 0;
   const distance = Math.sqrt(
     (targetX - sourceX) ** 2 + (targetY - sourceY) ** 2,
   );
@@ -171,10 +178,9 @@ function calculateEdgeOpacity(
     Math.min(1, combinedValue + totalRandomFactor),
   );
 
-  // Calculate final opacity within the range
-  const finalOpacity =
-    opacityRange.min +
-    adjustedDimensionValue * (opacityRange.max - opacityRange.min);
+  // Use target opacity more directly with minimal dimension influence
+  const dimensionInfluence = adjustedDimensionValue * 0.3 + 0.7; // Range: 0.7 to 1.0
+  const finalOpacity = targetOpacity * dimensionInfluence;
 
   return Math.max(0.1, Math.min(1.0, finalOpacity)); // Ensure valid opacity range
 }

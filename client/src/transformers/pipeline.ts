@@ -61,6 +61,15 @@ export interface PipelineConfig {
   // Canvas dimensions for reference
   canvasWidth?: number;
   canvasHeight?: number;
+
+  // Transformer parameters (dimensions and visual parameters for each transformer)
+  transformerParameters?: Record<
+    string,
+    {
+      dimensions: { primary?: string; secondary?: string };
+      visual: Record<string, string | number | boolean>;
+    }
+  >;
 }
 
 interface PipelineInput {
@@ -159,7 +168,7 @@ export function createInitialCompleteVisualMetadata(
       strokeColor: DEFAULT_STROKE_COLOR,
       strokeWeight: DEFAULT_STROKE_WEIGHT,
       strokeStyle: DEFAULT_STROKE_STYLE,
-      opacity: 1.0,
+      opacity: 0.5, // More transparent initial edges
       // Remove position attributes for edges (they're connections, not positioned entities)
       x: undefined,
       y: undefined,
@@ -333,6 +342,15 @@ export async function runPipeline({
       // Get transformer from registry
       const transformer = getTransformer(transformerId);
 
+      // Get transformer parameters from config (or use defaults)
+      const transformerParams = config.transformerParameters?.[transformerId] ?? {
+        dimensions: {
+          primary: transformer.defaultPrimaryDimension,
+          secondary: transformer.defaultSecondaryDimension,
+        },
+        visual: {},
+      };
+
       // Create context for this transformer
       const context: TransformerContext = {
         gedcomData: fullData,
@@ -342,14 +360,20 @@ export async function runPipeline({
         seed: config.seed,
         canvasWidth: config.canvasWidth,
         canvasHeight: config.canvasHeight,
-        dimensions: { primary: 'generation' },
-        visual: {} as VisualParameterValues, // Will be overridden by factory function
+        dimensions: {
+          primary: transformerParams.dimensions.primary ?? transformer.defaultPrimaryDimension,
+          secondary: transformerParams.dimensions.secondary ?? transformer.defaultSecondaryDimension,
+        },
+        visual: transformerParams.visual as VisualParameterValues,
       };
 
       // Execute transformer using factory function to inject parameters
       const runtimeTransformer = transformer.createRuntimeTransformerFunction({
-        dimensions: { primary: 'generation' },
-        visual: {},
+        dimensions: {
+          primary: transformerParams.dimensions.primary ?? transformer.defaultPrimaryDimension,
+          secondary: transformerParams.dimensions.secondary ?? transformer.defaultSecondaryDimension,
+        },
+        visual: transformerParams.visual,
       });
       const result = await runtimeTransformer(context);
 
@@ -358,6 +382,21 @@ export async function runPipeline({
         visualMetadata,
         result.visualMetadata,
       );
+
+      // Debug: check if shape transformer updated shapes
+      if (transformerId === 'node-shape' && result.visualMetadata.individuals) {
+        const sampleShapes = Object.entries(result.visualMetadata.individuals)
+          .slice(0, 3)
+          .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
+          .join(', ');
+        console.log(`🔍 After ${transformerId}: Sample shapes in result:`, sampleShapes);
+        
+        const sampleFinalShapes = Object.entries(visualMetadata.individuals)
+          .slice(0, 3)  
+          .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
+          .join(', ');
+        console.log(`🔍 After ${transformerId}: Sample shapes in final metadata:`, sampleFinalShapes);
+      }
 
       // Record successful execution
       transformerResults.push({
@@ -451,6 +490,13 @@ export function createSimplePipeline(
     seed?: string;
     canvasWidth?: number;
     canvasHeight?: number;
+    transformerParameters?: Record<
+      string,
+      {
+        dimensions: { primary?: string; secondary?: string };
+        visual: Record<string, string | number | boolean>;
+      }
+    >;
   },
 ): PipelineConfig {
   return {
@@ -459,5 +505,6 @@ export function createSimplePipeline(
     seed: options?.seed,
     canvasWidth: options?.canvasWidth,
     canvasHeight: options?.canvasHeight,
+    transformerParameters: options?.transformerParameters,
   };
 }
