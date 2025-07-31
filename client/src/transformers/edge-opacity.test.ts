@@ -249,8 +249,8 @@ const createTestContext = (
 
   return {
     gedcomData,
-    llmData: { 
-      individuals: {}, 
+    llmData: {
+      individuals: {},
       families: {},
       metadata: {
         graphStructure: {
@@ -381,7 +381,7 @@ const createTestContext = (
           averageLifespan: 60,
           maxGenerations: 2,
         },
-      }
+      },
     },
     visualMetadata,
     temperature: 0.5,
