@@ -21,6 +21,19 @@ export interface VisualParameterConfig {
 
 export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
   // Position Parameters
+  layoutStyle: {
+    id: 'layoutStyle',
+    label: 'Layout Style',
+    description: 'AI-powered layout algorithm for positioning nodes',
+    type: 'select',
+    category: 'Position',
+    options: [
+      { value: 'tree', label: 'Tree (Hierarchical)' },
+      { value: 'radial', label: 'Radial (Circular)' },
+      { value: 'grid', label: 'Grid (Uniform)' },
+    ],
+    defaultValue: 'tree',
+  },
   verticalPadding: {
     id: 'verticalPadding',
     label: 'Vertical Padding',
