@@ -15,6 +15,7 @@ import { verticalSpreadTransform } from './vertical-spread';
 import { nodeShapeTransform } from './node-shape';
 import { nodeRotationTransform } from './node-rotation';
 import { nodeScaleTransform } from './node-scale';
+import { smartLayoutTransform } from './smart-layout';
 import type { VisualTransformerFn } from './types';
 import { createRuntimeTransformerFunction } from './utils';
 
@@ -48,6 +49,10 @@ export const NODE_SCALE = {
   ID: 'node-scale',
   NAME: 'Node Scale',
 } as const;
+export const SMART_LAYOUT = {
+  ID: 'smart-layout',
+  NAME: 'Smart Layout',
+} as const;
 
 export type TransformerId =
   | typeof HORIZONTAL_SPREAD.ID
@@ -57,7 +62,8 @@ export type TransformerId =
   | typeof VERTICAL_SPREAD.ID
   | typeof NODE_SHAPE.ID
   | typeof NODE_ROTATION.ID
-  | typeof NODE_SCALE.ID;
+  | typeof NODE_SCALE.ID
+  | typeof SMART_LAYOUT.ID;
 
 /**
  * Registry of all available transformers
@@ -540,6 +546,73 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeScaleTransform),
+  },
+  [SMART_LAYOUT.ID]: {
+    id: SMART_LAYOUT.ID,
+    name: SMART_LAYOUT.NAME,
+    description:
+      'AI-powered layout that uses machine learning to intelligently position nodes and edges based on family tree structure and user preferences.',
+    shortDescription: 'Smart AI-powered layout positioning',
+    transform: smartLayoutTransform as VisualTransformerFn,
+    categories: ['layout', 'ai'],
+    requiresLLM: true,
+    availableDimensions: [
+      'generation',
+      'birthYear',
+      'childrenCount',
+      'lifespan',
+    ],
+    defaultPrimaryDimension: 'generation',
+    defaultSecondaryDimension: 'birthYear',
+    visualParameters: [
+      {
+        name: 'layoutStyle',
+        type: 'select',
+        defaultValue: 'tree',
+        label: 'Layout Style',
+        description: 'AI-powered layout algorithm for positioning nodes',
+        options: [
+          { value: 'tree', label: 'Tree (Hierarchical)' },
+          { value: 'radial', label: 'Radial (Circular)' },
+          { value: 'grid', label: 'Grid (Uniform)' },
+        ],
+      },
+      {
+        name: 'spacing',
+        type: 'select',
+        defaultValue: 'normal',
+        label: 'Spacing',
+        description: 'General spacing between elements',
+        options: [
+          { value: 'tight', label: 'Tight' },
+          { value: 'compact', label: 'Compact' },
+          { value: 'normal', label: 'Normal' },
+          { value: 'loose', label: 'Loose' },
+          { value: 'sparse', label: 'Sparse' },
+        ],
+      },
+      {
+        name: 'temperature',
+        type: 'range',
+        defaultValue: 0.5,
+        label: 'Temperature',
+        description: 'Creativity level for AI layout (0 = strict, 1 = creative)',
+        min: 0,
+        max: 1.0,
+        step: 0.1,
+      },
+    ],
+    getDefaults: () => ({
+      layoutStyle: 'tree',
+      spacing: 'normal',
+      temperature: 0.5,
+    }),
+    createRuntimeTransformerFunction: (params) =>
+      createRuntimeTransformerFunction(params, smartLayoutTransform, [
+        { name: 'layoutStyle', defaultValue: 'tree' },
+        { name: 'spacing', defaultValue: 'normal' },
+        { name: 'temperature', defaultValue: 0.5 },
+      ]),
   },
 };
 
