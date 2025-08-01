@@ -442,41 +442,207 @@ export const layoutStyleParameter = {
 };
 ```
 
-### Step 2: Create LLM Service
+### Step 2: Create LLM Service with Vercel AI SDK
+
+We'll use the Vercel AI SDK for seamless provider switching and excellent TypeScript support:
+
+```bash
+# Install dependencies
+pnpm add ai @ai-sdk/openai @ai-sdk/anthropic zod
+```
+
+#### Environment Configuration
+```bash
+# .env.local (never commit this file)
+# Primary provider (used by default)
+VITE_LLM_PROVIDER=openai  # or anthropic, google, etc.
+
+# API Keys (only include the ones you use)
+VITE_OPENAI_API_KEY=sk-...
+VITE_ANTHROPIC_API_KEY=sk-ant-...
+
+# Optional: Model specifications
+VITE_OPENAI_MODEL=gpt-4
+VITE_ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+
+# Optional: Default settings
+VITE_LLM_MAX_TOKENS=2000
+VITE_LLM_DEFAULT_TEMPERATURE=0.5
+```
+
+#### LLM Service Implementation
 ```typescript
-// services/llm-client.ts
+// services/llm-layout-service.ts
+import { generateObject } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
+import { z } from 'zod';
+
+// Zod schema for response validation
+const LLMLayoutResponseSchema = z.object({
+  individuals: z.record(z.string(), z.object({
+    x: z.number(),
+    y: z.number(),
+    layer: z.number().optional(),
+  })),
+  edges: z.record(z.string(), z.object({
+    controlPoints: z.array(z.object({
+      x: z.number(),
+      y: z.number(),
+    })).optional(),
+  })).optional(),
+  layoutMetadata: z.object({
+    boundingBox: z.object({
+      x: z.number(),
+      y: z.number(), 
+      width: z.number(),
+      height: z.number(),
+    }),
+    centerOfMass: z.object({
+      x: z.number(),
+      y: z.number(),
+    }),
+    layoutQuality: z.number().min(0).max(1).optional(),
+    layoutDensity: z.number().min(0).max(1).optional(),
+  }).optional(),
+});
+
+export type LLMLayoutResponse = z.infer<typeof LLMLayoutResponseSchema>;
+
 interface LLMConfig {
-  provider: 'openai' | 'anthropic';
-  apiKey: string;
+  provider: string;
   model?: string;
-  defaultTemperature?: number;
-}
-
-interface LLMLayoutRequest {
-  prompt: string;
-  temperature: number;  // From context.temperature
   maxTokens?: number;
-  responseFormat?: 'json';
 }
 
-interface LLMLayoutService {
-  generateLayout(request: LLMLayoutRequest): Promise<LLMLayoutResponse>;
-  validateResponse(response: unknown): LLMLayoutResponse;
+class LLMLayoutService {
+  private getProvider() {
+    const provider = import.meta.env.VITE_LLM_PROVIDER || 'openai';
+    
+    switch (provider) {
+      case 'openai':
+        return openai(import.meta.env.VITE_OPENAI_MODEL || 'gpt-4');
+      case 'anthropic':
+        return anthropic(import.meta.env.VITE_ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022');
+      default:
+        throw new Error(`Unsupported LLM provider: ${provider}`);
+    }
+  }
+
+  async generateLayout(
+    prompt: string,
+    temperature: number = 0.5
+  ): Promise<LLMLayoutResponse> {
+    try {
+      const model = this.getProvider();
+      
+      const result = await generateObject({
+        model,
+        schema: LLMLayoutResponseSchema,
+        prompt,
+        temperature,
+        maxTokens: parseInt(import.meta.env.VITE_LLM_MAX_TOKENS || '2000'),
+      });
+
+      return result.object;
+    } catch (error) {
+      console.error('LLM layout generation failed:', error);
+      throw new Error(`Layout generation failed: ${error.message}`);
+    }
+  }
+
+  validateApiKeys(): { valid: boolean; missing: string[] } {
+    const provider = import.meta.env.VITE_LLM_PROVIDER || 'openai';
+    const missing: string[] = [];
+
+    switch (provider) {
+      case 'openai':
+        if (!import.meta.env.VITE_OPENAI_API_KEY) {
+          missing.push('VITE_OPENAI_API_KEY');
+        }
+        break;
+      case 'anthropic':
+        if (!import.meta.env.VITE_ANTHROPIC_API_KEY) {
+          missing.push('VITE_ANTHROPIC_API_KEY');
+        }
+        break;
+    }
+
+    return {
+      valid: missing.length === 0,
+      missing,
+    };
+  }
 }
 
-// Temperature mapping for different providers
-function mapTemperatureToProvider(
-  temperature: number, 
-  provider: 'openai' | 'anthropic'
-): number {
-  // Context temperature is 0-1, but providers may have different ranges
+export const llmLayoutService = new LLMLayoutService();
+```
+
+#### Error Handling & Fallbacks
+```typescript
+// Enhanced smart-layout.ts with LLM integration
+import { llmLayoutService } from '../services/llm-layout-service';
+
+export async function smartLayoutTransform(
+  context: TransformerContext,
+): Promise<TransformerOutput> {
+  const { llmData, visualMetadata, visual, temperature } = context;
+  const layoutStyle = visual.layoutStyle as string;
+
+  // Check API key availability
+  const apiKeyCheck = llmLayoutService.validateApiKeys();
+  if (!apiKeyCheck.valid) {
+    console.warn('LLM API keys missing:', apiKeyCheck.missing);
+    return algorithmicFallback(context); // Use existing fallback
+  }
+
+  try {
+    // Generate LLM prompt
+    const prompt = generateLayoutPrompt(context);
+    
+    // Call LLM
+    const llmResponse = await llmLayoutService.generateLayout(
+      prompt, 
+      temperature || 0.5
+    );
+
+    // Merge with existing metadata
+    const mergedMetadata = mergeLayoutResponse(llmResponse, visualMetadata);
+
+    return {
+      visualMetadata: mergedMetadata,
+      debug: {
+        message: `Smart layout applied: ${layoutStyle} (LLM-powered)`,
+        data: {
+          layoutStyle,
+          provider: import.meta.env.VITE_LLM_PROVIDER,
+          layoutQuality: llmResponse.layoutMetadata?.layoutQuality,
+        },
+      },
+    };
+  } catch (error) {
+    console.error('LLM layout failed, falling back to algorithmic:', error);
+    return algorithmicFallback(context);
+  }
+}
+```
+
+#### Provider-Specific Optimizations
+```typescript
+// services/prompt-templates.ts
+export function getProviderOptimizedPrompt(
+  basePrompt: string, 
+  provider: string
+): string {
   switch (provider) {
     case 'openai':
-      return temperature * 2; // OpenAI uses 0-2
+      return `${basePrompt}\n\nPlease respond with valid JSON only. Use precise calculations for optimal layout.`;
+    
     case 'anthropic':
-      return temperature;     // Anthropic uses 0-1
+      return `${basePrompt}\n\nI need you to think step by step about the optimal layout, then provide the JSON response.`;
+    
     default:
-      return temperature;
+      return basePrompt;
   }
 }
 ```
@@ -587,6 +753,57 @@ For the first iteration, focus on:
 5. Basic error handling
 
 This allows testing the core concept before expanding to full features.
+
+## Why Vercel AI SDK?
+
+The Vercel AI SDK provides several key advantages for our LLM integration:
+
+### 1. **Provider Flexibility**
+- Easy switching between OpenAI, Anthropic, Google, etc.
+- Consistent API across all providers
+- No vendor lock-in
+
+### 2. **Type Safety**
+- Full TypeScript support with Zod schema validation
+- Compile-time checking for LLM responses
+- Structured output generation with `generateObject()`
+
+### 3. **Developer Experience**
+- Streaming support for real-time updates
+- Built-in error handling and retries
+- Standardized response formats
+
+### 4. **Production Ready**
+- Rate limiting and quota management
+- Caching strategies
+- Performance optimizations
+
+### 5. **Easy Testing**
+- Mock providers for development
+- Deterministic responses for testing
+- Offline development support
+
+## Updated Implementation Roadmap
+
+### Phase 1: ✅ Basic Infrastructure (Completed)
+- Smart layout transformer with algorithmic fallback
+- Visual parameter integration
+- Transformer registration
+
+### Phase 2: LLM Integration
+1. **Install Vercel AI SDK dependencies**
+2. **Create LLM layout service with provider abstraction**
+3. **Add environment variable configuration**
+4. **Implement prompt generation system**
+5. **Add response validation with Zod schemas**
+6. **Integrate LLM calls into smart-layout transformer**
+
+### Phase 3: Enhancement & Testing
+1. **Add comprehensive error handling**
+2. **Implement layout caching for performance**
+3. **Add provider-specific optimizations**
+4. **Create development/testing tools**
+5. **Add user-facing error messages and fallback UI**
 1. Create `/client/src/transformers/smart-layout.ts`
 2. Define the transformer following existing patterns:
    ```typescript
