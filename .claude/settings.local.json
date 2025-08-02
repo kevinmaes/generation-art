@@ -6,7 +6,8 @@
       "Bash(pnpm lint:*)",
       "Bash(npx tsc:*)",
       "Bash(grep:*)",
-      "Bash(pnpm dev:*)"
+      "Bash(pnpm dev:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }
