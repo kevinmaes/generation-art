@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { nodeShapeTransform } from './node-shape';
 import type { TransformerContext } from './types';
+import type { LLMReadyData } from '../../../shared/types/llm-data';
 
 // Mock GEDCOM data for testing
 const mockGedcomData = {
@@ -12,7 +13,7 @@ const mockGedcomData = {
     I1: {
       id: 'I1',
       name: 'John Doe',
-      gender: 'M',
+      gender: 'M' as const,
       birth: { date: '1920', place: 'Unknown' },
       death: { date: '2000', place: 'Unknown' },
       parents: [],
@@ -29,7 +30,7 @@ const mockGedcomData = {
     I2: {
       id: 'I2',
       name: 'Jane Doe',
-      gender: 'F',
+      gender: 'F' as const,
       birth: { date: '1950', place: 'Unknown' },
       death: { date: '2025', place: 'Unknown' },
       parents: ['I1'],
@@ -46,7 +47,7 @@ const mockGedcomData = {
     I3: {
       id: 'I3',
       name: 'Bob Doe',
-      gender: 'M',
+      gender: 'M' as const,
       birth: { date: '1980', place: 'Unknown' },
       parents: ['I2'],
       spouses: [],
@@ -66,7 +67,7 @@ const mockGedcomData = {
       husband: {
         id: 'I1',
         name: 'John Doe',
-        gender: 'M',
+        gender: 'M' as const,
         birth: { date: '1920', place: 'Unknown' },
         death: { date: '2000', place: 'Unknown' },
         parents: [],
@@ -77,7 +78,7 @@ const mockGedcomData = {
       wife: {
         id: 'I2',
         name: 'Jane Doe',
-        gender: 'F',
+        gender: 'F' as const,
         birth: { date: '1950', place: 'Unknown' },
         death: { date: '2025', place: 'Unknown' },
         parents: ['I1'],
@@ -88,7 +89,7 @@ const mockGedcomData = {
       children: [{
         id: 'I3',
         name: 'Bob Doe',
-        gender: 'M',
+        gender: 'M' as const,
         birth: { date: '1980', place: 'Unknown' },
         parents: ['I2'],
         spouses: [],
@@ -106,7 +107,7 @@ const mockGedcomData = {
   },
 };
 
-const mockLLMData = {
+const mockLLMData: LLMReadyData = {
   individuals: {},
   families: {},
   metadata: {
@@ -139,6 +140,17 @@ const mockLLMData = {
       averageGenerationGap: 25,
       temporalClustering: 0.5,
       contemporaryRatio: 0.33,
+      averageLifespan: 70,
+      lifespanDistribution: { '0-20': 0, '20-40': 0, '40-60': 0.33, '60-80': 0.67, '80+': 0 },
+      longestLifespan: 80,
+      shortestLifespan: 45,
+      birthMonthDistribution: {},
+      deathMonthDistribution: {},
+      birthDecadeDistribution: { '1920s': 0.33, '1950s': 0.33, '1980s': 0.33 },
+      deathDecadeDistribution: { '2000s': 0.5, '2020s': 0.5 },
+      monthlyPatterns: { births: {}, deaths: {} },
+      seasonalPatterns: { births: {}, deaths: {} },
+      generationGapVariance: 5,
     },
     geographicPatterns: {
       totalCountries: 0,

@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { nodeRotationTransform } from './node-rotation';
 import type { TransformerContext } from './types';
+import type { LLMReadyData } from '../../../shared/types/llm-data';
 
 // Mock GEDCOM data for testing
 const mockGedcomData = {
@@ -13,6 +14,9 @@ const mockGedcomData = {
       id: 'I1',
       name: 'John Doe',
       parents: [],
+      spouses: [],
+      children: ['I2'],
+      siblings: [],
       metadata: {
         generation: 1,
         relativeGenerationValue: 0.0,
@@ -24,6 +28,9 @@ const mockGedcomData = {
       id: 'I2',
       name: 'Jane Smith',
       parents: ['I1'],
+      spouses: [],
+      children: ['I3'],
+      siblings: [],
       metadata: {
         generation: 2,
         relativeGenerationValue: 0.5,
@@ -35,6 +42,9 @@ const mockGedcomData = {
       id: 'I3',
       name: 'Bob Johnson',
       parents: ['I2'],
+      spouses: [],
+      children: [],
+      siblings: [],
       metadata: {
         generation: 3,
         relativeGenerationValue: 1.0,
@@ -60,10 +70,9 @@ const mockGedcomData = {
   },
 };
 
-const mockLLMData = {
+const mockLLMData: LLMReadyData = {
   individuals: {},
   families: {},
-  relationships: [],
   metadata: mockGedcomData.metadata,
 };
 

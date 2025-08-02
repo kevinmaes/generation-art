@@ -6,7 +6,7 @@ import {
   type ExportOptions,
   type PrintExportOptions,
 } from '../../services/ExportService';
-import type { AugmentedIndividual } from '../../../../shared/types';
+import type { GedcomDataWithMetadata } from '../../../../shared/types';
 
 export interface ExportState {
   isExporting: boolean;
@@ -18,7 +18,7 @@ export interface UseCanvasExportReturn {
   exportState: ExportState;
   exportWebCanvas: (p5Instance: p5, options?: ExportOptions) => void;
   exportPrintCanvas: (
-    familyData: AugmentedIndividual[],
+    familyData: GedcomDataWithMetadata,
     options?: PrintExportOptions,
   ) => Promise<void>;
   clearStatus: () => void;
@@ -69,7 +69,7 @@ export function useCanvasExport(): UseCanvasExportReturn {
 
   const exportPrintCanvas = useCallback(
     async (
-      familyData: AugmentedIndividual[],
+      familyData: GedcomDataWithMetadata,
       options: PrintExportOptions = {},
     ) => {
       try {

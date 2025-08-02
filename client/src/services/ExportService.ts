@@ -10,7 +10,7 @@ import {
   createExportCanvas,
   cleanupTemporaryCanvas,
 } from '../../../shared/utils/CanvasFactory';
-import type { AugmentedIndividual } from '../../../shared/types';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
 
 export interface ExportOptions {
   format?: 'png' | 'jpg';
@@ -50,7 +50,7 @@ export function exportWebCanvas(
  * Export a high-resolution print-ready version
  */
 export function exportPrintCanvas(
-  familyData: AugmentedIndividual[],
+  familyData: GedcomDataWithMetadata,
   options: PrintExportOptions = {},
 ): Promise<void> {
   const {

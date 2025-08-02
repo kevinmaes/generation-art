@@ -14,6 +14,7 @@ import type {
 import type { TransformerId } from './transformers';
 import type { DimensionId } from './dimensions';
 import type { VisualParameterId } from './visual-parameters';
+import { VISUAL_PARAMETERS } from './visual-parameters';
 
 /**
  * Create a VisualTransformer configuration
@@ -41,7 +42,20 @@ export function createTransformer(
     availableDimensions,
     defaultPrimaryDimension,
     defaultSecondaryDimension: options?.defaultSecondaryDimension,
-    visualParameters,
+    visualParameters: visualParameters.map(paramId => {
+      const param = VISUAL_PARAMETERS[paramId];
+      return {
+        name: param.id,
+        type: param.type,
+        defaultValue: param.defaultValue,
+        label: param.label,
+        description: param.description,
+        min: param.min,
+        max: param.max,
+        step: param.step,
+        options: param.options,
+      };
+    }),
     createRuntimeTransformerFunction,
     categories: options?.categories,
     requiresLLM: options?.requiresLLM ?? false,
