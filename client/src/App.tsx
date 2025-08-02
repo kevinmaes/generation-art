@@ -6,12 +6,12 @@ import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
 import type { PipelineResult } from './transformers/pipeline';
-import { runPipeline, createSimplePipeline } from './transformers/pipeline';
 import {
-  transformers,
-  HORIZONTAL_SPREAD,
-  type TransformerId,
-} from './transformers/transformers';
+  runPipeline,
+  createSimplePipeline,
+  PIPELINE_DEFAULTS,
+} from './transformers/pipeline';
+import { transformers, type TransformerId } from './transformers/transformers';
 import type { VisualParameterValues } from './transformers/visual-parameters';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
@@ -21,8 +21,6 @@ interface DualGedcomData {
   full: GedcomDataWithMetadata;
   llm: LLMReadyData;
 }
-
-const DEFAULT_TRANSFORMER_IDS: TransformerId[] = [HORIZONTAL_SPREAD.ID];
 
 function App(): React.ReactElement {
   const [dualData, setDualData] = useState<DualGedcomData | null>(null);
@@ -36,7 +34,7 @@ function App(): React.ReactElement {
   );
   const [activeTransformerIds, setActiveTransformerIds] = useState<
     TransformerId[]
-  >(DEFAULT_TRANSFORMER_IDS);
+  >(PIPELINE_DEFAULTS.TRANSFORMER_IDS);
   const [transformerParameters, setTransformerParameters] = useState<
     Record<
       string,
