@@ -51,7 +51,7 @@ function App(): React.ReactElement {
       string,
       {
         dimensions: { primary?: string; secondary?: string };
-        visual: Record<string, unknown>;
+        visual: VisualParameterValues;
       }
     >
   >({});
@@ -201,7 +201,7 @@ function App(): React.ReactElement {
         string,
         {
           dimensions: { primary?: string; secondary?: string };
-          visual: Record<string, unknown>;
+          visual: VisualParameterValues;
         }
       > = {};
       activeTransformerIds.forEach((transformerId) => {
