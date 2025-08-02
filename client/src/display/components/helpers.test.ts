@@ -38,7 +38,7 @@ describe('Helper Functions', () => {
 
   describe('getUniqueEdges', () => {
     it('should return unique edges from family data', () => {
-      const mockData = [
+      const mockDataArray = [
         {
           id: '1',
           name: 'Person 1',
@@ -48,6 +48,7 @@ describe('Helper Functions', () => {
           siblings: [],
           birth: { date: '', place: '' },
           death: { date: '', place: '' },
+          metadata: {},
         },
         {
           id: '2',
@@ -58,6 +59,7 @@ describe('Helper Functions', () => {
           siblings: [],
           birth: { date: '', place: '' },
           death: { date: '', place: '' },
+          metadata: {},
         },
         {
           id: '3',
@@ -68,8 +70,14 @@ describe('Helper Functions', () => {
           siblings: [],
           birth: { date: '', place: '' },
           death: { date: '', place: '' },
+          metadata: {},
         },
       ];
+
+      // Convert array to Record as expected by getUniqueEdges
+      const mockData = Object.fromEntries(
+        mockDataArray.map((individual) => [individual.id, individual]),
+      );
 
       const edges = getUniqueEdges(mockData);
 
@@ -87,12 +95,12 @@ describe('Helper Functions', () => {
     });
 
     it('should handle empty data', () => {
-      const edges = getUniqueEdges([]);
+      const edges = getUniqueEdges({});
       expect(edges).toEqual([]);
     });
 
     it('should handle individuals with no parents', () => {
-      const mockData = [
+      const mockDataArray = [
         {
           id: '1',
           name: 'Person 1',
@@ -102,6 +110,7 @@ describe('Helper Functions', () => {
           siblings: [],
           birth: { date: '', place: '' },
           death: { date: '', place: '' },
+          metadata: {},
         },
         {
           id: '2',
@@ -112,6 +121,7 @@ describe('Helper Functions', () => {
           siblings: [],
           birth: { date: '', place: '' },
           death: { date: '', place: '' },
+          metadata: {},
         },
         {
           id: '3',
@@ -122,8 +132,14 @@ describe('Helper Functions', () => {
           siblings: [],
           birth: { date: '', place: '' },
           death: { date: '', place: '' },
+          metadata: {},
         },
       ];
+
+      // Convert array to Record as expected by getUniqueEdges
+      const mockData = Object.fromEntries(
+        mockDataArray.map((individual) => [individual.id, individual]),
+      );
 
       const edges = getUniqueEdges(mockData);
 
@@ -132,7 +148,7 @@ describe('Helper Functions', () => {
     });
 
     it('should handle duplicate parent relationships', () => {
-      const mockData = [
+      const mockDataArray = [
         {
           id: '1',
           name: 'Person 1',
@@ -142,6 +158,7 @@ describe('Helper Functions', () => {
           siblings: [],
           birth: { date: '', place: '' },
           death: { date: '', place: '' },
+          metadata: {},
         },
         {
           id: '4',
@@ -152,8 +169,14 @@ describe('Helper Functions', () => {
           siblings: [],
           birth: { date: '', place: '' },
           death: { date: '', place: '' },
+          metadata: {},
         },
       ];
+
+      // Convert array to Record as expected by getUniqueEdges
+      const mockData = Object.fromEntries(
+        mockDataArray.map((individual) => [individual.id, individual]),
+      );
 
       const edges = getUniqueEdges(mockData);
 

@@ -24,7 +24,7 @@ export const addMetadataToAugmentedIndividuals = (
     families,
     rootIndividual,
   );
-  return result.individuals;
+  return Object.values(result.individuals);
 };
 
 /**

@@ -18,27 +18,11 @@ import { getIndividualSafe } from './utils/safe-access';
 const SHAPES = ['circle', 'square', 'triangle', 'hexagon', 'star'] as const;
 type NodeShape = (typeof SHAPES)[number];
 
-/**
- * Calculate node shape based on selected dimensions
- */
-let debugCallCount = 0;
-
 function calculateNodeShape(
   context: TransformerContext,
   individualId: string,
 ): NodeShape {
   const { gedcomData, dimensions, visual, temperature } = context;
-
-  // Only log first 3 calls to avoid spam
-  if (debugCallCount < 3) {
-    console.log(`🔍 calculateNodeShape called for ${individualId}:`, {
-      primaryDimension: dimensions.primary,
-      secondaryDimension: dimensions.secondary,
-      visual: Object.keys(visual),
-      temperature,
-    });
-    debugCallCount++;
-  }
 
   // Find the individual
   const individual = getIndividualSafe(gedcomData, individualId);
@@ -245,13 +229,6 @@ function calculateNodeShape(
   const shapeIndex = Math.floor(adjustedDimensionValue * SHAPES.length);
   const clampedIndex = Math.min(shapeIndex, SHAPES.length - 1);
   const selectedShape = SHAPES[clampedIndex];
-
-  // Only log first 3 calculations
-  if (debugCallCount <= 3) {
-    console.log(
-      `🔍 ${individualId} shape calculation: primaryValue=${String(primaryValue.toFixed(3))}, secondaryValue=${String(secondaryValue.toFixed(3))}, combinedValue=${String(combinedValue.toFixed(3))}, variationFactor=${String(safeVariationFactor)}, totalRandomFactor=${String(totalRandomFactor.toFixed(3))}, adjustedValue=${String(adjustedDimensionValue.toFixed(3))}, shapeIndex=${String(shapeIndex)}, selectedShape=${selectedShape}`,
-    );
-  }
 
   return selectedShape;
 }

@@ -18,11 +18,9 @@ import type {
 import type { VisualParameterValues } from './visual-parameters';
 import {
   getTransformer,
-  HORIZONTAL_SPREAD,
-  NODE_OPACITY,
+  SMART_LAYOUT,
   type TransformerId,
   transformers,
-  VERTICAL_SPREAD,
 } from './transformers';
 import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
@@ -51,7 +49,7 @@ import {
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID, NODE_OPACITY.ID],
+  TRANSFORMER_IDS: [SMART_LAYOUT.ID],
 };
 
 /**

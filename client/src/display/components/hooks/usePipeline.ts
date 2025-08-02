@@ -1,11 +1,17 @@
 import { useState, useCallback } from 'react';
-import type { GedcomDataWithMetadata } from '../../../../../shared/types';
+import type {
+  GedcomDataWithMetadata,
+  LLMReadyData,
+} from '../../../../../shared/types';
 import {
   runPipeline,
   createSimplePipeline,
   type PipelineResult,
 } from '../../../transformers/pipeline';
-import { transformers } from '../../../transformers/transformers';
+import {
+  transformers,
+  type TransformerId,
+} from '../../../transformers/transformers';
 
 interface UsePipelineOptions {
   temperature?: number;
@@ -17,10 +23,11 @@ interface UsePipelineReturn {
   error: string | null;
   isRunning: boolean;
   runPipeline: (
-    gedcomData: GedcomDataWithMetadata,
+    fullData: GedcomDataWithMetadata,
+    llmData: LLMReadyData,
     width: number,
     height: number,
-    transformerIds?: string[],
+    transformerIds?: TransformerId[],
   ) => Promise<PipelineResult>;
 }
 
@@ -33,10 +40,13 @@ export function usePipeline(
 
   const runPipelineAsync = useCallback(
     async (
-      gedcomData: GedcomDataWithMetadata,
+      fullData: GedcomDataWithMetadata,
+      llmData: LLMReadyData,
       width: number,
       height: number,
-      transformerIds: string[] = Object.keys(transformers),
+      transformerIds: TransformerId[] = Object.keys(
+        transformers,
+      ) as TransformerId[],
     ): Promise<PipelineResult> => {
       setResult(null);
       setError(null);
@@ -50,7 +60,11 @@ export function usePipeline(
           seed: options.seed,
         });
 
-        const pipelineResult = await runPipeline(gedcomData, pipelineConfig);
+        const pipelineResult = await runPipeline({
+          fullData,
+          llmData,
+          config: pipelineConfig,
+        });
         setResult(pipelineResult);
         return pipelineResult;
       } catch (err: unknown) {

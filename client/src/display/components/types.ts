@@ -1,4 +1,4 @@
-import type { AugmentedIndividual as BaseAugmentedIndividual } from '../types';
+import type { AugmentedIndividual as BaseAugmentedIndividual } from '../../../../shared/types';
 
 /**
  * Augmented individual data type for components

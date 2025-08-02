@@ -8,7 +8,6 @@ import type {
   VisualTransformerFn,
 } from './types';
 import type { VisualParameterValues } from './visual-parameters';
-import { VISUAL_PARAMETERS } from './visual-parameters';
 
 /**
  * Convert a transformer name to a slugified ID
@@ -43,18 +42,6 @@ export function generateTransformerId(name: string): string {
   }
 
   return slug;
-}
-
-/**
- * Get all default visual parameter values
- */
-function _getDefaultVisualParams(): VisualParameterValues {
-  return Object.fromEntries(
-    Object.entries(VISUAL_PARAMETERS).map(([key, config]) => [
-      key,
-      config.defaultValue,
-    ]),
-  ) as VisualParameterValues;
 }
 
 /**

@@ -7,6 +7,12 @@ settings:
 importers:
   .:
     dependencies:
+      '@ai-sdk/anthropic':
+        specifier: ^2.0.0
+        version: 2.0.0(zod@4.0.10)
+      '@ai-sdk/openai':
+        specifier: ^2.0.0
+        version: 2.0.0(zod@4.0.10)
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -16,6 +22,9 @@ importers:
       '@types/p5':
         specifier: ^1.7.6
         version: 1.7.6
+      ai:
+        specifier: ^5.0.0
+        version: 5.0.0(zod@4.0.10)
       gedcom-ts:
         specifier: ^1.1.1
         version: 1.1.1
@@ -100,6 +109,49 @@ importers:
         version: 3.1.4(@types/node@22.15.29)(jiti@1.21.7)(tsx@4.19.4)(yaml@2.8.0)
 
 packages:
+  '@ai-sdk/anthropic@2.0.0':
+    resolution:
+      {
+        integrity: sha512-uyyaO4KhxoIKZztREqLPh+6/K3ZJx/rp72JKoUEL9/kC+vfQTThUfPnY/bUryUpcnawx8IY/tSoYNOi/8PCv7w==,
+      }
+    engines: { node: '>=18' }
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
+  '@ai-sdk/gateway@1.0.0':
+    resolution:
+      {
+        integrity: sha512-VEm87DyRx1yIPywbTy8ntoyh4jEDv1rJ88m+2I7zOm08jJI5BhFtAWh0OF6YzZu1Vu4NxhOWO4ssGdsqydDQ3A==,
+      }
+    engines: { node: '>=18' }
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
+  '@ai-sdk/openai@2.0.0':
+    resolution:
+      {
+        integrity: sha512-G0WY5K81JwGpuX9HEmP2VTdt3N9m43qPnGT4fWkXcpu6Y2B05nnjs8k1r/csCJd8+TkYC6esjBABQYHxdMOejQ==,
+      }
+    engines: { node: '>=18' }
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
+  '@ai-sdk/provider-utils@3.0.0':
+    resolution:
+      {
+        integrity: sha512-BoQZtGcBxkeSH1zK+SRYNDtJPIPpacTeiMZqnG4Rv6xXjEwM0FH4MGs9c+PlhyEWmQCzjRM2HAotEydFhD4dYw==,
+      }
+    engines: { node: '>=18' }
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
+  '@ai-sdk/provider@2.0.0':
+    resolution:
+      {
+        integrity: sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==,
+      }
+    engines: { node: '>=18' }
+
   '@alloc/quick-lru@5.2.0':
     resolution:
       {
@@ -673,6 +725,13 @@ packages:
       }
     engines: { node: '>= 8' }
 
+  '@opentelemetry/api@1.9.0':
+    resolution:
+      {
+        integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==,
+      }
+    engines: { node: '>=8.0.0' }
+
   '@pkgjs/parseargs@0.11.0':
     resolution:
       {
@@ -1010,6 +1069,12 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@standard-schema/spec@1.0.0':
+    resolution:
+      {
+        integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==,
+      }
+
   '@stitches/react@1.2.8':
     resolution:
       {
@@ -1274,6 +1339,15 @@ packages:
       }
     engines: { node: '>=0.4.0' }
     hasBin: true
+
+  ai@5.0.0:
+    resolution:
+      {
+        integrity: sha512-F4jOhOSeiZD8lXpF4l1hRqyM1jbqoLKGVZNxAP467wmQCsWUtElMa3Ki5PrDMq6qvUNC3deUKfERDAsfj7IDlg==,
+      }
+    engines: { node: '>=18' }
+    peerDependencies:
+      zod: ^3.25.76 || ^4
 
   ajv@6.12.6:
     resolution:
@@ -1953,6 +2027,13 @@ packages:
         integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==,
       }
     engines: { node: '>=0.10.0' }
+
+  eventsource-parser@3.0.3:
+    resolution:
+      {
+        integrity: sha512-nVpZkTMM9rF6AQ9gPJpFsNAMt48wIzB5TQgiTLdHiuO8XEDhUgZEhqKlZWXbIzo9VmJ/HvysHqEaVeD5v9TPvA==,
+      }
+    engines: { node: '>=20.0.0' }
 
   expect-type@1.2.1:
     resolution:
@@ -2634,6 +2715,12 @@ packages:
     resolution:
       {
         integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==,
+      }
+
+  json-schema@0.4.0:
+    resolution:
+      {
+        integrity: sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==,
       }
 
   json-stable-stringify-without-jsonify@1.0.1:
@@ -4038,6 +4125,14 @@ packages:
       }
     engines: { node: '>=10' }
 
+  zod-to-json-schema@3.24.6:
+    resolution:
+      {
+        integrity: sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==,
+      }
+    peerDependencies:
+      zod: ^3.24.1
+
   zod@3.25.46:
     resolution:
       {
@@ -4063,6 +4158,36 @@ packages:
         optional: true
 
 snapshots:
+  '@ai-sdk/anthropic@2.0.0(zod@4.0.10)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.0(zod@4.0.10)
+      zod: 4.0.10
+
+  '@ai-sdk/gateway@1.0.0(zod@4.0.10)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.0(zod@4.0.10)
+      zod: 4.0.10
+
+  '@ai-sdk/openai@2.0.0(zod@4.0.10)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.0(zod@4.0.10)
+      zod: 4.0.10
+
+  '@ai-sdk/provider-utils@3.0.0(zod@4.0.10)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@standard-schema/spec': 1.0.0
+      eventsource-parser: 3.0.3
+      zod: 4.0.10
+      zod-to-json-schema: 3.24.6(zod@4.0.10)
+
+  '@ai-sdk/provider@2.0.0':
+    dependencies:
+      json-schema: 0.4.0
+
   '@alloc/quick-lru@5.2.0': {}
 
   '@ampproject/remapping@2.3.0':
@@ -4371,6 +4496,8 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
+  '@opentelemetry/api@1.9.0': {}
+
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
@@ -4585,6 +4712,8 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.41.1':
     optional: true
 
+  '@standard-schema/spec@1.0.0': {}
+
   '@stitches/react@1.2.8(react@19.1.0)':
     dependencies:
       react: 19.1.0
@@ -4794,6 +4923,14 @@ snapshots:
       acorn: 8.14.1
 
   acorn@8.14.1: {}
+
+  ai@5.0.0(zod@4.0.10):
+    dependencies:
+      '@ai-sdk/gateway': 1.0.0(zod@4.0.10)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.0(zod@4.0.10)
+      '@opentelemetry/api': 1.9.0
+      zod: 4.0.10
 
   ajv@6.12.6:
     dependencies:
@@ -5328,6 +5465,8 @@ snapshots:
 
   esutils@2.0.3: {}
 
+  eventsource-parser@3.0.3: {}
+
   expect-type@1.2.1: {}
 
   extend-shallow@2.0.1:
@@ -5716,6 +5855,8 @@ snapshots:
   json-buffer@3.0.1: {}
 
   json-schema-traverse@0.4.1: {}
+
+  json-schema@0.4.0: {}
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 
@@ -6667,6 +6808,10 @@ snapshots:
   yaml@2.8.0: {}
 
   yocto-queue@0.1.0: {}
+
+  zod-to-json-schema@3.24.6(zod@4.0.10):
+    dependencies:
+      zod: 4.0.10
 
   zod@3.25.46: {}
 

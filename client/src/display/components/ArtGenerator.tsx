@@ -4,6 +4,7 @@ import { createWebSketch, type SketchConfig } from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { PipelineResult } from '../../transformers/pipeline';
+import { HORIZONTAL_SPREAD, NODE_SHAPE } from '../../transformers/transformers';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -55,8 +56,8 @@ export function ArtGenerator({
     // Create a proper config object for the sketch
     const sketchConfig: Partial<SketchConfig> = {
       transformerIds: pipelineResult?.config.transformerIds ?? [
-        'horizontal-spread-by-generation',
-        'node-shape',
+        HORIZONTAL_SPREAD.ID,
+        NODE_SHAPE.ID,
       ],
       temperature: pipelineResult?.config.temperature ?? 0.5,
       seed: pipelineResult?.config.seed,

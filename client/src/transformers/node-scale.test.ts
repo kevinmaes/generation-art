@@ -1,6 +1,7 @@
 /**
  * Node Scale Transformer Test
  */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { describe, expect, it } from 'vitest';
 import { nodeScaleTransform } from './node-scale';
@@ -13,6 +14,9 @@ const mockGedcomData = {
       id: 'I1',
       name: 'John Doe',
       parents: [],
+      spouses: [],
+      children: ['I2'],
+      siblings: [],
       metadata: {
         generation: 1,
         relativeGenerationValue: 0.0,
@@ -24,6 +28,9 @@ const mockGedcomData = {
       id: 'I2',
       name: 'Jane Smith',
       parents: ['I1'],
+      spouses: [],
+      children: ['I3'],
+      siblings: [],
       metadata: {
         generation: 2,
         relativeGenerationValue: 0.5,
@@ -35,6 +42,9 @@ const mockGedcomData = {
       id: 'I3',
       name: 'Bob Johnson',
       parents: ['I2'],
+      spouses: [],
+      children: [],
+      siblings: [],
       metadata: {
         generation: 3,
         relativeGenerationValue: 1.0,
@@ -46,24 +56,192 @@ const mockGedcomData = {
   families: {
     F1: {
       id: 'F1',
-      husband: { id: 'I1' },
-      wife: { id: 'I2' },
       children: [],
+      metadata: {
+        numberOfChildren: 1,
+        familyComplexity: 0.5,
+        blendedFamily: false,
+        remarriage: false,
+        generation: 1,
+        sameCountryParents: true,
+        crossCountryMarriage: false,
+        marriageYear: 1945,
+        averageChildAge: 30,
+        birthCountryDiversity: 1,
+        occupationDiversity: 1,
+        educationLevel: 'Unknown',
+      },
+      husband: {
+        id: 'I1',
+        name: 'John Doe',
+        parents: [],
+        spouses: [],
+        children: [],
+        siblings: [],
+      },
+      wife: {
+        id: 'I2',
+        name: 'Jane Smith',
+        parents: [],
+        spouses: [],
+        children: [],
+        siblings: [],
+      },
     },
   },
   metadata: {
-    totalIndividuals: 3,
-    totalFamilies: 1,
-    generations: 3,
-    earliestBirthYear: 1920,
-    latestBirthYear: 1980,
+    graphStructure: {
+      totalIndividuals: 3,
+      totalFamilies: 1,
+      totalEdges: 2,
+      maxGenerations: 3,
+      minGenerations: 1,
+      generationDistribution: { '1': 1, '2': 1, '3': 1 },
+      averageGenerationsPerBranch: 2,
+      disconnectedComponents: 1,
+      largestComponentSize: 3,
+      averageConnectionsPerIndividual: 1.33,
+      connectivityDensity: 0.67,
+      averageFamilySize: 2,
+      largestFamilySize: 2,
+      familySizeDistribution: { '2': 1 },
+      childlessFamilies: 0,
+      largeFamilies: 0,
+      treeComplexity: 0.5,
+      branchingFactor: 1,
+      depthToBreadthRatio: 1.5,
+    },
+    temporalPatterns: {
+      earliestBirthYear: 1920,
+      latestBirthYear: 1980,
+      timeSpan: 60,
+      generationTimeSpans: {},
+      averageLifespan: 70,
+      lifespanDistribution: {
+        '0-20': 0,
+        '20-40': 0,
+        '40-60': 0.33,
+        '60-80': 0.67,
+        '80+': 0,
+      },
+      longestLifespan: 80,
+      shortestLifespan: 45,
+      lifespanVariance: 10,
+      historicalPeriods: [],
+      birthYearDistribution: { 1920: 1, 1950: 1, 1980: 1 },
+      deathYearDistribution: { 2000: 1, 2020: 2 },
+      marriageYearDistribution: { 1945: 1 },
+      averageGenerationGap: 25,
+      generationGapVariance: 5,
+    },
+    geographicPatterns: {
+      uniqueBirthPlaces: 0,
+      uniqueDeathPlaces: 0,
+      countriesRepresented: 0,
+      statesProvincesRepresented: 0,
+      birthPlaceDistribution: {},
+      deathPlaceDistribution: {},
+      countryDistribution: {},
+      stateProvinceDistribution: {},
+      countryPercentages: {},
+      stateProvincePercentages: {},
+      migrationPatterns: [],
+      regions: [],
+      geographicClusters: [],
+      geographicDiversity: 0,
+      averageDistanceBetweenBirthPlaces: 0,
+    },
+    demographics: {
+      genderDistribution: {
+        male: { count: 2, percentage: 66.67 },
+        female: { count: 1, percentage: 33.33 },
+        unknown: { count: 0, percentage: 0 },
+      },
+      ageDistribution: {
+        '0-20': 0,
+        '20-40': 0,
+        '40-60': 0.33,
+        '60-80': 0.67,
+        '80+': 0,
+      },
+      averageAgeAtDeath: 70,
+      ageGroupDistribution: {
+        '0-20': 0,
+        '20-40': 0,
+        '40-60': 0.33,
+        '60-80': 0.67,
+        '80+': 0,
+      },
+      ageVariance: 15,
+      averageChildrenPerFamily: 1,
+      childlessFamilies: 0,
+      largeFamilies: 0,
+      familySizeVariance: 0.5,
+      averageAgeAtMarriage: 25,
+      marriageAgeDistribution: { '20-30': 1 },
+      remarriageRate: 0,
+      marriageAgeVariance: 5,
+      averageChildrenPerWoman: 1,
+      fertilityRate: 1,
+      childbearingAgeRange: { min: 20, max: 30, average: 25 },
+    },
+    relationships: {
+      relationshipTypeDistribution: { 'parent-child': 2 },
+      averageRelationshipDistance: 1.5,
+      relationshipDistanceDistribution: { 1: 2 },
+      maxRelationshipDistance: 2,
+      blendedFamilies: 0,
+      stepRelationships: 0,
+      adoptionRate: 0,
+      multipleMarriages: 0,
+      averageAncestorsPerGeneration: 1,
+      missingAncestors: 0,
+      ancestralCompleteness: 0.8,
+      ancestralDepth: 3,
+      averageSiblingsPerFamily: 0,
+      onlyChildren: 3,
+      largeSiblingGroups: 0,
+      cousinRelationships: {
+        firstCousins: 0,
+        secondCousins: 0,
+        thirdCousins: 0,
+        distantCousins: 0,
+      },
+      keyConnectors: ['I1'],
+      averageCentrality: 0.33,
+      centralityDistribution: { I1: 0.5, I2: 0.33, I3: 0.17 },
+    },
+    summary: {
+      totalIndividuals: 3,
+      totalFamilies: 1,
+      timeSpan: '60 years',
+      geographicDiversity: 'unknown',
+      familyComplexity: 'simple',
+      averageLifespan: 70,
+      maxGenerations: 3,
+    },
+    edges: [],
+    edgeAnalysis: {
+      totalEdges: 2,
+      parentChildEdges: 2,
+      spouseEdges: 0,
+      siblingEdges: 0,
+      averageEdgeWeight: 1,
+      edgeWeightDistribution: { '1.0': 2 },
+      strongRelationships: 2,
+      weakRelationships: 0,
+      averageRelationshipDuration: 30,
+      relationshipDurationDistribution: { '30': 2 },
+      sameCountryRelationships: 2,
+      crossCountryRelationships: 0,
+      averageDistanceBetweenSpouses: 0,
+    },
   },
 };
 
 const mockLLMData = {
   individuals: {},
   families: {},
-  relationships: [],
   metadata: mockGedcomData.metadata,
 };
 
@@ -121,7 +299,9 @@ describe('nodeScaleTransform', () => {
     expect(individuals.I1.height).toBeLessThanOrEqual(2.0);
 
     // I1 (lifespan 80) should have larger width than I3 (lifespan 45)
-    expect(individuals.I1.width).toBeGreaterThan(individuals.I3.width);
+    expect(individuals.I1.width).toBeDefined();
+    expect(individuals.I3.width).toBeDefined();
+    expect(individuals.I1.width!).toBeGreaterThan(individuals.I3.width!);
   });
 
   it('should assign scale based on children count dimension', async () => {
@@ -149,8 +329,11 @@ describe('nodeScaleTransform', () => {
     expect(individuals.I3).toHaveProperty('width');
 
     // I3 (no children) should have smaller width than I1 and I2
-    expect(individuals.I3.width).toBeLessThanOrEqual(individuals.I1.width);
-    expect(individuals.I3.width).toBeLessThanOrEqual(individuals.I2.width);
+    expect(individuals.I3.width).toBeDefined();
+    expect(individuals.I1.width).toBeDefined();
+    expect(individuals.I2.width).toBeDefined();
+    expect(individuals.I3.width!).toBeLessThanOrEqual(individuals.I1.width!);
+    expect(individuals.I3.width!).toBeLessThanOrEqual(individuals.I2.width!);
   });
 
   it('should assign different scales for width and height with secondary dimension', async () => {
@@ -184,7 +367,8 @@ describe('nodeScaleTransform', () => {
     const expectedScale = Math.sqrt(
       (individuals.I1.width ?? 1) * (individuals.I1.height ?? 1),
     );
-    expect(individuals.I1.scale).toBeCloseTo(expectedScale, 5);
+    expect(individuals.I1.scale).toBeDefined();
+    expect(individuals.I1.scale!).toBeCloseTo(expectedScale, 5);
   });
 
   it('should preserve existing visual metadata while adding scale', async () => {
@@ -287,7 +471,9 @@ describe('nodeScaleTransform', () => {
 
     // I1 (gen 1, relativeValue 0.0) should have smaller width than I3 (gen 3, relativeValue 1.0)
     const individuals = result.visualMetadata.individuals ?? {};
-    expect(individuals.I1.width).toBeLessThan(individuals.I3.width);
+    expect(individuals.I1.width).toBeDefined();
+    expect(individuals.I3.width).toBeDefined();
+    expect(individuals.I1.width!).toBeLessThan(individuals.I3.width!);
   });
 
   it('should handle name length dimension', async () => {
@@ -311,6 +497,8 @@ describe('nodeScaleTransform', () => {
     // Names: "John Doe" (8), "Jane Smith" (10), "Bob Johnson" (11)
     // Bob Johnson should have the largest width
     const individuals = result.visualMetadata.individuals ?? {};
-    expect(individuals.I3.width).toBeGreaterThanOrEqual(individuals.I1.width);
+    expect(individuals.I3.width).toBeDefined();
+    expect(individuals.I1.width).toBeDefined();
+    expect(individuals.I3.width!).toBeGreaterThanOrEqual(individuals.I1.width!);
   });
 });

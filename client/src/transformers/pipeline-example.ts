@@ -6,22 +6,28 @@
  */
 
 import { runPipeline, createSimplePipeline } from './pipeline';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type {
+  GedcomDataWithMetadata,
+  LLMReadyData,
+} from '../../../shared/types';
 
 /**
  * Example: Run a simple pipeline with the horizontal spread transformer
  */
-export async function runSimpleExample(metadata: GedcomDataWithMetadata) {
+export async function runSimpleExample(
+  fullData: GedcomDataWithMetadata,
+  llmData: LLMReadyData,
+) {
   console.log('🎨 Running Simple Pipeline Example...');
 
-  const config = createSimplePipeline(['horizontal-spread-by-generation'], {
+  const config = createSimplePipeline(['horizontal-spread'], {
     temperature: 0.5,
     seed: 'example-seed',
     canvasWidth: 800,
     canvasHeight: 600,
   });
 
-  const result = await runPipeline(metadata, config);
+  const result = await runPipeline({ fullData, llmData, config });
 
   console.log('✅ Pipeline completed successfully!');
   console.log('📊 Results:', {
@@ -38,13 +44,14 @@ export async function runSimpleExample(metadata: GedcomDataWithMetadata) {
  * (This will work once we add more transformers)
  */
 export async function runMultiTransformerExample(
-  metadata: GedcomDataWithMetadata,
+  fullData: GedcomDataWithMetadata,
+  llmData: LLMReadyData,
 ) {
   console.log('🎨 Running Multi-Transformer Pipeline Example...');
 
   const config = createSimplePipeline(
     [
-      'horizontal-spread-by-generation',
+      'horizontal-spread',
       // 'color-by-generation',        // Future transformer
       // 'size-by-lifespan',          // Future transformer
     ],
@@ -56,7 +63,7 @@ export async function runMultiTransformerExample(
     },
   );
 
-  const result = await runPipeline(metadata, config);
+  const result = await runPipeline({ fullData, llmData, config });
 
   console.log('✅ Multi-transformer pipeline completed!');
   console.log('📊 Results:', {
@@ -90,15 +97,18 @@ export async function runMultiTransformerExample(
  * Example: Demonstrate error handling with non-existent transformers
  */
 export async function runErrorHandlingExample(
-  metadata: GedcomDataWithMetadata,
+  fullData: GedcomDataWithMetadata,
+  llmData: LLMReadyData,
 ) {
   console.log('🎨 Running Error Handling Example...');
 
+  // Note: This example demonstrates error handling during pipeline execution
+  // For TypeScript safety, we use valid transformer IDs but can still demo error handling
+  // through other means (invalid parameters, network issues, etc.)
   const config = createSimplePipeline(
     [
-      'non-existent-transformer-1',
-      'horizontal-spread-by-generation', // This should still work
-      'non-existent-transformer-2',
+      'horizontal-spread', // Valid transformer
+      // TODO: Demo error handling with invalid parameters or other runtime errors
     ],
     {
       temperature: 0.3,
@@ -106,7 +116,7 @@ export async function runErrorHandlingExample(
     },
   );
 
-  const result = await runPipeline(metadata, config);
+  const result = await runPipeline({ fullData, llmData, config });
 
   console.log('✅ Error handling example completed!');
   console.log('📊 Results:', {
@@ -134,7 +144,8 @@ export async function runErrorHandlingExample(
  * Example: Compare different temperature settings
  */
 export async function runTemperatureComparisonExample(
-  metadata: GedcomDataWithMetadata,
+  fullData: GedcomDataWithMetadata,
+  llmData: LLMReadyData,
 ) {
   console.log('🎨 Running Temperature Comparison Example...');
 
@@ -144,14 +155,14 @@ export async function runTemperatureComparisonExample(
   for (const temperature of temperatures) {
     console.log(`\n🌡️  Testing temperature: ${String(temperature)}`);
 
-    const config = createSimplePipeline(['horizontal-spread-by-generation'], {
+    const config = createSimplePipeline(['horizontal-spread'], {
       temperature,
       seed: 'temperature-comparison-seed',
       canvasWidth: 800,
       canvasHeight: 600,
     });
 
-    const result = await runPipeline(metadata, config);
+    const result = await runPipeline({ fullData, llmData, config });
     results.push({ temperature, result });
 
     console.log(
