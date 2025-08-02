@@ -15,13 +15,22 @@ import { z } from 'zod';
 const LLMLayoutResponseSchema = z.object({
   individuals: z.record(
     z.string(),
-    z.object({
-      x: z.number().optional(),
-      y: z.number().optional(), 
-      rotation: z.number().optional(),
-    }).refine(data => data.x !== undefined || data.y !== undefined || data.rotation !== undefined, {
-      message: "At least one layout property (x, y, or rotation) must be provided"
-    }),
+    z
+      .object({
+        x: z.number().optional(),
+        y: z.number().optional(),
+        rotation: z.number().optional(),
+      })
+      .refine(
+        (data) =>
+          data.x !== undefined ||
+          data.y !== undefined ||
+          data.rotation !== undefined,
+        {
+          message:
+            'At least one layout property (x, y, or rotation) must be provided',
+        },
+      ),
   ),
   edges: z
     .record(
@@ -59,7 +68,10 @@ const LLMLayoutResponseSchema = z.object({
 export type LLMLayoutResponse = z.infer<typeof LLMLayoutResponseSchema>;
 
 // Simple in-memory cache for layout results
-const layoutCache = new Map<string, { result: LLMLayoutResponse; timestamp: number }>();
+const layoutCache = new Map<
+  string,
+  { result: LLMLayoutResponse; timestamp: number }
+>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // Create a cache key from prompt and temperature
@@ -69,7 +81,7 @@ function createCacheKey(prompt: string, temperature: number): string {
   const input = `${prompt}_${String(temperature)}`;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return hash.toString();
@@ -131,13 +143,13 @@ export async function generateLayout(
   temperature = 0.5,
 ): Promise<LLMLayoutResponse> {
   console.log(`🔍 generateLayout called (API call #${String(++apiCallCount)})`);
-  
+
   // Check cache first
   const cacheKey = createCacheKey(prompt, temperature);
   const cached = layoutCache.get(cacheKey);
   const now = Date.now();
-  
-  if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+
+  if (cached && now - cached.timestamp < CACHE_DURATION) {
     console.log('🎯 Using cached layout result');
     return cached.result;
   }
@@ -146,30 +158,44 @@ export async function generateLayout(
   const timeSinceLastCall = now - lastApiCall;
   if (timeSinceLastCall < MIN_DELAY_BETWEEN_CALLS) {
     const waitTime = MIN_DELAY_BETWEEN_CALLS - timeSinceLastCall;
-    console.log(`⏱️ Rate limiting: waiting ${String(Math.round(waitTime/1000))}s before API call`);
-    await new Promise(resolve => setTimeout(resolve, waitTime));
+    console.log(
+      `⏱️ Rate limiting: waiting ${String(Math.round(waitTime / 1000))}s before API call`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
   }
 
   // Improved token estimation (1 token ≈ 3.5 characters for English text)
   const estimatedInputTokens = Math.ceil(prompt.length / 3.5);
   const estimatedOutputTokens = Math.ceil(estimatedInputTokens * 0.15); // Typical output is ~15% of input for layout tasks
   const estimatedTotalTokens = estimatedInputTokens + estimatedOutputTokens;
-  
+
   // Extract key info from prompt for logging
   const promptLines = prompt.split('\n');
-  const layoutStyleLine = promptLines.find(line => line.startsWith('Layout Style:'));
-  const canvasLine = promptLines.find(line => line.startsWith('Canvas:'));
-  const individualsLine = promptLines.find(line => line.includes('Total Individuals:'));
-  
-  console.log(`🌐 Making API call to OpenAI (attempt #${String(apiCallCount)})`);
+  const layoutStyleLine = promptLines.find((line) =>
+    line.startsWith('Layout Style:'),
+  );
+  const canvasLine = promptLines.find((line) => line.startsWith('Canvas:'));
+  const individualsLine = promptLines.find((line) =>
+    line.includes('Total Individuals:'),
+  );
+
+  console.log(
+    `🌐 Making API call to OpenAI (attempt #${String(apiCallCount)})`,
+  );
   console.log(`📊 Cache status: ${String(layoutCache.size)} items cached`);
   console.log(`🔑 Using model: ${getProviderInfo().model}`);
-  console.log(`📏 Estimated tokens: ${estimatedTotalTokens.toLocaleString()} (${String(estimatedInputTokens)} input + ${String(estimatedOutputTokens)} output)`);
-  console.log(`📝 Prompt summary: ${layoutStyleLine?.trim() ?? 'N/A'}, ${canvasLine?.trim() ?? 'N/A'}, ${individualsLine?.trim() ?? 'N/A'}`);
-  console.log(`🎯 Visual properties: Sending [x, y, rotation] → Expecting [x, y, rotation, edges.controlPoints?]`);
-  
+  console.log(
+    `📏 Estimated tokens: ${estimatedTotalTokens.toLocaleString()} (${String(estimatedInputTokens)} input + ${String(estimatedOutputTokens)} output)`,
+  );
+  console.log(
+    `📝 Prompt summary: ${layoutStyleLine?.trim() ?? 'N/A'}, ${canvasLine?.trim() ?? 'N/A'}, ${individualsLine?.trim() ?? 'N/A'}`,
+  );
+  console.log(
+    `🎯 Visual properties: Sending [x, y, rotation] → Expecting [x, y, rotation, edges.controlPoints?]`,
+  );
+
   lastApiCall = Date.now();
-  
+
   try {
     const model = getProviderModel();
 
@@ -185,20 +211,28 @@ export async function generateLayout(
     const actualTokensUsed = result.usage?.totalTokens ?? estimatedTotalTokens;
     lastTokenCount = actualTokensUsed;
     totalTokensUsed += actualTokensUsed;
-    
+
     console.log(`✅ API call completed`);
-    // Calculate cost using proper gpt-4o-mini pricing  
+    // Calculate cost using proper gpt-4o-mini pricing
     const inputTokens = estimatedInputTokens; // Vercel AI SDK doesn't provide separate token counts
     const outputTokens = actualTokensUsed - inputTokens;
     const inputCost = inputTokens * 0.00000015; // $0.150 per 1M input tokens
     const outputCost = outputTokens * 0.0000006; // $0.600 per 1M output tokens
     const totalCost = inputCost + outputCost;
-    
-    const estimationAccuracy = Math.round((estimatedTotalTokens / actualTokensUsed) * 100);
-    console.log(`📊 Tokens used this call: ${actualTokensUsed.toLocaleString()} (${String(inputTokens)} input + ${String(outputTokens)} output)`);
-    console.log(`📊 Estimation accuracy: ${estimatedTotalTokens.toLocaleString()} estimated vs ${actualTokensUsed.toLocaleString()} actual (${String(estimationAccuracy)}%)`);
+
+    const estimationAccuracy = Math.round(
+      (estimatedTotalTokens / actualTokensUsed) * 100,
+    );
+    console.log(
+      `📊 Tokens used this call: ${actualTokensUsed.toLocaleString()} (${String(inputTokens)} input + ${String(outputTokens)} output)`,
+    );
+    console.log(
+      `📊 Estimation accuracy: ${estimatedTotalTokens.toLocaleString()} estimated vs ${actualTokensUsed.toLocaleString()} actual (${String(estimationAccuracy)}%)`,
+    );
     console.log(`📊 Total tokens used: ${totalTokensUsed.toLocaleString()}`);
-    console.log(`💰 Estimated cost this call: $${totalCost.toFixed(4)} (gpt-4o-mini pricing)`);
+    console.log(
+      `💰 Estimated cost this call: $${totalCost.toFixed(4)} (gpt-4o-mini pricing)`,
+    );
 
     // Cache the result
     layoutCache.set(cacheKey, {
@@ -209,7 +243,7 @@ export async function generateLayout(
     return result.object;
   } catch (error) {
     console.error('LLM layout generation failed:', error);
-    
+
     // Check for network/fetch issues
     if (error instanceof Error && error.message.includes('Failed to fetch')) {
       const provider = getProviderInfo().provider;
@@ -223,31 +257,35 @@ export async function generateLayout(
         );
       }
     }
-    
+
     // Check for rate limiting
     if (error instanceof Error && error.message.includes('429')) {
       console.warn('⚠️ OpenAI Rate Limit Hit! Solutions:');
-      console.warn('1. 💳 Add payment method for Tier 1 (500 req/min): https://platform.openai.com/settings/organization/billing/overview');
-      console.warn('2. ⏰ Wait 60+ seconds (free tier: 3 requests/minute)'); 
+      console.warn(
+        '1. 💳 Add payment method for Tier 1 (500 req/min): https://platform.openai.com/settings/organization/billing/overview',
+      );
+      console.warn('2. ⏰ Wait 60+ seconds (free tier: 3 requests/minute)');
       console.warn('3. 🔄 Use caching (reload page to test cached results)');
       console.warn('4. 🎨 Use algorithmic fallback temporarily');
-      
+
       // Add helpful timing info
       const timeSinceLastCall = Date.now() - lastApiCall;
-      console.warn(`⏱️ Time since last call: ${String(Math.round(timeSinceLastCall/1000))}s`);
-      
+      console.warn(
+        `⏱️ Time since last call: ${String(Math.round(timeSinceLastCall / 1000))}s`,
+      );
+
       throw new Error(
         'OpenAI rate limit hit. Free tier: 3 requests/minute. Add payment method for higher limits.',
       );
     }
-    
+
     // Check for API key issues
     if (error instanceof Error && error.message.includes('401')) {
       throw new Error(
         'API authentication failed. Please check your API key configuration.',
       );
     }
-    
+
     throw new Error(
       `Layout generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );

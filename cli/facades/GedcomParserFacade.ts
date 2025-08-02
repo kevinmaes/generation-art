@@ -46,15 +46,15 @@ export class GedcomTsParserFacade implements GedcomParserFacade {
 
     // Convert arrays to Records using IDs as keys
     const individualsRecord = Object.fromEntries(
-      individuals.map(individual => [individual.id, individual])
+      individuals.map((individual) => [individual.id, individual]),
     );
     const familiesRecord = Object.fromEntries(
-      families.map(family => [family.id, family])
+      families.map((family) => [family.id, family]),
     );
 
-    return { 
-      individuals: individualsRecord, 
-      families: familiesRecord 
+    return {
+      individuals: individualsRecord,
+      families: familiesRecord,
     };
   }
 }
@@ -92,15 +92,15 @@ export class SimpleGedcomParserFacade implements GedcomParserFacade {
 
     // Convert arrays to Records using IDs as keys
     const individualsRecord = Object.fromEntries(
-      individuals.map(individual => [individual.id, individual])
+      individuals.map((individual) => [individual.id, individual]),
     );
     const familiesRecord = Object.fromEntries(
-      families.map(family => [family.id, family])
+      families.map((family) => [family.id, family]),
     );
 
-    return { 
-      individuals: individualsRecord, 
-      families: familiesRecord 
+    return {
+      individuals: individualsRecord,
+      families: familiesRecord,
     };
   }
 }

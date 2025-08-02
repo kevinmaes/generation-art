@@ -6,12 +6,18 @@
  */
 
 import { runPipeline, createSimplePipeline } from './pipeline';
-import type { GedcomDataWithMetadata, LLMReadyData } from '../../../shared/types';
+import type {
+  GedcomDataWithMetadata,
+  LLMReadyData,
+} from '../../../shared/types';
 
 /**
  * Example: Run a simple pipeline with the horizontal spread transformer
  */
-export async function runSimpleExample(fullData: GedcomDataWithMetadata, llmData: LLMReadyData) {
+export async function runSimpleExample(
+  fullData: GedcomDataWithMetadata,
+  llmData: LLMReadyData,
+) {
   console.log('🎨 Running Simple Pipeline Example...');
 
   const config = createSimplePipeline(['horizontal-spread'], {

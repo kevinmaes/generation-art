@@ -127,12 +127,18 @@ IMPORTANT: Only return position/rotation data. Do NOT include colors, sizes, sha
  * Extract only layout-relevant properties for LLM processing
  * This dramatically reduces token usage while preserving what the LLM needs to modify
  */
-export function extractLayoutRelevantMetadata(visualMetadata: CompleteVisualMetadata): {
+export function extractLayoutRelevantMetadata(
+  visualMetadata: CompleteVisualMetadata,
+): {
   individuals: Record<string, { x?: number; y?: number; rotation?: number }>;
   edges: Record<string, { controlPoints?: { x: number; y: number }[] }>;
 } {
-  const individuals: Record<string, { x?: number; y?: number; rotation?: number }> = {};
-  const edges: Record<string, { controlPoints?: { x: number; y: number }[] }> = {};
+  const individuals: Record<
+    string,
+    { x?: number; y?: number; rotation?: number }
+  > = {};
+  const edges: Record<string, { controlPoints?: { x: number; y: number }[] }> =
+    {};
 
   // Extract only position and rotation data for individuals
   Object.entries(visualMetadata.individuals).forEach(([id, meta]) => {
@@ -147,12 +153,15 @@ export function extractLayoutRelevantMetadata(visualMetadata: CompleteVisualMeta
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (visualMetadata.edges) {
     Object.entries(visualMetadata.edges).forEach(([id, meta]) => {
-    if (meta.custom?.controlPoints) {
-      edges[id] = {
-        controlPoints: meta.custom.controlPoints as { x: number; y: number }[],
-      };
-    }
-  });
+      if (meta.custom?.controlPoints) {
+        edges[id] = {
+          controlPoints: meta.custom.controlPoints as {
+            x: number;
+            y: number;
+          }[],
+        };
+      }
+    });
   }
 
   return { individuals, edges };
@@ -162,24 +171,30 @@ export function extractLayoutRelevantMetadata(visualMetadata: CompleteVisualMeta
  * Build compact visual metadata representation for LLM context
  * Shows current layout state in a token-efficient format
  */
-function buildCompactVisualMetadata(visualMetadata: CompleteVisualMetadata): string {
+function buildCompactVisualMetadata(
+  visualMetadata: CompleteVisualMetadata,
+): string {
   const layoutData = extractLayoutRelevantMetadata(visualMetadata);
-  
+
   // Count positioned individuals
-  const positionedCount = Object.values(layoutData.individuals)
-    .filter(meta => meta.x !== undefined && meta.y !== undefined).length;
-    
+  const positionedCount = Object.values(layoutData.individuals).filter(
+    (meta) => meta.x !== undefined && meta.y !== undefined,
+  ).length;
+
   const totalCount = Object.keys(layoutData.individuals).length;
-  
+
   if (positionedCount === 0) {
     return `No positioned nodes (${String(totalCount)} total need positioning)`;
   }
-  
+
   // Show sample positions in compact format
   const samplePositions = Object.entries(layoutData.individuals)
     .filter(([, meta]) => meta.x !== undefined && meta.y !== undefined)
     .slice(0, 5)
-    .map(([id, meta]) => `${id}:(${String(Math.round(meta.x ?? 0))},${String(Math.round(meta.y ?? 0))})`)
+    .map(
+      ([id, meta]) =>
+        `${id}:(${String(Math.round(meta.x ?? 0))},${String(Math.round(meta.y ?? 0))})`,
+    )
     .join(', ');
 
   return `${String(positionedCount)}/${String(totalCount)} positioned: ${samplePositions}${positionedCount > 5 ? '...' : ''}`;
@@ -188,17 +203,26 @@ function buildCompactVisualMetadata(visualMetadata: CompleteVisualMetadata): str
 /**
  * Build connections description from LLM data with intelligent sampling
  */
-function buildConnectionsDescription(llmData: LLMReadyData, maxIndividuals = 15): string {
+function buildConnectionsDescription(
+  llmData: LLMReadyData,
+  maxIndividuals = 15,
+): string {
   const individuals = Object.entries(llmData.individuals);
-  
+
   // Intelligent sampling: prioritize key nodes (roots, connectors, recent generations)
   const sampledIndividuals = individuals
     .sort(([_idA, a], [_idB, b]) => {
       // Priority scoring: root nodes (no parents) and highly connected nodes first
-      const aScore = (a.parents.length === 0 ? 10 : 0) + 
-                    Object.values(llmData.individuals).filter(ind => ind.parents.includes(a.id)).length;
-      const bScore = (b.parents.length === 0 ? 10 : 0) + 
-                    Object.values(llmData.individuals).filter(ind => ind.parents.includes(b.id)).length;
+      const aScore =
+        (a.parents.length === 0 ? 10 : 0) +
+        Object.values(llmData.individuals).filter((ind) =>
+          ind.parents.includes(a.id),
+        ).length;
+      const bScore =
+        (b.parents.length === 0 ? 10 : 0) +
+        Object.values(llmData.individuals).filter((ind) =>
+          ind.parents.includes(b.id),
+        ).length;
       return bScore - aScore;
     })
     .slice(0, maxIndividuals);
@@ -215,7 +239,12 @@ function buildConnectionsDescription(llmData: LLMReadyData, maxIndividuals = 15)
     .join('\n');
 
   const totalCount = Object.keys(llmData.individuals).length;
-  return connections + (totalCount > maxIndividuals ? `\n... (${String(totalCount - maxIndividuals)} more)` : '');
+  return (
+    connections +
+    (totalCount > maxIndividuals
+      ? `\n... (${String(totalCount - maxIndividuals)} more)`
+      : '')
+  );
 }
 
 /**

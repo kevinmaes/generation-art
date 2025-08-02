@@ -42,7 +42,7 @@ export function createTransformer(
     availableDimensions,
     defaultPrimaryDimension,
     defaultSecondaryDimension: options?.defaultSecondaryDimension,
-    visualParameters: visualParameters.map(paramId => {
+    visualParameters: visualParameters.map((paramId) => {
       const param = VISUAL_PARAMETERS[paramId];
       return {
         name: param.id,

@@ -25,16 +25,20 @@ let smartLayoutCallCount = 0;
 export async function smartLayoutTransform(
   context: TransformerContext,
 ): Promise<TransformerOutput> {
-  console.log(`🧠 Smart Layout Transformer called (call #${String(++smartLayoutCallCount)})`);
-  
+  console.log(
+    `🧠 Smart Layout Transformer called (call #${String(++smartLayoutCallCount)})`,
+  );
+
   // Log key parameters being used
   const layoutStyle = context.visual.layoutStyle as string;
   const spacing = context.visual.spacing as string;
   const temperature = context.temperature ?? 0.5;
   const individualsCount = Object.keys(context.gedcomData.individuals).length;
   const canvasSize = `${String(context.visualMetadata.global.canvasWidth ?? 1000)}x${String(context.visualMetadata.global.canvasHeight ?? 800)}`;
-  
-  console.log(`📐 Layout: ${layoutStyle}, Spacing: ${spacing}, Temp: ${String(temperature)}, Canvas: ${canvasSize}, Individuals: ${String(individualsCount)}`);
+
+  console.log(
+    `📐 Layout: ${layoutStyle}, Spacing: ${spacing}, Temp: ${String(temperature)}, Canvas: ${canvasSize}, Individuals: ${String(individualsCount)}`,
+  );
   const { gedcomData, visualMetadata } = context;
 
   const individuals = Object.values(gedcomData.individuals);
@@ -61,13 +65,18 @@ export async function smartLayoutTransform(
 
     // Merge LLM response with existing metadata
     const mergedMetadata = mergeLayoutResponse(llmResponse, visualMetadata);
-    
+
     // Log what properties were actually modified
     const sampleIndividual = Object.values(llmResponse.individuals)[0];
-    const modifiedProps = sampleIndividual ? Object.keys(sampleIndividual).join(', ') : 'none';
-    const hasEdges = llmResponse.edges && Object.keys(llmResponse.edges).length > 0;
-    
-    console.log(`✨ LLM Layout applied: Modified [${modifiedProps}${hasEdges ? ', edges.controlPoints' : ''}] | Preserved [color, size, shape, opacity, etc.]`);
+    const modifiedProps = sampleIndividual
+      ? Object.keys(sampleIndividual).join(', ')
+      : 'none';
+    const hasEdges =
+      llmResponse.edges && Object.keys(llmResponse.edges).length > 0;
+
+    console.log(
+      `✨ LLM Layout applied: Modified [${modifiedProps}${hasEdges ? ', edges.controlPoints' : ''}] | Preserved [color, size, shape, opacity, etc.]`,
+    );
 
     const providerInfo = llmLayoutService.getProviderInfo();
 
@@ -115,13 +124,15 @@ function mergeLayoutResponse(
     }
 
     // Validate and clamp positions to canvas bounds
-    const x = llmLayoutData.x !== undefined
-      ? Math.max(0, Math.min(canvasWidth, llmLayoutData.x))
-      : existingMeta.x;
+    const x =
+      llmLayoutData.x !== undefined
+        ? Math.max(0, Math.min(canvasWidth, llmLayoutData.x))
+        : existingMeta.x;
 
-    const y = llmLayoutData.y !== undefined
-      ? Math.max(0, Math.min(canvasHeight, llmLayoutData.y))
-      : existingMeta.y;
+    const y =
+      llmLayoutData.y !== undefined
+        ? Math.max(0, Math.min(canvasHeight, llmLayoutData.y))
+        : existingMeta.y;
 
     // Selective merge: only update layout properties from LLM
     updatedIndividuals[id] = {
@@ -129,7 +140,9 @@ function mergeLayoutResponse(
       // Only override layout properties from LLM
       ...(x !== undefined && { x }),
       ...(y !== undefined && { y }),
-      ...(llmLayoutData.rotation !== undefined && { rotation: llmLayoutData.rotation }),
+      ...(llmLayoutData.rotation !== undefined && {
+        rotation: llmLayoutData.rotation,
+      }),
     };
   });
 

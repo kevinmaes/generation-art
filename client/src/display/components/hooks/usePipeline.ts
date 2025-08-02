@@ -1,11 +1,17 @@
 import { useState, useCallback } from 'react';
-import type { GedcomDataWithMetadata, LLMReadyData } from '../../../../../shared/types';
+import type {
+  GedcomDataWithMetadata,
+  LLMReadyData,
+} from '../../../../../shared/types';
 import {
   runPipeline,
   createSimplePipeline,
   type PipelineResult,
 } from '../../../transformers/pipeline';
-import { transformers, type TransformerId } from '../../../transformers/transformers';
+import {
+  transformers,
+  type TransformerId,
+} from '../../../transformers/transformers';
 
 interface UsePipelineOptions {
   temperature?: number;
@@ -38,7 +44,9 @@ export function usePipeline(
       llmData: LLMReadyData,
       width: number,
       height: number,
-      transformerIds: TransformerId[] = Object.keys(transformers) as TransformerId[],
+      transformerIds: TransformerId[] = Object.keys(
+        transformers,
+      ) as TransformerId[],
     ): Promise<PipelineResult> => {
       setResult(null);
       setError(null);

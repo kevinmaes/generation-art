@@ -76,7 +76,7 @@ describe('Helper Functions', () => {
 
       // Convert array to Record as expected by getUniqueEdges
       const mockData = Object.fromEntries(
-        mockDataArray.map(individual => [individual.id, individual])
+        mockDataArray.map((individual) => [individual.id, individual]),
       );
 
       const edges = getUniqueEdges(mockData);
@@ -138,7 +138,7 @@ describe('Helper Functions', () => {
 
       // Convert array to Record as expected by getUniqueEdges
       const mockData = Object.fromEntries(
-        mockDataArray.map(individual => [individual.id, individual])
+        mockDataArray.map((individual) => [individual.id, individual]),
       );
 
       const edges = getUniqueEdges(mockData);
@@ -175,7 +175,7 @@ describe('Helper Functions', () => {
 
       // Convert array to Record as expected by getUniqueEdges
       const mockData = Object.fromEntries(
-        mockDataArray.map(individual => [individual.id, individual])
+        mockDataArray.map((individual) => [individual.id, individual]),
       );
 
       const edges = getUniqueEdges(mockData);

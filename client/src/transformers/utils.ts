@@ -44,7 +44,6 @@ export function generateTransformerId(name: string): string {
   return slug;
 }
 
-
 /**
  * Creates a runtime transformer function that injects parameters into the context
  * @param params - User-selected dimensions and visual parameters
