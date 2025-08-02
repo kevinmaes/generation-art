@@ -138,6 +138,15 @@ let lastTokenCount = 0;
 let lastApiCall = 0;
 const MIN_DELAY_BETWEEN_CALLS = 20000; // 20 seconds for free tier safety
 
+/**
+ * Primary function for this service
+ * Generates a layout based on the provided prompt and temperature.
+ * Uses caching to avoid redundant API calls.
+ * Handles rate limiting and token estimation for cost tracking.
+ * @param prompt
+ * @param temperature
+ * @returns
+ */
 export async function generateLayout(
   prompt: string,
   temperature = 0.5,
