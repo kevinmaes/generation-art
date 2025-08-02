@@ -5,18 +5,160 @@
  * nodes and edges based on genealogy data and user-selected layout style.
  */
 
+import { z } from 'zod';
 import type {
   TransformerContext,
-  VisualMetadata,
   TransformerOutput,
+  VisualMetadata,
 } from './types';
+import type { SmartTransformerConfig } from './smart-transformer-types';
 import {
-  llmLayoutService,
-  type LLMLayoutResponse,
-} from './smart-layout-llm-service';
-import type { LLMValidationResult } from '../services/llm-service';
+  buildSmartTransformerPrompt,
+  mergeLLMResponse,
+} from '../services/smart-transformer-utils';
+import { executeSmartTransformer } from '../services/smart-llm-service';
 import { llmService } from '../services/llm-service';
-import { generateLayoutPrompt } from '../services/prompt-templates';
+
+// Layout-specific response schema
+const LayoutResponseSchema = z.object({
+  individuals: z.record(
+    z.string(),
+    z
+      .object({
+        x: z.number().optional(),
+        y: z.number().optional(),
+        rotation: z.number().optional(),
+      })
+      .refine(
+        (data) =>
+          data.x !== undefined ||
+          data.y !== undefined ||
+          data.rotation !== undefined,
+        { message: 'At least one layout property must be provided' },
+      ),
+  ),
+  edges: z
+    .record(
+      z.string(),
+      z.object({
+        controlPoints: z
+          .array(z.object({ x: z.number(), y: z.number() }))
+          .optional(),
+      }),
+    )
+    .optional(),
+  layoutMetadata: z
+    .object({
+      boundingBox: z.object({
+        x: z.number(),
+        y: z.number(),
+        width: z.number(),
+        height: z.number(),
+      }),
+      centerOfMass: z.object({
+        x: z.number(),
+        y: z.number(),
+      }),
+      layoutQuality: z.number().min(0).max(1).optional(),
+      layoutDensity: z.number().min(0).max(1).optional(),
+    })
+    .optional(),
+});
+
+type LayoutResponse = z.infer<typeof LayoutResponseSchema>;
+
+// Smart layout configuration
+const smartLayoutConfig: SmartTransformerConfig = {
+  llmProperties: {
+    individuals: {
+      properties: ['x', 'y', 'rotation'],
+      required: ['x', 'y'],
+    },
+    edges: {
+      properties: ['controlPoints'],
+    },
+  },
+
+  responseSchema: LayoutResponseSchema,
+
+  prompt: {
+    taskDescription: `You are a layout algorithm for genealogy visualization. Given family tree metadata and current visual properties, calculate optimal positions while preserving existing visual attributes.
+
+Your goal is to create clear, readable layouts that:
+- Show family relationships clearly
+- Avoid overlapping nodes
+- Use space efficiently
+- Maintain visual hierarchy`,
+
+    outputExample: `{
+  "individuals": {
+    "id1": { "x": 100, "y": 200, "rotation": 0 },
+    "id2": { "x": 300, "y": 200 }
+  },
+  "edges": {
+    "edge1": { "controlPoints": [{"x": 200, "y": 200}] }
+  },
+  "layoutMetadata": {
+    "boundingBox": { "x": 50, "y": 50, "width": 900, "height": 700 },
+    "centerOfMass": { "x": 500, "y": 400 },
+    "layoutQuality": 0.85
+  }
+}`,
+
+    getSpecificGuidance: (context) => {
+      const style = context.visual.layoutStyle as string;
+      const spacing = context.visual.spacing as string;
+      const { totalIndividuals, treeComplexity } =
+        context.llmData.metadata.graphStructure;
+
+      let guidance = `Layout Requirements:\n`;
+      guidance += `- Apply ${style} layout style\n`;
+      guidance += `- Use ${spacing} spacing between nodes\n`;
+      guidance += `- Position all nodes within canvas bounds\n`;
+
+      if (totalIndividuals > 50) {
+        guidance += `- Large tree: Focus on preventing overcrowding\n`;
+      }
+
+      if (Number(treeComplexity) > 0.7) {
+        guidance += `- Complex structure: Emphasize relationship clarity\n`;
+      }
+
+      return guidance;
+    },
+
+    getStyleInstructions: (style, context) => {
+      const width = context.visualMetadata.global.canvasWidth ?? 1000;
+      const height = context.visualMetadata.global.canvasHeight ?? 800;
+
+      switch (style) {
+        case 'tree':
+          return `Tree Layout Instructions:
+- Arrange generations hierarchically from top to bottom
+- Keep siblings horizontally aligned
+- Maintain consistent vertical spacing between generations
+- Center each generation horizontally`;
+
+        case 'radial':
+          return `Radial Layout Instructions:
+- Place root generation at center (${String(width / 2)}, ${String(height / 2)})
+- Arrange subsequent generations in concentric circles
+- Distribute nodes evenly around each ring
+- Increase radius proportionally for each generation`;
+
+        case 'grid':
+          return `Grid Layout Instructions:
+- Create a regular grid pattern
+- Order nodes by generation and birth year
+- Maintain consistent row and column spacing
+- Use full canvas area efficiently`;
+
+        default:
+          return `Optimize layout for readability and relationship clarity`;
+      }
+    },
+  },
+};
 
 /**
  * Smart layout transform function with LLM integration
@@ -49,24 +191,30 @@ export async function smartLayoutTransform(
   }
 
   // Check API key availability
-  const apiKeyCheck: LLMValidationResult = llmService.validateApiKeys();
+  const apiKeyCheck = llmService.validateApiKeys();
   if (!apiKeyCheck.valid) {
     console.warn('LLM API keys missing:', apiKeyCheck.missing);
     return algorithmicFallback(context);
   }
 
   try {
-    // Generate LLM prompt
-    const prompt = generateLayoutPrompt(context);
+    // Generate prompt using new architecture
+    const prompt = buildSmartTransformerPrompt(context, smartLayoutConfig);
 
-    // Call LLM service
-    const llmResponse = await llmLayoutService.generateLayout(
+    // Execute smart transformer
+    const llmResponse = await executeSmartTransformer<LayoutResponse>(
+      'smart-layout',
       prompt,
+      smartLayoutConfig,
       temperature ?? 0.5,
     );
 
     // Merge LLM response with existing metadata
-    const mergedMetadata = mergeLayoutResponse(llmResponse, visualMetadata);
+    const mergedMetadata = mergeLLMResponse(
+      llmResponse,
+      visualMetadata,
+      smartLayoutConfig,
+    );
 
     // Log what properties were actually modified
     const sampleIndividual = Object.values(llmResponse.individuals)[0];
@@ -80,7 +228,7 @@ export async function smartLayoutTransform(
       `✨ LLM Layout applied: Modified [${modifiedProps}${hasEdges ? ', edges.controlPoints' : ''}] | Preserved [color, size, shape, opacity, etc.]`,
     );
 
-    const providerInfo = llmLayoutService.getProviderInfo();
+    const providerInfo = llmService.getProviderInfo();
 
     return {
       visualMetadata: mergedMetadata,
@@ -100,84 +248,6 @@ export async function smartLayoutTransform(
     console.error('LLM layout failed, falling back to algorithmic:', error);
     return algorithmicFallback(context);
   }
-}
-
-/**
- * Merge selective LLM response with existing visual metadata
- * Only processes layout properties (x, y, rotation) from LLM, preserves all other visual properties
- */
-function mergeLayoutResponse(
-  llmResponse: LLMLayoutResponse,
-  visualMetadata: TransformerContext['visualMetadata'],
-): TransformerOutput['visualMetadata'] {
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
-
-  // Merge individuals - only update layout properties
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
-
-  Object.entries(visualMetadata.individuals).forEach(([id, existingMeta]) => {
-    const llmLayoutData = llmResponse.individuals[id];
-
-    if (!llmLayoutData) {
-      // No LLM data for this individual, keep existing
-      updatedIndividuals[id] = existingMeta;
-      return;
-    }
-
-    // Validate and clamp positions to canvas bounds
-    const x =
-      llmLayoutData.x !== undefined
-        ? Math.max(0, Math.min(canvasWidth, llmLayoutData.x))
-        : existingMeta.x;
-
-    const y =
-      llmLayoutData.y !== undefined
-        ? Math.max(0, Math.min(canvasHeight, llmLayoutData.y))
-        : existingMeta.y;
-
-    // Selective merge: only update layout properties from LLM
-    updatedIndividuals[id] = {
-      ...existingMeta, // Preserve all existing properties (colors, sizes, shapes, etc.)
-      // Only override layout properties from LLM
-      ...(x !== undefined && { x }),
-      ...(y !== undefined && { y }),
-      ...(llmLayoutData.rotation !== undefined && {
-        rotation: llmLayoutData.rotation,
-      }),
-    };
-  });
-
-  // Merge edges if provided (only control points)
-  const updatedEdges: Record<string, VisualMetadata> = {};
-  if (llmResponse.edges && visualMetadata.edges) {
-    Object.entries(visualMetadata.edges).forEach(([id, existingMeta]) => {
-      const llmEdgeData = llmResponse.edges?.[id];
-
-      if (!llmEdgeData) {
-        // No LLM data for this edge, keep existing
-        updatedEdges[id] = existingMeta;
-        return;
-      }
-
-      // Selective merge: only update control points from LLM
-      updatedEdges[id] = {
-        ...existingMeta, // Preserve all existing edge properties
-        // Only update control points if provided by LLM
-        ...(llmEdgeData.controlPoints && {
-          custom: {
-            ...existingMeta.custom,
-            controlPoints: llmEdgeData.controlPoints,
-          },
-        }),
-      };
-    });
-  }
-
-  return {
-    individuals: updatedIndividuals,
-    ...(Object.keys(updatedEdges).length > 0 && { edges: updatedEdges }),
-  };
 }
 
 /**
