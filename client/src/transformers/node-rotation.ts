@@ -85,7 +85,8 @@ function calculateNodeRotation(
         );
         return children.length;
       });
-      const maxChildren = childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
+      const maxChildren =
+        childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
       const individualChildren = allIndividuals.filter((child) =>
         child?.parents?.includes(individual.id),
       ).length;
@@ -110,7 +111,8 @@ function calculateNodeRotation(
               family.husband?.id === ind.id || family.wife?.id === ind.id,
           ).length;
         });
-      const maxMarriages = allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
+      const maxMarriages =
+        allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
       primaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
       break;
     }
@@ -121,7 +123,8 @@ function calculateNodeRotation(
         .map((ind) => {
           return String(ind.name || '').trim().length;
         });
-      const maxNameLength = allNameLengths.length > 0 ? Math.max(...allNameLengths) : 1;
+      const maxNameLength =
+        allNameLengths.length > 0 ? Math.max(...allNameLengths) : 1;
       primaryValue = maxNameLength > 0 ? fullName.length / maxNameLength : 0.5;
       break;
     }
@@ -180,7 +183,8 @@ function calculateNodeRotation(
           );
           return children.length;
         });
-        const maxChildren = childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
+        const maxChildren =
+          childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
         const individualChildren = allIndividuals.filter((child) =>
           child?.parents?.includes(individual.id),
         ).length;
@@ -205,7 +209,8 @@ function calculateNodeRotation(
                 family.husband?.id === ind.id || family.wife?.id === ind.id,
             ).length;
           });
-        const maxMarriages = allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
+        const maxMarriages =
+          allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
         secondaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
         break;
       }
@@ -216,7 +221,8 @@ function calculateNodeRotation(
           .map((ind) => {
             return String(ind.name || '').trim().length;
           });
-        const maxNameLength = allNameLengths.length > 0 ? Math.max(...allNameLengths) : 1;
+        const maxNameLength =
+          allNameLengths.length > 0 ? Math.max(...allNameLengths) : 1;
         secondaryValue =
           maxNameLength > 0 ? fullName.length / maxNameLength : 0.5;
         break;
@@ -248,7 +254,9 @@ function calculateNodeRotation(
 
   // Safety check to ensure we never return NaN or invalid values
   if (!Number.isFinite(rotationRadians)) {
-    console.warn(`Node rotation transformer: Invalid rotation value for individual ${individualId}, defaulting to 0`);
+    console.warn(
+      `Node rotation transformer: Invalid rotation value for individual ${individualId}, defaulting to 0`,
+    );
     return 0;
   }
 

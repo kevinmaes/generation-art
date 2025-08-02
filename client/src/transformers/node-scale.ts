@@ -44,7 +44,8 @@ function calculateNodeScale(
         .map((ind) => ind.metadata?.lifespan)
         .filter((span): span is number => span !== undefined);
       if (allLifespans.length > 0) {
-        const maxLifespan = allLifespans.length > 0 ? Math.max(...allLifespans) : 1;
+        const maxLifespan =
+          allLifespans.length > 0 ? Math.max(...allLifespans) : 1;
         primaryValue =
           maxLifespan > 0
             ? (individual.metadata?.lifespan ?? 0) / maxLifespan
@@ -63,7 +64,8 @@ function calculateNodeScale(
         );
         return children.length;
       });
-      const maxChildren = childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
+      const maxChildren =
+        childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
       const individualChildren = allIndividuals.filter((child) =>
         child?.parents?.includes(individual.id),
       ).length;
@@ -94,7 +96,8 @@ function calculateNodeScale(
               family.husband?.id === ind.id || family.wife?.id === ind.id,
           ).length;
         });
-      const maxMarriages = allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
+      const maxMarriages =
+        allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
       primaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
       break;
     }
@@ -122,7 +125,8 @@ function calculateNodeScale(
         .map((ind) => {
           return String(ind.name || '').trim().length;
         });
-      const maxNameLength = allNameLengths.length > 0 ? Math.max(...allNameLengths) : 1;
+      const maxNameLength =
+        allNameLengths.length > 0 ? Math.max(...allNameLengths) : 1;
       primaryValue = maxNameLength > 0 ? fullName.length / maxNameLength : 0.5;
       break;
     }
@@ -140,7 +144,8 @@ function calculateNodeScale(
           .map((ind) => ind.metadata?.lifespan)
           .filter((span): span is number => span !== undefined);
         if (allLifespans.length > 0) {
-          const maxLifespan = allLifespans.length > 0 ? Math.max(...allLifespans) : 1;
+          const maxLifespan =
+            allLifespans.length > 0 ? Math.max(...allLifespans) : 1;
           secondaryValue =
             maxLifespan > 0
               ? (individual.metadata?.lifespan ?? 0) / maxLifespan
@@ -158,7 +163,8 @@ function calculateNodeScale(
           );
           return children.length;
         });
-        const maxChildren = childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
+        const maxChildren =
+          childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
         const individualChildren = allIndividuals.filter((child) =>
           child?.parents?.includes(individual.id),
         ).length;
@@ -189,7 +195,8 @@ function calculateNodeScale(
                 family.husband?.id === ind.id || family.wife?.id === ind.id,
             ).length;
           });
-        const maxMarriages = allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
+        const maxMarriages =
+          allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
         secondaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
         break;
       }
@@ -217,7 +224,8 @@ function calculateNodeScale(
           .map((ind) => {
             return String(ind.name || '').trim().length;
           });
-        const maxNameLength = allNameLengths.length > 0 ? Math.max(...allNameLengths) : 1;
+        const maxNameLength =
+          allNameLengths.length > 0 ? Math.max(...allNameLengths) : 1;
         secondaryValue =
           maxNameLength > 0 ? fullName.length / maxNameLength : 0.5;
         break;
@@ -261,7 +269,9 @@ function calculateNodeScale(
   const safeHeight = Number.isFinite(heightScale) ? heightScale : 1;
 
   if (!Number.isFinite(widthScale) || !Number.isFinite(heightScale)) {
-    console.warn(`Node scale transformer: Invalid scale values for individual ${individualId}, using defaults`);
+    console.warn(
+      `Node scale transformer: Invalid scale values for individual ${individualId}, using defaults`,
+    );
   }
 
   return {
@@ -295,7 +305,9 @@ export async function nodeScaleTransform(
     const calculatedScale = calculateNodeScale(context, individual.id);
 
     // Calculate overall scale factor with safety check
-    const overallScale = Math.sqrt(calculatedScale.width * calculatedScale.height);
+    const overallScale = Math.sqrt(
+      calculatedScale.width * calculatedScale.height,
+    );
     const safeOverallScale = Number.isFinite(overallScale) ? overallScale : 1;
 
     // Preserve existing visual metadata and update width/height
