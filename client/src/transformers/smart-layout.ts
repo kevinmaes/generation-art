@@ -10,15 +10,19 @@ import type {
   VisualMetadata,
   TransformerOutput,
 } from './types';
+import {
+  llmLayoutService,
+  type LLMLayoutResponse,
+} from '../services/llm-layout-service';
+import { generateLayoutPrompt } from '../services/prompt-templates';
 
 /**
- * Smart layout transform function
- * Currently implements a basic fallback layout while LLM integration is developed
+ * Smart layout transform function with LLM integration
  */
 export async function smartLayoutTransform(
   context: TransformerContext,
 ): Promise<TransformerOutput> {
-  const { gedcomData, visualMetadata, visual } = context;
+  const { gedcomData, visualMetadata, visual, temperature } = context;
   const layoutStyle = visual.layoutStyle as string;
 
   const individuals = Object.values(gedcomData.individuals);
@@ -26,8 +30,116 @@ export async function smartLayoutTransform(
     return { visualMetadata: {} };
   }
 
-  // For now, implement a basic algorithmic layout as fallback
-  // TODO: Replace with LLM-powered layout generation
+  // Check API key availability
+  const apiKeyCheck = llmLayoutService.validateApiKeys();
+  if (!apiKeyCheck.valid) {
+    console.warn('LLM API keys missing:', apiKeyCheck.missing);
+    return algorithmicFallback(context);
+  }
+
+  try {
+    // Generate LLM prompt
+    const prompt = generateLayoutPrompt(context);
+
+    // Call LLM service
+    const llmResponse = await llmLayoutService.generateLayout(
+      prompt,
+      temperature ?? 0.5,
+    );
+
+    // Merge LLM response with existing metadata
+    const mergedMetadata = mergeLayoutResponse(llmResponse, visualMetadata);
+
+    const providerInfo = llmLayoutService.getProviderInfo();
+
+    return {
+      visualMetadata: mergedMetadata,
+      debug: {
+        message: `Smart layout applied: ${layoutStyle} (LLM-powered)`,
+        data: {
+          layoutStyle,
+          provider: providerInfo.provider,
+          model: providerInfo.model,
+          individualsProcessed: individuals.length,
+          layoutQuality: llmResponse.layoutMetadata?.layoutQuality,
+          boundingBox: llmResponse.layoutMetadata?.boundingBox,
+        },
+      },
+    };
+  } catch (error) {
+    console.error('LLM layout failed, falling back to algorithmic:', error);
+    return algorithmicFallback(context);
+  }
+}
+
+/**
+ * Merge LLM response with existing visual metadata
+ */
+function mergeLayoutResponse(
+  llmResponse: LLMLayoutResponse,
+  visualMetadata: TransformerContext['visualMetadata'],
+): TransformerOutput['visualMetadata'] {
+  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
+  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+
+  // Merge individuals with position validation
+  const updatedIndividuals: Record<string, VisualMetadata> = {};
+
+  Object.entries(visualMetadata.individuals).forEach(([id, existingMeta]) => {
+    const llmMeta = llmResponse.individuals[id] || {} as Partial<LLMLayoutResponse['individuals'][string]>;
+
+    // Validate and clamp positions to canvas bounds
+    const x =
+      llmMeta.x !== undefined
+        ? Math.max(0, Math.min(canvasWidth, llmMeta.x))
+        : existingMeta.x;
+
+    const y =
+      llmMeta.y !== undefined
+        ? Math.max(0, Math.min(canvasHeight, llmMeta.y))
+        : existingMeta.y;
+
+    // Deep merge: preserve existing properties, override with LLM changes
+    updatedIndividuals[id] = {
+      ...existingMeta,
+      ...llmMeta,
+      x,
+      y,
+      // Special handling for cumulative properties
+      rotation:
+        existingMeta.rotation !== undefined && llmMeta.rotation !== undefined
+          ? existingMeta.rotation + llmMeta.rotation
+          : (llmMeta.rotation ?? existingMeta.rotation),
+    };
+  });
+
+  // Merge edges if provided
+  const updatedEdges: Record<string, VisualMetadata> = {};
+  if (llmResponse.edges) {
+    Object.entries(visualMetadata.edges || {}).forEach(([id, existingMeta]) => {
+      const llmMeta = llmResponse.edges?.[id] || {};
+
+      updatedEdges[id] = {
+        ...existingMeta,
+        ...llmMeta,
+      };
+    });
+  }
+
+  return {
+    individuals: updatedIndividuals,
+    ...(Object.keys(updatedEdges).length > 0 && { edges: updatedEdges }),
+  };
+}
+
+/**
+ * Algorithmic fallback when LLM is unavailable
+ */
+function algorithmicFallback(context: TransformerContext): TransformerOutput {
+  const { gedcomData, visualMetadata, visual } = context;
+  const layoutStyle = visual.layoutStyle as string;
+  const individuals = Object.values(gedcomData.individuals);
+
   const updatedIndividuals: Record<string, VisualMetadata> = {};
   const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
   const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
@@ -76,9 +188,6 @@ export async function smartLayoutTransform(
     };
   });
 
-  // Small delay to simulate async work (useful for future LLM calls)
-  await new Promise((resolve) => setTimeout(resolve, 1));
-
   return {
     visualMetadata: {
       individuals: updatedIndividuals,
@@ -88,6 +197,7 @@ export async function smartLayoutTransform(
       data: {
         layoutStyle,
         individualsProcessed: individuals.length,
+        fallbackReason: 'LLM unavailable',
       },
     },
   };
