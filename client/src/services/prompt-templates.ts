@@ -6,6 +6,7 @@
 
 import type { TransformerContext } from '../transformers/types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
+import type { CompleteVisualMetadata } from '../transformers/types';
 
 interface PromptContext {
   layoutStyle: string;
@@ -37,14 +38,7 @@ export function generateLayoutPrompt(context: TransformerContext): string {
       secondary: dimensions.secondary,
     },
     temperature: temperature ?? 0.5,
-    currentVisualMetadata: JSON.stringify(
-      {
-        individuals: visualMetadata.individuals,
-        edges: visualMetadata.edges,
-      },
-      null,
-      2,
-    ),
+    currentVisualMetadata: buildCompactVisualMetadata(visualMetadata),
   };
 
   const basePrompt = buildBasePrompt(promptContext);
@@ -78,8 +72,7 @@ User Parameters:
 - Primary Dimension: ${visualParameters.primary as string} (for emphasis in layout)
 - Secondary Dimension: ${(visualParameters.secondary as string) || 'birthYear'} (for variation)
 
-Current Visual State:
-${currentVisualMetadata ?? 'No current state'}
+Current State: ${currentVisualMetadata ?? 'No positioned nodes'}
 
 Tree Structure:
 - Total Individuals: ${String(llmData.metadata.graphStructure.totalIndividuals)}
@@ -87,8 +80,8 @@ Tree Structure:
 - Tree Complexity: ${String(llmData.metadata.graphStructure.treeComplexity)}
 - Average Family Size: ${String(llmData.metadata.graphStructure.averageFamilySize)}
 
-Family Connections:
-${buildConnectionsDescription(llmData)}
+Key Family Connections (sampled):
+${buildConnectionsDescription(llmData, 12)}
 
 Requirements:
 1. MERGE STRATEGY: Build upon existing visual metadata, don't replace it
@@ -111,7 +104,7 @@ ${getTemperatureInstructions(temperature)}
 
 ${getLayoutSpecificGuidance(layoutStyle, llmData)}
 
-Output format (only include properties you're changing):
+Output format (ONLY layout properties - x, y, rotation):
 {
   "individuals": {
     "id1": { "x": 100, "y": 200 },
@@ -125,29 +118,101 @@ Output format (only include properties you're changing):
     "centerOfMass": { "x": 500, "y": 400 },
     "layoutQuality": 0.85
   }
-}`;
+}
+
+IMPORTANT: Only return position/rotation data. Do NOT include colors, sizes, shapes, or other visual properties.`;
 }
 
 /**
- * Build connections description from LLM data
+ * Extract only layout-relevant properties for LLM processing
+ * This dramatically reduces token usage while preserving what the LLM needs to modify
  */
-function buildConnectionsDescription(llmData: LLMReadyData): string {
-  const connections = Object.entries(llmData.individuals)
+export function extractLayoutRelevantMetadata(visualMetadata: CompleteVisualMetadata): {
+  individuals: Record<string, { x?: number; y?: number; rotation?: number }>;
+  edges: Record<string, { controlPoints?: Array<{ x: number; y: number }> }>;
+} {
+  const individuals: Record<string, { x?: number; y?: number; rotation?: number }> = {};
+  const edges: Record<string, { controlPoints?: Array<{ x: number; y: number }> }> = {};
+
+  // Extract only position and rotation data for individuals
+  Object.entries(visualMetadata.individuals).forEach(([id, meta]) => {
+    individuals[id] = {
+      ...(meta.x !== undefined && { x: meta.x }),
+      ...(meta.y !== undefined && { y: meta.y }),
+      ...(meta.rotation !== undefined && { rotation: meta.rotation }),
+    };
+  });
+
+  // Extract only control points for edges
+  Object.entries(visualMetadata.edges || {}).forEach(([id, meta]) => {
+    if (meta.custom?.controlPoints) {
+      edges[id] = {
+        controlPoints: meta.custom.controlPoints as Array<{ x: number; y: number }>,
+      };
+    }
+  });
+
+  return { individuals, edges };
+}
+
+/**
+ * Build compact visual metadata representation for LLM context
+ * Shows current layout state in a token-efficient format
+ */
+function buildCompactVisualMetadata(visualMetadata: CompleteVisualMetadata): string {
+  const layoutData = extractLayoutRelevantMetadata(visualMetadata);
+  
+  // Count positioned individuals
+  const positionedCount = Object.values(layoutData.individuals)
+    .filter(meta => meta.x !== undefined && meta.y !== undefined).length;
+    
+  const totalCount = Object.keys(layoutData.individuals).length;
+  
+  if (positionedCount === 0) {
+    return `No positioned nodes (${totalCount} total need positioning)`;
+  }
+  
+  // Show sample positions in compact format
+  const samplePositions = Object.entries(layoutData.individuals)
+    .filter(([, meta]) => meta.x !== undefined && meta.y !== undefined)
+    .slice(0, 5)
+    .map(([id, meta]) => `${id}:(${Math.round(meta.x!)},${Math.round(meta.y!)})`)
+    .join(', ');
+
+  return `${positionedCount}/${totalCount} positioned: ${samplePositions}${positionedCount > 5 ? '...' : ''}`;
+}
+
+/**
+ * Build connections description from LLM data with intelligent sampling
+ */
+function buildConnectionsDescription(llmData: LLMReadyData, maxIndividuals = 15): string {
+  const individuals = Object.entries(llmData.individuals);
+  
+  // Intelligent sampling: prioritize key nodes (roots, connectors, recent generations)
+  const sampledIndividuals = individuals
+    .sort(([, a], [, b]) => {
+      // Priority scoring: root nodes (no parents) and highly connected nodes first
+      const aScore = (a.parents.length === 0 ? 10 : 0) + 
+                    Object.values(llmData.individuals).filter(ind => ind.parents.includes(a.id)).length;
+      const bScore = (b.parents.length === 0 ? 10 : 0) + 
+                    Object.values(llmData.individuals).filter(ind => ind.parents.includes(b.id)).length;
+      return bScore - aScore;
+    })
+    .slice(0, maxIndividuals);
+
+  const connections = sampledIndividuals
     .map(([id, individual]) => {
       const parents = individual.parents.length;
       const children = Object.values(llmData.individuals).filter((ind) =>
         ind.parents.includes(id),
       ).length;
 
-      return `- ${id}: Generation ${String(individual.metadata.generation ?? 'unknown')}, ${String(parents)} parents, ${String(children)} children`;
+      return `- ${id}: Gen ${String(individual.metadata.generation ?? '?')}, ${String(parents)}p, ${String(children)}c`;
     })
-    .slice(0, 20) // Limit for prompt size
     .join('\n');
 
-  return (
-    connections +
-    (Object.keys(llmData.individuals).length > 20 ? '\n... (truncated)' : '')
-  );
+  const totalCount = Object.keys(llmData.individuals).length;
+  return connections + (totalCount > maxIndividuals ? `\n... (${totalCount - maxIndividuals} more)` : '');
 }
 
 /**

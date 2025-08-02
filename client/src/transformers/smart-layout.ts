@@ -19,11 +19,23 @@ import { generateLayoutPrompt } from '../services/prompt-templates';
 /**
  * Smart layout transform function with LLM integration
  */
+// Debug: Track how many times this transformer is called
+let smartLayoutCallCount = 0;
+
 export async function smartLayoutTransform(
   context: TransformerContext,
 ): Promise<TransformerOutput> {
-  const { gedcomData, visualMetadata, visual, temperature } = context;
-  const layoutStyle = visual.layoutStyle as string;
+  console.log(`🧠 Smart Layout Transformer called (call #${++smartLayoutCallCount})`);
+  
+  // Log key parameters being used
+  const layoutStyle = context.visual.layoutStyle as string;
+  const spacing = context.visual.spacing as string;
+  const temperature = context.temperature ?? 0.5;
+  const individualsCount = Object.keys(context.gedcomData.individuals).length;
+  const canvasSize = `${context.visualMetadata.global.canvasWidth}x${context.visualMetadata.global.canvasHeight}`;
+  
+  console.log(`📐 Layout: ${layoutStyle}, Spacing: ${spacing}, Temp: ${temperature}, Canvas: ${canvasSize}, Individuals: ${individualsCount}`);
+  const { gedcomData, visualMetadata, visual } = context;
 
   const individuals = Object.values(gedcomData.individuals);
   if (individuals.length === 0) {
@@ -49,6 +61,13 @@ export async function smartLayoutTransform(
 
     // Merge LLM response with existing metadata
     const mergedMetadata = mergeLayoutResponse(llmResponse, visualMetadata);
+    
+    // Log what properties were actually modified
+    const sampleIndividual = Object.values(llmResponse.individuals)[0];
+    const modifiedProps = sampleIndividual ? Object.keys(sampleIndividual).join(', ') : 'none';
+    const hasEdges = llmResponse.edges && Object.keys(llmResponse.edges).length > 0;
+    
+    console.log(`✨ LLM Layout applied: Modified [${modifiedProps}${hasEdges ? ', edges.controlPoints' : ''}] | Preserved [color, size, shape, opacity, etc.]`);
 
     const providerInfo = llmLayoutService.getProviderInfo();
 
@@ -73,7 +92,8 @@ export async function smartLayoutTransform(
 }
 
 /**
- * Merge LLM response with existing visual metadata
+ * Merge selective LLM response with existing visual metadata
+ * Only processes layout properties (x, y, rotation) from LLM, preserves all other visual properties
  */
 function mergeLayoutResponse(
   llmResponse: LLMLayoutResponse,
@@ -82,46 +102,59 @@ function mergeLayoutResponse(
   const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
   const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
 
-  // Merge individuals with position validation
+  // Merge individuals - only update layout properties
   const updatedIndividuals: Record<string, VisualMetadata> = {};
 
   Object.entries(visualMetadata.individuals).forEach(([id, existingMeta]) => {
-    const llmMeta = llmResponse.individuals[id] || {} as Partial<LLMLayoutResponse['individuals'][string]>;
+    const llmLayoutData = llmResponse.individuals[id];
+
+    if (!llmLayoutData) {
+      // No LLM data for this individual, keep existing
+      updatedIndividuals[id] = existingMeta;
+      return;
+    }
 
     // Validate and clamp positions to canvas bounds
-    const x =
-      llmMeta.x !== undefined
-        ? Math.max(0, Math.min(canvasWidth, llmMeta.x))
-        : existingMeta.x;
+    const x = llmLayoutData.x !== undefined
+      ? Math.max(0, Math.min(canvasWidth, llmLayoutData.x))
+      : existingMeta.x;
 
-    const y =
-      llmMeta.y !== undefined
-        ? Math.max(0, Math.min(canvasHeight, llmMeta.y))
-        : existingMeta.y;
+    const y = llmLayoutData.y !== undefined
+      ? Math.max(0, Math.min(canvasHeight, llmLayoutData.y))
+      : existingMeta.y;
 
-    // Deep merge: preserve existing properties, override with LLM changes
+    // Selective merge: only update layout properties from LLM
     updatedIndividuals[id] = {
-      ...existingMeta,
-      ...llmMeta,
-      x,
-      y,
-      // Special handling for cumulative properties
-      rotation:
-        existingMeta.rotation !== undefined && llmMeta.rotation !== undefined
-          ? existingMeta.rotation + llmMeta.rotation
-          : (llmMeta.rotation ?? existingMeta.rotation),
+      ...existingMeta, // Preserve all existing properties (colors, sizes, shapes, etc.)
+      // Only override layout properties from LLM
+      ...(x !== undefined && { x }),
+      ...(y !== undefined && { y }),
+      ...(llmLayoutData.rotation !== undefined && { rotation: llmLayoutData.rotation }),
     };
   });
 
-  // Merge edges if provided
+  // Merge edges if provided (only control points)
   const updatedEdges: Record<string, VisualMetadata> = {};
-  if (llmResponse.edges) {
-    Object.entries(visualMetadata.edges || {}).forEach(([id, existingMeta]) => {
-      const llmMeta = llmResponse.edges?.[id] || {};
+  if (llmResponse.edges && visualMetadata.edges) {
+    Object.entries(visualMetadata.edges).forEach(([id, existingMeta]) => {
+      const llmEdgeData = llmResponse.edges?.[id];
 
+      if (!llmEdgeData) {
+        // No LLM data for this edge, keep existing
+        updatedEdges[id] = existingMeta;
+        return;
+      }
+
+      // Selective merge: only update control points from LLM
       updatedEdges[id] = {
-        ...existingMeta,
-        ...llmMeta,
+        ...existingMeta, // Preserve all existing edge properties
+        // Only update control points if provided by LLM
+        ...(llmEdgeData.controlPoints && {
+          custom: {
+            ...existingMeta.custom,
+            controlPoints: llmEdgeData.controlPoints,
+          },
+        }),
       };
     });
   }
