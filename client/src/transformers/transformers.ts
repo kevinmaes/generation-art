@@ -596,7 +596,8 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
         type: 'range',
         defaultValue: 0.5,
         label: 'Temperature',
-        description: 'Creativity level for AI layout (0 = strict, 1 = creative)',
+        description:
+          'Creativity level for AI layout (0 = strict, 1 = creative)',
         min: 0,
         max: 1.0,
         step: 0.1,
