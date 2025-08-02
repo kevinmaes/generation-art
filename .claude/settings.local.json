@@ -4,7 +4,8 @@
     "allow": [
       "Bash(pnpm typecheck:*)",
       "Bash(pnpm lint:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
