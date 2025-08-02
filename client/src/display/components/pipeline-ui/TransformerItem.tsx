@@ -6,7 +6,7 @@ import {
   VISUAL_PARAMETERS,
   type VisualParameterValues,
 } from '../../../transformers/visual-parameters';
-import { getProviderInfo } from '../../../services/llm-layout-service';
+import { getProviderInfo } from '../../../services/llm-service';
 
 interface TransformerItemProps {
   transformer: VisualTransformerConfig;

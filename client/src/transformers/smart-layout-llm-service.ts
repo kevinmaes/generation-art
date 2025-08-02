@@ -6,9 +6,8 @@
  */
 
 import { generateObject } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createAnthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
+import { llmService } from '../services/llm-service';
 
 // Zod schema for selective layout response validation
 // Only includes properties that LLM should modify for layout
@@ -74,58 +73,6 @@ const layoutCache = new Map<
 >();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-// Create a cache key from prompt and temperature
-function createCacheKey(prompt: string, temperature: number): string {
-  // Create a simple hash of the prompt + temperature
-  let hash = 0;
-  const input = `${prompt}_${String(temperature)}`;
-  for (let i = 0; i < input.length; i++) {
-    const char = input.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return hash.toString();
-}
-
-interface LLMValidationResult {
-  valid: boolean;
-  missing: string[];
-  provider?: string;
-}
-
-/**
- * Get the configured LLM model based on environment variables
- */
-function getProviderModel() {
-  const provider = (import.meta.env.VITE_LLM_PROVIDER ?? 'openai') as string;
-  console.log(`🔧 LLM Provider configured: ${provider}`);
-
-  switch (provider) {
-    case 'openai': {
-      const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string;
-      const modelName = (import.meta.env.VITE_OPENAI_MODEL ??
-        'gpt-4o-mini') as string; // Better rate limits for development
-      if (!apiKey) {
-        throw new Error('OpenAI API key not found');
-      }
-      const openaiClient = createOpenAI({ apiKey });
-      return openaiClient(modelName);
-    }
-    case 'anthropic': {
-      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY as string;
-      const modelName = (import.meta.env.VITE_ANTHROPIC_MODEL ??
-        'claude-3-5-sonnet-20241022') as string;
-      if (!apiKey) {
-        throw new Error('Anthropic API key not found');
-      }
-      const anthropicClient = createAnthropic({ apiKey });
-      return anthropicClient(modelName);
-    }
-    default:
-      throw new Error(`Unsupported LLM provider: ${provider}`);
-  }
-}
-
 /**
  * Generate a layout using the configured LLM provider
  */
@@ -154,7 +101,7 @@ export async function generateLayout(
   console.log(`🔍 generateLayout called (API call #${String(++apiCallCount)})`);
 
   // Check cache first
-  const cacheKey = createCacheKey(prompt, temperature);
+  const cacheKey = llmService.createCacheKey(prompt, temperature);
   const cached = layoutCache.get(cacheKey);
   const now = Date.now();
 
@@ -192,7 +139,7 @@ export async function generateLayout(
     `🌐 Making API call to OpenAI (attempt #${String(apiCallCount)})`,
   );
   console.log(`📊 Cache status: ${String(layoutCache.size)} items cached`);
-  console.log(`🔑 Using model: ${getProviderInfo().model}`);
+  console.log(`🔑 Using model: ${llmService.getProviderInfo().model}`);
   console.log(
     `📏 Estimated tokens: ${estimatedTotalTokens.toLocaleString()} (${String(estimatedInputTokens)} input + ${String(estimatedOutputTokens)} output)`,
   );
@@ -206,7 +153,7 @@ export async function generateLayout(
   lastApiCall = Date.now();
 
   try {
-    const model = getProviderModel();
+    const model = llmService.getProviderModel();
 
     const result = await generateObject({
       model,
@@ -216,7 +163,6 @@ export async function generateLayout(
     });
 
     // Track token usage
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const actualTokensUsed = result.usage?.totalTokens ?? estimatedTotalTokens;
     lastTokenCount = actualTokensUsed;
     totalTokensUsed += actualTokensUsed;
@@ -253,27 +199,14 @@ export async function generateLayout(
   } catch (error) {
     console.error('LLM layout generation failed:', error);
 
-    // Check for network/fetch issues
-    if (error instanceof Error && error.message.includes('Failed to fetch')) {
-      const provider = getProviderInfo().provider;
-      if (provider === 'anthropic') {
-        throw new Error(
-          'Network error connecting to Anthropic. Check your VITE_ANTHROPIC_API_KEY and internet connection.',
-        );
-      } else {
-        throw new Error(
-          'Network error connecting to OpenAI. Check your VITE_OPENAI_API_KEY and internet connection.',
-        );
-      }
-    }
+    // Use generic error handling
+    const handledError = llmService.handleLLMError(error);
 
-    // Check for rate limiting
-    if (error instanceof Error && error.message.includes('429')) {
-      console.warn('⚠️ OpenAI Rate Limit Hit! Solutions:');
-      console.warn(
-        '1. 💳 Add payment method for Tier 1 (500 req/min): https://platform.openai.com/settings/organization/billing/overview',
-      );
-      console.warn('2. ⏰ Wait 60+ seconds (free tier: 3 requests/minute)');
+    // Add layout-specific context for rate limiting
+    if (handledError.message.includes('rate limit')) {
+      console.warn('⚠️ Rate Limit Hit! Solutions:');
+      console.warn('1. 💳 Add payment method for higher limits');
+      console.warn('2. ⏰ Wait before retrying');
       console.warn('3. 🔄 Use caching (reload page to test cached results)');
       console.warn('4. 🎨 Use algorithmic fallback temporarily');
 
@@ -282,71 +215,19 @@ export async function generateLayout(
       console.warn(
         `⏱️ Time since last call: ${String(Math.round(timeSinceLastCall / 1000))}s`,
       );
-
-      throw new Error(
-        'OpenAI rate limit hit. Free tier: 3 requests/minute. Add payment method for higher limits.',
-      );
     }
 
-    // Check for API key issues
-    if (error instanceof Error && error.message.includes('401')) {
-      throw new Error(
-        'API authentication failed. Please check your API key configuration.',
-      );
-    }
-
-    throw new Error(
-      `Layout generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    );
+    throw new Error(`Layout generation failed: ${handledError.message}`);
   }
 }
 
 /**
- * Validate that required API keys are present for the configured provider
+ * Get layout-specific provider info including token usage
  */
-export function validateApiKeys(): LLMValidationResult {
-  const provider = (import.meta.env.VITE_LLM_PROVIDER ?? 'openai') as string;
-  const missing: string[] = [];
-
-  switch (provider) {
-    case 'openai':
-      if (!import.meta.env.VITE_OPENAI_API_KEY) {
-        missing.push('VITE_OPENAI_API_KEY');
-      }
-      break;
-    case 'anthropic':
-      if (!import.meta.env.VITE_ANTHROPIC_API_KEY) {
-        missing.push('VITE_ANTHROPIC_API_KEY');
-      }
-      break;
-    default:
-      missing.push(`Unknown provider: ${provider}`);
-  }
-
+export function getLayoutProviderInfo() {
+  const baseInfo = llmService.getProviderInfo();
   return {
-    valid: missing.length === 0,
-    missing,
-    provider,
-  };
-}
-
-/**
- * Get information about the configured LLM provider and model
- */
-export function getProviderInfo() {
-  const provider = (import.meta.env.VITE_LLM_PROVIDER ?? 'openai') as string;
-  const maxTokens = (import.meta.env.VITE_LLM_MAX_TOKENS ?? '2000') as string;
-
-  const modelName =
-    provider === 'openai'
-      ? ((import.meta.env.VITE_OPENAI_MODEL ?? 'gpt-4o-mini') as string) // Better rate limits for development
-      : ((import.meta.env.VITE_ANTHROPIC_MODEL ??
-          'claude-3-5-haiku-20241022') as string); // Fast and creative
-
-  return {
-    provider,
-    model: modelName,
-    maxTokens: parseInt(maxTokens),
+    ...baseInfo,
     totalTokensUsed,
     lastTokenCount,
     callCount: apiCallCount,
@@ -356,8 +237,8 @@ export function getProviderInfo() {
 // Export grouped namespace for convenience while keeping individual exports
 export const llmLayoutService = {
   generateLayout,
-  validateApiKeys,
-  getProviderInfo,
+  validateApiKeys: llmService.validateApiKeys,
+  getProviderInfo: getLayoutProviderInfo,
 };
 
 // Export schema for external validation

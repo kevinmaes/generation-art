@@ -13,7 +13,9 @@ import type {
 import {
   llmLayoutService,
   type LLMLayoutResponse,
-} from '../services/llm-layout-service';
+} from './smart-layout-llm-service';
+import type { LLMValidationResult } from '../services/llm-service';
+import { llmService } from '../services/llm-service';
 import { generateLayoutPrompt } from '../services/prompt-templates';
 
 /**
@@ -47,7 +49,7 @@ export async function smartLayoutTransform(
   }
 
   // Check API key availability
-  const apiKeyCheck = llmLayoutService.validateApiKeys();
+  const apiKeyCheck: LLMValidationResult = llmService.validateApiKeys();
   if (!apiKeyCheck.valid) {
     console.warn('LLM API keys missing:', apiKeyCheck.missing);
     return algorithmicFallback(context);
