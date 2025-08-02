@@ -129,10 +129,10 @@ IMPORTANT: Only return position/rotation data. Do NOT include colors, sizes, sha
  */
 export function extractLayoutRelevantMetadata(visualMetadata: CompleteVisualMetadata): {
   individuals: Record<string, { x?: number; y?: number; rotation?: number }>;
-  edges: Record<string, { controlPoints?: Array<{ x: number; y: number }> }>;
+  edges: Record<string, { controlPoints?: { x: number; y: number }[] }>;
 } {
   const individuals: Record<string, { x?: number; y?: number; rotation?: number }> = {};
-  const edges: Record<string, { controlPoints?: Array<{ x: number; y: number }> }> = {};
+  const edges: Record<string, { controlPoints?: { x: number; y: number }[] }> = {};
 
   // Extract only position and rotation data for individuals
   Object.entries(visualMetadata.individuals).forEach(([id, meta]) => {
@@ -144,13 +144,16 @@ export function extractLayoutRelevantMetadata(visualMetadata: CompleteVisualMeta
   });
 
   // Extract only control points for edges
-  Object.entries(visualMetadata.edges || {}).forEach(([id, meta]) => {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (visualMetadata.edges) {
+    Object.entries(visualMetadata.edges).forEach(([id, meta]) => {
     if (meta.custom?.controlPoints) {
       edges[id] = {
-        controlPoints: meta.custom.controlPoints as Array<{ x: number; y: number }>,
+        controlPoints: meta.custom.controlPoints as { x: number; y: number }[],
       };
     }
   });
+  }
 
   return { individuals, edges };
 }
@@ -169,17 +172,17 @@ function buildCompactVisualMetadata(visualMetadata: CompleteVisualMetadata): str
   const totalCount = Object.keys(layoutData.individuals).length;
   
   if (positionedCount === 0) {
-    return `No positioned nodes (${totalCount} total need positioning)`;
+    return `No positioned nodes (${String(totalCount)} total need positioning)`;
   }
   
   // Show sample positions in compact format
   const samplePositions = Object.entries(layoutData.individuals)
     .filter(([, meta]) => meta.x !== undefined && meta.y !== undefined)
     .slice(0, 5)
-    .map(([id, meta]) => `${id}:(${Math.round(meta.x!)},${Math.round(meta.y!)})`)
+    .map(([id, meta]) => `${id}:(${String(Math.round(meta.x ?? 0))},${String(Math.round(meta.y ?? 0))})`)
     .join(', ');
 
-  return `${positionedCount}/${totalCount} positioned: ${samplePositions}${positionedCount > 5 ? '...' : ''}`;
+  return `${String(positionedCount)}/${String(totalCount)} positioned: ${samplePositions}${positionedCount > 5 ? '...' : ''}`;
 }
 
 /**
@@ -190,7 +193,7 @@ function buildConnectionsDescription(llmData: LLMReadyData, maxIndividuals = 15)
   
   // Intelligent sampling: prioritize key nodes (roots, connectors, recent generations)
   const sampledIndividuals = individuals
-    .sort(([, a], [, b]) => {
+    .sort(([_idA, a], [_idB, b]) => {
       // Priority scoring: root nodes (no parents) and highly connected nodes first
       const aScore = (a.parents.length === 0 ? 10 : 0) + 
                     Object.values(llmData.individuals).filter(ind => ind.parents.includes(a.id)).length;
@@ -212,7 +215,7 @@ function buildConnectionsDescription(llmData: LLMReadyData, maxIndividuals = 15)
     .join('\n');
 
   const totalCount = Object.keys(llmData.individuals).length;
-  return connections + (totalCount > maxIndividuals ? `\n... (${totalCount - maxIndividuals} more)` : '');
+  return connections + (totalCount > maxIndividuals ? `\n... (${String(totalCount - maxIndividuals)} more)` : '');
 }
 
 /**

@@ -25,17 +25,17 @@ let smartLayoutCallCount = 0;
 export async function smartLayoutTransform(
   context: TransformerContext,
 ): Promise<TransformerOutput> {
-  console.log(`🧠 Smart Layout Transformer called (call #${++smartLayoutCallCount})`);
+  console.log(`🧠 Smart Layout Transformer called (call #${String(++smartLayoutCallCount)})`);
   
   // Log key parameters being used
   const layoutStyle = context.visual.layoutStyle as string;
   const spacing = context.visual.spacing as string;
   const temperature = context.temperature ?? 0.5;
   const individualsCount = Object.keys(context.gedcomData.individuals).length;
-  const canvasSize = `${context.visualMetadata.global.canvasWidth}x${context.visualMetadata.global.canvasHeight}`;
+  const canvasSize = `${String(context.visualMetadata.global.canvasWidth ?? 1000)}x${String(context.visualMetadata.global.canvasHeight ?? 800)}`;
   
-  console.log(`📐 Layout: ${layoutStyle}, Spacing: ${spacing}, Temp: ${temperature}, Canvas: ${canvasSize}, Individuals: ${individualsCount}`);
-  const { gedcomData, visualMetadata, visual } = context;
+  console.log(`📐 Layout: ${layoutStyle}, Spacing: ${spacing}, Temp: ${String(temperature)}, Canvas: ${canvasSize}, Individuals: ${String(individualsCount)}`);
+  const { gedcomData, visualMetadata } = context;
 
   const individuals = Object.values(gedcomData.individuals);
   if (individuals.length === 0) {

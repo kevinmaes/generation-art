@@ -66,7 +66,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 function createCacheKey(prompt: string, temperature: number): string {
   // Create a simple hash of the prompt + temperature
   let hash = 0;
-  const input = `${prompt}_${temperature}`;
+  const input = `${prompt}_${String(temperature)}`;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
@@ -130,7 +130,7 @@ export async function generateLayout(
   prompt: string,
   temperature = 0.5,
 ): Promise<LLMLayoutResponse> {
-  console.log(`🔍 generateLayout called (API call #${++apiCallCount})`);
+  console.log(`🔍 generateLayout called (API call #${String(++apiCallCount)})`);
   
   // Check cache first
   const cacheKey = createCacheKey(prompt, temperature);
@@ -146,7 +146,7 @@ export async function generateLayout(
   const timeSinceLastCall = now - lastApiCall;
   if (timeSinceLastCall < MIN_DELAY_BETWEEN_CALLS) {
     const waitTime = MIN_DELAY_BETWEEN_CALLS - timeSinceLastCall;
-    console.log(`⏱️ Rate limiting: waiting ${Math.round(waitTime/1000)}s before API call`);
+    console.log(`⏱️ Rate limiting: waiting ${String(Math.round(waitTime/1000))}s before API call`);
     await new Promise(resolve => setTimeout(resolve, waitTime));
   }
 
@@ -161,11 +161,11 @@ export async function generateLayout(
   const canvasLine = promptLines.find(line => line.startsWith('Canvas:'));
   const individualsLine = promptLines.find(line => line.includes('Total Individuals:'));
   
-  console.log(`🌐 Making API call to OpenAI (attempt #${apiCallCount})`);
-  console.log(`📊 Cache status: ${layoutCache.size} items cached`);
+  console.log(`🌐 Making API call to OpenAI (attempt #${String(apiCallCount)})`);
+  console.log(`📊 Cache status: ${String(layoutCache.size)} items cached`);
   console.log(`🔑 Using model: ${getProviderInfo().model}`);
-  console.log(`📏 Estimated tokens: ${estimatedTotalTokens.toLocaleString()} (${estimatedInputTokens} input + ${estimatedOutputTokens} output)`);
-  console.log(`📝 Prompt summary: ${layoutStyleLine?.trim()}, ${canvasLine?.trim()}, ${individualsLine?.trim()}`);
+  console.log(`📏 Estimated tokens: ${estimatedTotalTokens.toLocaleString()} (${String(estimatedInputTokens)} input + ${String(estimatedOutputTokens)} output)`);
+  console.log(`📝 Prompt summary: ${layoutStyleLine?.trim() ?? 'N/A'}, ${canvasLine?.trim() ?? 'N/A'}, ${individualsLine?.trim() ?? 'N/A'}`);
   console.log(`🎯 Visual properties: Sending [x, y, rotation] → Expecting [x, y, rotation, edges.controlPoints?]`);
   
   lastApiCall = Date.now();
@@ -181,21 +181,22 @@ export async function generateLayout(
     });
 
     // Track token usage
-    const actualTokensUsed = result.usage?.totalTokens ?? estimatedInputTokens;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const actualTokensUsed = result.usage?.totalTokens ?? estimatedTotalTokens;
     lastTokenCount = actualTokensUsed;
     totalTokensUsed += actualTokensUsed;
     
     console.log(`✅ API call completed`);
     // Calculate cost using proper gpt-4o-mini pricing  
-    const inputTokens = result.usage?.promptTokens ?? estimatedInputTokens;
-    const outputTokens = result.usage?.completionTokens ?? (actualTokensUsed - inputTokens);
+    const inputTokens = estimatedInputTokens; // Vercel AI SDK doesn't provide separate token counts
+    const outputTokens = actualTokensUsed - inputTokens;
     const inputCost = inputTokens * 0.00000015; // $0.150 per 1M input tokens
     const outputCost = outputTokens * 0.0000006; // $0.600 per 1M output tokens
     const totalCost = inputCost + outputCost;
     
     const estimationAccuracy = Math.round((estimatedTotalTokens / actualTokensUsed) * 100);
-    console.log(`📊 Tokens used this call: ${actualTokensUsed.toLocaleString()} (${inputTokens} input + ${outputTokens} output)`);
-    console.log(`📊 Estimation accuracy: ${estimatedTotalTokens.toLocaleString()} estimated vs ${actualTokensUsed.toLocaleString()} actual (${estimationAccuracy}%)`);
+    console.log(`📊 Tokens used this call: ${actualTokensUsed.toLocaleString()} (${String(inputTokens)} input + ${String(outputTokens)} output)`);
+    console.log(`📊 Estimation accuracy: ${estimatedTotalTokens.toLocaleString()} estimated vs ${actualTokensUsed.toLocaleString()} actual (${String(estimationAccuracy)}%)`);
     console.log(`📊 Total tokens used: ${totalTokensUsed.toLocaleString()}`);
     console.log(`💰 Estimated cost this call: $${totalCost.toFixed(4)} (gpt-4o-mini pricing)`);
 
@@ -233,7 +234,7 @@ export async function generateLayout(
       
       // Add helpful timing info
       const timeSinceLastCall = Date.now() - lastApiCall;
-      console.warn(`⏱️ Time since last call: ${Math.round(timeSinceLastCall/1000)}s`);
+      console.warn(`⏱️ Time since last call: ${String(Math.round(timeSinceLastCall/1000))}s`);
       
       throw new Error(
         'OpenAI rate limit hit. Free tier: 3 requests/minute. Add payment method for higher limits.',
