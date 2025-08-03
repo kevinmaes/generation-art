@@ -1,0 +1,73 @@
+name: Tests - Unit CLI
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  tests-unit-cli:
+    name: Tests - Unit CLI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for relevant changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            testable-code:
+              - 'cli/**'
+              - 'shared/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'tsconfig*.json'
+              - 'vitest.config.ts'
+
+      - name: Skip unit tests - no relevant changes
+        if: steps.changes.outputs.testable-code != 'true'
+        run: |
+          echo "✅ CLI unit tests skipped"
+          echo "No changes detected in CLI testable code or test files for this PR"
+          echo "Changed paths don't require CLI unit test execution"
+
+      - name: Setup pnpm
+        if: steps.changes.outputs.testable-code == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        if: steps.changes.outputs.testable-code == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        if: steps.changes.outputs.testable-code == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Run CLI unit tests with coverage
+        if: steps.changes.outputs.testable-code == 'true'
+        run: pnpm test:coverage -- cli/
+
+      - name: Upload CLI coverage reports to Codecov
+        if: steps.changes.outputs.testable-code == 'true' && env.ACTIONS_RUNTIME_TOKEN != null
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: cli-unittests
+          name: codecov-cli
+          fail_ci_if_error: false

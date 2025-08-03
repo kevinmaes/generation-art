@@ -1,0 +1,130 @@
+name: Auto Fix Code Issues - Shared
+
+on:
+  pull_request:
+    branches: [dev]
+    types: [synchronize, opened, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-fix-shared:
+    # Only run if this is a PR targeting dev
+    if: github.event.pull_request.base.ref == 'dev'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for relevant changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            shared:
+              - 'shared/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'tsconfig*.json'
+              - 'eslint.config.js'
+              - '.prettierrc'
+
+      - name: Skip auto-fix - no relevant changes
+        if: steps.changes.outputs.shared != 'true'
+        run: |
+          echo "✅ Shared auto-fix skipped"
+          echo "No changes detected in shared-related files for this PR"
+
+      - name: Setup pnpm
+        if: steps.changes.outputs.shared == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        if: steps.changes.outputs.shared == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        if: steps.changes.outputs.shared == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for formatting issues (Shared)
+        if: steps.changes.outputs.shared == 'true'
+        id: check-format
+        run: |
+          if pnpm format:check; then
+            echo "format_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "format_needed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for linting issues (Shared)
+        if: steps.changes.outputs.shared == 'true'
+        id: check-lint
+        run: |
+          if pnpm lint; then
+            echo "lint_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "lint_needed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Auto format (Shared)
+        if: steps.changes.outputs.shared == 'true' && steps.check-format.outputs.format_needed == 'true'
+        run: pnpm format
+
+      - name: Auto fix linting issues (Shared)
+        if: steps.changes.outputs.shared == 'true' && steps.check-lint.outputs.lint_needed == 'true'
+        run: pnpm lint:fix
+
+      - name: Check for changes
+        id: check-changes
+        if: |
+          steps.changes.outputs.shared == 'true' && (
+            steps.check-format.outputs.format_needed == 'true' ||
+            steps.check-lint.outputs.lint_needed == 'true'
+          )
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure Git
+        if: |
+          steps.changes.outputs.shared == 'true' && (
+            steps.check-format.outputs.format_needed == 'true' ||
+            steps.check-lint.outputs.lint_needed == 'true'
+          ) && steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Commit and push fixes (Shared)
+        if: |
+          steps.changes.outputs.shared == 'true' && (
+            steps.check-format.outputs.format_needed == 'true' ||
+            steps.check-lint.outputs.lint_needed == 'true'
+          ) && steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          git add -A
+          git commit -m "style: auto-fix shared code formatting and linting issues
+
+          This commit was automatically created to fix shared package issues detected by the CI workflow.
+
+          - Applied Prettier formatting fixes to shared code
+          - Applied ESLint auto-fixes to shared code
+          - No functional changes, only code quality improvements
+
+          🤖 Generated with [Claude Code](https://claude.ai/code)"
+          git fetch origin ${{ github.event.pull_request.head.ref }}
+          git push origin HEAD:${{ github.event.pull_request.head.ref }} --force-with-lease

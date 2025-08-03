@@ -11,7 +11,13 @@
       "Bash(rm:*)",
       "Bash(pnpm test:*)",
       "Bash(pnpm format:*)",
-      "Bash(gh pr create:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(pnpm add:*)",
+      "Bash(brew install:*)",
+      "Bash(act:*)"
     ],
     "deny": []
   }
