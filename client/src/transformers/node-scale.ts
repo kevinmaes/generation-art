@@ -21,7 +21,7 @@ function calculateNodeScale(
   context: TransformerContext,
   individualId: string,
 ): { width: number; height: number } {
-  const { gedcomData, dimensions, visual, temperature } = context;
+  const { gedcomData, dimensions } = context;
 
   // Find the individual with null check
   const individual = getIndividualOrWarn(
@@ -273,42 +273,13 @@ function calculateNodeScale(
     secondaryValue = 0.5;
   }
 
-  // Get visual parameters directly from context
-  const { variationFactor } = visual;
-  const temp =
-    temperature !== undefined && Number.isFinite(temperature)
-      ? temperature
-      : 0.5;
-  const safeVariationFactor =
-    variationFactor !== undefined && Number.isFinite(variationFactor as number)
-      ? (variationFactor as number)
-      : 0.5;
-
-  // Add temperature-based randomness with variation factor influence
-  const baseRandomness = (Math.random() - 0.5) * temp * 0.3; // ±15% max variation
-  const variationRandomness = (Math.random() - 0.5) * safeVariationFactor * 0.2; // Additional variation
-  const totalRandomFactor = baseRandomness + variationRandomness;
-
-  // Apply randomness to both dimensions
-  const primaryRandomness = totalRandomFactor;
-  const secondaryRandomness = (Math.random() - 0.5) * temp * 0.2; // Independent secondary randomness
-
-  const adjustedPrimaryValue = Math.max(
-    0,
-    Math.min(1, primaryValue + primaryRandomness),
-  );
-  const adjustedSecondaryValue = Math.max(
-    0,
-    Math.min(1, secondaryValue + secondaryRandomness),
-  );
-
-  // Convert to scale factors
+  // Convert to scale factors (deterministic)
   // Scale range: 0.5 to 2.0 (can be half size to double size)
   const scaleRange = { min: 0.5, max: 2.0 };
   const scaleSpan = scaleRange.max - scaleRange.min;
 
-  const widthScale = scaleRange.min + adjustedPrimaryValue * scaleSpan;
-  const heightScale = scaleRange.min + adjustedSecondaryValue * scaleSpan;
+  const widthScale = scaleRange.min + primaryValue * scaleSpan;
+  const heightScale = scaleRange.min + secondaryValue * scaleSpan;
 
   // Safety check to ensure we never return NaN or invalid values
   const safeWidth = Number.isFinite(widthScale) ? widthScale : 1;

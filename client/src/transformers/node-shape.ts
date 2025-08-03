@@ -22,7 +22,7 @@ function calculateNodeShape(
   context: TransformerContext,
   individualId: string,
 ): NodeShape {
-  const { gedcomData, dimensions, visual, temperature } = context;
+  const { gedcomData, dimensions } = context;
 
   // Find the individual
   const individual = getIndividualSafe(gedcomData, individualId);
@@ -202,31 +202,13 @@ function calculateNodeShape(
     }
   }
 
-  // Get visual parameters directly from context
-  const { variationFactor } = visual;
-  const temp = temperature ?? 0.5;
-
   // Combine primary and secondary dimensions (ensure no NaN values)
   const safePrimaryValue = isNaN(primaryValue) ? 0.5 : primaryValue;
   const safeSecondaryValue = isNaN(secondaryValue) ? 0.5 : secondaryValue;
   const combinedValue = safePrimaryValue * 0.7 + safeSecondaryValue * 0.3;
 
-  // Add temperature-based randomness with variation factor influence (ensure no NaN)
-  const baseRandomness = (Math.random() - 0.5) * temp * 0.3; // ±15% max variation
-  const safeVariationFactor =
-    typeof variationFactor === 'number' && !isNaN(variationFactor)
-      ? variationFactor
-      : 0.5;
-  const variationRandomness = (Math.random() - 0.5) * safeVariationFactor * 0.2; // Additional variation
-  const totalRandomFactor = baseRandomness + variationRandomness;
-
-  const adjustedDimensionValue = Math.max(
-    0,
-    Math.min(1, combinedValue + totalRandomFactor),
-  );
-
-  // Map the adjusted value to one of the available shapes
-  const shapeIndex = Math.floor(adjustedDimensionValue * SHAPES.length);
+  // Map the combined value to one of the available shapes (deterministic)
+  const shapeIndex = Math.floor(combinedValue * SHAPES.length);
   const clampedIndex = Math.min(shapeIndex, SHAPES.length - 1);
   const selectedShape = SHAPES[clampedIndex];
 

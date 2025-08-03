@@ -19,8 +19,7 @@ function calculateVerticalPosition(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { gedcomData, visualMetadata, dimensions, visual, temperature } =
-    context;
+  const { gedcomData, visualMetadata, dimensions, visual } = context;
   const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
 
   // Find the individual with null check
@@ -162,8 +161,7 @@ function calculateVerticalPosition(
   }
 
   // Get visual parameters directly from context
-  const { verticalPadding, spacing, variationFactor } = visual;
-  const temp = temperature ?? 0.5;
+  const { verticalPadding, spacing } = visual;
 
   // Calculate spacing multiplier based on spacing setting
   const spacingMultipliers = {
@@ -180,24 +178,12 @@ function calculateVerticalPosition(
   const availableHeight = canvasHeight - (verticalPadding as number) * 2;
   const generationStart = verticalPadding as number;
 
-  // Combine primary and secondary dimensions with variation factor
+  // Combine primary and secondary dimensions (deterministic)
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
 
-  // Add temperature-based randomness with variation factor influence
-  const baseRandomness = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
-  const variationRandomness =
-    (Math.random() - 0.5) * (variationFactor as number) * 0.1; // Additional variation
-  const totalRandomFactor = baseRandomness + variationRandomness;
-
-  const adjustedDimensionValue = Math.max(
-    0,
-    Math.min(1, combinedValue + totalRandomFactor),
-  );
-
-  // Position within generation based on combined dimension value
+  // Position within generation based on combined dimension value (no randomness)
   const positionInGeneration =
-    generationStart +
-    adjustedDimensionValue * availableHeight * spacingMultiplier;
+    generationStart + combinedValue * availableHeight * spacingMultiplier;
 
   return positionInGeneration;
 }
