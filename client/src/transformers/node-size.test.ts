@@ -268,7 +268,9 @@ describe('Node Size Transformer', () => {
 
       // Should have size metadata for all individuals
       expect(result.visualMetadata.individuals).toBeDefined();
-      expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(3);
+      expect(Object.keys(result.visualMetadata.individuals ?? {})).toHaveLength(
+        3,
+      );
 
       // Each individual should have a size assigned
       const individuals = result.visualMetadata.individuals ?? {};
@@ -302,7 +304,7 @@ describe('Node Size Transformer', () => {
       const result = await nodeSizeTransform(context);
 
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // I1 (lifespan 80) should have larger size than I3 (lifespan 45)
       expect(individuals.I1.size).toBeDefined();
       expect(individuals.I3.size).toBeDefined();
@@ -317,10 +319,10 @@ describe('Node Size Transformer', () => {
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
         dimensions: { primary: 'childrenCount' },
-        visual: { 
+        visual: {
           // nodeSize is intentionally undefined to test the bug fix
-          variationFactor: 0.1, 
-          temperature: 0.3 
+          variationFactor: 0.1,
+          temperature: 0.3,
         },
         temperature: 0.0,
       };
@@ -330,10 +332,10 @@ describe('Node Size Transformer', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should still calculate valid sizes using the default 'medium' nodeSize
       expect(individuals.I1.size).toBeGreaterThanOrEqual(15); // medium min: 15
-      expect(individuals.I1.size).toBeLessThanOrEqual(35);    // medium max: 35
+      expect(individuals.I1.size).toBeLessThanOrEqual(35); // medium max: 35
     });
 
     it('should handle invalid nodeSize values', async () => {
@@ -342,10 +344,10 @@ describe('Node Size Transformer', () => {
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
         dimensions: { primary: 'childrenCount' },
-        visual: { 
+        visual: {
           nodeSize: 'invalid-size' as any, // Testing invalid value handling
-          variationFactor: 0.1, 
-          temperature: 0.3 
+          variationFactor: 0.1,
+          temperature: 0.3,
         },
         temperature: 0.0,
       };
@@ -355,10 +357,10 @@ describe('Node Size Transformer', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should still calculate valid sizes using the fallback 'medium' nodeSize
       expect(individuals.I1.size).toBeGreaterThanOrEqual(15); // medium min: 15
-      expect(individuals.I1.size).toBeLessThanOrEqual(35);    // medium max: 35
+      expect(individuals.I1.size).toBeLessThanOrEqual(35); // medium max: 35
     });
 
     it('should handle missing visual context gracefully', async () => {
@@ -420,9 +422,9 @@ describe('Node Size Transformer', () => {
       const context: TransformerContext = {
         gedcomData: emptyGedcomData,
         llmData: mockLLMData,
-        visualMetadata: { 
-          ...mockVisualMetadata, 
-          individuals: { I1: { x: 100, y: 100 } } 
+        visualMetadata: {
+          ...mockVisualMetadata,
+          individuals: { I1: { x: 100, y: 100 } },
         },
         dimensions: { primary: 'lifespan' },
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
@@ -434,7 +436,7 @@ describe('Node Size Transformer', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should still assign a valid size despite missing data
       expect(individuals.I1.size).toBeGreaterThanOrEqual(15);
       expect(individuals.I1.size).toBeLessThanOrEqual(35);
@@ -445,8 +447,8 @@ describe('Node Size Transformer', () => {
         gedcomData: mockGedcomData,
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
-        dimensions: { 
-          primary: 'unknownDimension' 
+        dimensions: {
+          primary: 'unknownDimension',
         },
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
         temperature: 0.0,
@@ -457,7 +459,7 @@ describe('Node Size Transformer', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should assign valid default sizes
       expect(individuals.I1.size).toBeGreaterThanOrEqual(15);
       expect(individuals.I1.size).toBeLessThanOrEqual(35);
@@ -469,7 +471,7 @@ describe('Node Size Transformer', () => {
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
         dimensions: { primary: 'childrenCount' },
-        visual: { 
+        visual: {
           nodeSize: 'medium',
           // variationFactor and temperature intentionally undefined
         },
@@ -481,7 +483,7 @@ describe('Node Size Transformer', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should still calculate valid sizes
       expect(individuals.I1.size).toBeGreaterThanOrEqual(15);
       expect(individuals.I1.size).toBeLessThanOrEqual(35);
@@ -503,10 +505,10 @@ describe('Node Size Transformer', () => {
           llmData: mockLLMData,
           visualMetadata: mockVisualMetadata,
           dimensions: { primary: 'childrenCount' },
-          visual: { 
+          visual: {
             nodeSize: nodeSize as 'small' | 'medium' | 'large' | 'extra-large',
-            variationFactor: 0.0, 
-            temperature: 0.0 
+            variationFactor: 0.0,
+            temperature: 0.0,
           },
           temperature: 0.0,
         };
