@@ -10,7 +10,8 @@
       "Bash(mv:*)",
       "Bash(rm:*)",
       "Bash(pnpm test:*)",
-      "Bash(pnpm format:*)"
+      "Bash(pnpm format:*)",
+      "Bash(gh pr create:*)"
     ],
     "deny": []
   }

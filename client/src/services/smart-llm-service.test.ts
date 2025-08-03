@@ -5,6 +5,10 @@
  * rate limiting, error handling, and transformer execution
  */
 
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { z } from 'zod';
 import {
@@ -33,7 +37,7 @@ vi.mock('./llm-service', () => ({
       provider: 'openai',
       model: 'gpt-4',
     })),
-    handleLLMError: vi.fn((error: any) => ({
+    handleLLMError: vi.fn((error: Error) => ({
       message: `Handled: ${error.message}`,
     })),
   },
@@ -43,7 +47,9 @@ vi.mock('./llm-service', () => ({
 import { generateObject } from 'ai';
 import { llmService } from './llm-service';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockGenerateObject = generateObject as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockLLMService = llmService as any;
 
 // Test schema
@@ -71,22 +77,22 @@ describe('Smart LLM Service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    
+
     // Set a base time
     vi.setSystemTime(new Date('2024-01-01T00:00:00Z'));
-    
+
     // Clear all caches and counters
     clearAllCaches();
-    
+
     // Reset mock functions
     mockLLMService.createCacheKey.mockClear();
     mockLLMService.getProviderModel.mockClear();
     mockLLMService.getProviderInfo.mockClear();
     mockLLMService.handleLLMError.mockClear();
-    
+
     // Reset default mock behavior
     mockLLMService.getProviderInfo.mockReturnValue({
-      provider: 'openai',  
+      provider: 'openai',
       model: 'gpt-4',
     });
   });
@@ -107,7 +113,7 @@ describe('Smart LLM Service', () => {
         'test-transformer',
         'test prompt',
         TestSchema,
-        0.5
+        0.5,
       );
 
       expect(result).toEqual(mockResponse);
@@ -130,7 +136,7 @@ describe('Smart LLM Service', () => {
         'cache-transformer',
         'test prompt for caching',
         TestSchema,
-        0.5
+        0.5,
       );
 
       expect(result1).toEqual(mockResponse);
@@ -141,7 +147,7 @@ describe('Smart LLM Service', () => {
         'cache-transformer',
         'test prompt for caching',
         TestSchema,
-        0.5
+        0.5,
       );
 
       expect(result2).toEqual(mockResponse);
@@ -151,7 +157,7 @@ describe('Smart LLM Service', () => {
     it('should handle cache expiration', async () => {
       const mockResponse1 = { result: 'first', value: 100 };
       const mockResponse2 = { result: 'second', value: 200 };
-      
+
       mockGenerateObject
         .mockResolvedValueOnce({ object: mockResponse1 })
         .mockResolvedValueOnce({ object: mockResponse2 });
@@ -160,7 +166,7 @@ describe('Smart LLM Service', () => {
       const result1 = await generateSmartTransformerResponse<TestResponse>(
         'expiry-test',
         'test expiry prompt',
-        TestSchema
+        TestSchema,
       );
 
       expect(result1).toEqual(mockResponse1);
@@ -173,7 +179,7 @@ describe('Smart LLM Service', () => {
       const result2 = await generateSmartTransformerResponse<TestResponse>(
         'expiry-test',
         'test expiry prompt',
-        TestSchema
+        TestSchema,
       );
 
       expect(result2).toEqual(mockResponse2);
@@ -183,7 +189,7 @@ describe('Smart LLM Service', () => {
     it.skip('should handle rate limiting', async () => {
       const mockResponse1 = { result: 'rate-limited-1', value: 300 };
       const mockResponse2 = { result: 'rate-limited-2', value: 400 };
-      
+
       mockGenerateObject
         .mockResolvedValueOnce({ object: mockResponse1 })
         .mockResolvedValueOnce({ object: mockResponse2 });
@@ -192,21 +198,21 @@ describe('Smart LLM Service', () => {
       const result1 = await generateSmartTransformerResponse<TestResponse>(
         'rate-limit-transformer',
         'rate test prompt 1',
-        TestSchema
+        TestSchema,
       );
-      
+
       expect(result1).toEqual(mockResponse1);
 
       // Second call immediately after - should be rate limited
       const promise2 = generateSmartTransformerResponse<TestResponse>(
         'rate-limit-transformer',
         'rate test prompt 2',
-        TestSchema
+        TestSchema,
       );
 
       // Run timers to complete the rate limit delay
       await vi.runAllTimersAsync();
-      
+
       const result2 = await promise2;
       expect(result2).toEqual(mockResponse2);
       expect(mockGenerateObject).toHaveBeenCalledTimes(2);
@@ -220,8 +226,8 @@ describe('Smart LLM Service', () => {
         generateSmartTransformerResponse<TestResponse>(
           'api-error-test',
           'api error prompt',
-          TestSchema
-        )
+          TestSchema,
+        ),
       ).rejects.toThrow('api-error-test generation failed: Handled: API Error');
 
       expect(mockLLMService.handleLLMError).toHaveBeenCalledWith(mockError);
@@ -238,15 +244,17 @@ describe('Smart LLM Service', () => {
         generateSmartTransformerResponse<TestResponse>(
           'rate-limit-test',
           'test prompt',
-          TestSchema
-        )
-      ).rejects.toThrow('rate-limit-test generation failed: rate limit exceeded');
+          TestSchema,
+        ),
+      ).rejects.toThrow(
+        'rate-limit-test generation failed: rate limit exceeded',
+      );
     });
 
     it.skip('should track API call counts', async () => {
       const mockResponse1 = { result: 'counted-1', value: 400 };
       const mockResponse2 = { result: 'counted-2', value: 500 };
-      
+
       mockGenerateObject
         .mockResolvedValueOnce({ object: mockResponse1 })
         .mockResolvedValueOnce({ object: mockResponse2 });
@@ -255,7 +263,7 @@ describe('Smart LLM Service', () => {
       const result1 = await generateSmartTransformerResponse<TestResponse>(
         'count-transformer',
         'count prompt 1',
-        TestSchema
+        TestSchema,
       );
 
       expect(result1).toEqual(mockResponse1);
@@ -266,7 +274,7 @@ describe('Smart LLM Service', () => {
       const result2 = await generateSmartTransformerResponse<TestResponse>(
         'count-transformer',
         'count prompt 2',
-        TestSchema
+        TestSchema,
       );
 
       expect(result2).toEqual(mockResponse2);
@@ -286,7 +294,7 @@ describe('Smart LLM Service', () => {
       });
 
       const result = getProviderOptimizedPrompt(basePrompt);
-      
+
       expect(result).toContain(basePrompt);
       expect(result).toContain('valid JSON only');
       expect(result).toContain('mathematical precision');
@@ -299,7 +307,7 @@ describe('Smart LLM Service', () => {
       });
 
       const result = getProviderOptimizedPrompt(basePrompt);
-      
+
       expect(result).toContain(basePrompt);
       expect(result).toContain('Think step by step');
       expect(result).toContain('optimal solution');
@@ -307,7 +315,7 @@ describe('Smart LLM Service', () => {
 
     it('should use explicit provider parameter', () => {
       const result = getProviderOptimizedPrompt(basePrompt, 'openai');
-      
+
       expect(result).toContain('valid JSON only');
       expect(mockLLMService.getProviderInfo).not.toHaveBeenCalled();
     });
@@ -334,7 +342,7 @@ describe('Smart LLM Service', () => {
       await generateSmartTransformerResponse<TestResponse>(
         'clear-test-transformer',
         'clear test prompt',
-        TestSchema
+        TestSchema,
       );
 
       let stats = getTransformerStats('clear-test-transformer');
@@ -350,7 +358,7 @@ describe('Smart LLM Service', () => {
     it('should not affect other transformer caches', async () => {
       const mockResponse1 = { result: 'isolated-a', value: 600 };
       const mockResponse2 = { result: 'isolated-b', value: 700 };
-      
+
       mockGenerateObject
         .mockResolvedValueOnce({ object: mockResponse1 })
         .mockResolvedValueOnce({ object: mockResponse2 });
@@ -359,7 +367,7 @@ describe('Smart LLM Service', () => {
       await generateSmartTransformerResponse<TestResponse>(
         'clear-transformer-a',
         'clear test prompt a',
-        TestSchema
+        TestSchema,
       );
 
       // Wait for rate limiting
@@ -368,7 +376,7 @@ describe('Smart LLM Service', () => {
       await generateSmartTransformerResponse<TestResponse>(
         'clear-transformer-b',
         'clear test prompt b',
-        TestSchema
+        TestSchema,
       );
 
       // Clear only one cache
@@ -385,7 +393,7 @@ describe('Smart LLM Service', () => {
   describe('getTransformerStats', () => {
     it('should return correct stats for new transformer', () => {
       const stats = getTransformerStats('new-transformer');
-      
+
       expect(stats).toEqual({
         apiCalls: 0,
         cacheSize: 0,
@@ -405,11 +413,11 @@ describe('Smart LLM Service', () => {
       await generateSmartTransformerResponse<TestResponse>(
         'stats-tracker-transformer',
         'stats test prompt',
-        TestSchema
+        TestSchema,
       );
 
       const stats = getTransformerStats('stats-tracker-transformer');
-      
+
       expect(stats.apiCalls).toBe(1);
       expect(stats.cacheSize).toBe(1);
       expect(stats.lastApiCall).toBe(beforeTime);
@@ -432,11 +440,11 @@ describe('Smart LLM Service', () => {
         'execute-test-transformer',
         'execute base prompt',
         mockConfig,
-        0.7
+        0.7,
       );
 
       expect(result).toEqual(mockResponse);
-      
+
       // Should have called generateObject with optimized prompt
       const calledArgs = mockGenerateObject.mock.calls[0][0];
       expect(calledArgs.prompt).toContain('execute base prompt');
@@ -454,7 +462,7 @@ describe('Smart LLM Service', () => {
       await executeSmartTransformer<TestResponse>(
         'default-transformer',
         'test prompt',
-        mockConfig
+        mockConfig,
       );
 
       const calledArgs = mockGenerateObject.mock.calls[0][0];
@@ -475,7 +483,7 @@ describe('Smart LLM Service', () => {
       await executeSmartTransformer<TestResponse>(
         'anthropic-transformer',
         'base prompt',
-        mockConfig
+        mockConfig,
       );
 
       const calledArgs = mockGenerateObject.mock.calls[0][0];
@@ -490,9 +498,11 @@ describe('Smart LLM Service', () => {
         executeSmartTransformer<TestResponse>(
           'error-transformer',
           'failing prompt',
-          mockConfig
-        )
-      ).rejects.toThrow('error-transformer generation failed: Handled: Execution failed');
+          mockConfig,
+        ),
+      ).rejects.toThrow(
+        'error-transformer generation failed: Handled: Execution failed',
+      );
     });
   });
 
@@ -510,14 +520,14 @@ describe('Smart LLM Service', () => {
         'transformer-1',
         'prompt 1',
         mockConfig,
-        0.3
+        0.3,
       );
 
       const result2 = await executeSmartTransformer<TestResponse>(
         'transformer-2',
         'prompt 2',
         mockConfig,
-        0.8
+        0.8,
       );
 
       expect(result1).toEqual(mockResponse1);
@@ -543,13 +553,13 @@ describe('Smart LLM Service', () => {
       await generateSmartTransformerResponse<TestResponse>(
         'isolated-1',
         'same prompt',
-        TestSchema
+        TestSchema,
       );
 
       await generateSmartTransformerResponse<TestResponse>(
         'isolated-2',
         'same prompt',
-        TestSchema
+        TestSchema,
       );
 
       // Should make separate API calls since caches are isolated
@@ -559,7 +569,7 @@ describe('Smart LLM Service', () => {
       await generateSmartTransformerResponse<TestResponse>(
         'isolated-1',
         'same prompt',
-        TestSchema
+        TestSchema,
       );
 
       expect(mockGenerateObject).toHaveBeenCalledTimes(2); // No additional call
