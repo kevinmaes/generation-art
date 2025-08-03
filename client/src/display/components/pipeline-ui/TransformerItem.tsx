@@ -473,9 +473,15 @@ export function TransformerItem({
                               return param.type === 'color';
                             });
 
+                          const booleanParams =
+                            transformer.visualParameters.filter((param) => {
+                              return param.type === 'boolean';
+                            });
+
                           const leftColumnParams = [
                             ...sliderParams,
                             ...colorParams,
+                            ...booleanParams,
                           ];
 
                           if (leftColumnParams.length > 0) {
@@ -484,9 +490,11 @@ export function TransformerItem({
                                 {leftColumnParams.map((param) => {
                                   return (
                                     <div key={param.name}>
-                                      <label className="block text-xs text-gray-600 mb-1 text-left">
-                                        {param.label}
-                                      </label>
+                                      {param.type !== 'boolean' && (
+                                        <label className="block text-xs text-gray-600 mb-1 text-left">
+                                          {param.label}
+                                        </label>
+                                      )}
                                       {param.type === 'range' ? (
                                         <>
                                           <input
@@ -546,6 +554,28 @@ export function TransformerItem({
                                           className="w-full h-8 border border-gray-300 rounded"
                                           disabled={isDisabled}
                                         />
+                                      ) : param.type === 'boolean' ? (
+                                        <div className="flex items-center space-x-2">
+                                          <input
+                                            type="checkbox"
+                                            checked={
+                                              typeof parameters.visual[param.name] === 'boolean'
+                                                ? parameters.visual[param.name] as boolean
+                                                : (param.defaultValue as boolean)
+                                            }
+                                            onChange={(e) => {
+                                              handleVisualParameterChange(
+                                                param.name,
+                                                e.target.checked,
+                                              );
+                                            }}
+                                            className="text-xs"
+                                            disabled={isDisabled}
+                                          />
+                                          <span className="text-xs text-gray-600">
+                                            {param.label}
+                                          </span>
+                                        </div>
                                       ) : null}
                                     </div>
                                   );
@@ -564,8 +594,7 @@ export function TransformerItem({
                             transformer.visualParameters.filter((param) => {
                               return (
                                 param.type === 'select' ||
-                                param.type === 'number' ||
-                                param.type === 'boolean'
+                                param.type === 'number'
                               );
                             });
                           if (rightColumnParams.length > 0) {
@@ -623,24 +652,6 @@ export function TransformerItem({
                                             );
                                           }}
                                           className="w-full text-xs border border-gray-300 rounded px-2 py-1"
-                                          disabled={isDisabled}
-                                        />
-                                      ) : param.type === 'boolean' ? (
-                                        <input
-                                          type="checkbox"
-                                          checked={
-                                            (parameters.visual[
-                                              param.name
-                                            ] as boolean) ||
-                                            (param.defaultValue as boolean)
-                                          }
-                                          onChange={(e) => {
-                                            handleVisualParameterChange(
-                                              param.name,
-                                              e.target.checked,
-                                            );
-                                          }}
-                                          className="text-xs"
                                           disabled={isDisabled}
                                         />
                                       ) : null}
