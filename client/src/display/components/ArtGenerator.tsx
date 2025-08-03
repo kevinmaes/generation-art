@@ -5,6 +5,7 @@ import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { PipelineResult } from '../../transformers/pipeline';
 import { TRANSFORMERS } from '../../transformers/transformers';
+import { GenerationProgress } from './GenerationProgress';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -133,28 +134,7 @@ export function ArtGenerator({
         }}
       >
         {isVisualizing ? (
-          <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="text-gray-600 font-medium">Generating art...</p>
-            {pipelineProgress && (
-              <div className="flex flex-col items-center space-y-2">
-                <p className="text-sm text-gray-500">
-                  Step {pipelineProgress.current} of {pipelineProgress.total}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {pipelineProgress.transformerName}
-                </p>
-                <div className="w-48 bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${String((pipelineProgress.current / pipelineProgress.total) * 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          <GenerationProgress progress={pipelineProgress} />
         ) : (
           <button
             onClick={onVisualize}
@@ -184,28 +164,7 @@ export function ArtGenerator({
       />
       {isVisualizing && (
         <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="text-gray-600 font-medium">Generating art...</p>
-            {pipelineProgress && (
-              <div className="flex flex-col items-center space-y-2">
-                <p className="text-sm text-gray-500">
-                  Step {pipelineProgress.current} of {pipelineProgress.total}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {pipelineProgress.transformerName}
-                </p>
-                <div className="w-48 bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${String((pipelineProgress.current / pipelineProgress.total) * 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          <GenerationProgress progress={pipelineProgress} />
         </div>
       )}
     </div>
