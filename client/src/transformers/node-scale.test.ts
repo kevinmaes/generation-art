@@ -508,9 +508,9 @@ describe('nodeScaleTransform', () => {
         gedcomData: mockGedcomData,
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
-        dimensions: { 
+        dimensions: {
           // @ts-expect-error - Testing missing primary dimension
-          primary: undefined 
+          primary: undefined,
         },
         visual: { variationFactor: 0.1 },
         temperature: 0.0,
@@ -521,7 +521,7 @@ describe('nodeScaleTransform', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should still assign valid default scales (1, 1)
       expect(individuals.I1.width).toBe(1);
       expect(individuals.I1.height).toBe(1);
@@ -533,8 +533,8 @@ describe('nodeScaleTransform', () => {
         gedcomData: mockGedcomData,
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
-        dimensions: { 
-          primary: 'unknownDimension' 
+        dimensions: {
+          primary: 'unknownDimension',
         },
         visual: { variationFactor: 0.1 },
         temperature: 0.0,
@@ -545,7 +545,7 @@ describe('nodeScaleTransform', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should assign valid scales with default 0.5 value
       expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
       expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
@@ -558,9 +558,9 @@ describe('nodeScaleTransform', () => {
         gedcomData: mockGedcomData,
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
-        dimensions: { 
+        dimensions: {
           primary: 'lifespan',
-          secondary: 'unknownDimension' 
+          secondary: 'unknownDimension',
         },
         visual: { variationFactor: 0.1 },
         temperature: 0.0,
@@ -571,7 +571,7 @@ describe('nodeScaleTransform', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should assign valid scales
       expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
       expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
@@ -586,15 +586,15 @@ describe('nodeScaleTransform', () => {
         individuals: {
           I1: {
             id: 'I1',
-            name: '',  // Empty name for nameLength test
+            name: '', // Empty name for nameLength test
             parents: [],
             spouses: [],
             children: [],
             siblings: [],
             metadata: {
               generation: 1,
-              relativeGenerationValue: Number.NaN,  // NaN value
-              lifespan: undefined,  // Missing lifespan
+              relativeGenerationValue: Number.NaN, // NaN value
+              lifespan: undefined, // Missing lifespan
             },
           },
         },
@@ -603,9 +603,9 @@ describe('nodeScaleTransform', () => {
       const context: TransformerContext = {
         gedcomData: problematicData,
         llmData: mockLLMData,
-        visualMetadata: { 
-          ...mockVisualMetadata, 
-          individuals: { I1: { x: 100, y: 100 } } 
+        visualMetadata: {
+          ...mockVisualMetadata,
+          individuals: { I1: { x: 100, y: 100 } },
         },
         dimensions: { primary: 'generation', secondary: 'lifespan' },
         visual: { variationFactor: 0.1 },
@@ -617,7 +617,7 @@ describe('nodeScaleTransform', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should assign valid default scales
       expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
       expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
@@ -632,7 +632,7 @@ describe('nodeScaleTransform', () => {
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
         dimensions: { primary: 'lifespan' },
-        visual: { 
+        visual: {
           // variationFactor intentionally undefined
         },
         // temperature also undefined at context level
@@ -643,7 +643,7 @@ describe('nodeScaleTransform', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should still calculate valid scales using safe defaults
       expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
       expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
@@ -677,9 +677,9 @@ describe('nodeScaleTransform', () => {
       const context: TransformerContext = {
         gedcomData: emptyData,
         llmData: mockLLMData,
-        visualMetadata: { 
-          ...mockVisualMetadata, 
-          individuals: { I1: { x: 100, y: 100 } } 
+        visualMetadata: {
+          ...mockVisualMetadata,
+          individuals: { I1: { x: 100, y: 100 } },
         },
         dimensions: { primary: 'lifespan', secondary: 'marriageCount' },
         visual: { variationFactor: 0.1 },
@@ -691,7 +691,7 @@ describe('nodeScaleTransform', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // Should assign valid default scales despite missing data
       expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
       expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
@@ -706,10 +706,10 @@ describe('nodeScaleTransform', () => {
         llmData: mockLLMData,
         visualMetadata: mockVisualMetadata,
         dimensions: { primary: 'lifespan', secondary: 'generation' },
-        visual: { 
-          variationFactor: Number.NaN,  // NaN variation factor
+        visual: {
+          variationFactor: Number.NaN, // NaN variation factor
         },
-        temperature: Number.NaN,  // NaN temperature
+        temperature: Number.NaN, // NaN temperature
       };
 
       // Should not return NaN values even with NaN inputs
@@ -717,7 +717,7 @@ describe('nodeScaleTransform', () => {
 
       expect(result.visualMetadata.individuals).toBeDefined();
       const individuals = result.visualMetadata.individuals ?? {};
-      
+
       // All values should be finite numbers
       Object.values(individuals).forEach((individual) => {
         expect(Number.isFinite(individual.width)).toBe(true);
