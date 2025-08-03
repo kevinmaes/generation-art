@@ -256,17 +256,19 @@ function calculateCurveProperties(
   }
 
   // Calculate dimension-based intensity modifiers
-  let intensityModifier = 1.0;
+  let primaryValue = 0.5; // Default fallback for primary dimension
+  let secondaryValue = 0.5; // Default fallback for secondary dimension
 
-  // Primary dimension modifier
+  // Primary dimension calculation
   const primaryDimension = dimensions.primary;
   switch (primaryDimension) {
     case 'generation': {
       const sourceGen = sourceIndividual.metadata?.generation ?? 0;
       const targetGen = targetIndividual.metadata?.generation ?? 0;
       const genDistance = Math.abs(sourceGen - targetGen);
-      // More generations apart = more curve
-      intensityModifier *= Math.min(2.0, 1 + genDistance * 0.3);
+      const maxGenDistance = 5; // Assume max 5 generations apart
+      // More generations apart = higher value (more curve)
+      primaryValue = Math.min(1.0, genDistance / maxGenDistance);
       break;
     }
     case 'childrenCount': {
@@ -280,17 +282,76 @@ function calculateCurveProperties(
         child?.parents?.includes(targetIndividual.id),
       ).length;
       const totalChildren = sourceChildren + targetChildren;
-      // More children = less curve (straighter lines for clarity)
-      intensityModifier *= Math.max(0.3, 1 - totalChildren * 0.05);
+      const maxChildrenSum = 20; // Assume max 20 combined children
+      // More children = lower value (less curve for clarity)
+      primaryValue = Math.max(0.1, 1 - totalChildren / maxChildrenSum);
+      break;
+    }
+    case 'lifespan': {
+      const sourceLifespan = sourceIndividual.metadata?.lifespan ?? 0;
+      const targetLifespan = targetIndividual.metadata?.lifespan ?? 0;
+      const avgLifespan = (sourceLifespan + targetLifespan) / 2;
+      const maxLifespan = 100; // Assume max 100 years
+      primaryValue = Math.min(1.0, avgLifespan / maxLifespan);
       break;
     }
     case 'relationshipDensity': {
       if (edge.relationshipType === 'parent-child') {
-        intensityModifier *= 1.2; // More curve for important relationships
+        primaryValue = 1.0; // Strongest curves
       } else if (edge.relationshipType === 'spouse') {
-        intensityModifier *= 0.8; // Less curve for spouse relationships
+        primaryValue = 0.6; // Medium curves
+      } else {
+        primaryValue = 0.8; // Moderate curves (sibling or other)
       }
       break;
+    }
+  }
+
+  // Secondary dimension calculation (if specified)
+  const secondaryDimension = dimensions.secondary;
+  if (secondaryDimension && secondaryDimension !== primaryDimension) {
+    switch (secondaryDimension) {
+      case 'generation': {
+        const sourceGen = sourceIndividual.metadata?.generation ?? 0;
+        const targetGen = targetIndividual.metadata?.generation ?? 0;
+        const genDistance = Math.abs(sourceGen - targetGen);
+        const maxGenDistance = 5;
+        secondaryValue = Math.min(1.0, genDistance / maxGenDistance);
+        break;
+      }
+      case 'childrenCount': {
+        const allIndividuals = Object.values(gedcomData.individuals).filter(
+          (ind) => ind !== null && ind !== undefined,
+        );
+        const sourceChildren = allIndividuals.filter((child) =>
+          child?.parents?.includes(sourceIndividual.id),
+        ).length;
+        const targetChildren = allIndividuals.filter((child) =>
+          child?.parents?.includes(targetIndividual.id),
+        ).length;
+        const totalChildren = sourceChildren + targetChildren;
+        const maxChildrenSum = 20;
+        secondaryValue = Math.max(0.1, 1 - totalChildren / maxChildrenSum);
+        break;
+      }
+      case 'lifespan': {
+        const sourceLifespan = sourceIndividual.metadata?.lifespan ?? 0;
+        const targetLifespan = targetIndividual.metadata?.lifespan ?? 0;
+        const avgLifespan = (sourceLifespan + targetLifespan) / 2;
+        const maxLifespan = 100;
+        secondaryValue = Math.min(1.0, avgLifespan / maxLifespan);
+        break;
+      }
+      case 'relationshipDensity': {
+        if (edge.relationshipType === 'parent-child') {
+          secondaryValue = 1.0;
+        } else if (edge.relationshipType === 'spouse') {
+          secondaryValue = 0.6;
+        } else {
+          secondaryValue = 0.8; // sibling or other
+        }
+        break;
+      }
     }
   }
 
@@ -306,7 +367,16 @@ function calculateCurveProperties(
     ? strategyFn(start, end, nodeData)
     : { intensity: 0.5, direction: 1 };
 
-  const finalIntensity = baseIntensity * intensityModifier * strategyIntensity;
+  // Ensure no NaN values before combining
+  const safePrimaryValue = isNaN(primaryValue) ? 0.5 : primaryValue;
+  const safeSecondaryValue = isNaN(secondaryValue) ? 0.5 : secondaryValue;
+  const safeStrategyIntensity = isNaN(strategyIntensity) ? 0.5 : strategyIntensity;
+
+  // Combine primary and secondary dimensions (primary has more weight)
+  const combinedDimensionValue = safePrimaryValue * 0.7 + safeSecondaryValue * 0.3;
+
+  // Apply base intensity, dimension influence, and strategy
+  const finalIntensity = baseIntensity * combinedDimensionValue * safeStrategyIntensity;
 
   // Calculate control points if needed
   const calculator = CONTROL_POINT_CALCULATORS[actualCurveType];
