@@ -29,3 +29,6 @@ gedcom/*
 # Generated files derived from GEDCOM files
 generated/*
 client/public/generated/*
+
+# Test coverage reports
+coverage/
