@@ -1,0 +1,72 @@
+name: Quality - CLI
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  quality-cli:
+    name: CLI Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for relevant changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            cli:
+              - 'cli/**'
+              - 'shared/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'tsconfig*.json'
+              - 'eslint.config.js'
+
+      - name: Skip quality checks - no relevant changes
+        if: steps.changes.outputs.cli != 'true'
+        run: |
+          echo "✅ CLI quality checks skipped"
+          echo "No changes detected in CLI-related files for this PR"
+          echo "Changed paths don't require CLI quality validation"
+
+      - name: Setup pnpm
+        if: steps.changes.outputs.cli == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        if: steps.changes.outputs.cli == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        if: steps.changes.outputs.cli == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting (CLI)
+        if: steps.changes.outputs.cli == 'true'
+        run: pnpm format:check
+
+      - name: Run linting (CLI)
+        if: steps.changes.outputs.cli == 'true'
+        run: pnpm lint
+
+      - name: TypeScript Check (CLI)
+        if: steps.changes.outputs.cli == 'true'
+        run: pnpm typecheck
