@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:setup": "./scripts/setup-env.sh && pnpm dev",
     "build": "tsc && vite build",
     "build:gedcom": "tsx cli/import/build-gedcom.ts",
     "build:gedcom:reset": "rm -rf ./generated",

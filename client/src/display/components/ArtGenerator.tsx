@@ -19,6 +19,12 @@ interface ArtGeneratorProps {
   onExportReady?: (p5Instance: p5) => void;
   onPipelineResult?: (result: PipelineResult | null) => void;
   onVisualize?: () => void;
+  isVisualizing?: boolean;
+  pipelineProgress?: {
+    current: number;
+    total: number;
+    transformerName: string;
+  } | null;
 }
 
 export function ArtGenerator({
@@ -31,6 +37,8 @@ export function ArtGenerator({
   onExportReady,
   onPipelineResult,
   onVisualize,
+  isVisualizing = false,
+  pipelineProgress = null,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
@@ -124,23 +132,82 @@ export function ArtGenerator({
           height: `${String(height)}px`,
         }}
       >
-        <button
-          onClick={onVisualize}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-        >
-          Generate art
-        </button>
+        {isVisualizing ? (
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <p className="text-gray-600 font-medium">Generating art...</p>
+            {pipelineProgress && (
+              <div className="flex flex-col items-center space-y-2">
+                <p className="text-sm text-gray-500">
+                  Step {pipelineProgress.current} of {pipelineProgress.total}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {pipelineProgress.transformerName}
+                </p>
+                <div className="w-48 bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${String((pipelineProgress.current / pipelineProgress.total) * 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={onVisualize}
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Generate art
+          </button>
+        )}
       </div>
     );
   }
 
   return (
     <div
-      ref={containerRef}
+      className="relative"
       style={{
         width: `${String(width)}px`,
         height: `${String(height)}px`,
       }}
-    />
+    >
+      <div
+        ref={containerRef}
+        style={{
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
+        }}
+      />
+      {isVisualizing && (
+        <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <p className="text-gray-600 font-medium">Generating art...</p>
+            {pipelineProgress && (
+              <div className="flex flex-col items-center space-y-2">
+                <p className="text-sm text-gray-500">
+                  Step {pipelineProgress.current} of {pipelineProgress.total}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {pipelineProgress.transformerName}
+                </p>
+                <div className="w-48 bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${String((pipelineProgress.current / pipelineProgress.total) * 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
