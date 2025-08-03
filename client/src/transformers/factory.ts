@@ -27,7 +27,7 @@ export function createTransformer(
   availableDimensions: DimensionId[],
   defaultPrimaryDimension: DimensionId,
   visualParameters: VisualParameterId[],
-  createRuntimeTransformerFunction: VisualTransformerConfig['createRuntimeTransformerFunction'],
+  createTransformerInstance: VisualTransformerConfig['createTransformerInstance'],
   options?: {
     defaultSecondaryDimension?: DimensionId;
     categories?: string[];
@@ -56,7 +56,7 @@ export function createTransformer(
         options: param.options,
       };
     }),
-    createRuntimeTransformerFunction,
+    createTransformerInstance,
     categories: options?.categories,
     requiresLLM: options?.requiresLLM ?? false,
   };
@@ -75,7 +75,7 @@ export function createSimpleTransformer(
   availableDimensions: DimensionId[],
   defaultPrimaryDimension: DimensionId,
   visualParameters: VisualParameterId[],
-  createRuntimeTransformerFunction: VisualTransformerConfig['createRuntimeTransformerFunction'],
+  createTransformerInstance: VisualTransformerConfig['createTransformerInstance'],
   options?: {
     defaultSecondaryDimension?: DimensionId;
     categories?: string[];
@@ -101,7 +101,7 @@ export function createSimpleTransformer(
     availableDimensions,
     defaultPrimaryDimension,
     visualParameters,
-    createRuntimeTransformerFunction,
+    createTransformerInstance,
     options,
   );
 }
@@ -117,7 +117,7 @@ export function createMergingTransformer(
   availableDimensions: DimensionId[],
   defaultPrimaryDimension: DimensionId,
   visualParameters: VisualParameterId[],
-  createRuntimeTransformerFunction: VisualTransformerConfig['createRuntimeTransformerFunction'],
+  createTransformerInstance: VisualTransformerConfig['createTransformerInstance'],
   options?: {
     defaultSecondaryDimension?: DimensionId;
     categories?: string[];
@@ -143,7 +143,7 @@ export function createMergingTransformer(
     availableDimensions,
     defaultPrimaryDimension,
     visualParameters,
-    createRuntimeTransformerFunction,
+    createTransformerInstance,
     options,
   );
 }
@@ -159,7 +159,7 @@ export function createReplacingTransformer(
   availableDimensions: DimensionId[],
   defaultPrimaryDimension: DimensionId,
   visualParameters: VisualParameterId[],
-  createRuntimeTransformerFunction: VisualTransformerConfig['createRuntimeTransformerFunction'],
+  createTransformerInstance: VisualTransformerConfig['createTransformerInstance'],
   options?: {
     defaultSecondaryDimension?: DimensionId;
     categories?: string[];
@@ -182,7 +182,7 @@ export function createReplacingTransformer(
     availableDimensions,
     defaultPrimaryDimension,
     visualParameters,
-    createRuntimeTransformerFunction,
+    createTransformerInstance,
     options,
   );
 }
@@ -224,10 +224,8 @@ export function validateTransformer(transformer: VisualTransformerConfig): {
     errors.push('Transformer must have at least one visual parameter');
   }
 
-  if (typeof transformer.createRuntimeTransformerFunction !== 'function') {
-    errors.push(
-      'Transformer must have a valid createRuntimeTransformerFunction',
-    );
+  if (typeof transformer.createTransformerInstance !== 'function') {
+    errors.push('Transformer must have a valid createTransformerInstance');
   }
 
   return {

@@ -15,7 +15,7 @@ import type {
   VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
-import { createRuntimeTransformerFunction } from './utils';
+import { createTransformerInstance } from './utils';
 
 /**
  * Configuration for the node opacity transformer
@@ -48,8 +48,8 @@ export const nodeOpacityConfig: VisualTransformerConfig = {
       step: 0.1,
     },
   ],
-  createRuntimeTransformerFunction: (params) =>
-    createRuntimeTransformerFunction(params, nodeOpacityTransform),
+  createTransformerInstance: (params) =>
+    createTransformerInstance(params, nodeOpacityTransform),
 };
 
 /**

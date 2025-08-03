@@ -12,7 +12,7 @@ import type {
   VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
-import { createRuntimeTransformerFunction } from './utils';
+import { createTransformerInstance } from './utils';
 
 /**
  * Configuration for the horizontal spread transformer
@@ -86,8 +86,8 @@ export const horizontalSpreadConfig: VisualTransformerConfig = {
     primaryColor: '#4A90E2',
     spacing: 'normal',
   }),
-  createRuntimeTransformerFunction: (params) =>
-    createRuntimeTransformerFunction(params, horizontalSpreadTransform, [
+  createTransformerInstance: (params) =>
+    createTransformerInstance(params, horizontalSpreadTransform, [
       { name: 'horizontalPadding', defaultValue: 80 },
       { name: 'nodeSize', defaultValue: 'medium' },
       { name: 'primaryColor', defaultValue: '#4A90E2' },

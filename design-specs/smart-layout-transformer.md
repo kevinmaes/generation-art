@@ -717,7 +717,7 @@ export const smartLayoutTransformer: VisualTransformerConfig = {
     edgeStyleParameter,
   ],
 
-  createRuntimeTransformerFunction: (params) => {
+  createTransformerInstance: (params) => {
     return async (context: TransformerContext) => {
       // 1. Extract layout parameters
       // 2. Build LLM request from llmData
