@@ -64,6 +64,7 @@ const CURVE_RENDERERS: Record<string, CurveDrawFn> = {
       const cp2x = end.x + (2/3) * (cp.x - end.x);
       const cp2y = end.y + (2/3) * (cp.y - end.y);
       
+      p.noFill();
       p.bezier(start.x, start.y, cp1x, cp1y, cp2x, cp2y, end.x, end.y);
     } else {
       // Fallback to straight line
@@ -75,6 +76,7 @@ const CURVE_RENDERERS: Record<string, CurveDrawFn> = {
     const controlPoints = metadata.controlPoints ?? [];
     if (controlPoints.length >= 2) {
       const [cp1, cp2] = controlPoints;
+      p.noFill();
       p.bezier(start.x, start.y, cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
     } else {
       // Fallback to straight line
@@ -117,6 +119,7 @@ const CURVE_RENDERERS: Record<string, CurveDrawFn> = {
       y: end.y + Math.sin(angle2 - Math.PI / 2) * radius * 0.552,
     };
 
+    p.noFill();
     p.bezier(start.x, start.y, cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
   },
 
@@ -143,6 +146,7 @@ const CURVE_RENDERERS: Record<string, CurveDrawFn> = {
       y: start.y + dy * 0.75 - intensity * 50,
     };
 
+    p.noFill();
     p.bezier(start.x, start.y, cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
   },
 
