@@ -12,8 +12,45 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
+import { createRuntimeTransformerFunction } from './utils';
+
+/**
+ * Configuration for the node opacity transformer
+ */
+export const nodeOpacityConfig: VisualTransformerConfig = {
+  id: 'node-opacity',
+  name: 'Node Opacity',
+  description:
+    'Creates sophisticated transparency effects by analyzing family relationships, generational depth, and genealogical significance patterns.',
+  shortDescription: 'Controls node transparency by generation or children',
+  transform: nodeOpacityTransform,
+  categories: ['visual', 'opacity'],
+  availableDimensions: [
+    'generation',
+    'childrenCount',
+    'lifespan',
+    'distanceFromRoot',
+  ],
+  defaultPrimaryDimension: 'generation',
+  defaultSecondaryDimension: 'childrenCount',
+  visualParameters: [
+    {
+      name: 'nodeOpacity',
+      type: 'range',
+      defaultValue: 0.9,
+      label: 'Node Opacity',
+      description: 'Opacity of individual nodes',
+      min: 0.1,
+      max: 1.0,
+      step: 0.1,
+    },
+  ],
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, nodeOpacityTransform),
+};
 
 /**
  * Calculate node opacity based on selected dimensions

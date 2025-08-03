@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  transformers,
+  transformerConfigs,
   getTransformer,
   getAllTransformers,
   getTransformersByCategory,
@@ -12,13 +12,13 @@ import type { VisualParameterValues } from './visual-parameters';
 import { initialEntityVisualMetadata } from './pipeline';
 
 describe('Transformers Registry', () => {
-  it('should export transformers object', () => {
-    expect(transformers).toBeDefined();
-    expect(typeof transformers).toBe('object');
+  it('should export transformerConfigs object', () => {
+    expect(transformerConfigs).toBeDefined();
+    expect(typeof transformerConfigs).toBe('object');
   });
 
   it('should have horizontal spread transformer', () => {
-    const transformer = transformers['horizontal-spread'];
+    const transformer = transformerConfigs['horizontal-spread'];
     expect(transformer).toBeDefined();
     expect(transformer.id).toBe('horizontal-spread');
     expect(transformer.name).toBe('Horizontal Spread');

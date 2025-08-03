@@ -9,8 +9,36 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import { getIndividualSafe } from './utils/safe-access';
+import { createRuntimeTransformerFunction } from './utils';
+
+/**
+ * Configuration for the node shape transformer
+ */
+export const nodeShapeConfig: VisualTransformerConfig = {
+  id: 'node-shape',
+  name: 'Node Shape',
+  description:
+    'Uses sophisticated algorithms to map genealogical patterns to geometric forms, creating meaningful visual distinctions across family structures.',
+  shortDescription: 'Changes node shapes based on generation or metadata',
+  transform: nodeShapeTransform,
+  categories: ['visual', 'shape'],
+  availableDimensions: [
+    'generation',
+    'childrenCount',
+    'lifespan',
+    'marriageCount',
+    'birthYear',
+    'nameLength',
+  ],
+  defaultPrimaryDimension: 'generation',
+  defaultSecondaryDimension: 'childrenCount',
+  visualParameters: [],
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, nodeShapeTransform),
+};
 
 /**
  * Available node shapes
