@@ -34,6 +34,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `pnpm build` - Production build (runs typecheck + vite build)
 
+### Local CI Testing
+
+- `pnpm ci:local` - Test main app quality and unit test workflows locally
+- `pnpm ci:local:quality` - Test all quality check workflows (app, cli, shared)
+- `pnpm ci:local:tests` - Test all unit test workflows (app, cli, shared)
+- `pnpm ci:local:all` - Test all GitHub Actions workflows locally
+
+Use `--list` flag to see which workflows would run: `pnpm ci:local:quality --list`
+
+## CI/CD Workflows
+
+The following GitHub Actions workflows automatically run on pull requests to `dev`:
+
+### Quality Checks
+- **App Quality** (`quality-app.yml`) - ESLint, Prettier, TypeScript for client code
+- **CLI Quality** (`quality-cli.yml`) - ESLint, Prettier, TypeScript for CLI code  
+- **Shared Quality** (`quality-shared.yml`) - ESLint, Prettier, TypeScript for shared code
+
+### Unit Tests
+- **App Tests** (`test-unit-app.yml`) - Unit tests with coverage for client code
+- **CLI Tests** (`test-unit-cli.yml`) - Unit tests with coverage for CLI code
+- **Shared Tests** (`test-unit-shared.yml`) - Unit tests with coverage for shared code
+
+### Auto-Fix
+- **Fix Formatting** (`fix-formatting.yml`) - Automatically fixes formatting/linting issues and commits back to PR
+
+All workflows use smart path filtering to only run when relevant files change, and coverage reports are sent to Codecov.
+
 ## Architecture
 
 This is a privacy-focused generative art application that transforms GEDCOM (genealogy) files into artwork using a 3-stage pipeline:
