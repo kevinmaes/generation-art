@@ -26,7 +26,7 @@
     "test:coverage": "vitest run --coverage",
     "task:parse": "tsx src/tasks/parseGedcom.ts",
     "task:output": "tsx src/tasks/outputJson.ts",
-    "prepare": "husky",
+    "prepare": "npx husky",
     "ci:local": "act --workflows .github/workflows/quality-app.yml --workflows .github/workflows/test-unit-app.yml",
     "ci:local:quality": "act --workflows .github/workflows/quality-app.yml --workflows .github/workflows/quality-cli.yml --workflows .github/workflows/quality-shared.yml",
     "ci:local:tests": "act --workflows .github/workflows/test-unit-app.yml --workflows .github/workflows/test-unit-cli.yml --workflows .github/workflows/test-unit-shared.yml",
