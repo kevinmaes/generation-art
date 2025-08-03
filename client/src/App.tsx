@@ -11,7 +11,10 @@ import {
   createSimplePipeline,
   PIPELINE_DEFAULTS,
 } from './transformers/pipeline';
-import { transformerConfigs, type TransformerId } from './transformers/transformers';
+import {
+  transformerConfigs,
+  type TransformerId,
+} from './transformers/transformers';
 import type { VisualParameterValues } from './transformers/visual-parameters';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
