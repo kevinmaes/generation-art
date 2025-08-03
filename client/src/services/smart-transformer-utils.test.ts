@@ -4,6 +4,10 @@
  * Comprehensive tests for all utility functions in smart-transformer-utils.ts
  */
 
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
 import {
@@ -74,6 +78,7 @@ const mockVisualMetadata = {
   },
 };
 
+// @ts-expect-error - Test mock data doesn't match exact type requirements
 const mockLLMData = {
   individuals: {
     person1: {

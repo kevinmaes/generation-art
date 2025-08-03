@@ -21,6 +21,14 @@ function calculateNodeSize(
 ): number {
   const { gedcomData, dimensions, visual, temperature } = context;
 
+  // Validate required context properties
+  if (!dimensions || !visual) {
+    console.warn(
+      `Node size transformer: Missing required context properties for individual ${individualId}`,
+    );
+    return 15; // Return default size
+  }
+
   // Find the individual with null check
   const individual = getIndividualOrWarn(
     gedcomData,
@@ -47,7 +55,8 @@ function calculateNodeSize(
         );
         return children.length;
       });
-      const maxChildren = Math.max(...childrenCounts);
+      const maxChildren =
+        childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
       const individualChildren = allIndividuals.filter((child) =>
         child?.parents?.includes(individual.id),
       ).length;
@@ -60,7 +69,8 @@ function calculateNodeSize(
         .map((ind) => ind.metadata?.lifespan)
         .filter((span): span is number => span !== undefined);
       if (allLifespans.length > 0) {
-        const maxLifespan = Math.max(...allLifespans);
+        const maxLifespan =
+          allLifespans.length > 0 ? Math.max(...allLifespans) : 1;
         primaryValue =
           maxLifespan > 0
             ? (individual.metadata?.lifespan ?? 0) / maxLifespan
@@ -93,10 +103,17 @@ function calculateNodeSize(
               family.husband?.id === ind.id || family.wife?.id === ind.id,
           ).length;
         });
-      const maxMarriages = Math.max(...allMarriageCounts);
+      const maxMarriages =
+        allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
       primaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
       break;
     }
+    default:
+      console.warn(
+        `Node size transformer: Unknown primary dimension '${primaryDimension}' for individual ${individualId}, using default`,
+      );
+      primaryValue = 0.5;
+      break;
   }
 
   // Get the secondary dimension value (if specified)
@@ -115,7 +132,8 @@ function calculateNodeSize(
           );
           return children.length;
         });
-        const maxChildren = Math.max(...childrenCounts);
+        const maxChildren =
+          childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
         const individualChildren = allIndividuals.filter((child) =>
           child?.parents?.includes(individual.id),
         ).length;
@@ -129,7 +147,8 @@ function calculateNodeSize(
           .map((ind) => ind.metadata?.lifespan)
           .filter((span): span is number => span !== undefined);
         if (allLifespans.length > 0) {
-          const maxLifespan = Math.max(...allLifespans);
+          const maxLifespan =
+            allLifespans.length > 0 ? Math.max(...allLifespans) : 1;
           secondaryValue =
             maxLifespan > 0
               ? (individual.metadata?.lifespan ?? 0) / maxLifespan
@@ -160,16 +179,30 @@ function calculateNodeSize(
                 family.husband?.id === ind.id || family.wife?.id === ind.id,
             ).length;
           });
-        const maxMarriages = Math.max(...allMarriageCounts);
+        const maxMarriages =
+          allMarriageCounts.length > 0 ? Math.max(...allMarriageCounts) : 0;
         secondaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
         break;
       }
+      default:
+        console.warn(
+          `Node size transformer: Unknown secondary dimension '${secondaryDimension}' for individual ${individualId}, using default`,
+        );
+        secondaryValue = 0.5;
+        break;
     }
   }
 
   // Get visual parameters directly from context
   const { nodeSize, variationFactor } = visual;
-  const temp = temperature ?? 0.5;
+  const temp =
+    temperature !== undefined && Number.isFinite(temperature)
+      ? temperature
+      : 0.5;
+  const safeVariationFactor =
+    variationFactor !== undefined && Number.isFinite(variationFactor as number)
+      ? (variationFactor as number)
+      : 0.5;
 
   // Convert node size string to base size values
   const sizeMap = {
@@ -177,16 +210,25 @@ function calculateNodeSize(
     medium: { min: 15, max: 35 },
     large: { min: 25, max: 50 },
     'extra-large': { min: 35, max: 70 },
-  };
-  const sizeRange = sizeMap[nodeSize as keyof typeof sizeMap];
+  } as const;
+
+  // Validate nodeSize and provide default
+  const isValidSize = typeof nodeSize === 'string' && nodeSize in sizeMap;
+  const validNodeSize = isValidSize ? nodeSize : 'medium';
+  const sizeRange = sizeMap[validNodeSize as keyof typeof sizeMap];
+
+  if (!isValidSize) {
+    console.warn(
+      `Node size transformer: Invalid nodeSize '${String(nodeSize)}' for individual ${individualId}, using 'medium'`,
+    );
+  }
 
   // Combine primary and secondary dimensions with variation factor
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
 
   // Add temperature-based randomness with variation factor influence
   const baseRandomness = (Math.random() - 0.5) * temp * 0.3; // ±15% max variation
-  const variationRandomness =
-    (Math.random() - 0.5) * (variationFactor as number) * 0.2; // Additional variation
+  const variationRandomness = (Math.random() - 0.5) * safeVariationFactor * 0.2; // Additional variation
   const totalRandomFactor = baseRandomness + variationRandomness;
 
   const adjustedDimensionValue = Math.max(

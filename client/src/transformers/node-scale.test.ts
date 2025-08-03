@@ -501,4 +501,233 @@ describe('nodeScaleTransform', () => {
     expect(individuals.I1.width).toBeDefined();
     expect(individuals.I3.width!).toBeGreaterThanOrEqual(individuals.I1.width!);
   });
+
+  describe('Bug fix tests - Edge cases and validation', () => {
+    it('should handle missing primary dimension gracefully', async () => {
+      const context: TransformerContext = {
+        gedcomData: mockGedcomData,
+        llmData: mockLLMData,
+        visualMetadata: mockVisualMetadata,
+        dimensions: { 
+          // @ts-expect-error - Testing missing primary dimension
+          primary: undefined 
+        },
+        visual: { variationFactor: 0.1 },
+        temperature: 0.0,
+      };
+
+      // Should not throw an error and should use default scale
+      const result = await nodeScaleTransform(context);
+
+      expect(result.visualMetadata.individuals).toBeDefined();
+      const individuals = result.visualMetadata.individuals ?? {};
+      
+      // Should still assign valid default scales (1, 1)
+      expect(individuals.I1.width).toBe(1);
+      expect(individuals.I1.height).toBe(1);
+      expect(individuals.I1.scale).toBe(1);
+    });
+
+    it('should handle unknown primary dimension', async () => {
+      const context: TransformerContext = {
+        gedcomData: mockGedcomData,
+        llmData: mockLLMData,
+        visualMetadata: mockVisualMetadata,
+        dimensions: { 
+          primary: 'unknownDimension' 
+        },
+        visual: { variationFactor: 0.1 },
+        temperature: 0.0,
+      };
+
+      // Should not throw an error and should use default value (0.5)
+      const result = await nodeScaleTransform(context);
+
+      expect(result.visualMetadata.individuals).toBeDefined();
+      const individuals = result.visualMetadata.individuals ?? {};
+      
+      // Should assign valid scales with default 0.5 value
+      expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
+      expect(individuals.I1.height).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.height).toBeLessThanOrEqual(2.0);
+    });
+
+    it('should handle unknown secondary dimension', async () => {
+      const context: TransformerContext = {
+        gedcomData: mockGedcomData,
+        llmData: mockLLMData,
+        visualMetadata: mockVisualMetadata,
+        dimensions: { 
+          primary: 'lifespan',
+          secondary: 'unknownDimension' 
+        },
+        visual: { variationFactor: 0.1 },
+        temperature: 0.0,
+      };
+
+      // Should not throw an error and should use default secondary value (0.5)
+      const result = await nodeScaleTransform(context);
+
+      expect(result.visualMetadata.individuals).toBeDefined();
+      const individuals = result.visualMetadata.individuals ?? {};
+      
+      // Should assign valid scales
+      expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
+      expect(individuals.I1.height).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.height).toBeLessThanOrEqual(2.0);
+    });
+
+    it('should handle invalid calculated values and use defaults', async () => {
+      // Create data that could cause division by zero or NaN
+      const problematicData = {
+        ...mockGedcomData,
+        individuals: {
+          I1: {
+            id: 'I1',
+            name: '',  // Empty name for nameLength test
+            parents: [],
+            spouses: [],
+            children: [],
+            siblings: [],
+            metadata: {
+              generation: 1,
+              relativeGenerationValue: Number.NaN,  // NaN value
+              lifespan: undefined,  // Missing lifespan
+            },
+          },
+        },
+      };
+
+      const context: TransformerContext = {
+        gedcomData: problematicData,
+        llmData: mockLLMData,
+        visualMetadata: { 
+          ...mockVisualMetadata, 
+          individuals: { I1: { x: 100, y: 100 } } 
+        },
+        dimensions: { primary: 'generation', secondary: 'lifespan' },
+        visual: { variationFactor: 0.1 },
+        temperature: 0.0,
+      };
+
+      // Should not throw an error and should use safe defaults
+      const result = await nodeScaleTransform(context);
+
+      expect(result.visualMetadata.individuals).toBeDefined();
+      const individuals = result.visualMetadata.individuals ?? {};
+      
+      // Should assign valid default scales
+      expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
+      expect(individuals.I1.height).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.height).toBeLessThanOrEqual(2.0);
+      expect(Number.isFinite(individuals.I1.scale!)).toBe(true);
+    });
+
+    it('should handle undefined temperature and variationFactor', async () => {
+      const context: TransformerContext = {
+        gedcomData: mockGedcomData,
+        llmData: mockLLMData,
+        visualMetadata: mockVisualMetadata,
+        dimensions: { primary: 'lifespan' },
+        visual: { 
+          // variationFactor intentionally undefined
+        },
+        // temperature also undefined at context level
+      };
+
+      // Should not throw an error with undefined temperature/variationFactor
+      const result = await nodeScaleTransform(context);
+
+      expect(result.visualMetadata.individuals).toBeDefined();
+      const individuals = result.visualMetadata.individuals ?? {};
+      
+      // Should still calculate valid scales using safe defaults
+      expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
+      expect(individuals.I1.height).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.height).toBeLessThanOrEqual(2.0);
+      expect(Number.isFinite(individuals.I1.scale!)).toBe(true);
+    });
+
+    it('should handle empty arrays in calculations without throwing errors', async () => {
+      // Test data with no valid values for various dimensions
+      const emptyData = {
+        ...mockGedcomData,
+        individuals: {
+          I1: {
+            id: 'I1',
+            name: 'Test Individual',
+            parents: [],
+            spouses: [],
+            children: [],
+            siblings: [],
+            metadata: {
+              generation: 1,
+              relativeGenerationValue: 0.5,
+              // No lifespan or birthYear data
+            },
+          },
+        },
+        families: {}, // No families for marriage count
+      };
+
+      const context: TransformerContext = {
+        gedcomData: emptyData,
+        llmData: mockLLMData,
+        visualMetadata: { 
+          ...mockVisualMetadata, 
+          individuals: { I1: { x: 100, y: 100 } } 
+        },
+        dimensions: { primary: 'lifespan', secondary: 'marriageCount' },
+        visual: { variationFactor: 0.1 },
+        temperature: 0.0,
+      };
+
+      // Should not throw errors when arrays are empty (no lifespans, no marriages)
+      const result = await nodeScaleTransform(context);
+
+      expect(result.visualMetadata.individuals).toBeDefined();
+      const individuals = result.visualMetadata.individuals ?? {};
+      
+      // Should assign valid default scales despite missing data
+      expect(individuals.I1.width).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.width).toBeLessThanOrEqual(2.0);
+      expect(individuals.I1.height).toBeGreaterThanOrEqual(0.5);
+      expect(individuals.I1.height).toBeLessThanOrEqual(2.0);
+      expect(Number.isFinite(individuals.I1.scale!)).toBe(true);
+    });
+
+    it('should never return NaN values even with extreme inputs', async () => {
+      const context: TransformerContext = {
+        gedcomData: mockGedcomData,
+        llmData: mockLLMData,
+        visualMetadata: mockVisualMetadata,
+        dimensions: { primary: 'lifespan', secondary: 'generation' },
+        visual: { 
+          variationFactor: Number.NaN,  // NaN variation factor
+        },
+        temperature: Number.NaN,  // NaN temperature
+      };
+
+      // Should not return NaN values even with NaN inputs
+      const result = await nodeScaleTransform(context);
+
+      expect(result.visualMetadata.individuals).toBeDefined();
+      const individuals = result.visualMetadata.individuals ?? {};
+      
+      // All values should be finite numbers
+      Object.values(individuals).forEach((individual) => {
+        expect(Number.isFinite(individual.width)).toBe(true);
+        expect(Number.isFinite(individual.height)).toBe(true);
+        expect(Number.isFinite(individual.scale)).toBe(true);
+        expect(individual.width).toBeGreaterThanOrEqual(0.5);
+        expect(individual.width).toBeLessThanOrEqual(2.0);
+        expect(individual.height).toBeGreaterThanOrEqual(0.5);
+        expect(individual.height).toBeLessThanOrEqual(2.0);
+      });
+    });
+  });
 });

@@ -5,6 +5,10 @@
  * rate limiting, error handling, and transformer execution
  */
 
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { z } from 'zod';
 import {
@@ -33,7 +37,7 @@ vi.mock('./llm-service', () => ({
       provider: 'openai',
       model: 'gpt-4',
     })),
-    handleLLMError: vi.fn((error: any) => ({
+    handleLLMError: vi.fn((error: Error) => ({
       message: `Handled: ${error.message}`,
     })),
   },
@@ -43,7 +47,9 @@ vi.mock('./llm-service', () => ({
 import { generateObject } from 'ai';
 import { llmService } from './llm-service';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockGenerateObject = generateObject as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockLLMService = llmService as any;
 
 // Test schema
