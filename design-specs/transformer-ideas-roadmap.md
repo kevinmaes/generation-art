@@ -4,45 +4,62 @@ This document tracks transformer ideas organized by complexity and category. We'
 
 ## Transformer Categories
 
-- **Low-Level**: Basic visual attributes (shapes, colors, lines, positions)
-- **Mid-Level**: Layout and arrangement patterns
-- **High-Level**: Complex visual metaphors and data-driven layouts
-- **Experimental**: Advanced concepts for future exploration
+### Primary Categories (What it affects)
+- **Node Style**: Affects individual node appearance (shape, color, size, opacity)
+- **Edge Style**: Affects connection line appearance (curve, thickness, style)
+- **Layout**: Affects positioning and arrangement of elements
+- **Effects**: Adds visual effects and artistic treatments
+- **Metaphor**: Creates complex visual representations
+
+### Secondary Categories (How it works)
+- **Data-Driven**: Uses genealogy data to determine visual properties
+- **Artistic**: Adds aesthetic effects independent of data
+- **LLM-Enhanced**: Uses AI for intelligent decisions
+- **Mathematical**: Uses algorithms/formulas for positioning
 
 ## Transformer Ideas Table
 
-| Name                                     | Category     | Description                                                                                                                                | LLM Integration | Priority | Custom Parameters                                          |
-| ---------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | -------- | ---------------------------------------------------------- |
-| **Color Palette Transformer**            | Low-Level    | Assigns colors to nodes based on criteria like generation, birth decade, or family branch                                                  | ✅              | 🔥 High  | colorScheme, paletteType, saturationRange, brightnessRange |
-| **Node Shape Transformer**               | Low-Level    | Determines the shape of individual nodes (circle, square, triangle, star, etc.) based on metadata like gender, birth order, or generation  | ❌              | 🔥 High  | ✅                                                         |
-| **Edge Style Transformer**               | Low-Level    | Controls line style for graph edges (solid, dashed, dotted, thickness, color) based on relationship type (parent-child, sibling, marriage) | ❌              | 🔥 High  | ✅                                                         |
-| **Node Size Transformer**                | Low-Level    | Controls the size of nodes based on metadata like number of children, age at death, or importance metrics                                  | ❌              | 🔥 High  | ✅                                                         |
-| **Position Grid Transformer**            | Mid-Level    | Arranges nodes in a regular grid pattern with configurable spacing and alignment                                                           | ❌              | 🔥 High  | ✅                                                         |
-| **Circular Layout Transformer**          | Mid-Level    | Places nodes in concentric circles with generations radiating outward from center                                                          | ❌              | 🔥 High  | ✅                                                         |
-| **Force-Directed Layout Transformer**    | Mid-Level    | Uses physics simulation to position nodes with attractive/repulsive forces based on relationships                                          | ❌              | 🔥 High  | ✅                                                         |
-| **Timeline Layout Transformer**          | Mid-Level    | Arranges nodes along a horizontal timeline based on birth/death dates                                                                      | ❌              | 🔥 High  | ✅                                                         |
-| **Geographic Layout Transformer**        | High-Level   | Positions nodes as if plotting birth locations on a world map, creating geographic visualizations                                          | ✅              | 🔥 High  | ✅                                                         |
-| **Family Tree Metaphor Transformer**     | High-Level   | Uses organic tree-like structures with branches, leaves, and roots representing family relationships                                       | ✅              | 🔥 High  | ✅                                                         |
-| **Spiral Layout Transformer**            | High-Level   | Arranges nodes in spiral patterns, useful for large families or recursive structures                                                       | ❌              | 🔥 High  | ✅                                                         |
-| **Cluster Layout Transformer**           | High-Level   | Groups related individuals into visual clusters with clear boundaries                                                                      | ❌              | 🔥 High  | ✅                                                         |
-| **Seasonal Color Transformer**           | Low-Level    | Assigns colors based on birth seasons or months, creating seasonal themes                                                                  | ❌              | 🔥 High  | ✅                                                         |
-| **Generation Opacity Transformer**       | Low-Level    | Controls transparency of nodes based on generation depth or distance from root                                                             | ❌              | 🔥 High  | ✅                                                         |
-| **Relationship Line Weight Transformer** | Low-Level    | Adjusts line thickness based on relationship strength or type                                                                              | ❌              | 🔥 High  | ✅                                                         |
-| **Node Border Style Transformer**        | Low-Level    | Adds borders, patterns, or textures to nodes based on metadata                                                                             | ❌              | 🔥 High  | ✅                                                         |
-| **Radial Layout Transformer**            | Mid-Level    | Places nodes in radial patterns from a central ancestor                                                                                    | ❌              | 🔥 High  | ✅                                                         |
-| **Hierarchical Layout Transformer**      | Mid-Level    | Creates traditional top-down family tree layouts with clear hierarchy                                                                      | ❌              | 🔥 High  | ✅                                                         |
-| **Organic Growth Transformer**           | High-Level   | Simulates organic growth patterns like tree branches or coral structures                                                                   | ✅              | 🔥 High  | ✅                                                         |
-| **Historical Timeline Transformer**      | High-Level   | Creates visual timelines that incorporate historical events and family milestones                                                          | ✅              | 🔥 High  | ✅                                                         |
-| **DNA Helix Transformer**                | Experimental | Arranges nodes in double-helix patterns representing genetic inheritance                                                                   | ❌              | 🔥 High  | ✅                                                         |
-| **Constellation Transformer**            | Experimental | Creates star-like patterns connecting family members as constellations                                                                     | ✅              | 🔥 High  | ✅                                                         |
-| **River Flow Transformer**               | Experimental | Uses river-like flowing patterns to show family lineage and branching                                                                      | ✅              | 🔥 High  | ✅                                                         |
-| **Mosaic Pattern Transformer**           | Experimental | Creates tile-like patterns where each family member is a unique tile                                                                       | ❌              | 🔥 High  | ✅                                                         |
-| **Fractal Tree Transformer**             | Experimental | Uses fractal mathematics to create self-similar branching patterns                                                                         | ❌              | 🔥 High  | ✅                                                         |
-| **Seasonal Growth Transformer**          | High-Level   | Simulates seasonal growth cycles with nodes appearing as leaves, flowers, or fruits                                                        | ✅              | 🔥 High  | ✅                                                         |
-| **Migration Path Transformer**           | High-Level   | Shows family migration patterns with connecting paths and geographic markers                                                               | ✅              | 🔥 High  | ✅                                                         |
-| **Cultural Symbol Transformer**          | Low-Level    | Uses cultural symbols or icons for nodes based on ethnicity or cultural background                                                         | ✅              | 🔥 High  | ✅                                                         |
-| **Life Event Marker Transformer**        | Low-Level    | Adds visual markers for significant life events (marriage, death, immigration)                                                             | ❌              | 🔥 High  | ✅                                                         |
-| **Family Crest Transformer**             | Experimental | Creates heraldic-style visualizations with family crests and coats of arms                                                                 | ✅              | 🔥 High  | ✅                                                         |
+| Name                                     | Primary Category | Secondary Category | Description                                                                                                                                | LLM | Priority | Custom Parameters                                          |
+| ---------------------------------------- | ---------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | --- | -------- | ---------------------------------------------------------- |
+| **Color Palette Transformer**            | Node Style       | Data-Driven        | Assigns colors to nodes based on criteria like generation, birth decade, or family branch                                                  | ✅  | 🔥 High  | colorScheme, paletteType, saturationRange, brightnessRange |
+| **Node Shape Transformer**               | Node Style       | Data-Driven        | Determines the shape of individual nodes (circle, square, triangle, star, etc.) based on metadata like gender, birth order, or generation  | ❌  | 🔥 High  | ✅                                                         |
+| **Edge Style Transformer**               | Edge Style       | Data-Driven        | Controls line style for graph edges (solid, dashed, dotted, thickness, color) based on relationship type (parent-child, sibling, marriage) | ❌  | 🔥 High  | ✅                                                         |
+| **Node Size Transformer**                | Node Style       | Data-Driven        | Controls the size of nodes based on metadata like number of children, age at death, or importance metrics                                  | ❌  | 🔥 High  | ✅                                                         |
+| **Position Grid Transformer**            | Layout           | Mathematical       | Arranges nodes in a regular grid pattern with configurable spacing and alignment                                                           | ❌  | 🔥 High  | ✅                                                         |
+| **Circular Layout Transformer**          | Layout           | Mathematical       | Places nodes in concentric circles with generations radiating outward from center                                                          | ❌  | 🔥 High  | ✅                                                         |
+| **Force-Directed Layout Transformer**    | Layout           | Mathematical       | Uses physics simulation to position nodes with attractive/repulsive forces based on relationships                                          | ❌  | 🔥 High  | ✅                                                         |
+| **Timeline Layout Transformer**          | Layout           | Data-Driven        | Arranges nodes along a horizontal timeline based on birth/death dates                                                                      | ❌  | 🔥 High  | ✅                                                         |
+| **Geographic Layout Transformer**        | Layout           | Data-Driven        | Positions nodes as if plotting birth locations on a world map, creating geographic visualizations                                          | ✅  | 🔥 High  | ✅                                                         |
+| **Family Tree Metaphor Transformer**     | Metaphor         | LLM-Enhanced       | Uses organic tree-like structures with branches, leaves, and roots representing family relationships                                       | ✅  | 🔥 High  | ✅                                                         |
+| **Spiral Layout Transformer**            | Layout           | Mathematical       | Arranges nodes in spiral patterns, useful for large families or recursive structures                                                       | ❌  | 🔥 High  | ✅                                                         |
+| **Cluster Layout Transformer**           | Layout           | Data-Driven        | Groups related individuals into visual clusters with clear boundaries                                                                      | ❌  | 🔥 High  | ✅                                                         |
+| **Seasonal Color Transformer**           | Node Style       | Data-Driven        | Assigns colors based on birth seasons or months, creating seasonal themes                                                                  | ❌  | 🔥 High  | ✅                                                         |
+| **Generation Opacity Transformer**       | Node Style       | Data-Driven        | Controls transparency of nodes based on generation depth or distance from root                                                             | ❌  | 🔥 High  | ✅                                                         |
+| **Relationship Line Weight Transformer** | Edge Style       | Data-Driven        | Adjusts line thickness based on relationship strength or type                                                                              | ❌  | 🔥 High  | ✅                                                         |
+| **Node Border Style Transformer**        | Node Style       | Data-Driven        | Adds borders, patterns, or textures to nodes based on metadata                                                                             | ❌  | 🔥 High  | ✅                                                         |
+| **Radial Layout Transformer**            | Layout           | Mathematical       | Places nodes in radial patterns from a central ancestor                                                                                    | ❌  | 🔥 High  | ✅                                                         |
+| **Hierarchical Layout Transformer**      | Layout           | Data-Driven        | Creates traditional top-down family tree layouts with clear hierarchy                                                                      | ❌  | 🔥 High  | ✅                                                         |
+| **Organic Growth Transformer**           | Metaphor         | LLM-Enhanced       | Simulates organic growth patterns like tree branches or coral structures                                                                   | ✅  | 🔥 High  | ✅                                                         |
+| **Historical Timeline Transformer**      | Metaphor         | LLM-Enhanced       | Creates visual timelines that incorporate historical events and family milestones                                                          | ✅  | 🔥 High  | ✅                                                         |
+| **DNA Helix Transformer**                | Metaphor         | Mathematical       | Arranges nodes in double-helix patterns representing genetic inheritance                                                                   | ❌  | 🔥 High  | ✅                                                         |
+| **Constellation Transformer**            | Metaphor         | LLM-Enhanced       | Creates star-like patterns connecting family members as constellations                                                                     | ✅  | 🔥 High  | ✅                                                         |
+| **River Flow Transformer**               | Metaphor         | LLM-Enhanced       | Uses river-like flowing patterns to show family lineage and branching                                                                      | ✅  | 🔥 High  | ✅                                                         |
+| **Mosaic Pattern Transformer**           | Metaphor         | Mathematical       | Creates tile-like patterns where each family member is a unique tile                                                                       | ❌  | 🔥 High  | ✅                                                         |
+| **Fractal Tree Transformer**             | Metaphor         | Mathematical       | Uses fractal mathematics to create self-similar branching patterns                                                                         | ❌  | 🔥 High  | ✅                                                         |
+| **Seasonal Growth Transformer**          | Metaphor         | LLM-Enhanced       | Simulates seasonal growth cycles with nodes appearing as leaves, flowers, or fruits                                                        | ✅  | 🔥 High  | ✅                                                         |
+| **Migration Path Transformer**           | Metaphor         | LLM-Enhanced       | Shows family migration patterns with connecting paths and geographic markers                                                               | ✅  | 🔥 High  | ✅                                                         |
+| **Cultural Symbol Transformer**          | Node Style       | LLM-Enhanced       | Uses cultural symbols or icons for nodes based on ethnicity or cultural background                                                         | ✅  | 🔥 High  | ✅                                                         |
+| **Life Event Marker Transformer**        | Node Style       | Data-Driven        | Adds visual markers for significant life events (marriage, death, immigration)                                                             | ❌  | 🔥 High  | ✅                                                         |
+| **Family Crest Transformer**             | Metaphor         | LLM-Enhanced       | Creates heraldic-style visualizations with family crests and coats of arms                                                                 | ✅  | 🔥 High  | ✅                                                         |
+| **Variance Transformer**                 | Effects          | Data-Driven        | Systematically varies properties by percentage based on data attributes                                                                    | ❌  | 🔥 High  | varianceAmount, targetProperties, varianceMode            |
+| **Noise Transformer**                    | Effects          | Artistic           | Adds smooth, organic Perlin/Simplex noise to properties for natural variation                                                              | ❌  | 🔥 High  | noiseType, noiseScale, noiseOctaves, amplitude           |
+| **Jitter Transformer**                   | Effects          | Artistic           | Adds small random offsets for hand-drawn or imperfect aesthetic                                                                           | ❌  | 🔥 High  | jitterAmount, jitterProperties, distributionType          |
+| **Edge Curve Transformer**               | Edge Style       | Artistic           | Transforms straight edges into bezier curves, arcs, or organic paths                                                                       | ❌  | 🔥 High  | curveType, curveTension, controlPointMode                |
+| **Bloom/Glow Transformer**               | Effects          | Artistic           | Creates soft, luminous effects by rendering multiple offset layers                                                                         | ❌  | 🔥 High  | layerCount, bloomRadius, opacityFalloff                  |
+| **Echo Transformer**                     | Effects          | Artistic           | Creates trailing/ghost effects with decreasing opacity duplicates                                                                          | ❌  | 🔥 High  | echoCount, echoOffset, echoDecay                        |
+| **Particle Cloud Transformer**           | Effects          | Artistic           | Replaces solid shapes with particle systems (dots, stipples)                                                                              | ❌  | 🔥 High  | particleCount, particleSize, distribution                |
+| **Sketch Transformer**                   | Effects          | Artistic           | Creates hand-drawn aesthetic with multiple offset strokes                                                                                  | ❌  | 🔥 High  | strokeCount, roughness, sketchStyle                     |
+| **Ink Bleed Transformer**                | Effects          | Artistic           | Watercolor/ink effect with overlapping shapes and color variation                                                                         | ❌  | 🔥 High  | bleedAmount, colorVariance, wetness                      |
 
 ## Priority Levels
 
@@ -53,30 +70,52 @@ This document tracks transformer ideas organized by complexity and category. We'
 
 ## Implementation Phases
 
-### Phase 1: Foundation (Low-Level) - Immediate Priority
+### Phase 1: Core Visual Elements - Immediate Priority
 
+#### Node Style Transformers
 1. **Color Palette Transformer** - Essential for visual appeal
 2. **Node Shape Transformer** - Basic visual variety
-3. **Edge Style Transformer** - Relationship clarity
-4. **Node Size Transformer** - Visual hierarchy
+3. **Node Size Transformer** - Visual hierarchy
+4. **Generation Opacity Transformer** - Depth visualization
 
-### Phase 2: Layout Basics (Mid-Level) - High Priority
+#### Edge Style Transformers
+5. **Edge Style Transformer** - Relationship clarity
+6. **Edge Curve Transformer** - Transform straight lines to artistic curves
+7. **Relationship Line Weight Transformer** - Visual emphasis
 
-5. **Position Grid Transformer** - Simple, reliable layout
-6. **Circular Layout Transformer** - Classic family tree style
-7. **Timeline Layout Transformer** - Temporal organization
+### Phase 2: Artistic Effects - Immediate Priority
 
-### Phase 3: Advanced Layouts (High-Level) - Medium Priority
+#### Effects Transformers
+8. **Variance Transformer** - Systematic property variation
+9. **Noise Transformer** - Organic variation patterns
+10. **Jitter Transformer** - Hand-drawn imperfection
+11. **Bloom/Glow Transformer** - Soft luminous effects
+12. **Echo Transformer** - Trailing/ghost effects
+13. **Sketch Transformer** - Hand-drawn aesthetic
+14. **Particle Cloud Transformer** - Replace solids with particle systems
 
-8. **Force-Directed Layout Transformer** - Dynamic positioning
-9. **Geographic Layout Transformer** - Location-based visualization
-10. **Family Tree Metaphor Transformer** - Organic structures
+### Phase 3: Layout Systems - High Priority
 
-### Phase 4: Creative Exploration (Experimental) - Low Priority
+#### Layout Transformers
+15. **Position Grid Transformer** - Simple, reliable layout
+16. **Circular Layout Transformer** - Classic family tree style
+17. **Timeline Layout Transformer** - Temporal organization
+18. **Hierarchical Layout Transformer** - Traditional trees
+19. **Force-Directed Layout Transformer** - Dynamic positioning
 
-11. **Spiral Layout Transformer** - Creative patterns
-12. **Organic Growth Transformer** - Natural aesthetics
-13. **Constellation Transformer** - Artistic interpretation
+### Phase 4: Complex Metaphors - Medium Priority
+
+#### Metaphor Transformers
+20. **Family Tree Metaphor Transformer** - Organic structures
+21. **Geographic Layout Transformer** - Location-based visualization
+22. **DNA Helix Transformer** - Genetic representation
+23. **Constellation Transformer** - Artistic star patterns
+
+### Phase 5: Advanced Concepts - Low Priority
+
+24. **River Flow Transformer** - Flowing lineage patterns
+25. **Seasonal Growth Transformer** - Natural cycles
+26. **Migration Path Transformer** - Movement visualization
 
 ## Transformer Metadata Schema
 
@@ -113,6 +152,36 @@ Each transformer should include:
 - `centerCoordinates`: [lat, lng] for map center
 - `locationFallback`: "random", "grid", "cluster" for missing coordinates
 
+### Edge Curve Transformer
+
+- `curveType`: "bezier", "arc", "organic", "catmull-rom"
+- `curveTension`: 0.0-1.0 for curve intensity
+- `controlPointMode`: "auto", "midpoint", "random", "generation-based"
+- `curveDirection`: "up", "down", "auto" for arc direction
+
+### Variance Transformer
+
+- `varianceAmount`: 0.0-1.0 percentage of variation
+- `targetProperties`: ["size", "opacity", "position", "color"]
+- `varianceMode`: "uniform", "gaussian", "exponential"
+- `basedOn`: "generation", "childrenCount", "random"
+
+### Noise Transformer
+
+- `noiseType`: "perlin", "simplex", "turbulence"
+- `noiseScale`: 0.001-0.1 for frequency
+- `noiseOctaves`: 1-8 for detail levels
+- `amplitude`: 0.0-100.0 for effect strength
+- `timeEvolution`: boolean for animated noise
+
+### Bloom/Glow Transformer
+
+- `layerCount`: 3-20 number of glow layers
+- `bloomRadius`: 5-50 pixels spread
+- `opacityFalloff`: "linear", "exponential", "gaussian"
+- `colorShift`: 0.0-1.0 for hue variation in layers
+- `glowIntensity`: 0.1-2.0 for brightness
+
 ---
 
-_Last updated: 2025-01-27 19:30 UTC_
+_Last updated: 2025-08-02 UTC_
