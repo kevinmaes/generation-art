@@ -165,6 +165,15 @@ export function clearTransformerCache(transformerId: string): void {
 }
 
 /**
+ * Clear all caches and reset counters (for testing)
+ */
+export function clearAllCaches(): void {
+  transformerCaches.clear();
+  apiCallCounts.clear();
+  lastApiCalls.clear();
+}
+
+/**
  * Get statistics for a transformer
  */
 export function getTransformerStats(transformerId: string) {
