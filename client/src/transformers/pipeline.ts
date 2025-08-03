@@ -19,7 +19,7 @@ import type {
 import type { VisualParameterValues } from './visual-parameters';
 import {
   getTransformer,
-  SMART_LAYOUT,
+  TRANSFORMERS,
   type TransformerId,
   transformers,
 } from './transformers';
@@ -50,7 +50,7 @@ import {
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [SMART_LAYOUT.ID],
+  TRANSFORMER_IDS: [TRANSFORMERS.SMART_LAYOUT.ID],
 };
 
 /**

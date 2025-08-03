@@ -6,8 +6,7 @@ import type {
   VisualMetadata,
 } from '../transformers/types';
 import {
-  HORIZONTAL_SPREAD,
-  VERTICAL_SPREAD,
+  TRANSFORMERS,
   type TransformerId,
 } from '../transformers/transformers';
 import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
@@ -227,7 +226,7 @@ export function createWebSketch(
     textSize: 5,
     nodeSize: 10,
     colors: ['#0000ff', '#ffff00'],
-    transformerIds: [HORIZONTAL_SPREAD.ID, VERTICAL_SPREAD.ID],
+    transformerIds: [TRANSFORMERS.HORIZONTAL_SPREAD.ID, TRANSFORMERS.VERTICAL_SPREAD.ID],
     temperature: 0.5,
     showIndividuals: true,
     showRelations: true,

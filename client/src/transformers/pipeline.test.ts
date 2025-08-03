@@ -31,8 +31,7 @@ import {
 } from './constants';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import {
-  HORIZONTAL_SPREAD,
-  VERTICAL_SPREAD,
+  TRANSFORMERS,
   type TransformerId,
 } from './transformers';
 import type { DimensionId } from './dimensions';
@@ -268,13 +267,13 @@ describe('Pipeline', () => {
 
   describe('createSimplePipeline', () => {
     it('should create a pipeline with default settings', () => {
-      const transformerIds = [HORIZONTAL_SPREAD.ID];
+      const transformerIds = [TRANSFORMERS.HORIZONTAL_SPREAD.ID];
       const pipeline = createSimplePipeline(transformerIds);
 
       expect(pipeline.transformers).toHaveLength(1);
-      expect(pipeline.transformers[0].type).toBe(HORIZONTAL_SPREAD.ID);
+      expect(pipeline.transformers[0].type).toBe(TRANSFORMERS.HORIZONTAL_SPREAD.ID);
       expect(pipeline.transformers[0].instanceId).toBe(
-        `${HORIZONTAL_SPREAD.ID}-0`,
+        `${TRANSFORMERS.HORIZONTAL_SPREAD.ID}-0`,
       );
       expect(pipeline.temperature).toBe(0.5);
       expect(pipeline.seed).toBeUndefined();
@@ -283,7 +282,7 @@ describe('Pipeline', () => {
     });
 
     it('should create a pipeline with custom settings', () => {
-      const transformerIds = [HORIZONTAL_SPREAD.ID];
+      const transformerIds = [TRANSFORMERS.HORIZONTAL_SPREAD.ID];
       const pipeline = createSimplePipeline(transformerIds, {
         temperature: 0.8,
         seed: 'test-seed',
@@ -292,7 +291,7 @@ describe('Pipeline', () => {
       });
 
       expect(pipeline.transformers).toHaveLength(1);
-      expect(pipeline.transformers[0].type).toBe(HORIZONTAL_SPREAD.ID);
+      expect(pipeline.transformers[0].type).toBe(TRANSFORMERS.HORIZONTAL_SPREAD.ID);
       expect(pipeline.temperature).toBe(0.8);
       expect(pipeline.seed).toBe('test-seed');
       expect(pipeline.canvasWidth).toBe(1000);
@@ -304,7 +303,7 @@ describe('Pipeline', () => {
     it('should validate a correct pipeline config', () => {
       const config: PipelineConfig = {
         transformers: [
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-1'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-1'),
         ],
         temperature: 0.5,
         canvasWidth: 800,
@@ -332,7 +331,7 @@ describe('Pipeline', () => {
     it('should reject invalid temperature', () => {
       const config: PipelineConfig = {
         transformers: [
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-1'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-1'),
         ],
         temperature: 1.5, // Invalid: > 1
       };
@@ -345,7 +344,7 @@ describe('Pipeline', () => {
     it('should reject invalid canvas dimensions', () => {
       const config: PipelineConfig = {
         transformers: [
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-1'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-1'),
         ],
         canvasWidth: -100, // Invalid: negative
         canvasHeight: 0, // Invalid: zero
@@ -398,7 +397,7 @@ describe('Pipeline', () => {
     it('should run a single transformer successfully', async () => {
       const config: PipelineConfig = {
         transformers: [
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-1'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-1'),
         ],
         temperature: 0.5,
         canvasWidth: 800,
@@ -420,15 +419,15 @@ describe('Pipeline', () => {
       expect(result.debug.transformerResults).toHaveLength(1);
       expect(result.debug.transformerResults[0].success).toBe(true);
       expect(result.debug.transformerResults[0].transformerId).toBe(
-        HORIZONTAL_SPREAD.ID,
+        TRANSFORMERS.HORIZONTAL_SPREAD.ID,
       );
     });
 
     it('should run multiple transformers in sequence', async () => {
       const config: PipelineConfig = {
         transformers: [
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-1'),
-          createTestTransformerInstance(VERTICAL_SPREAD.ID, 'test-2'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-1'),
+          createTestTransformerInstance(TRANSFORMERS.VERTICAL_SPREAD.ID, 'test-2'),
         ],
         temperature: 0.5,
       };
@@ -448,10 +447,10 @@ describe('Pipeline', () => {
       expect(result.debug.transformerResults[0].success).toBe(true);
       expect(result.debug.transformerResults[1].success).toBe(true);
       expect(result.debug.transformerResults[0].transformerId).toBe(
-        HORIZONTAL_SPREAD.ID,
+        TRANSFORMERS.HORIZONTAL_SPREAD.ID,
       );
       expect(result.debug.transformerResults[1].transformerId).toBe(
-        VERTICAL_SPREAD.ID,
+        TRANSFORMERS.VERTICAL_SPREAD.ID,
       );
     });
 
@@ -497,7 +496,7 @@ describe('Pipeline', () => {
             dimensions: {},
             visual: {},
           },
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-2'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-2'),
         ],
       };
 
@@ -520,7 +519,7 @@ describe('Pipeline', () => {
     it('should pass context to transformers correctly', async () => {
       const config: PipelineConfig = {
         transformers: [
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-1'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-1'),
         ],
         temperature: 0.7,
         seed: 'test-seed',
@@ -545,8 +544,8 @@ describe('Pipeline', () => {
     it('should preserve position values between transformers', async () => {
       const config: PipelineConfig = {
         transformers: [
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-1'),
-          createTestTransformerInstance(VERTICAL_SPREAD.ID, 'test-2'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-1'),
+          createTestTransformerInstance(TRANSFORMERS.VERTICAL_SPREAD.ID, 'test-2'),
         ],
         temperature: 0.5,
         canvasWidth: 800,
@@ -589,8 +588,8 @@ describe('Pipeline', () => {
     it('should preserve position values in reverse order', async () => {
       const config: PipelineConfig = {
         transformers: [
-          createTestTransformerInstance(VERTICAL_SPREAD.ID, 'test-1'),
-          createTestTransformerInstance(HORIZONTAL_SPREAD.ID, 'test-2'),
+          createTestTransformerInstance(TRANSFORMERS.VERTICAL_SPREAD.ID, 'test-1'),
+          createTestTransformerInstance(TRANSFORMERS.HORIZONTAL_SPREAD.ID, 'test-2'),
         ],
         temperature: 0.5,
         canvasWidth: 800,
