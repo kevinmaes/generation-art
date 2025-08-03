@@ -9,8 +9,50 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
+import { createRuntimeTransformerFunction } from './utils';
+
+/**
+ * Configuration for the node size transformer
+ */
+export const nodeSizeConfig: VisualTransformerConfig = {
+  id: 'node-size',
+  name: 'Node Size',
+  description:
+    'Intelligently scales visual elements using sophisticated algorithms that consider multiple family metrics and importance indicators.',
+  shortDescription: 'Adjusts node sizes by children or lifespan',
+  transform: nodeSizeTransform,
+  categories: ['visual', 'size'],
+  availableDimensions: [
+    'childrenCount',
+    'lifespan',
+    'generation',
+    'marriageCount',
+  ],
+  defaultPrimaryDimension: 'childrenCount',
+  defaultSecondaryDimension: 'lifespan',
+  visualParameters: [
+    {
+      name: 'nodeSize',
+      type: 'select',
+      defaultValue: 'medium',
+      label: 'Node Size',
+      description: 'Size of individual nodes',
+      options: [
+        { value: 'small', label: 'Small' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'large', label: 'Large' },
+        { value: 'extra-large', label: 'Extra Large' },
+      ],
+    },
+  ],
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, nodeSizeTransform, [
+      { name: 'nodeSize', defaultValue: 'medium' },
+    ]),
+};
 
 /**
  * Calculate node size based on selected dimensions
@@ -265,3 +307,4 @@ export async function nodeSizeTransform(
     },
   };
 }
+
