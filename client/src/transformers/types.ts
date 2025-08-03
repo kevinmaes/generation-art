@@ -50,6 +50,12 @@ export interface VisualMetadata {
   layer?: number;
   priority?: number;
 
+  // Edge curve attributes
+  curveType?: 'straight' | 'bezier-quad' | 'bezier-cubic' | 'arc' | 'catenary' | 'step' | 's-curve';
+  controlPoints?: {x: number, y: number}[];
+  arcRadius?: number;
+  curveIntensity?: number;
+
   // Custom attributes (for extensibility)
   custom?: Record<string, unknown>;
 }
