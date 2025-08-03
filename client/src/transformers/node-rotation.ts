@@ -20,7 +20,7 @@ function calculateNodeRotation(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { gedcomData, dimensions, visual, temperature } = context;
+  const { gedcomData, dimensions } = context;
 
   // Find the individual with null check
   const individual = getIndividualOrWarn(
@@ -230,27 +230,11 @@ function calculateNodeRotation(
     }
   }
 
-  // Get visual parameters directly from context
-  const { variationFactor } = visual;
-  const temp = temperature ?? 0.5;
-
-  // Combine primary and secondary dimensions
+  // Combine primary and secondary dimensions (deterministic)
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
 
-  // Add temperature-based randomness with variation factor influence
-  const baseRandomness = (Math.random() - 0.5) * temp * 0.3; // ±15% max variation
-  const variationRandomness =
-    (Math.random() - 0.5) * (variationFactor as number) * 0.2; // Additional variation
-  const totalRandomFactor = baseRandomness + variationRandomness;
-
-  const adjustedDimensionValue = Math.max(
-    0,
-    Math.min(1, combinedValue + totalRandomFactor),
-  );
-
-  // Convert to rotation in radians (0 to 2π)
-  // Full rotation represents the full range of the dimension
-  const rotationRadians = adjustedDimensionValue * 2 * Math.PI;
+  // Convert to rotation in radians (0 to 2π) - no randomness
+  const rotationRadians = combinedValue * 2 * Math.PI;
 
   // Safety check to ensure we never return NaN or invalid values
   if (!Number.isFinite(rotationRadians)) {

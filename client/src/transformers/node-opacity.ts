@@ -22,7 +22,7 @@ function calculateNodeOpacity(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { gedcomData, dimensions, visual, temperature } = context;
+  const { gedcomData, dimensions, visual } = context;
 
   // Find the individual with null check
   const individual = getIndividualOrWarn(
@@ -150,8 +150,7 @@ function calculateNodeOpacity(
   }
 
   // Get visual parameters directly from context
-  const { nodeOpacity, variationFactor } = visual;
-  const temp = temperature ?? 0.5;
+  const { nodeOpacity } = visual;
 
   // Handle both numeric and string nodeOpacity values
   let baseOpacity: number;
@@ -181,24 +180,12 @@ function calculateNodeOpacity(
     baseOpacity = (opacityRange.min + opacityRange.max) / 2;
   }
 
-  // Combine primary and secondary dimensions with variation factor
+  // Combine primary and secondary dimensions (deterministic)
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
 
-  // Add temperature-based randomness with variation factor influence
-  const baseRandomness = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
-  const variationRandomness =
-    (Math.random() - 0.5) * (variationFactor as number) * 0.15; // Additional variation
-  const totalRandomFactor = baseRandomness + variationRandomness;
-
-  const adjustedDimensionValue = Math.max(
-    0,
-    Math.min(1, combinedValue + totalRandomFactor),
-  );
-
-  // Calculate final opacity within the range
+  // Calculate final opacity within the range (no randomness)
   const finalOpacity =
-    opacityRange.min +
-    adjustedDimensionValue * (opacityRange.max - opacityRange.min);
+    opacityRange.min + combinedValue * (opacityRange.max - opacityRange.min);
 
   // Ensure valid opacity range and handle NaN
   const safeOpacity = Math.max(0.1, Math.min(1.0, finalOpacity));

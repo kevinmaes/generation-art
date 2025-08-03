@@ -25,8 +25,7 @@ function calculateEdgeOpacity(
   context: TransformerContext,
   edgeId: string,
 ): number {
-  const { gedcomData, visualMetadata, dimensions, visual, temperature } =
-    context;
+  const { gedcomData, visualMetadata, dimensions, visual } = context;
 
   // Find the edge
   const edge = gedcomData.metadata.edges.find((e) => e.id === edgeId);
@@ -157,8 +156,7 @@ function calculateEdgeOpacity(
   }
 
   // Get visual parameters directly from context
-  const { edgeOpacity, variationFactor } = visual;
-  const temp = temperature ?? 0.5;
+  const { edgeOpacity } = visual;
 
   // Use edge opacity as target opacity (with proper fallback)
   const targetOpacity =
@@ -185,29 +183,14 @@ function calculateEdgeOpacity(
   const safeSecondaryValue = isNaN(secondaryValue) ? 0.5 : secondaryValue;
   const safeDistanceFactor = isNaN(distanceFactor) ? 1.0 : distanceFactor;
 
-  // Combine primary and secondary dimensions with distance factor
+  // Combine primary and secondary dimensions with distance factor (deterministic)
   const combinedValue =
     (safePrimaryValue * 0.6 + safeSecondaryValue * 0.2) * safeDistanceFactor;
 
-  // Add temperature-based randomness with variation factor influence
-  const safeVariationFactor =
-    typeof variationFactor === 'number' && !isNaN(variationFactor)
-      ? variationFactor
-      : 0.5;
-  const baseRandomness = (Math.random() - 0.5) * temp * 0.2; // ±10% max variation
-  const variationRandomness =
-    (Math.random() - 0.5) * safeVariationFactor * 0.15; // Additional variation
-  const totalRandomFactor = baseRandomness + variationRandomness;
-
-  const adjustedDimensionValue = Math.max(
-    0,
-    Math.min(1, combinedValue + totalRandomFactor),
-  );
-
-  // Use target opacity more directly with minimal dimension influence
-  const dimensionInfluence = isNaN(adjustedDimensionValue)
+  // Use target opacity more directly with minimal dimension influence (no randomness)
+  const dimensionInfluence = isNaN(combinedValue)
     ? 1.0
-    : adjustedDimensionValue * 0.3 + 0.7; // Range: 0.7 to 1.0
+    : combinedValue * 0.3 + 0.7; // Range: 0.7 to 1.0
   const finalOpacity = targetOpacity * dimensionInfluence;
 
   // Ensure we don't return NaN
@@ -223,15 +206,14 @@ function calculateEdgeWidth(
   context: TransformerContext,
   edgeId: string,
 ): number {
-  const { gedcomData, visual, temperature } = context;
+  const { gedcomData, visual } = context;
 
   // Find the edge
   const edge = gedcomData.metadata.edges.find((e) => e.id === edgeId);
   if (!edge) return 1;
 
   // Get visual parameters
-  const { edgeWidth, variationFactor } = visual;
-  const temp = temperature ?? 0.5;
+  const { edgeWidth } = visual;
 
   // Use edge width directly as base width value (with proper fallback)
   const baseWidth =
@@ -248,21 +230,9 @@ function calculateEdgeWidth(
     baseValue = 0.5; // Medium (sibling or other)
   }
 
-  // Add temperature-based randomness
-  const safeVariationFactor =
-    typeof variationFactor === 'number' && !isNaN(variationFactor)
-      ? variationFactor
-      : 0.5;
-  const randomness = (Math.random() - 0.5) * temp * 0.3;
-  const variationRandomness = (Math.random() - 0.5) * safeVariationFactor * 0.2;
-  const adjustedValue = Math.max(
-    0,
-    Math.min(1, baseValue + randomness + variationRandomness),
-  );
-
-  // Calculate final width within the range
+  // Calculate final width within the range (deterministic)
   const finalWidth =
-    widthRange.min + adjustedValue * (widthRange.max - widthRange.min);
+    widthRange.min + baseValue * (widthRange.max - widthRange.min);
 
   // Ensure we don't return NaN
   const safeWidth = isNaN(finalWidth) ? 2 : finalWidth;

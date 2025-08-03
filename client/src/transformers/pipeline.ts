@@ -14,11 +14,12 @@ import type {
   CompleteVisualMetadata,
   TransformerContext,
   PipelineResult,
+  TransformerInstance,
 } from './types';
 import type { VisualParameterValues } from './visual-parameters';
 import {
   getTransformer,
-  SMART_LAYOUT,
+  TRANSFORMERS,
   type TransformerId,
   transformers,
 } from './transformers';
@@ -49,15 +50,15 @@ import {
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [SMART_LAYOUT.ID],
+  TRANSFORMER_IDS: [TRANSFORMERS.SMART_LAYOUT.ID],
 };
 
 /**
  * Pipeline configuration
  */
 export interface PipelineConfig {
-  // List of transformer IDs to execute in order
-  transformerIds: TransformerId[];
+  // Array of transformer instances to execute in order
+  transformers: TransformerInstance[];
 
   // Randomness control (0.0 = deterministic, 1.0 = fully random)
   temperature?: number;
@@ -68,15 +69,6 @@ export interface PipelineConfig {
   // Canvas dimensions for reference
   canvasWidth?: number;
   canvasHeight?: number;
-
-  // Transformer parameters (dimensions and visual parameters for each transformer)
-  transformerParameters?: Record<
-    string,
-    {
-      dimensions: { primary?: string; secondary?: string };
-      visual: VisualParameterValues;
-    }
-  >;
 }
 
 interface PipelineInput {
@@ -343,26 +335,15 @@ export async function runPipeline({
   // Track transformer execution results
   const transformerResults: TransformerResult[] = [];
 
-  // Execute each transformer in sequence
-  for (const transformerId of config.transformerIds) {
+  // Execute each transformer instance in sequence
+  for (const transformerInstance of config.transformers) {
     const transformerStartTime = performance.now();
 
     try {
-      // Get transformer from registry
-      const transformer = getTransformer(transformerId);
+      // Get transformer configuration from registry
+      const transformer = getTransformer(transformerInstance.type);
 
-      // Get transformer parameters from config (or use defaults)
-      const transformerParams = config.transformerParameters?.[
-        transformerId
-      ] ?? {
-        dimensions: {
-          primary: transformer.defaultPrimaryDimension,
-          secondary: transformer.defaultSecondaryDimension,
-        },
-        visual: {},
-      };
-
-      // Create context for this transformer
+      // Create context for this transformer instance
       const context: TransformerContext = {
         gedcomData: fullData,
         llmData,
@@ -373,26 +354,26 @@ export async function runPipeline({
         canvasHeight: config.canvasHeight,
         dimensions: {
           primary:
-            transformerParams.dimensions.primary ??
+            transformerInstance.dimensions.primary ??
             transformer.defaultPrimaryDimension,
           secondary:
-            transformerParams.dimensions.secondary ??
+            transformerInstance.dimensions.secondary ??
             transformer.defaultSecondaryDimension,
         },
-        visual: transformerParams.visual,
+        visual: transformerInstance.visual,
       };
 
       // Execute transformer using factory function to inject parameters
       const runtimeTransformer = transformer.createRuntimeTransformerFunction({
         dimensions: {
           primary:
-            transformerParams.dimensions.primary ??
+            transformerInstance.dimensions.primary ??
             transformer.defaultPrimaryDimension,
           secondary:
-            transformerParams.dimensions.secondary ??
+            transformerInstance.dimensions.secondary ??
             transformer.defaultSecondaryDimension,
         },
-        visual: transformerParams.visual,
+        visual: transformerInstance.visual,
       });
       const result = await runtimeTransformer(context);
 
@@ -403,13 +384,16 @@ export async function runPipeline({
       );
 
       // Debug: check if shape transformer updated shapes
-      if (transformerId === 'node-shape' && result.visualMetadata.individuals) {
+      if (
+        transformerInstance.type === 'node-shape' &&
+        result.visualMetadata.individuals
+      ) {
         const sampleShapes = Object.entries(result.visualMetadata.individuals)
           .slice(0, 3)
           .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
           .join(', ');
         console.log(
-          `🔍 After ${transformerId}: Sample shapes in result:`,
+          `🔍 After ${transformerInstance.type} (${transformerInstance.instanceId}): Sample shapes in result:`,
           sampleShapes,
         );
 
@@ -418,30 +402,42 @@ export async function runPipeline({
           .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
           .join(', ');
         console.log(
-          `🔍 After ${transformerId}: Sample shapes in final metadata:`,
+          `🔍 After ${transformerInstance.type} (${transformerInstance.instanceId}): Sample shapes in final metadata:`,
           sampleFinalShapes,
         );
       }
 
       // Record successful execution
       transformerResults.push({
-        transformerId,
+        transformerId: transformerInstance.type,
         transformerName: transformer.name,
         executionTime: performance.now() - transformerStartTime,
         success: true,
       });
     } catch (error) {
+      // Get transformer config for error reporting, handle case where transformer doesn't exist
+      let transformerName: string = transformerInstance.type; // fallback name
+      try {
+        const transformerForError = getTransformer(transformerInstance.type);
+        transformerName = transformerForError.name;
+      } catch {
+        // Transformer doesn't exist, use the type as name
+      }
+
       // Record failed execution
       transformerResults.push({
-        transformerId,
-        transformerName: transformerId, // Fallback name
+        transformerId: transformerInstance.type,
+        transformerName,
         executionTime: performance.now() - transformerStartTime,
         success: false,
         error: error instanceof Error ? error.message : String(error),
       });
 
       // Continue with next transformer (don't fail the entire pipeline)
-      console.warn(`Transformer ${transformerId} failed:`, error);
+      console.warn(
+        `Transformer ${transformerInstance.type} (${transformerInstance.instanceId}) failed:`,
+        error,
+      );
     }
   }
 
@@ -473,14 +469,23 @@ export function validatePipelineConfig(config: PipelineConfig): {
 } {
   const errors: string[] = [];
 
-  if (config.transformerIds.length === 0) {
+  if (config.transformers.length === 0) {
     errors.push('Pipeline must have at least one transformer');
   }
 
-  // Check if all transformers exist
-  for (const transformerId of config.transformerIds) {
-    if (!(transformerId in transformers)) {
-      errors.push(`Transformer not found: ${transformerId}`);
+  // Check if all transformers exist and have valid instance IDs
+  for (const transformerInstance of config.transformers) {
+    if (!(transformerInstance.type in transformers)) {
+      errors.push(`Transformer not found: ${transformerInstance.type}`);
+    }
+
+    if (
+      !transformerInstance.instanceId ||
+      transformerInstance.instanceId.trim() === ''
+    ) {
+      errors.push(
+        `Transformer instance missing instanceId: ${transformerInstance.type}`,
+      );
     }
   }
 
@@ -507,6 +512,7 @@ export function validatePipelineConfig(config: PipelineConfig): {
 
 /**
  * Create a simple pipeline with default settings
+ * Converts the old-style API to the new transformer instances array
  */
 export function createSimplePipeline(
   transformerIds: TransformerId[],
@@ -524,12 +530,35 @@ export function createSimplePipeline(
     >;
   },
 ): PipelineConfig {
+  // Convert transformer IDs to transformer instances
+  const transformers: TransformerInstance[] = transformerIds.map(
+    (transformerId, index) => {
+      const transformer = getTransformer(transformerId);
+      const params = options?.transformerParameters?.[transformerId] ?? {
+        dimensions: {},
+        visual: {},
+      };
+
+      return {
+        type: transformerId,
+        instanceId: `${transformerId}-${String(index)}`, // Generate simple instance ID
+        dimensions: {
+          primary:
+            params.dimensions.primary ?? transformer.defaultPrimaryDimension,
+          secondary:
+            params.dimensions.secondary ??
+            transformer.defaultSecondaryDimension,
+        },
+        visual: params.visual,
+      };
+    },
+  );
+
   return {
-    transformerIds,
+    transformers,
     temperature: options?.temperature ?? 0.5,
     seed: options?.seed,
     canvasWidth: options?.canvasWidth,
     canvasHeight: options?.canvasHeight,
-    transformerParameters: options?.transformerParameters,
   };
 }

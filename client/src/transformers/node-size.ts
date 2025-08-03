@@ -19,7 +19,7 @@ function calculateNodeSize(
   context: TransformerContext,
   individualId: string,
 ): number {
-  const { gedcomData, dimensions, visual, temperature } = context;
+  const { gedcomData, dimensions, visual } = context;
 
   // Validate required context properties
   if (!dimensions || !visual) {
@@ -194,15 +194,7 @@ function calculateNodeSize(
   }
 
   // Get visual parameters directly from context
-  const { nodeSize, variationFactor } = visual;
-  const temp =
-    temperature !== undefined && Number.isFinite(temperature)
-      ? temperature
-      : 0.5;
-  const safeVariationFactor =
-    variationFactor !== undefined && Number.isFinite(variationFactor as number)
-      ? (variationFactor as number)
-      : 0.5;
+  const { nodeSize } = visual;
 
   // Convert node size string to base size values
   const sizeMap = {
@@ -223,22 +215,12 @@ function calculateNodeSize(
     );
   }
 
-  // Combine primary and secondary dimensions with variation factor
+  // Combine primary and secondary dimensions (deterministic)
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
 
-  // Add temperature-based randomness with variation factor influence
-  const baseRandomness = (Math.random() - 0.5) * temp * 0.3; // ±15% max variation
-  const variationRandomness = (Math.random() - 0.5) * safeVariationFactor * 0.2; // Additional variation
-  const totalRandomFactor = baseRandomness + variationRandomness;
-
-  const adjustedDimensionValue = Math.max(
-    0,
-    Math.min(1, combinedValue + totalRandomFactor),
-  );
-
-  // Calculate final size within the range
+  // Calculate final size within the range (no randomness)
   const finalSize =
-    sizeRange.min + adjustedDimensionValue * (sizeRange.max - sizeRange.min);
+    sizeRange.min + combinedValue * (sizeRange.max - sizeRange.min);
 
   return finalSize;
 }

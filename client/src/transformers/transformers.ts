@@ -20,59 +20,59 @@ import type { VisualTransformerFn } from './types';
 import { createRuntimeTransformerFunction } from './utils';
 
 // Transformer constants for type safety
-export const HORIZONTAL_SPREAD = {
-  ID: 'horizontal-spread',
-  NAME: 'Horizontal Spread',
-} as const;
-export const NODE_SIZE = { ID: 'node-size', NAME: 'Node Size' } as const;
-export const NODE_OPACITY = {
-  ID: 'node-opacity',
-  NAME: 'Node Opacity',
-} as const;
-export const EDGE_OPACITY = {
-  ID: 'edge-opacity',
-  NAME: 'Edge Opacity',
-} as const;
-export const VERTICAL_SPREAD = {
-  ID: 'vertical-spread',
-  NAME: 'Vertical Spread',
-} as const;
-export const NODE_SHAPE = {
-  ID: 'node-shape',
-  NAME: 'Node Shape',
-} as const;
-export const NODE_ROTATION = {
-  ID: 'node-rotation',
-  NAME: 'Node Rotation',
-} as const;
-export const NODE_SCALE = {
-  ID: 'node-scale',
-  NAME: 'Node Scale',
-} as const;
-export const SMART_LAYOUT = {
-  ID: 'smart-layout',
-  NAME: 'Smart Layout',
+export const TRANSFORMERS = {
+  HORIZONTAL_SPREAD: {
+    ID: 'horizontal-spread',
+    NAME: 'Horizontal Spread',
+  },
+  NODE_SIZE: {
+    ID: 'node-size',
+    NAME: 'Node Size',
+  },
+  NODE_OPACITY: {
+    ID: 'node-opacity',
+    NAME: 'Node Opacity',
+  },
+  EDGE_OPACITY: {
+    ID: 'edge-opacity',
+    NAME: 'Edge Opacity',
+  },
+  VERTICAL_SPREAD: {
+    ID: 'vertical-spread',
+    NAME: 'Vertical Spread',
+  },
+  NODE_SHAPE: {
+    ID: 'node-shape',
+    NAME: 'Node Shape',
+  },
+  NODE_ROTATION: {
+    ID: 'node-rotation',
+    NAME: 'Node Rotation',
+  },
+  NODE_SCALE: {
+    ID: 'node-scale',
+    NAME: 'Node Scale',
+  },
+  SMART_LAYOUT: {
+    ID: 'smart-layout',
+    NAME: 'Smart Layout',
+  },
 } as const;
 
 export type TransformerId =
-  | typeof HORIZONTAL_SPREAD.ID
-  | typeof NODE_SIZE.ID
-  | typeof NODE_OPACITY.ID
-  | typeof EDGE_OPACITY.ID
-  | typeof VERTICAL_SPREAD.ID
-  | typeof NODE_SHAPE.ID
-  | typeof NODE_ROTATION.ID
-  | typeof NODE_SCALE.ID
-  | typeof SMART_LAYOUT.ID;
+  (typeof TRANSFORMERS)[keyof typeof TRANSFORMERS]['ID'];
+
+export type TransformerName =
+  (typeof TRANSFORMERS)[keyof typeof TRANSFORMERS]['NAME'];
 
 /**
  * Registry of all available transformers
  * Keyed by transformer ID for type safety
  */
 export const transformers: Record<TransformerId, VisualTransformerConfig> = {
-  [HORIZONTAL_SPREAD.ID]: {
-    id: HORIZONTAL_SPREAD.ID,
-    name: HORIZONTAL_SPREAD.NAME,
+  'horizontal-spread': {
+    id: 'horizontal-spread',
+    name: 'Horizontal Spread',
     description:
       'Uses advanced algorithms to create visually compelling horizontal arrangements with customizable spacing, padding, and variation factors.',
     shortDescription: 'Spreads nodes horizontally by generation or age',
@@ -132,34 +132,12 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
           { value: 'sparse', label: 'Sparse' },
         ],
       },
-      {
-        name: 'temperature',
-        type: 'range',
-        defaultValue: 0.3,
-        label: 'Temperature',
-        description: 'Randomness factor for non-deterministic behavior',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-      {
-        name: 'variationFactor',
-        type: 'range',
-        defaultValue: 0.2,
-        label: 'Variation Factor',
-        description: 'Amount of random variation to apply',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
     ],
     getDefaults: () => ({
       horizontalPadding: 80,
       nodeSize: 'medium',
       primaryColor: '#4A90E2',
       spacing: 'normal',
-      temperature: 0.3,
-      variationFactor: 0.2,
     }),
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, horizontalSpreadTransform, [
@@ -167,13 +145,11 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
         { name: 'nodeSize', defaultValue: 'medium' },
         { name: 'primaryColor', defaultValue: '#4A90E2' },
         { name: 'spacing', defaultValue: 'normal' },
-        { name: 'temperature', defaultValue: 0.3 },
-        { name: 'variationFactor', defaultValue: 0.2 },
       ]),
   },
-  [NODE_SIZE.ID]: {
-    id: NODE_SIZE.ID,
-    name: NODE_SIZE.NAME,
+  'node-size': {
+    id: 'node-size',
+    name: 'Node Size',
     description:
       'Intelligently scales visual elements using sophisticated algorithms that consider multiple family metrics and importance indicators.',
     shortDescription: 'Adjusts node sizes by children or lifespan',
@@ -189,16 +165,6 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     defaultSecondaryDimension: 'lifespan',
     visualParameters: [
       {
-        name: 'variationFactor',
-        type: 'range',
-        defaultValue: 0.3,
-        label: 'Variation Factor',
-        description: 'Amount of random variation to apply',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-      {
         name: 'nodeSize',
         type: 'select',
         defaultValue: 'medium',
@@ -211,27 +177,15 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
           { value: 'extra-large', label: 'Extra Large' },
         ],
       },
-      {
-        name: 'temperature',
-        type: 'range',
-        defaultValue: 0.4,
-        label: 'Temperature',
-        description: 'Randomness factor for non-deterministic behavior',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
     ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeSizeTransform, [
-        { name: 'variationFactor', defaultValue: 0.3 },
         { name: 'nodeSize', defaultValue: 'medium' },
-        { name: 'temperature', defaultValue: 0.4 },
       ]),
   },
-  [NODE_OPACITY.ID]: {
-    id: NODE_OPACITY.ID,
-    name: NODE_OPACITY.NAME,
+  'node-opacity': {
+    id: 'node-opacity',
+    name: 'Node Opacity',
     description:
       'Creates sophisticated transparency effects by analyzing family relationships, generational depth, and genealogical significance patterns.',
     shortDescription: 'Controls node transparency by generation or children',
@@ -256,23 +210,13 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
         max: 1.0,
         step: 0.1,
       },
-      {
-        name: 'variationFactor',
-        type: 'range',
-        defaultValue: 0.2,
-        label: 'Variation Factor',
-        description: 'Amount of random variation to apply',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
     ],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeOpacityTransform),
   },
-  [EDGE_OPACITY.ID]: {
-    id: EDGE_OPACITY.ID,
-    name: EDGE_OPACITY.NAME,
+  'edge-opacity': {
+    id: 'edge-opacity',
+    name: 'Edge Opacity',
     description:
       'Applies nuanced transparency and width variations to relationship lines, considering generational distance, family importance, and visual hierarchy.',
     shortDescription: 'Controls edge transparency by relationship type',
@@ -321,9 +265,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, edgeOpacityTransform),
   },
-  [VERTICAL_SPREAD.ID]: {
-    id: VERTICAL_SPREAD.ID,
-    name: VERTICAL_SPREAD.NAME,
+  'vertical-spread': {
+    id: 'vertical-spread',
+    name: 'Vertical Spread',
     description:
       'Employs sophisticated vertical positioning algorithms to create meaningful visual separations and hierarchies within family structures.',
     shortDescription: 'Spreads nodes vertically by birth year or children',
@@ -383,34 +327,12 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
           { value: 'sparse', label: 'Sparse' },
         ],
       },
-      {
-        name: 'temperature',
-        type: 'range',
-        defaultValue: 0.4,
-        label: 'Temperature',
-        description: 'Randomness factor for non-deterministic behavior',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-      {
-        name: 'variationFactor',
-        type: 'range',
-        defaultValue: 0.25,
-        label: 'Variation Factor',
-        description: 'Amount of random variation to apply',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
     ],
     getDefaults: () => ({
       verticalPadding: 60,
       nodeSize: 'medium',
       primaryColor: '#7B68EE',
       spacing: 'normal',
-      temperature: 0.4,
-      variationFactor: 0.25,
     }),
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, verticalSpreadTransform, [
@@ -418,13 +340,11 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
         { name: 'nodeSize', defaultValue: 'medium' },
         { name: 'primaryColor', defaultValue: '#7B68EE' },
         { name: 'spacing', defaultValue: 'normal' },
-        { name: 'temperature', defaultValue: 0.4 },
-        { name: 'variationFactor', defaultValue: 0.25 },
       ]),
   },
-  [NODE_SHAPE.ID]: {
-    id: NODE_SHAPE.ID,
-    name: NODE_SHAPE.NAME,
+  'node-shape': {
+    id: 'node-shape',
+    name: 'Node Shape',
     description:
       'Uses sophisticated algorithms to map genealogical patterns to geometric forms, creating meaningful visual distinctions across family structures.',
     shortDescription: 'Changes node shapes based on generation or metadata',
@@ -440,34 +360,13 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'generation',
     defaultSecondaryDimension: 'childrenCount',
-    visualParameters: [
-      {
-        name: 'variationFactor',
-        type: 'range',
-        defaultValue: 0.15,
-        label: 'Variation Factor',
-        description: 'Amount of random variation to apply',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-      {
-        name: 'temperature',
-        type: 'range',
-        defaultValue: 0.2,
-        label: 'Temperature',
-        description: 'Randomness factor for non-deterministic behavior',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-    ],
+    visualParameters: [],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeShapeTransform),
   },
-  [NODE_ROTATION.ID]: {
-    id: NODE_ROTATION.ID,
-    name: NODE_ROTATION.NAME,
+  'node-rotation': {
+    id: 'node-rotation',
+    name: 'Node Rotation',
     description:
       'Applies precise angular calculations that reflect temporal and genealogical relationships, adding dynamic visual interest to family trees.',
     shortDescription: 'Rotates nodes based on birth year or lifespan',
@@ -483,34 +382,13 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'birthYear',
     defaultSecondaryDimension: 'generation',
-    visualParameters: [
-      {
-        name: 'variationFactor',
-        type: 'range',
-        defaultValue: 0.3,
-        label: 'Variation Factor',
-        description: 'Amount of random variation to apply',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-      {
-        name: 'temperature',
-        type: 'range',
-        defaultValue: 0.6,
-        label: 'Temperature',
-        description: 'Randomness factor for non-deterministic behavior',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-    ],
+    visualParameters: [],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeRotationTransform),
   },
-  [NODE_SCALE.ID]: {
-    id: NODE_SCALE.ID,
-    name: NODE_SCALE.NAME,
+  'node-scale': {
+    id: 'node-scale',
+    name: 'Node Scale',
     description:
       'Applies independent width and height transformations that create compelling oval and rectangular forms reflecting individual significance.',
     shortDescription: 'Scales node dimensions for oval or rectangular shapes',
@@ -526,34 +404,13 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     ],
     defaultPrimaryDimension: 'lifespan',
     defaultSecondaryDimension: 'childrenCount',
-    visualParameters: [
-      {
-        name: 'variationFactor',
-        type: 'range',
-        defaultValue: 0.25,
-        label: 'Variation Factor',
-        description: 'Amount of random variation to apply',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-      {
-        name: 'temperature',
-        type: 'range',
-        defaultValue: 0.3,
-        label: 'Temperature',
-        description: 'Randomness factor for non-deterministic behavior',
-        min: 0,
-        max: 1.0,
-        step: 0.1,
-      },
-    ],
+    visualParameters: [],
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeScaleTransform),
   },
-  [SMART_LAYOUT.ID]: {
-    id: SMART_LAYOUT.ID,
-    name: SMART_LAYOUT.NAME,
+  'smart-layout': {
+    id: 'smart-layout',
+    name: 'Smart Layout',
     description:
       'AI-powered layout that uses machine learning to intelligently position nodes and edges based on family tree structure and user preferences.',
     shortDescription: 'Smart AI-powered layout positioning',

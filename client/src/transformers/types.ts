@@ -204,6 +204,27 @@ export interface VisualTransformerConfig {
 }
 
 /**
+ * A transformer instance in a pipeline
+ * Combines the transformer type with its specific configuration
+ */
+export interface TransformerInstance {
+  // The type of transformer (matches TransformerId)
+  type: TransformerId;
+
+  // Unique instance ID for this specific instance
+  instanceId: string;
+
+  // Dimension configuration for this instance
+  dimensions: {
+    primary?: DimensionId;
+    secondary?: DimensionId;
+  };
+
+  // Visual parameter values for this instance
+  visual: VisualParameterValues;
+}
+
+/**
  * A pipeline is an ordered sequence of transformers
  */
 export interface VisualTransformerPipeline {
@@ -224,7 +245,7 @@ export interface VisualTransformerPipeline {
 export interface PipelineResult {
   visualMetadata: CompleteVisualMetadata;
   config: {
-    transformerIds: TransformerId[];
+    transformers: TransformerInstance[];
     temperature?: number;
     seed?: string;
     canvasWidth?: number;
