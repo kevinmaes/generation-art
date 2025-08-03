@@ -388,4 +388,3 @@ function algorithmicFallback(context: TransformerContext): TransformerOutput {
     },
   };
 }
-
