@@ -287,8 +287,17 @@ describe('Node Size Transformer', () => {
       expect(individuals.I3.size).toBeDefined();
       expect(individuals.I1.size).toBeDefined();
       expect(individuals.I2.size).toBeDefined();
-      expect(individuals.I3.size).toBeLessThanOrEqual(individuals.I1.size ?? 0);
-      expect(individuals.I3.size).toBeLessThanOrEqual(individuals.I2.size ?? 0);
+      expect(typeof individuals.I3.size).toBe('number');
+      expect(typeof individuals.I1.size).toBe('number');
+      expect(typeof individuals.I2.size).toBe('number');
+      if (
+        typeof individuals.I3.size === 'number' &&
+        typeof individuals.I1.size === 'number' &&
+        typeof individuals.I2.size === 'number'
+      ) {
+        expect(individuals.I3.size).toBeLessThanOrEqual(individuals.I1.size);
+        expect(individuals.I3.size).toBeLessThanOrEqual(individuals.I2.size);
+      }
     });
 
     it('should calculate node size based on lifespan dimension', async () => {
@@ -308,7 +317,14 @@ describe('Node Size Transformer', () => {
       // I1 (lifespan 80) should have larger size than I3 (lifespan 45)
       expect(individuals.I1.size).toBeDefined();
       expect(individuals.I3.size).toBeDefined();
-      expect(individuals.I1.size).toBeGreaterThan(individuals.I3.size ?? 0);
+      expect(typeof individuals.I1.size).toBe('number');
+      expect(typeof individuals.I3.size).toBe('number');
+      if (
+        typeof individuals.I1.size === 'number' &&
+        typeof individuals.I3.size === 'number'
+      ) {
+        expect(individuals.I1.size).toBeGreaterThan(individuals.I3.size);
+      }
     });
   });
 

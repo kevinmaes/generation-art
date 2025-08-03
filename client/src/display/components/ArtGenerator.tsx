@@ -54,11 +54,13 @@ export function ArtGenerator({
     container.innerHTML = '';
 
     // Create a proper config object for the sketch
+    const defaultTransformerIds = [HORIZONTAL_SPREAD.ID, NODE_SHAPE.ID];
+    const transformerIds = pipelineResult?.config.transformers
+      ? pipelineResult.config.transformers.map((t) => t.type)
+      : defaultTransformerIds;
+
     const sketchConfig: Partial<SketchConfig> = {
-      transformerIds: pipelineResult?.config.transformerIds ?? [
-        HORIZONTAL_SPREAD.ID,
-        NODE_SHAPE.ID,
-      ],
+      transformerIds,
       temperature: pipelineResult?.config.temperature ?? 0.5,
       seed: pipelineResult?.config.seed,
       showIndividuals,
