@@ -25,9 +25,9 @@ export const TRANSFORMERS = {
     ID: 'horizontal-spread',
     NAME: 'Horizontal Spread',
   },
-  NODE_SIZE: { 
-    ID: 'node-size', 
-    NAME: 'Node Size' 
+  NODE_SIZE: {
+    ID: 'node-size',
+    NAME: 'Node Size',
   },
   NODE_OPACITY: {
     ID: 'node-opacity',
@@ -59,36 +59,20 @@ export const TRANSFORMERS = {
   },
 } as const;
 
-// Legacy exports for backward compatibility (deprecated)
-export const HORIZONTAL_SPREAD = TRANSFORMERS.HORIZONTAL_SPREAD;
-export const NODE_SIZE = TRANSFORMERS.NODE_SIZE;
-export const NODE_OPACITY = TRANSFORMERS.NODE_OPACITY;
-export const EDGE_OPACITY = TRANSFORMERS.EDGE_OPACITY;
-export const VERTICAL_SPREAD = TRANSFORMERS.VERTICAL_SPREAD;
-export const NODE_SHAPE = TRANSFORMERS.NODE_SHAPE;
-export const NODE_ROTATION = TRANSFORMERS.NODE_ROTATION;
-export const NODE_SCALE = TRANSFORMERS.NODE_SCALE;
-export const SMART_LAYOUT = TRANSFORMERS.SMART_LAYOUT;
-
 export type TransformerId =
-  | typeof TRANSFORMERS.HORIZONTAL_SPREAD.ID
-  | typeof TRANSFORMERS.NODE_SIZE.ID
-  | typeof TRANSFORMERS.NODE_OPACITY.ID
-  | typeof TRANSFORMERS.EDGE_OPACITY.ID
-  | typeof TRANSFORMERS.VERTICAL_SPREAD.ID
-  | typeof TRANSFORMERS.NODE_SHAPE.ID
-  | typeof TRANSFORMERS.NODE_ROTATION.ID
-  | typeof TRANSFORMERS.NODE_SCALE.ID
-  | typeof TRANSFORMERS.SMART_LAYOUT.ID;
+  (typeof TRANSFORMERS)[keyof typeof TRANSFORMERS]['ID'];
+
+export type TransformerName =
+  (typeof TRANSFORMERS)[keyof typeof TRANSFORMERS]['NAME'];
 
 /**
  * Registry of all available transformers
  * Keyed by transformer ID for type safety
  */
 export const transformers: Record<TransformerId, VisualTransformerConfig> = {
-  [TRANSFORMERS.HORIZONTAL_SPREAD.ID]: {
-    id: TRANSFORMERS.HORIZONTAL_SPREAD.ID,
-    name: TRANSFORMERS.HORIZONTAL_SPREAD.NAME,
+  'horizontal-spread': {
+    id: 'horizontal-spread',
+    name: 'Horizontal Spread',
     description:
       'Uses advanced algorithms to create visually compelling horizontal arrangements with customizable spacing, padding, and variation factors.',
     shortDescription: 'Spreads nodes horizontally by generation or age',
@@ -163,9 +147,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
         { name: 'spacing', defaultValue: 'normal' },
       ]),
   },
-  [TRANSFORMERS.NODE_SIZE.ID]: {
-    id: TRANSFORMERS.NODE_SIZE.ID,
-    name: TRANSFORMERS.NODE_SIZE.NAME,
+  'node-size': {
+    id: 'node-size',
+    name: 'Node Size',
     description:
       'Intelligently scales visual elements using sophisticated algorithms that consider multiple family metrics and importance indicators.',
     shortDescription: 'Adjusts node sizes by children or lifespan',
@@ -199,9 +183,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
         { name: 'nodeSize', defaultValue: 'medium' },
       ]),
   },
-  [TRANSFORMERS.NODE_OPACITY.ID]: {
-    id: TRANSFORMERS.NODE_OPACITY.ID,
-    name: TRANSFORMERS.NODE_OPACITY.NAME,
+  'node-opacity': {
+    id: 'node-opacity',
+    name: 'Node Opacity',
     description:
       'Creates sophisticated transparency effects by analyzing family relationships, generational depth, and genealogical significance patterns.',
     shortDescription: 'Controls node transparency by generation or children',
@@ -230,9 +214,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeOpacityTransform),
   },
-  [TRANSFORMERS.EDGE_OPACITY.ID]: {
-    id: TRANSFORMERS.EDGE_OPACITY.ID,
-    name: TRANSFORMERS.EDGE_OPACITY.NAME,
+  'edge-opacity': {
+    id: 'edge-opacity',
+    name: 'Edge Opacity',
     description:
       'Applies nuanced transparency and width variations to relationship lines, considering generational distance, family importance, and visual hierarchy.',
     shortDescription: 'Controls edge transparency by relationship type',
@@ -281,9 +265,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, edgeOpacityTransform),
   },
-  [TRANSFORMERS.VERTICAL_SPREAD.ID]: {
-    id: TRANSFORMERS.VERTICAL_SPREAD.ID,
-    name: TRANSFORMERS.VERTICAL_SPREAD.NAME,
+  'vertical-spread': {
+    id: 'vertical-spread',
+    name: 'Vertical Spread',
     description:
       'Employs sophisticated vertical positioning algorithms to create meaningful visual separations and hierarchies within family structures.',
     shortDescription: 'Spreads nodes vertically by birth year or children',
@@ -358,9 +342,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
         { name: 'spacing', defaultValue: 'normal' },
       ]),
   },
-  [TRANSFORMERS.NODE_SHAPE.ID]: {
-    id: TRANSFORMERS.NODE_SHAPE.ID,
-    name: TRANSFORMERS.NODE_SHAPE.NAME,
+  'node-shape': {
+    id: 'node-shape',
+    name: 'Node Shape',
     description:
       'Uses sophisticated algorithms to map genealogical patterns to geometric forms, creating meaningful visual distinctions across family structures.',
     shortDescription: 'Changes node shapes based on generation or metadata',
@@ -380,9 +364,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeShapeTransform),
   },
-  [TRANSFORMERS.NODE_ROTATION.ID]: {
-    id: TRANSFORMERS.NODE_ROTATION.ID,
-    name: TRANSFORMERS.NODE_ROTATION.NAME,
+  'node-rotation': {
+    id: 'node-rotation',
+    name: 'Node Rotation',
     description:
       'Applies precise angular calculations that reflect temporal and genealogical relationships, adding dynamic visual interest to family trees.',
     shortDescription: 'Rotates nodes based on birth year or lifespan',
@@ -402,9 +386,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeRotationTransform),
   },
-  [TRANSFORMERS.NODE_SCALE.ID]: {
-    id: TRANSFORMERS.NODE_SCALE.ID,
-    name: TRANSFORMERS.NODE_SCALE.NAME,
+  'node-scale': {
+    id: 'node-scale',
+    name: 'Node Scale',
     description:
       'Applies independent width and height transformations that create compelling oval and rectangular forms reflecting individual significance.',
     shortDescription: 'Scales node dimensions for oval or rectangular shapes',
@@ -424,9 +408,9 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
     createRuntimeTransformerFunction: (params) =>
       createRuntimeTransformerFunction(params, nodeScaleTransform),
   },
-  [TRANSFORMERS.SMART_LAYOUT.ID]: {
-    id: TRANSFORMERS.SMART_LAYOUT.ID,
-    name: TRANSFORMERS.SMART_LAYOUT.NAME,
+  'smart-layout': {
+    id: 'smart-layout',
+    name: 'Smart Layout',
     description:
       'AI-powered layout that uses machine learning to intelligently position nodes and edges based on family tree structure and user preferences.',
     shortDescription: 'Smart AI-powered layout positioning',

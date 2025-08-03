@@ -54,7 +54,10 @@ export function ArtGenerator({
     container.innerHTML = '';
 
     // Create a proper config object for the sketch
-    const defaultTransformerIds = [TRANSFORMERS.HORIZONTAL_SPREAD.ID, TRANSFORMERS.NODE_SHAPE.ID];
+    const defaultTransformerIds = [
+      TRANSFORMERS.HORIZONTAL_SPREAD.ID,
+      TRANSFORMERS.NODE_SHAPE.ID,
+    ];
     const transformerIds = pipelineResult?.config.transformers
       ? pipelineResult.config.transformers.map((t) => t.type)
       : defaultTransformerIds;
