@@ -3,7 +3,7 @@ import ReactJson from 'react-json-view';
 import type { PipelineResult } from '../../../transformers/types';
 import { createInitialCompleteVisualMetadata } from '../../../transformers/pipeline';
 import {
-  transformers,
+  transformerConfigs,
   type TransformerId,
   getTransformer,
   getTransformerIds,
@@ -384,7 +384,7 @@ export function PipelineManager({
                   </p>
                 ) : (
                   availableTransformerIds.map((transformerId) => {
-                    const transformer = transformers[transformerId];
+                    const transformer = transformerConfigs[transformerId];
 
                     return (
                       <TransformerItem

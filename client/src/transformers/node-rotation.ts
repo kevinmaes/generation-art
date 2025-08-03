@@ -10,8 +10,36 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
+import { createRuntimeTransformerFunction } from './utils';
+
+/**
+ * Configuration for the node rotation transformer
+ */
+export const nodeRotationConfig: VisualTransformerConfig = {
+  id: 'node-rotation',
+  name: 'Node Rotation',
+  description:
+    'Applies precise angular calculations that reflect temporal and genealogical relationships, adding dynamic visual interest to family trees.',
+  shortDescription: 'Rotates nodes based on birth year or lifespan',
+  transform: nodeRotationTransform,
+  categories: ['visual', 'rotation'],
+  availableDimensions: [
+    'birthYear',
+    'generation',
+    'lifespan',
+    'childrenCount',
+    'marriageCount',
+    'nameLength',
+  ],
+  defaultPrimaryDimension: 'birthYear',
+  defaultSecondaryDimension: 'generation',
+  visualParameters: [],
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, nodeRotationTransform),
+};
 
 /**
  * Calculate node rotation based on selected dimensions

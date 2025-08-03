@@ -10,14 +10,82 @@ import type {
   TransformerContext,
   TransformerOutput,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import type { SmartTransformerConfig } from './smart-transformer-types';
+import { createRuntimeTransformerFunction } from './utils';
 import {
   buildSmartTransformerPrompt,
   mergeLLMResponse,
 } from '../services/smart-transformer-utils';
 import { executeSmartTransformer } from '../services/smart-llm-service';
 import { llmService } from '../services/llm-service';
+
+/**
+ * Configuration for the smart layout transformer
+ */
+export const smartLayoutTransformerConfig: VisualTransformerConfig = {
+  id: 'smart-layout',
+  name: 'Smart Layout',
+  description:
+    'AI-powered layout that uses machine learning to intelligently position nodes and edges based on family tree structure and user preferences.',
+  shortDescription: 'Smart AI-powered layout positioning',
+  transform: smartLayoutTransform,
+  categories: ['layout', 'ai'],
+  requiresLLM: true,
+  availableDimensions: ['generation', 'birthYear', 'childrenCount', 'lifespan'],
+  defaultPrimaryDimension: 'generation',
+  defaultSecondaryDimension: 'birthYear',
+  visualParameters: [
+    {
+      name: 'layoutStyle',
+      type: 'select',
+      defaultValue: 'tree',
+      label: 'Layout Style',
+      description: 'AI-powered layout algorithm for positioning nodes',
+      options: [
+        { value: 'tree', label: 'Tree (Hierarchical)' },
+        { value: 'radial', label: 'Radial (Circular)' },
+        { value: 'grid', label: 'Grid (Uniform)' },
+      ],
+    },
+    {
+      name: 'spacing',
+      type: 'select',
+      defaultValue: 'normal',
+      label: 'Spacing',
+      description: 'General spacing between elements',
+      options: [
+        { value: 'tight', label: 'Tight' },
+        { value: 'compact', label: 'Compact' },
+        { value: 'normal', label: 'Normal' },
+        { value: 'loose', label: 'Loose' },
+        { value: 'sparse', label: 'Sparse' },
+      ],
+    },
+    {
+      name: 'temperature',
+      type: 'range',
+      defaultValue: 0.5,
+      label: 'Temperature',
+      description: 'Creativity level for AI layout (0 = strict, 1 = creative)',
+      min: 0,
+      max: 1.0,
+      step: 0.1,
+    },
+  ],
+  getDefaults: () => ({
+    layoutStyle: 'tree',
+    spacing: 'normal',
+    temperature: 0.5,
+  }),
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, smartLayoutTransform, [
+      { name: 'layoutStyle', defaultValue: 'tree' },
+      { name: 'spacing', defaultValue: 'normal' },
+      { name: 'temperature', defaultValue: 0.5 },
+    ]),
+};
 
 // Layout-specific response schema
 const LayoutResponseSchema = z.object({

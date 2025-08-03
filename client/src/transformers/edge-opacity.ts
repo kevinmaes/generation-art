@@ -12,11 +12,68 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import {
   getIndividualOrWarn,
   validateEdgeReferences,
 } from './utils/transformer-guards';
+import { createRuntimeTransformerFunction } from './utils';
+
+/**
+ * Configuration for the edge opacity transformer
+ */
+export const edgeOpacityConfig: VisualTransformerConfig = {
+  id: 'edge-opacity',
+  name: 'Edge Opacity',
+  description:
+    'Applies nuanced transparency and width variations to relationship lines, considering generational distance, family importance, and visual hierarchy.',
+  shortDescription: 'Controls edge transparency by relationship type',
+  transform: edgeOpacityTransform,
+  categories: ['visual', 'opacity'],
+  availableDimensions: [
+    'generation',
+    'childrenCount',
+    'lifespan',
+    'relationshipDensity',
+  ],
+  defaultPrimaryDimension: 'generation',
+  defaultSecondaryDimension: 'childrenCount',
+  visualParameters: [
+    {
+      name: 'edgeOpacity',
+      type: 'range',
+      defaultValue: 0.5,
+      label: 'Edge Opacity',
+      description: 'Opacity of relationship lines',
+      min: 0.1,
+      max: 1.0,
+      step: 0.1,
+    },
+    {
+      name: 'edgeWidth',
+      type: 'select',
+      defaultValue: 'normal',
+      label: 'Edge Width',
+      description: 'Width of relationship lines',
+      options: [
+        { value: 'thin', label: 'Thin' },
+        { value: 'normal', label: 'Normal' },
+        { value: 'thick', label: 'Thick' },
+        { value: 'bold', label: 'Bold' },
+      ],
+    },
+    {
+      name: 'secondaryColor',
+      type: 'color',
+      defaultValue: '#666666',
+      label: 'Secondary Color',
+      description: 'Secondary color for edges',
+    },
+  ],
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, edgeOpacityTransform),
+};
 
 /**
  * Calculate edge opacity based on selected dimensions and edge properties

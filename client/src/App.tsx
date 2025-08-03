@@ -11,7 +11,7 @@ import {
   createSimplePipeline,
   PIPELINE_DEFAULTS,
 } from './transformers/pipeline';
-import { transformers, type TransformerId } from './transformers/transformers';
+import { transformerConfigs, type TransformerId } from './transformers/transformers';
 import type { VisualParameterValues } from './transformers/visual-parameters';
 import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
 import './App.css';
@@ -203,7 +203,7 @@ function App(): React.ReactElement {
         }
       > = {};
       activeTransformerIds.forEach((transformerId) => {
-        const transformer = transformers[transformerId];
+        const transformer = transformerConfigs[transformerId];
         actualParametersUsed[transformerId] = transformerParameters[
           transformerId
         ] ?? {

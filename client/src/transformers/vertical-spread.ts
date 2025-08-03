@@ -9,8 +9,91 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
+import { createRuntimeTransformerFunction } from './utils';
+
+/**
+ * Configuration for the vertical spread transformer
+ */
+export const verticalSpreadConfig: VisualTransformerConfig = {
+  id: 'vertical-spread',
+  name: 'Vertical Spread',
+  description:
+    'Employs sophisticated vertical positioning algorithms to create meaningful visual separations and hierarchies within family structures.',
+  shortDescription: 'Spreads nodes vertically by birth year or children',
+  transform: verticalSpreadTransform,
+  categories: ['layout', 'positioning'],
+  availableDimensions: [
+    'birthYear',
+    'childrenCount',
+    'lifespan',
+    'generation',
+    'nameLength',
+  ],
+  defaultPrimaryDimension: 'birthYear',
+  defaultSecondaryDimension: 'childrenCount',
+  visualParameters: [
+    {
+      name: 'verticalPadding',
+      type: 'range',
+      defaultValue: 60,
+      label: 'Vertical Padding',
+      description: 'Padding from top and bottom of canvas',
+      min: 10,
+      max: 200,
+      step: 5,
+    },
+    {
+      name: 'nodeSize',
+      type: 'select',
+      defaultValue: 'medium',
+      label: 'Node Size',
+      description: 'Size of individual nodes',
+      options: [
+        { value: 'small', label: 'Small' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'large', label: 'Large' },
+        { value: 'extra-large', label: 'Extra Large' },
+      ],
+    },
+    {
+      name: 'primaryColor',
+      type: 'color',
+      defaultValue: '#7B68EE',
+      label: 'Primary Color',
+      description: 'Main color for nodes',
+    },
+    {
+      name: 'spacing',
+      type: 'select',
+      defaultValue: 'normal',
+      label: 'Spacing',
+      description: 'General spacing between elements',
+      options: [
+        { value: 'tight', label: 'Tight' },
+        { value: 'compact', label: 'Compact' },
+        { value: 'normal', label: 'Normal' },
+        { value: 'loose', label: 'Loose' },
+        { value: 'sparse', label: 'Sparse' },
+      ],
+    },
+  ],
+  getDefaults: () => ({
+    verticalPadding: 60,
+    nodeSize: 'medium',
+    primaryColor: '#7B68EE',
+    spacing: 'normal',
+  }),
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, verticalSpreadTransform, [
+      { name: 'verticalPadding', defaultValue: 60 },
+      { name: 'nodeSize', defaultValue: 'medium' },
+      { name: 'primaryColor', defaultValue: '#7B68EE' },
+      { name: 'spacing', defaultValue: 'normal' },
+    ]),
+};
 
 /**
  * Calculate vertical position based on selected dimensions and parameters

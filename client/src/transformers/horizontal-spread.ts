@@ -9,8 +9,91 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
+import { createRuntimeTransformerFunction } from './utils';
+
+/**
+ * Configuration for the horizontal spread transformer
+ */
+export const horizontalSpreadConfig: VisualTransformerConfig = {
+  id: 'horizontal-spread',
+  name: 'Horizontal Spread',
+  description:
+    'Uses advanced algorithms to create visually compelling horizontal arrangements with customizable spacing, padding, and variation factors.',
+  shortDescription: 'Spreads nodes horizontally by generation or age',
+  transform: horizontalSpreadTransform,
+  categories: ['layout', 'positioning'],
+  availableDimensions: [
+    'generation',
+    'birthYear',
+    'childrenCount',
+    'lifespan',
+    'nameLength',
+  ],
+  defaultPrimaryDimension: 'generation',
+  defaultSecondaryDimension: 'birthYear',
+  visualParameters: [
+    {
+      name: 'horizontalPadding',
+      type: 'range',
+      defaultValue: 80,
+      label: 'Horizontal Padding',
+      description: 'Padding from left and right of canvas',
+      min: 10,
+      max: 200,
+      step: 5,
+    },
+    {
+      name: 'nodeSize',
+      type: 'select',
+      defaultValue: 'medium',
+      label: 'Node Size',
+      description: 'Size of individual nodes',
+      options: [
+        { value: 'small', label: 'Small' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'large', label: 'Large' },
+        { value: 'extra-large', label: 'Extra Large' },
+      ],
+    },
+    {
+      name: 'primaryColor',
+      type: 'color',
+      defaultValue: '#4A90E2',
+      label: 'Primary Color',
+      description: 'Main color for nodes',
+    },
+    {
+      name: 'spacing',
+      type: 'select',
+      defaultValue: 'normal',
+      label: 'Spacing',
+      description: 'General spacing between elements',
+      options: [
+        { value: 'tight', label: 'Tight' },
+        { value: 'compact', label: 'Compact' },
+        { value: 'normal', label: 'Normal' },
+        { value: 'loose', label: 'Loose' },
+        { value: 'sparse', label: 'Sparse' },
+      ],
+    },
+  ],
+  getDefaults: () => ({
+    horizontalPadding: 80,
+    nodeSize: 'medium',
+    primaryColor: '#4A90E2',
+    spacing: 'normal',
+  }),
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, horizontalSpreadTransform, [
+      { name: 'horizontalPadding', defaultValue: 80 },
+      { name: 'nodeSize', defaultValue: 'medium' },
+      { name: 'primaryColor', defaultValue: '#4A90E2' },
+      { name: 'spacing', defaultValue: 'normal' },
+    ]),
+};
 
 /**
  * Calculate horizontal position based on selected dimensions and parameters
