@@ -26,7 +26,7 @@ import type { LLMReadyData } from '../../../shared/types/llm-data';
 // Mock data for testing
 const mockVisualMetadata = {
   individuals: {
-    'person1': {
+    person1: {
       x: 100,
       y: 200,
       rotation: 0,
@@ -36,7 +36,7 @@ const mockVisualMetadata = {
         importance: 0.8,
       },
     },
-    'person2': {
+    person2: {
       x: 300,
       y: 400,
       rotation: 45,
@@ -48,14 +48,17 @@ const mockVisualMetadata = {
     },
   },
   edges: {
-    'edge1': {
+    edge1: {
       color: '#000000',
       custom: {
-        controlPoints: [{ x: 150, y: 250 }, { x: 200, y: 300 }],
+        controlPoints: [
+          { x: 150, y: 250 },
+          { x: 200, y: 300 },
+        ],
         strength: 0.7,
       },
     },
-    'edge2': {
+    edge2: {
       color: '#0000ff',
       custom: {
         strength: 0.9,
@@ -73,7 +76,7 @@ const mockVisualMetadata = {
 
 const mockLLMData = {
   individuals: {
-    'person1': {
+    person1: {
       id: 'person1',
       name: 'Person One',
       parents: [],
@@ -85,7 +88,7 @@ const mockLLMData = {
         birthYear: 1950,
       },
     },
-    'person2': {
+    person2: {
       id: 'person2',
       name: 'Person Two',
       parents: ['person1'],
@@ -145,10 +148,10 @@ const mockLLMData = {
       averageDistanceBetweenBirthPlaces: 0,
     },
     demographics: {
-      genderDistribution: { 
-        male: { count: 0, percentage: 0 }, 
-        female: { count: 0, percentage: 0 }, 
-        unknown: { count: 2, percentage: 100 } 
+      genderDistribution: {
+        male: { count: 0, percentage: 0 },
+        female: { count: 0, percentage: 0 },
+        unknown: { count: 2, percentage: 100 },
       },
       averageLifespan: 0,
     },
@@ -204,11 +207,14 @@ const mockConfig: SmartTransformerConfig = {
     },
   },
   responseSchema: z.object({
-    individuals: z.record(z.string(), z.object({
-      x: z.number().optional(),
-      y: z.number().optional(),
-      rotation: z.number().optional(),
-    })),
+    individuals: z.record(
+      z.string(),
+      z.object({
+        x: z.number().optional(),
+        y: z.number().optional(),
+        rotation: z.number().optional(),
+      }),
+    ),
   }),
   prompt: {
     taskDescription: 'Test task description',
@@ -243,7 +249,10 @@ describe('Smart Transformer Utils', () => {
 
       expect(result.edges).toBeDefined();
       expect(result.edges['edge1']).toEqual({
-        controlPoints: [{ x: 150, y: 250 }, { x: 200, y: 300 }],
+        controlPoints: [
+          { x: 150, y: 250 },
+          { x: 200, y: 300 },
+        ],
       });
       expect(result.edges['edge2']).toBeUndefined(); // No controlPoints
     });
@@ -268,7 +277,10 @@ describe('Smart Transformer Utils', () => {
         },
       };
 
-      const result = extractLLMProperties(mockVisualMetadata, configWithMissingProps);
+      const result = extractLLMProperties(
+        mockVisualMetadata,
+        configWithMissingProps,
+      );
       expect(result.individuals['person1']).toEqual({
         x: 100,
         y: 200,
@@ -304,11 +316,11 @@ describe('Smart Transformer Utils', () => {
   describe('mergeLLMResponse', () => {
     const mockLLMResponse = {
       individuals: {
-        'person1': { x: 150, y: 250 },
-        'person2': { rotation: 90 },
+        person1: { x: 150, y: 250 },
+        person2: { rotation: 90 },
       },
       edges: {
-        'edge1': { controlPoints: [{ x: 100, y: 100 }] },
+        edge1: { controlPoints: [{ x: 100, y: 100 }] },
       },
       global: {
         backgroundColor: '#f0f0f0',
@@ -316,7 +328,11 @@ describe('Smart Transformer Utils', () => {
     };
 
     it('should merge individual properties correctly', () => {
-      const result = mergeLLMResponse(mockLLMResponse, mockVisualMetadata, mockConfig);
+      const result = mergeLLMResponse(
+        mockLLMResponse,
+        mockVisualMetadata,
+        mockConfig,
+      );
 
       expect(result.individuals['person1']).toEqual({
         x: 150, // Updated
@@ -342,7 +358,11 @@ describe('Smart Transformer Utils', () => {
     });
 
     it('should merge edge control points correctly', () => {
-      const result = mergeLLMResponse(mockLLMResponse, mockVisualMetadata, mockConfig);
+      const result = mergeLLMResponse(
+        mockLLMResponse,
+        mockVisualMetadata,
+        mockConfig,
+      );
 
       expect(result.edges['edge1']).toEqual({
         color: '#000000', // Preserved
@@ -354,7 +374,11 @@ describe('Smart Transformer Utils', () => {
     });
 
     it('should merge global properties', () => {
-      const result = mergeLLMResponse(mockLLMResponse, mockVisualMetadata, mockConfig);
+      const result = mergeLLMResponse(
+        mockLLMResponse,
+        mockVisualMetadata,
+        mockConfig,
+      );
 
       expect(result.global).toEqual({
         canvasWidth: 1000, // Preserved
@@ -364,7 +388,11 @@ describe('Smart Transformer Utils', () => {
     });
 
     it('should preserve families and tree', () => {
-      const result = mergeLLMResponse(mockLLMResponse, mockVisualMetadata, mockConfig);
+      const result = mergeLLMResponse(
+        mockLLMResponse,
+        mockVisualMetadata,
+        mockConfig,
+      );
 
       expect(result.families).toEqual({});
       expect(result.tree).toEqual({});
@@ -373,16 +401,25 @@ describe('Smart Transformer Utils', () => {
     it('should use custom merger when provided', () => {
       const customConfig: SmartTransformerConfig = {
         ...mockConfig,
-        customMerger: (_response, original) => ({ ...original, custom: true } as any),
+        customMerger: (_response, original) =>
+          ({ ...original, custom: true }) as any,
       };
 
-      const result = mergeLLMResponse(mockLLMResponse, mockVisualMetadata, customConfig);
+      const result = mergeLLMResponse(
+        mockLLMResponse,
+        mockVisualMetadata,
+        customConfig,
+      );
       expect(result).toEqual({ ...mockVisualMetadata, custom: true });
     });
 
     it('should handle empty LLM response', () => {
       const emptyResponse = {};
-      const result = mergeLLMResponse(emptyResponse, mockVisualMetadata, mockConfig);
+      const result = mergeLLMResponse(
+        emptyResponse,
+        mockVisualMetadata,
+        mockConfig,
+      );
 
       expect(result).toEqual(mockVisualMetadata);
     });
@@ -393,7 +430,7 @@ describe('Smart Transformer Utils', () => {
       const result = buildTreeStructureDescription(mockLLMData);
 
       expect(result).toBe(
-        '- Total Individuals: 2\n- Generations: 2\n- Tree Complexity: 0.5\n- Average Family Size: 1.5'
+        '- Total Individuals: 2\n- Generations: 2\n- Tree Complexity: 0.5\n- Average Family Size: 1.5',
       );
     });
 
@@ -429,7 +466,7 @@ describe('Smart Transformer Utils', () => {
     it('should prioritize root nodes', () => {
       const largeData = {
         individuals: {
-          'root1': {
+          root1: {
             id: 'root1',
             name: 'Root One',
             parents: [],
@@ -438,7 +475,7 @@ describe('Smart Transformer Utils', () => {
             siblings: [],
             metadata: { generation: 1 },
           },
-          'child1': {
+          child1: {
             id: 'child1',
             name: 'Child One',
             parents: ['root1'],
@@ -447,7 +484,7 @@ describe('Smart Transformer Utils', () => {
             siblings: ['child2'],
             metadata: { generation: 2 },
           },
-          'child2': {
+          child2: {
             id: 'child2',
             name: 'Child Two',
             parents: ['root1'],
@@ -456,7 +493,7 @@ describe('Smart Transformer Utils', () => {
             siblings: ['child1'],
             metadata: { generation: 2 },
           },
-          'isolated': {
+          isolated: {
             id: 'isolated',
             name: 'Isolated',
             parents: [],
@@ -478,7 +515,7 @@ describe('Smart Transformer Utils', () => {
     it('should handle missing generation data', () => {
       const dataWithMissingGen = {
         individuals: {
-          'person1': {
+          person1: {
             id: 'person1',
             name: 'Person',
             parents: [],
@@ -506,7 +543,9 @@ describe('Smart Transformer Utils', () => {
       };
 
       const result = buildCurrentStateDescription(extractedData);
-      expect(result).toBe('Existing data (individuals: 2, edges: 1, global: 1)');
+      expect(result).toBe(
+        'Existing data (individuals: 2, edges: 1, global: 1)',
+      );
     });
 
     it('should handle no existing data', () => {
@@ -617,7 +656,10 @@ describe('Smart Transformer Utils', () => {
         },
       };
 
-      const result = buildSmartTransformerPrompt(contextWithoutCanvas, mockConfig);
+      const result = buildSmartTransformerPrompt(
+        contextWithoutCanvas,
+        mockConfig,
+      );
       expect(result).toContain('Canvas: 1000x800'); // Should use defaults
     });
 
@@ -635,7 +677,10 @@ describe('Smart Transformer Utils', () => {
         },
       };
 
-      const result = buildSmartTransformerPrompt(contextWithoutStyle, configWithoutStyle);
+      const result = buildSmartTransformerPrompt(
+        contextWithoutStyle,
+        configWithoutStyle,
+      );
       expect(result).not.toContain('Style:');
     });
 
@@ -645,7 +690,10 @@ describe('Smart Transformer Utils', () => {
         temperature: undefined,
       };
 
-      const result = buildSmartTransformerPrompt(contextWithoutTemp, mockConfig);
+      const result = buildSmartTransformerPrompt(
+        contextWithoutTemp,
+        mockConfig,
+      );
       expect(result).toContain('Temperature 0.5'); // Default
     });
   });

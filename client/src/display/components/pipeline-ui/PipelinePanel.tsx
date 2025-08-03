@@ -73,7 +73,6 @@ export function PipelinePanel({
   const dragStartX = useRef<number>(0);
   const dragStartWidth = useRef<number>(0);
 
-
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -101,7 +100,8 @@ export function PipelinePanel({
   useEffect(() => {
     const handleWindowResize = () => {
       // Ensure panel width stays within bounds when window resizes
-      const newMaxWidth = (window.innerWidth * PANEL_WIDTH_CONSTANTS.MAX_WIDTH_VW) / 100;
+      const newMaxWidth =
+        (window.innerWidth * PANEL_WIDTH_CONSTANTS.MAX_WIDTH_VW) / 100;
       setPanelWidth((prevWidth) => {
         if (prevWidth > newMaxWidth) {
           return newMaxWidth;
@@ -117,14 +117,17 @@ export function PipelinePanel({
   }, []);
 
   // Mouse event handlers for resizing
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    dragStartX.current = e.clientX;
-    dragStartWidth.current = panelWidth;
-    document.body.style.cursor = 'ew-resize';
-    document.body.style.userSelect = 'none';
-  }, [panelWidth]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsDragging(true);
+      dragStartX.current = e.clientX;
+      dragStartWidth.current = panelWidth;
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none';
+    },
+    [panelWidth],
+  );
 
   useEffect(() => {
     if (!isDragging) return;
@@ -132,14 +135,15 @@ export function PipelinePanel({
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - dragStartX.current;
       const newWidth = dragStartWidth.current + deltaX;
-      const currentMaxWidth = (window.innerWidth * PANEL_WIDTH_CONSTANTS.MAX_WIDTH_VW) / 100;
-      
+      const currentMaxWidth =
+        (window.innerWidth * PANEL_WIDTH_CONSTANTS.MAX_WIDTH_VW) / 100;
+
       // Clamp width between min and max
       const clampedWidth = Math.max(
         PANEL_WIDTH_CONSTANTS.MIN_WIDTH,
-        Math.min(newWidth, currentMaxWidth)
+        Math.min(newWidth, currentMaxWidth),
       );
-      
+
       setPanelWidth(clampedWidth);
     };
 
