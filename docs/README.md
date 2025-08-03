@@ -3,6 +3,7 @@
 ## Quick Start
 
 - **[Setup](../readme.md#-development-setup)** - Get running in 3 steps
+- **[Development Guide](development.md)** - Scripts, workflows, and CI/CD
 - **[Project Status](../project.md)** - Current progress & roadmap
 
 ## Core Architecture
