@@ -225,9 +225,7 @@ export function validateTransformer(transformer: VisualTransformerConfig): {
   }
 
   if (typeof transformer.createTransformerInstance !== 'function') {
-    errors.push(
-      'Transformer must have a valid createTransformerInstance',
-    );
+    errors.push('Transformer must have a valid createTransformerInstance');
   }
 
   return {
