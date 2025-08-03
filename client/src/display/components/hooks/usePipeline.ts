@@ -9,7 +9,7 @@ import {
   type PipelineResult,
 } from '../../../transformers/pipeline';
 import {
-  transformers,
+  transformerConfigs,
   type TransformerId,
 } from '../../../transformers/transformers';
 
@@ -45,7 +45,7 @@ export function usePipeline(
       width: number,
       height: number,
       transformerIds: TransformerId[] = Object.keys(
-        transformers,
+        transformerConfigs,
       ) as TransformerId[],
     ): Promise<PipelineResult> => {
       setResult(null);

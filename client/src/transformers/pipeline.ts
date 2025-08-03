@@ -21,7 +21,7 @@ import {
   getTransformer,
   TRANSFORMERS,
   type TransformerId,
-  transformers,
+  transformerConfigs,
 } from './transformers';
 import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
@@ -475,7 +475,7 @@ export function validatePipelineConfig(config: PipelineConfig): {
 
   // Check if all transformers exist and have valid instance IDs
   for (const transformerInstance of config.transformers) {
-    if (!(transformerInstance.type in transformers)) {
+    if (!(transformerInstance.type in transformerConfigs)) {
       errors.push(`Transformer not found: ${transformerInstance.type}`);
     }
 

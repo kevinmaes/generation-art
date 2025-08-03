@@ -64,10 +64,13 @@ export type TransformerName =
   (typeof TRANSFORMERS)[keyof typeof TRANSFORMERS]['NAME'];
 
 /**
- * Registry of all available transformers
+ * Registry of all available transformer configurations
  * Keyed by transformer ID for type safety
  */
-export const transformers: Record<TransformerId, VisualTransformerConfig> = {
+export const transformerConfigs: Record<
+  TransformerId,
+  VisualTransformerConfig
+> = {
   'horizontal-spread': horizontalSpreadConfig,
   'node-size': nodeSizeConfig,
   'node-opacity': nodeOpacityConfig,
@@ -83,28 +86,28 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
  * Type guard to check if a string is a valid TransformerId
  */
 export function isTransformerId(id: string): id is TransformerId {
-  return id in transformers;
+  return id in transformerConfigs;
 }
 
 /**
  * Get a transformer by ID
  */
 export function getTransformer(id: TransformerId): VisualTransformerConfig {
-  return transformers[id];
+  return transformerConfigs[id];
 }
 
 /**
  * Get all transformer IDs as a properly typed array
  */
 export function getTransformerIds(): TransformerId[] {
-  return Object.keys(transformers).filter(isTransformerId);
+  return Object.keys(transformerConfigs).filter(isTransformerId);
 }
 
 /**
- * Get all transformers
+ * Get all transformer configs
  */
 export function getAllTransformers(): VisualTransformerConfig[] {
-  return Object.values(transformers);
+  return Object.values(transformerConfigs);
 }
 
 /**
