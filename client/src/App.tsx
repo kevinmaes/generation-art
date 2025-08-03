@@ -58,6 +58,11 @@ function App(): React.ReactElement {
   >({});
   const [isVisualizing, setIsVisualizing] = useState(false);
   const [isPipelineModalOpen, setIsPipelineModalOpen] = useState(false);
+  const [pipelineProgress, setPipelineProgress] = useState<{
+    current: number;
+    total: number;
+    transformerName: string;
+  } | null>(null);
 
   const [currentDataset, setCurrentDataset] = useState<string>('kennedy');
 
@@ -182,6 +187,7 @@ function App(): React.ReactElement {
     }
 
     setIsVisualizing(true);
+    setPipelineProgress(null);
     try {
       const pipelineConfig = createSimplePipeline(activeTransformerIds, {
         canvasWidth: minWidth,
@@ -194,6 +200,9 @@ function App(): React.ReactElement {
         fullData: dualData.full,
         llmData: dualData.llm,
         config: pipelineConfig,
+        onProgress: (current, total, transformerName) => {
+          setPipelineProgress({ current, total, transformerName });
+        },
       });
       setPipelineResult(result);
       // Update lastRunParameters with current transformerParameters after successful pipeline run
@@ -226,6 +235,7 @@ function App(): React.ReactElement {
       );
     } finally {
       setIsVisualizing(false);
+      setPipelineProgress(null);
     }
   };
 
@@ -274,6 +284,8 @@ function App(): React.ReactElement {
                 onVisualize={() => {
                   void handleVisualize();
                 }}
+                isVisualizing={isVisualizing}
+                pipelineProgress={pipelineProgress}
               />
             </>
           ) : (

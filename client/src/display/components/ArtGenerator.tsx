@@ -5,6 +5,7 @@ import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { PipelineResult } from '../../transformers/pipeline';
 import { TRANSFORMERS } from '../../transformers/transformers';
+import { GenerationProgress } from './GenerationProgress';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -19,6 +20,12 @@ interface ArtGeneratorProps {
   onExportReady?: (p5Instance: p5) => void;
   onPipelineResult?: (result: PipelineResult | null) => void;
   onVisualize?: () => void;
+  isVisualizing?: boolean;
+  pipelineProgress?: {
+    current: number;
+    total: number;
+    transformerName: string;
+  } | null;
 }
 
 export function ArtGenerator({
@@ -31,6 +38,8 @@ export function ArtGenerator({
   onExportReady,
   onPipelineResult,
   onVisualize,
+  isVisualizing = false,
+  pipelineProgress = null,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
@@ -124,23 +133,40 @@ export function ArtGenerator({
           height: `${String(height)}px`,
         }}
       >
-        <button
-          onClick={onVisualize}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-        >
-          Generate art
-        </button>
+        {isVisualizing ? (
+          <GenerationProgress progress={pipelineProgress} />
+        ) : (
+          <button
+            onClick={onVisualize}
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          >
+            Generate art
+          </button>
+        )}
       </div>
     );
   }
 
   return (
     <div
-      ref={containerRef}
+      className="relative"
       style={{
         width: `${String(width)}px`,
         height: `${String(height)}px`,
       }}
-    />
+    >
+      <div
+        ref={containerRef}
+        style={{
+          width: `${String(width)}px`,
+          height: `${String(height)}px`,
+        }}
+      />
+      {isVisualizing && (
+        <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+          <GenerationProgress progress={pipelineProgress} />
+        </div>
+      )}
+    </div>
   );
 }

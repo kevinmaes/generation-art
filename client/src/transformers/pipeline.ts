@@ -75,6 +75,11 @@ interface PipelineInput {
   fullData: GedcomDataWithMetadata;
   llmData: LLMReadyData;
   config: PipelineConfig;
+  onProgress?: (
+    current: number,
+    total: number,
+    transformerName: string,
+  ) => void;
 }
 
 interface TransformerResult {
@@ -298,6 +303,7 @@ export async function runPipeline({
   fullData,
   llmData,
   config,
+  onProgress,
 }: PipelineInput): Promise<PipelineResult> {
   const startTime = performance.now();
 
@@ -336,12 +342,18 @@ export async function runPipeline({
   const transformerResults: TransformerResult[] = [];
 
   // Execute each transformer instance in sequence
-  for (const transformerInstance of config.transformers) {
+  for (let i = 0; i < config.transformers.length; i++) {
+    const transformerInstance = config.transformers[i];
     const transformerStartTime = performance.now();
 
     try {
       // Get transformer configuration from registry
       const transformer = getTransformer(transformerInstance.type);
+
+      // Report progress
+      if (onProgress) {
+        onProgress(i + 1, config.transformers.length, transformer.name);
+      }
 
       // Create context for this transformer instance
       const context: TransformerContext = {

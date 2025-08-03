@@ -18,6 +18,12 @@ interface FramedArtworkProps {
   onPipelineResult?: (result: PipelineResult | null) => void;
   onOpenPipelineClick?: () => void;
   onVisualize?: () => void;
+  isVisualizing?: boolean;
+  pipelineProgress?: {
+    current: number;
+    total: number;
+    transformerName: string;
+  } | null;
 }
 
 export function FramedArtwork({
@@ -31,6 +37,8 @@ export function FramedArtwork({
   onPipelineResult,
   onOpenPipelineClick,
   onVisualize,
+  isVisualizing = false,
+  pipelineProgress = null,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
@@ -150,6 +158,8 @@ export function FramedArtwork({
             onExportReady={handleExport}
             onPipelineResult={onPipelineResult}
             onVisualize={onVisualize}
+            isVisualizing={isVisualizing}
+            pipelineProgress={pipelineProgress}
           />
         </div>
       </div>
