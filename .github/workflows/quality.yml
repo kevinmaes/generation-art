@@ -1,0 +1,78 @@
+name: Quality - App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  quality-app:
+    name: App Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for relevant changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            app:
+              - 'client/**'
+              - 'cli/**'
+              - 'shared/**'
+              - 'pnpm-lock.yaml'
+              - 'package.json'
+              - 'tsconfig*.json'
+              - 'eslint.config.js'
+              - 'vite.config.ts'
+              - 'vitest.config.ts'
+
+      - name: Skip quality checks - no relevant changes
+        if: steps.changes.outputs.app != 'true'
+        run: |
+          echo "✅ App quality checks skipped"
+          echo "No changes detected in app-related files for this PR"
+          echo "Changed paths don't require app quality validation"
+
+      - name: Setup pnpm
+        if: steps.changes.outputs.app == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        if: steps.changes.outputs.app == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        if: steps.changes.outputs.app == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        if: steps.changes.outputs.app == 'true'
+        run: pnpm format:check
+
+      - name: Run linting
+        if: steps.changes.outputs.app == 'true'
+        run: pnpm lint
+
+      - name: TypeScript Check
+        if: steps.changes.outputs.app == 'true'
+        run: pnpm typecheck
+
+      - name: Run tests
+        if: steps.changes.outputs.app == 'true'
+        run: pnpm test
