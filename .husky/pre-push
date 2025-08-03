@@ -1,1 +1,6 @@
-npx lint-staged
+#!/bin/sh
+echo "🔍 Running pre-push checks..."
+echo "📝 Checking code formatting..."
+npm run format:check
+echo "🔧 Checking for linting issues..."
+npm run lint
