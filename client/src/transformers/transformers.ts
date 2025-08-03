@@ -223,7 +223,11 @@ export const transformers: Record<TransformerId, VisualTransformerConfig> = {
       },
     ],
     createRuntimeTransformerFunction: (params) =>
-      createRuntimeTransformerFunction(params, nodeSizeTransform),
+      createRuntimeTransformerFunction(params, nodeSizeTransform, [
+        { name: 'variationFactor', defaultValue: 0.3 },
+        { name: 'nodeSize', defaultValue: 'medium' },
+        { name: 'temperature', defaultValue: 0.4 },
+      ]),
   },
   [NODE_OPACITY.ID]: {
     id: NODE_OPACITY.ID,

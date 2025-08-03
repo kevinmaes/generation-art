@@ -37,6 +37,14 @@ function calculateNodeScale(
   const primaryDimension = dimensions.primary;
   let primaryValue = 0.5; // Default fallback
 
+  // Early validation to ensure we have valid dimensions
+  if (!primaryDimension) {
+    console.warn(
+      `Node scale transformer: No primary dimension specified for individual ${individualId}`,
+    );
+    return { width: 1, height: 1 };
+  }
+
   switch (primaryDimension) {
     case 'lifespan': {
       const allLifespans = Object.values(gedcomData.individuals)
@@ -130,6 +138,20 @@ function calculateNodeScale(
       primaryValue = maxNameLength > 0 ? fullName.length / maxNameLength : 0.5;
       break;
     }
+    default:
+      console.warn(
+        `Node scale transformer: Unknown primary dimension '${primaryDimension}' for individual ${individualId}, using default`,
+      );
+      primaryValue = 0.5;
+      break;
+  }
+
+  // Validate primary value
+  if (!Number.isFinite(primaryValue) || primaryValue < 0 || primaryValue > 1) {
+    console.warn(
+      `Node scale transformer: Invalid primary value ${String(primaryValue)} for individual ${individualId} using dimension ${primaryDimension}, using default`,
+    );
+    primaryValue = 0.5;
   }
 
   // Get the secondary dimension value (if specified)
@@ -230,17 +252,41 @@ function calculateNodeScale(
           maxNameLength > 0 ? fullName.length / maxNameLength : 0.5;
         break;
       }
+      default:
+        console.warn(
+          `Node scale transformer: Unknown secondary dimension '${secondaryDimension}' for individual ${individualId}, using default`,
+        );
+        secondaryValue = 0.5;
+        break;
     }
+  }
+
+  // Validate secondary value
+  if (
+    !Number.isFinite(secondaryValue) ||
+    secondaryValue < 0 ||
+    secondaryValue > 1
+  ) {
+    console.warn(
+      `Node scale transformer: Invalid secondary value ${String(secondaryValue)} for individual ${individualId} using dimension ${secondaryDimension || 'none'}, using default`,
+    );
+    secondaryValue = 0.5;
   }
 
   // Get visual parameters directly from context
   const { variationFactor } = visual;
-  const temp = temperature ?? 0.5;
+  const temp =
+    temperature !== undefined && Number.isFinite(temperature)
+      ? temperature
+      : 0.5;
+  const safeVariationFactor =
+    variationFactor !== undefined && Number.isFinite(variationFactor as number)
+      ? (variationFactor as number)
+      : 0.5;
 
   // Add temperature-based randomness with variation factor influence
   const baseRandomness = (Math.random() - 0.5) * temp * 0.3; // ±15% max variation
-  const variationRandomness =
-    (Math.random() - 0.5) * (variationFactor as number) * 0.2; // Additional variation
+  const variationRandomness = (Math.random() - 0.5) * safeVariationFactor * 0.2; // Additional variation
   const totalRandomFactor = baseRandomness + variationRandomness;
 
   // Apply randomness to both dimensions
