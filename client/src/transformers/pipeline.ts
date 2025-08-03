@@ -364,7 +364,7 @@ export async function runPipeline({
       };
 
       // Execute transformer using factory function to inject parameters
-      const runtimeTransformer = transformer.createRuntimeTransformerFunction({
+      const runtimeTransformer = transformer.createTransformerInstance({
         dimensions: {
           primary:
             transformerInstance.dimensions.primary ??

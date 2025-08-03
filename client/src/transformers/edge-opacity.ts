@@ -18,7 +18,7 @@ import {
   getIndividualOrWarn,
   validateEdgeReferences,
 } from './utils/transformer-guards';
-import { createRuntimeTransformerFunction } from './utils';
+import { createTransformerInstance } from './utils';
 
 /**
  * Configuration for the edge opacity transformer
@@ -71,8 +71,8 @@ export const edgeOpacityConfig: VisualTransformerConfig = {
       description: 'Secondary color for edges',
     },
   ],
-  createRuntimeTransformerFunction: (params) =>
-    createRuntimeTransformerFunction(params, edgeOpacityTransform),
+  createTransformerInstance: (params) =>
+    createTransformerInstance(params, edgeOpacityTransform),
 };
 
 /**

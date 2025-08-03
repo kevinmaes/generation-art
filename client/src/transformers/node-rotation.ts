@@ -13,7 +13,7 @@ import type {
   VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
-import { createRuntimeTransformerFunction } from './utils';
+import { createTransformerInstance } from './utils';
 
 /**
  * Configuration for the node rotation transformer
@@ -37,8 +37,8 @@ export const nodeRotationConfig: VisualTransformerConfig = {
   defaultPrimaryDimension: 'birthYear',
   defaultSecondaryDimension: 'generation',
   visualParameters: [],
-  createRuntimeTransformerFunction: (params) =>
-    createRuntimeTransformerFunction(params, nodeRotationTransform),
+  createTransformerInstance: (params) =>
+    createTransformerInstance(params, nodeRotationTransform),
 };
 
 /**

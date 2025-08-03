@@ -13,7 +13,7 @@ import type {
   VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
-import { createRuntimeTransformerFunction } from './utils';
+import { createTransformerInstance } from './utils';
 
 /**
  * Configuration for the node scale transformer
@@ -37,8 +37,8 @@ export const nodeScaleConfig: VisualTransformerConfig = {
   defaultPrimaryDimension: 'lifespan',
   defaultSecondaryDimension: 'childrenCount',
   visualParameters: [],
-  createRuntimeTransformerFunction: (params) =>
-    createRuntimeTransformerFunction(params, nodeScaleTransform),
+  createTransformerInstance: (params) =>
+    createTransformerInstance(params, nodeScaleTransform),
 };
 
 /**

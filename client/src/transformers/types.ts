@@ -109,13 +109,13 @@ export interface TransformerContext {
   canvasWidth?: number;
   canvasHeight?: number;
 
-  // User-selected dimensions (injected by createRuntimeTransformerFunction)
+  // User-selected dimensions (injected by createTransformerInstance)
   dimensions: {
     primary: string;
     secondary?: string;
   };
 
-  // User-selected visual parameters (injected by createRuntimeTransformerFunction)
+  // User-selected visual parameters (injected by createTransformerInstance)
   visual: VisualParameterValues;
 }
 
@@ -184,8 +184,8 @@ export interface VisualTransformerConfig {
     options?: { value: string | number; label: string }[];
   }[];
 
-  // Factory function to create runtime transformer with parameters
-  createRuntimeTransformerFunction: (params: {
+  // Factory function to create transformer instance with parameters
+  createTransformerInstance: (params: {
     dimensions: {
       primary?: DimensionId;
       secondary?: DimensionId;

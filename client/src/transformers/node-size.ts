@@ -12,7 +12,7 @@ import type {
   VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
-import { createRuntimeTransformerFunction } from './utils';
+import { createTransformerInstance } from './utils';
 
 /**
  * Configuration for the node size transformer
@@ -48,8 +48,8 @@ export const nodeSizeConfig: VisualTransformerConfig = {
       ],
     },
   ],
-  createRuntimeTransformerFunction: (params) =>
-    createRuntimeTransformerFunction(params, nodeSizeTransform, [
+  createTransformerInstance: (params) =>
+    createTransformerInstance(params, nodeSizeTransform, [
       { name: 'nodeSize', defaultValue: 'medium' },
     ]),
 };
