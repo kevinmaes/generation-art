@@ -287,8 +287,8 @@ describe('Node Size Transformer', () => {
       expect(individuals.I3.size).toBeDefined();
       expect(individuals.I1.size).toBeDefined();
       expect(individuals.I2.size).toBeDefined();
-      expect(individuals.I3.size!).toBeLessThanOrEqual(individuals.I1.size!);
-      expect(individuals.I3.size!).toBeLessThanOrEqual(individuals.I2.size!);
+      expect(individuals.I3.size).toBeLessThanOrEqual(individuals.I1.size ?? 0);
+      expect(individuals.I3.size).toBeLessThanOrEqual(individuals.I2.size ?? 0);
     });
 
     it('should calculate node size based on lifespan dimension', async () => {
@@ -308,7 +308,7 @@ describe('Node Size Transformer', () => {
       // I1 (lifespan 80) should have larger size than I3 (lifespan 45)
       expect(individuals.I1.size).toBeDefined();
       expect(individuals.I3.size).toBeDefined();
-      expect(individuals.I1.size!).toBeGreaterThan(individuals.I3.size!);
+      expect(individuals.I1.size).toBeGreaterThan(individuals.I3.size ?? 0);
     });
   });
 
