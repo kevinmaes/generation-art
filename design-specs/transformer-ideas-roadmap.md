@@ -5,6 +5,7 @@ This document tracks transformer ideas organized by complexity and category. We'
 ## Transformer Categories
 
 ### Primary Categories (What it affects)
+
 - **Node Style**: Affects individual node appearance (shape, color, size, opacity)
 - **Edge Style**: Affects connection line appearance (curve, thickness, style)
 - **Layout**: Affects positioning and arrangement of elements
@@ -12,6 +13,7 @@ This document tracks transformer ideas organized by complexity and category. We'
 - **Metaphor**: Creates complex visual representations
 
 ### Secondary Categories (How it works)
+
 - **Data-Driven**: Uses genealogy data to determine visual properties
 - **Artistic**: Adds aesthetic effects independent of data
 - **LLM-Enhanced**: Uses AI for intelligent decisions
@@ -51,15 +53,15 @@ This document tracks transformer ideas organized by complexity and category. We'
 | **Cultural Symbol Transformer**          | Node Style       | LLM-Enhanced       | Uses cultural symbols or icons for nodes based on ethnicity or cultural background                                                         | ✅  | 🔥 High  | ✅                                                         |
 | **Life Event Marker Transformer**        | Node Style       | Data-Driven        | Adds visual markers for significant life events (marriage, death, immigration)                                                             | ❌  | 🔥 High  | ✅                                                         |
 | **Family Crest Transformer**             | Metaphor         | LLM-Enhanced       | Creates heraldic-style visualizations with family crests and coats of arms                                                                 | ✅  | 🔥 High  | ✅                                                         |
-| **Variance Transformer**                 | Effects          | Data-Driven        | Systematically varies properties by percentage based on data attributes                                                                    | ❌  | 🔥 High  | varianceAmount, targetProperties, varianceMode            |
-| **Noise Transformer**                    | Effects          | Artistic           | Adds smooth, organic Perlin/Simplex noise to properties for natural variation                                                              | ❌  | 🔥 High  | noiseType, noiseScale, noiseOctaves, amplitude           |
-| **Jitter Transformer**                   | Effects          | Artistic           | Adds small random offsets for hand-drawn or imperfect aesthetic                                                                           | ❌  | 🔥 High  | jitterAmount, jitterProperties, distributionType          |
-| **Edge Curve Transformer**               | Edge Style       | Artistic           | Transforms straight edges into bezier curves, arcs, or organic paths                                                                       | ❌  | 🔥 High  | curveType, curveTension, controlPointMode                |
-| **Bloom/Glow Transformer**               | Effects          | Artistic           | Creates soft, luminous effects by rendering multiple offset layers                                                                         | ❌  | 🔥 High  | layerCount, bloomRadius, opacityFalloff                  |
-| **Echo Transformer**                     | Effects          | Artistic           | Creates trailing/ghost effects with decreasing opacity duplicates                                                                          | ❌  | 🔥 High  | echoCount, echoOffset, echoDecay                        |
-| **Particle Cloud Transformer**           | Effects          | Artistic           | Replaces solid shapes with particle systems (dots, stipples)                                                                              | ❌  | 🔥 High  | particleCount, particleSize, distribution                |
-| **Sketch Transformer**                   | Effects          | Artistic           | Creates hand-drawn aesthetic with multiple offset strokes                                                                                  | ❌  | 🔥 High  | strokeCount, roughness, sketchStyle                     |
-| **Ink Bleed Transformer**                | Effects          | Artistic           | Watercolor/ink effect with overlapping shapes and color variation                                                                         | ❌  | 🔥 High  | bleedAmount, colorVariance, wetness                      |
+| **Variance Transformer**                 | Effects          | Data-Driven        | Systematically varies properties by percentage based on data attributes                                                                    | ❌  | 🔥 High  | varianceAmount, targetProperties, varianceMode             |
+| **Noise Transformer**                    | Effects          | Artistic           | Adds smooth, organic Perlin/Simplex noise to properties for natural variation                                                              | ❌  | 🔥 High  | noiseType, noiseScale, noiseOctaves, amplitude             |
+| **Jitter Transformer**                   | Effects          | Artistic           | Adds small random offsets for hand-drawn or imperfect aesthetic                                                                            | ❌  | 🔥 High  | jitterAmount, jitterProperties, distributionType           |
+| **Edge Curve Transformer**               | Edge Style       | Artistic           | Transforms straight edges into bezier curves, arcs, or organic paths                                                                       | ❌  | 🔥 High  | curveType, curveTension, controlPointMode                  |
+| **Bloom/Glow Transformer**               | Effects          | Artistic           | Creates soft, luminous effects by rendering multiple offset layers                                                                         | ❌  | 🔥 High  | layerCount, bloomRadius, opacityFalloff                    |
+| **Echo Transformer**                     | Effects          | Artistic           | Creates trailing/ghost effects with decreasing opacity duplicates                                                                          | ❌  | 🔥 High  | echoCount, echoOffset, echoDecay                           |
+| **Particle Cloud Transformer**           | Effects          | Artistic           | Replaces solid shapes with particle systems (dots, stipples)                                                                               | ❌  | 🔥 High  | particleCount, particleSize, distribution                  |
+| **Sketch Transformer**                   | Effects          | Artistic           | Creates hand-drawn aesthetic with multiple offset strokes                                                                                  | ❌  | 🔥 High  | strokeCount, roughness, sketchStyle                        |
+| **Ink Bleed Transformer**                | Effects          | Artistic           | Watercolor/ink effect with overlapping shapes and color variation                                                                          | ❌  | 🔥 High  | bleedAmount, colorVariance, wetness                        |
 
 ## Priority Levels
 
@@ -73,12 +75,14 @@ This document tracks transformer ideas organized by complexity and category. We'
 ### Phase 1: Core Visual Elements - Immediate Priority
 
 #### Node Style Transformers
+
 1. **Color Palette Transformer** - Essential for visual appeal
 2. **Node Shape Transformer** - Basic visual variety
 3. **Node Size Transformer** - Visual hierarchy
 4. **Generation Opacity Transformer** - Depth visualization
 
 #### Edge Style Transformers
+
 5. **Edge Style Transformer** - Relationship clarity
 6. **Edge Curve Transformer** - Transform straight lines to artistic curves
 7. **Relationship Line Weight Transformer** - Visual emphasis
@@ -86,6 +90,7 @@ This document tracks transformer ideas organized by complexity and category. We'
 ### Phase 2: Artistic Effects - Immediate Priority
 
 #### Effects Transformers
+
 8. **Variance Transformer** - Systematic property variation
 9. **Noise Transformer** - Organic variation patterns
 10. **Jitter Transformer** - Hand-drawn imperfection
@@ -97,6 +102,7 @@ This document tracks transformer ideas organized by complexity and category. We'
 ### Phase 3: Layout Systems - High Priority
 
 #### Layout Transformers
+
 15. **Position Grid Transformer** - Simple, reliable layout
 16. **Circular Layout Transformer** - Classic family tree style
 17. **Timeline Layout Transformer** - Temporal organization
@@ -106,6 +112,7 @@ This document tracks transformer ideas organized by complexity and category. We'
 ### Phase 4: Complex Metaphors - Medium Priority
 
 #### Metaphor Transformers
+
 20. **Family Tree Metaphor Transformer** - Organic structures
 21. **Geographic Layout Transformer** - Location-based visualization
 22. **DNA Helix Transformer** - Genetic representation

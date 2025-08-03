@@ -51,8 +51,15 @@ export interface VisualMetadata {
   priority?: number;
 
   // Edge curve attributes
-  curveType?: 'straight' | 'bezier-quad' | 'bezier-cubic' | 'arc' | 'catenary' | 'step' | 's-curve';
-  controlPoints?: {x: number, y: number}[];
+  curveType?:
+    | 'straight'
+    | 'bezier-quad'
+    | 'bezier-cubic'
+    | 'arc'
+    | 'catenary'
+    | 'step'
+    | 's-curve';
+  controlPoints?: { x: number; y: number }[];
   arcRadius?: number;
   curveIntensity?: number;
 

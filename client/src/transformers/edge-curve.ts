@@ -21,14 +21,23 @@ import {
 } from './utils/transformer-guards';
 import { createTransformerInstance } from './utils';
 
-interface Point { 
-  x: number; 
-  y: number; 
+interface Point {
+  x: number;
+  y: number;
 }
 
-type ControlPointCalculator = (start: Point, end: Point, intensity: number, metadata?: any) => Point[];
+type ControlPointCalculator = (
+  start: Point,
+  end: Point,
+  intensity: number,
+  metadata?: any,
+) => Point[];
 
-type ControlPointStrategy = (start: Point, end: Point, nodeData: any) => { intensity: number; direction: number };
+type ControlPointStrategy = (
+  start: Point,
+  end: Point,
+  nodeData: any,
+) => { intensity: number; direction: number };
 
 /**
  * Control point calculators for different curve types
@@ -41,7 +50,7 @@ const CONTROL_POINT_CALCULATORS: Record<string, ControlPointCalculator> = {
     const dy = end.y - start.y;
     const perpX = -dy * intensity * 0.3;
     const perpY = dx * intensity * 0.3;
-    
+
     return [{ x: midX + perpX, y: midY + perpY }];
   },
 
@@ -50,10 +59,10 @@ const CONTROL_POINT_CALCULATORS: Record<string, ControlPointCalculator> = {
     const dy = end.y - start.y;
     const perpX = -dy * intensity * 0.2;
     const perpY = dx * intensity * 0.2;
-    
+
     return [
       { x: start.x + dx * 0.33 + perpX, y: start.y + dy * 0.33 + perpY },
-      { x: start.x + dx * 0.67 + perpX, y: start.y + dy * 0.67 + perpY }
+      { x: start.x + dx * 0.67 + perpX, y: start.y + dy * 0.67 + perpY },
     ];
   },
 
@@ -65,7 +74,7 @@ const CONTROL_POINT_CALCULATORS: Record<string, ControlPointCalculator> = {
 
   catenary: (_start, _end, _intensity) => [], // Catenary calculates inline
 
-  straight: (_start, _end, _intensity) => [] // Straight line needs no control points
+  straight: (_start, _end, _intensity) => [], // Straight line needs no control points
 };
 
 /**
@@ -74,23 +83,23 @@ const CONTROL_POINT_CALCULATORS: Record<string, ControlPointCalculator> = {
 const CONTROL_POINT_STRATEGIES: Record<string, ControlPointStrategy> = {
   midpoint: (_start, _end) => ({
     intensity: 0.5,
-    direction: 1
+    direction: 1,
   }),
 
   weighted: (_start, _end, nodeData) => {
     const sourceImportance = nodeData.sourceNode?.metadata?.childrenCount || 1;
     const targetImportance = nodeData.targetNode?.metadata?.childrenCount || 1;
     const totalImportance = sourceImportance + targetImportance;
-    
+
     return {
       intensity: Math.min(1, totalImportance / 10),
-      direction: sourceImportance > targetImportance ? 1 : -1
+      direction: sourceImportance > targetImportance ? 1 : -1,
     };
   },
 
   symmetric: (start, end) => ({
     intensity: 0.7,
-    direction: Math.sign(end.x - start.x) // Curve direction based on x-direction
+    direction: Math.sign(end.x - start.x), // Curve direction based on x-direction
   }),
 
   organic: (_start, _end, nodeData) => {
@@ -98,12 +107,12 @@ const CONTROL_POINT_STRATEGIES: Record<string, ControlPointStrategy> = {
     const seedValue = nodeData.edgeId ? nodeData.edgeId.length * 31 : 42;
     const pseudoRandom1 = (Math.sin(seedValue) + 1) / 2;
     const pseudoRandom2 = (Math.cos(seedValue * 1.61803) + 1) / 2;
-    
+
     return {
       intensity: 0.3 + pseudoRandom1 * 0.4, // Range 0.3-0.7
-      direction: pseudoRandom2 > 0.5 ? 1 : -1
+      direction: pseudoRandom2 > 0.5 ? 1 : -1,
     };
-  }
+  },
 };
 
 /**
@@ -221,14 +230,14 @@ function calculateCurveProperties(
   // Get node positions for curve calculations
   const sourceVisual = visualMetadata.individuals?.[edge.sourceId];
   const targetVisual = visualMetadata.individuals?.[edge.targetId];
-  
+
   const start: Point = {
     x: sourceVisual?.x ?? 0,
-    y: sourceVisual?.y ?? 0
+    y: sourceVisual?.y ?? 0,
   };
   const end: Point = {
     x: targetVisual?.x ?? 0,
-    y: targetVisual?.y ?? 0
+    y: targetVisual?.y ?? 0,
   };
 
   // Adjust curve type based on relationship if enabled
@@ -293,17 +302,17 @@ function calculateCurveProperties(
     edgeId: edge.id,
   };
 
-  const { intensity: strategyIntensity, direction } = strategyFn ? 
-    strategyFn(start, end, nodeData) : 
-    { intensity: 0.5, direction: 1 };
+  const { intensity: strategyIntensity, direction } = strategyFn
+    ? strategyFn(start, end, nodeData)
+    : { intensity: 0.5, direction: 1 };
 
   const finalIntensity = baseIntensity * intensityModifier * strategyIntensity;
 
   // Calculate control points if needed
   const calculator = CONTROL_POINT_CALCULATORS[actualCurveType];
-  const controlPoints = calculator ? 
-    calculator(start, end, finalIntensity * direction) : 
-    [];
+  const controlPoints = calculator
+    ? calculator(start, end, finalIntensity * direction)
+    : [];
 
   // Calculate arc radius for arc curves
   const distance = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
