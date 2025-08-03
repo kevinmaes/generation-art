@@ -48,16 +48,19 @@ Use `--list` flag to see which workflows would run: `pnpm ci:local:quality --lis
 The following GitHub Actions workflows automatically run on pull requests to `dev`:
 
 ### Quality Checks
+
 - **App Quality** (`quality-app.yml`) - ESLint, Prettier, TypeScript for client code
-- **CLI Quality** (`quality-cli.yml`) - ESLint, Prettier, TypeScript for CLI code  
+- **CLI Quality** (`quality-cli.yml`) - ESLint, Prettier, TypeScript for CLI code
 - **Shared Quality** (`quality-shared.yml`) - ESLint, Prettier, TypeScript for shared code
 
 ### Unit Tests
+
 - **App Tests** (`test-unit-app.yml`) - Unit tests with coverage for client code
 - **CLI Tests** (`test-unit-cli.yml`) - Unit tests with coverage for CLI code
 - **Shared Tests** (`test-unit-shared.yml`) - Unit tests with coverage for shared code
 
 ### Auto-Fix
+
 - **Fix Formatting** (`fix-formatting.yml`) - Automatically fixes formatting/linting issues and commits back to PR
 
 All workflows use smart path filtering to only run when relevant files change, and coverage reports are sent to Codecov.
