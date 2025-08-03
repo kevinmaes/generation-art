@@ -10,8 +10,36 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualMetadata,
+  VisualTransformerConfig,
 } from './types';
 import { getIndividualOrWarn } from './utils/transformer-guards';
+import { createRuntimeTransformerFunction } from './utils';
+
+/**
+ * Configuration for the node scale transformer
+ */
+export const nodeScaleConfig: VisualTransformerConfig = {
+  id: 'node-scale',
+  name: 'Node Scale',
+  description:
+    'Applies independent width and height transformations that create compelling oval and rectangular forms reflecting individual significance.',
+  shortDescription: 'Scales node dimensions for oval or rectangular shapes',
+  transform: nodeScaleTransform,
+  categories: ['visual', 'scale'],
+  availableDimensions: [
+    'lifespan',
+    'childrenCount',
+    'generation',
+    'marriageCount',
+    'birthYear',
+    'nameLength',
+  ],
+  defaultPrimaryDimension: 'lifespan',
+  defaultSecondaryDimension: 'childrenCount',
+  visualParameters: [],
+  createRuntimeTransformerFunction: (params) =>
+    createRuntimeTransformerFunction(params, nodeScaleTransform),
+};
 
 /**
  * Calculate node scale based on selected dimensions
@@ -345,3 +373,4 @@ export async function nodeScaleTransform(
     },
   };
 }
+
