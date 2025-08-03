@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
-import { PipelineModal } from './display/components/pipeline-ui/PipelineModal';
+import { PipelinePanel } from './display/components/pipeline-ui/PipelinePanel';
 import { ErrorBoundary } from './display/components/ErrorBoundary';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
@@ -363,9 +363,9 @@ function App(): React.ReactElement {
         </div>
       </div>
 
-      {/* Pipeline Modal */}
+      {/* Pipeline Panel */}
       <ErrorBoundary>
-        <PipelineModal
+        <PipelinePanel
           isOpen={isPipelineModalOpen}
           onClose={() => {
             setIsPipelineModalOpen(false);

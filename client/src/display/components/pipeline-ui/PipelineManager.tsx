@@ -311,13 +311,44 @@ export function PipelineManager({
     </div>
   );
 
+  // Check if we're in narrow layout mode by looking for parent class
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [isNarrowLayout, setIsNarrowLayout] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkLayout = () => {
+      const container = containerRef.current;
+      if (container) {
+        const hasNarrowClass = container.closest('.narrow-layout') !== null;
+        setIsNarrowLayout(hasNarrowClass);
+      }
+    };
+
+    checkLayout();
+    // Check on window resize
+    const handleResize = () => checkLayout();
+    window.addEventListener('resize', handleResize);
+    
+    // Use MutationObserver to detect class changes
+    const observer = new MutationObserver(checkLayout);
+    const parentElement = containerRef.current?.parentElement;
+    if (parentElement) {
+      observer.observe(parentElement, { attributes: true, attributeFilter: ['class'] });
+    }
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      observer.disconnect();
+    };
+  }, []);
+
   return (
-    <div className="h-full flex flex-col bg-white p-6">
-      <div className="flex-1 flex gap-4 min-h-0">
+    <div ref={containerRef} className="h-full flex flex-col bg-white p-6">
+      <div className={`flex-1 ${isNarrowLayout ? 'flex flex-col' : 'flex'} gap-4 min-h-0`}>
         {/* Left Column: Vertical Accordion */}
         <div
-          className="flex-1 flex flex-col min-h-0"
-          style={{ width: '50%', minWidth: '50%', maxWidth: '50%' }}
+          className={`flex-1 flex flex-col min-h-0 ${isNarrowLayout ? 'w-full' : ''}`}
+          style={isNarrowLayout ? {} : { width: '50%', minWidth: '50%', maxWidth: '50%' }}
         >
           <div className="flex-1 flex flex-col space-y-0 min-h-0">
             {/* Available Transformers Panel */}
@@ -529,8 +560,8 @@ export function PipelineManager({
 
         {/* Right Column: Active Pipeline */}
         <div
-          className="flex-1 border p-4 flex flex-col min-h-0"
-          style={{ width: '50%', minWidth: '50%', maxWidth: '50%' }}
+          className={`flex-1 border p-4 flex flex-col min-h-0 ${isNarrowLayout ? 'w-full' : ''}`}
+          style={isNarrowLayout ? {} : { width: '50%', minWidth: '50%', maxWidth: '50%' }}
         >
           <div className="mb-3">
             <h4 className="font-medium text-gray-700 text-left">
