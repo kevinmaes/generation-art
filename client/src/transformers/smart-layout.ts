@@ -13,7 +13,7 @@ import type {
   VisualTransformerConfig,
 } from './types';
 import type { SmartTransformerConfig } from './smart-transformer-types';
-import { createRuntimeTransformerFunction } from './utils';
+import { createTransformerInstance } from './utils';
 import {
   buildSmartTransformerPrompt,
   mergeLLMResponse,
@@ -79,8 +79,8 @@ export const smartLayoutTransformerConfig: VisualTransformerConfig = {
     spacing: 'normal',
     temperature: 0.5,
   }),
-  createRuntimeTransformerFunction: (params) =>
-    createRuntimeTransformerFunction(params, smartLayoutTransform, [
+  createTransformerInstance: (params) =>
+    createTransformerInstance(params, smartLayoutTransform, [
       { name: 'layoutStyle', defaultValue: 'tree' },
       { name: 'spacing', defaultValue: 'normal' },
       { name: 'temperature', defaultValue: 0.5 },

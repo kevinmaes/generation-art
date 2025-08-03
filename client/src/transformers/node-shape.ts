@@ -12,7 +12,7 @@ import type {
   VisualTransformerConfig,
 } from './types';
 import { getIndividualSafe } from './utils/safe-access';
-import { createRuntimeTransformerFunction } from './utils';
+import { createTransformerInstance } from './utils';
 
 /**
  * Configuration for the node shape transformer
@@ -36,8 +36,8 @@ export const nodeShapeConfig: VisualTransformerConfig = {
   defaultPrimaryDimension: 'generation',
   defaultSecondaryDimension: 'childrenCount',
   visualParameters: [],
-  createRuntimeTransformerFunction: (params) =>
-    createRuntimeTransformerFunction(params, nodeShapeTransform),
+  createTransformerInstance: (params) =>
+    createTransformerInstance(params, nodeShapeTransform),
 };
 
 /**

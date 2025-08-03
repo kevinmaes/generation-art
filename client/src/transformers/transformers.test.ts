@@ -73,7 +73,7 @@ describe('Transformers Registry', () => {
       expect(transformer.availableDimensions).toBeDefined();
       expect(transformer.defaultPrimaryDimension).toBeDefined();
       expect(transformer.visualParameters).toBeDefined();
-      expect(transformer.createRuntimeTransformerFunction).toBeDefined();
+      expect(transformer.createTransformerInstance).toBeDefined();
     }
   });
 });
@@ -280,7 +280,7 @@ describe('Horizontal Spread Transformer', () => {
       } as VisualParameterValues,
     };
 
-    const runtimeTransformer = transformer.createRuntimeTransformerFunction({
+    const runtimeTransformer = transformer.createTransformerInstance({
       dimensions: { primary: 'generation' },
       visual: {
         primaryColor: '#4CAF50',
@@ -464,7 +464,7 @@ describe('Horizontal Spread Transformer', () => {
       visual: {} as VisualParameterValues,
     };
 
-    const runtimeTransformer = transformer.createRuntimeTransformerFunction({
+    const runtimeTransformer = transformer.createTransformerInstance({
       dimensions: { primary: 'generation' },
       visual: {},
     });
@@ -678,7 +678,7 @@ describe('Horizontal Spread Transformer', () => {
         } as VisualParameterValues,
       };
 
-      const runtimeTransformer = transformer.createRuntimeTransformerFunction({
+      const runtimeTransformer = transformer.createTransformerInstance({
         dimensions: { primary: 'generation' },
         visual: {
           primaryColor: '#4CAF50',

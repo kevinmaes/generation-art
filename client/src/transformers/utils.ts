@@ -45,13 +45,13 @@ export function generateTransformerId(name: string): string {
 }
 
 /**
- * Creates a runtime transformer function that injects parameters into the context
+ * Creates a transformer instance that injects parameters into the context
  * @param params - User-selected dimensions and visual parameters
  * @param transformFn - The actual transformer function to execute
  * @param transformerConfig - The transformer configuration with parameter defaults
- * @returns A runtime transformer function with enhanced context
+ * @returns A transformer instance with enhanced context
  */
-export function createRuntimeTransformerFunction(
+export function createTransformerInstance(
   params: {
     dimensions: { primary?: string; secondary?: string };
     visual: VisualParameterValues;
