@@ -370,13 +370,17 @@ function calculateCurveProperties(
   // Ensure no NaN values before combining
   const safePrimaryValue = isNaN(primaryValue) ? 0.5 : primaryValue;
   const safeSecondaryValue = isNaN(secondaryValue) ? 0.5 : secondaryValue;
-  const safeStrategyIntensity = isNaN(strategyIntensity) ? 0.5 : strategyIntensity;
+  const safeStrategyIntensity = isNaN(strategyIntensity)
+    ? 0.5
+    : strategyIntensity;
 
   // Combine primary and secondary dimensions (primary has more weight)
-  const combinedDimensionValue = safePrimaryValue * 0.7 + safeSecondaryValue * 0.3;
+  const combinedDimensionValue =
+    safePrimaryValue * 0.7 + safeSecondaryValue * 0.3;
 
   // Apply base intensity, dimension influence, and strategy
-  const finalIntensity = baseIntensity * combinedDimensionValue * safeStrategyIntensity;
+  const finalIntensity =
+    baseIntensity * combinedDimensionValue * safeStrategyIntensity;
 
   // Calculate control points if needed
   const calculator = CONTROL_POINT_CALCULATORS[actualCurveType];

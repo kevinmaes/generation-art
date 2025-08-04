@@ -559,8 +559,12 @@ export function TransformerItem({
                                           <input
                                             type="checkbox"
                                             checked={
-                                              typeof parameters.visual[param.name] === 'boolean'
-                                                ? parameters.visual[param.name] as boolean
+                                              typeof parameters.visual[
+                                                param.name
+                                              ] === 'boolean'
+                                                ? (parameters.visual[
+                                                    param.name
+                                                  ] as boolean)
                                                 : (param.defaultValue as boolean)
                                             }
                                             onChange={(e) => {

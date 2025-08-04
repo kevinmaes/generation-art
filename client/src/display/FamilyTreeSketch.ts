@@ -59,11 +59,11 @@ const CURVE_RENDERERS: Record<string, CurveDrawFn> = {
       // Convert quadratic bezier to cubic bezier using mathematical conversion
       // For quadratic: P(t) = (1-t)²P₀ + 2(1-t)tP₁ + t²P₂
       // Convert to cubic: CP1 = P₀ + 2/3(P₁ - P₀), CP2 = P₂ + 2/3(P₁ - P₂)
-      const cp1x = start.x + (2/3) * (cp.x - start.x);
-      const cp1y = start.y + (2/3) * (cp.y - start.y);
-      const cp2x = end.x + (2/3) * (cp.x - end.x);
-      const cp2y = end.y + (2/3) * (cp.y - end.y);
-      
+      const cp1x = start.x + (2 / 3) * (cp.x - start.x);
+      const cp1y = start.y + (2 / 3) * (cp.y - start.y);
+      const cp2x = end.x + (2 / 3) * (cp.x - end.x);
+      const cp2y = end.y + (2 / 3) * (cp.y - end.y);
+
       p.noFill();
       p.bezier(start.x, start.y, cp1x, cp1y, cp2x, cp2y, end.x, end.y);
     } else {
