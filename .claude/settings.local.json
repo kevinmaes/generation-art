@@ -5,6 +5,7 @@
       "Bash(act:*)",
       "Bash(brew install:*)",
       "Bash(gh pr create:*)",
+      "Bash(gh pr view:*)",
       "Bash(gh run view:*)",
       "Bash(git add:*)",
       "Bash(git checkout:*)",

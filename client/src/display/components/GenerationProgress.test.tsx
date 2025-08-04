@@ -6,7 +6,7 @@ describe('GenerationProgress', () => {
   it('should render spinner and default message', () => {
     render(<GenerationProgress />);
 
-    expect(screen.getByText('Generating art...')).toBeDefined();
+    expect(screen.getByText('Generating art...')).toBeInTheDocument();
     // Check for spinner by looking for the animated div
     const spinner = document.querySelector('.animate-spin');
     expect(spinner).toBeTruthy();
@@ -15,14 +15,14 @@ describe('GenerationProgress', () => {
   it('should render custom message', () => {
     render(<GenerationProgress message="Custom loading message" />);
 
-    expect(screen.getByText('Custom loading message')).toBeDefined();
-    expect(screen.queryByText('Generating art...')).toBeFalsy();
+    expect(screen.getByText('Custom loading message')).toBeInTheDocument();
+    expect(screen.queryByText('Generating art...')).not.toBeInTheDocument();
   });
 
   it('should not render progress details when progress is null', () => {
     render(<GenerationProgress progress={null} />);
 
-    expect(screen.queryByText(/Step \d+ of \d+/)).toBeFalsy();
+    expect(screen.queryByText(/Step \d+ of \d+/)).not.toBeInTheDocument();
   });
 
   it('should render progress details when progress is provided', () => {
