@@ -144,6 +144,11 @@ export function mergeLLMResponse(
     Object.entries(llmResponse.edges).forEach(([id, props]) => {
       // Handle special case for controlPoints
       if (props.controlPoints) {
+        // Ensure edge metadata exists (LLM may reference edges not in original metadata)
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!merged.edges[id]) {
+          merged.edges[id] = {};
+        }
         merged.edges[id] = {
           ...merged.edges[id],
           custom: {
@@ -155,6 +160,11 @@ export function mergeLLMResponse(
         const { controlPoints: _, ...otherProps } = props;
         Object.assign(merged.edges[id], otherProps);
       } else {
+        // Ensure edge metadata exists (LLM may reference edges not in original metadata)
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!merged.edges[id]) {
+          merged.edges[id] = {};
+        }
         merged.edges[id] = {
           ...merged.edges[id],
           ...props,

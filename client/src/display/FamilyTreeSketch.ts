@@ -32,6 +32,171 @@ export interface SketchProps {
   gedcomData: GedcomDataWithMetadata;
 }
 
+interface Point {
+  x: number;
+  y: number;
+}
+
+type CurveDrawFn = (
+  p: p5,
+  start: Point,
+  end: Point,
+  metadata: VisualMetadata,
+) => void;
+
+/**
+ * Curve drawing functions for different edge types
+ */
+const CURVE_RENDERERS: Record<string, CurveDrawFn> = {
+  straight: (p, start, end) => {
+    p.line(start.x, start.y, end.x, end.y);
+  },
+
+  'bezier-quad': (p, start, end, metadata) => {
+    const controlPoints = metadata.controlPoints ?? [];
+    if (controlPoints.length >= 1) {
+      const cp = controlPoints[0];
+      // Convert quadratic bezier to cubic bezier using mathematical conversion
+      // For quadratic: P(t) = (1-t)²P₀ + 2(1-t)tP₁ + t²P₂
+      // Convert to cubic: CP1 = P₀ + 2/3(P₁ - P₀), CP2 = P₂ + 2/3(P₁ - P₂)
+      const cp1x = start.x + (2 / 3) * (cp.x - start.x);
+      const cp1y = start.y + (2 / 3) * (cp.y - start.y);
+      const cp2x = end.x + (2 / 3) * (cp.x - end.x);
+      const cp2y = end.y + (2 / 3) * (cp.y - end.y);
+
+      p.noFill();
+      p.bezier(start.x, start.y, cp1x, cp1y, cp2x, cp2y, end.x, end.y);
+    } else {
+      // Fallback to straight line
+      p.line(start.x, start.y, end.x, end.y);
+    }
+  },
+
+  'bezier-cubic': (p, start, end, metadata) => {
+    const controlPoints = metadata.controlPoints ?? [];
+    if (controlPoints.length >= 2) {
+      const [cp1, cp2] = controlPoints;
+      p.noFill();
+      p.bezier(start.x, start.y, cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+    } else {
+      // Fallback to straight line
+      p.line(start.x, start.y, end.x, end.y);
+    }
+  },
+
+  arc: (p, start, end, metadata) => {
+    const distance = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
+    const radius = metadata.arcRadius ?? distance / 2;
+    const intensity = metadata.curveIntensity ?? 0.5;
+
+    if (intensity === 0 || radius === 0) {
+      p.line(start.x, start.y, end.x, end.y);
+      return;
+    }
+
+    // Calculate arc center perpendicular to line
+    const midX = (start.x + end.x) / 2;
+    const midY = (start.y + end.y) / 2;
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const perpX = (-dy / distance) * radius * intensity;
+    const perpY = (dx / distance) * radius * intensity;
+
+    const centerX = midX + perpX;
+    const centerY = midY + perpY;
+
+    // Calculate control points for bezier arc approximation
+    const angle1 = Math.atan2(start.y - centerY, start.x - centerX);
+    const angle2 = Math.atan2(end.y - centerY, end.x - centerX);
+
+    // Bezier control points for arc approximation (magic number 0.552 for circle approximation)
+    const cp1 = {
+      x: start.x + Math.cos(angle1 + Math.PI / 2) * radius * 0.552,
+      y: start.y + Math.sin(angle1 + Math.PI / 2) * radius * 0.552,
+    };
+    const cp2 = {
+      x: end.x + Math.cos(angle2 - Math.PI / 2) * radius * 0.552,
+      y: end.y + Math.sin(angle2 - Math.PI / 2) * radius * 0.552,
+    };
+
+    p.noFill();
+    p.bezier(start.x, start.y, cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+  },
+
+  step: (p, start, end, metadata) => {
+    const intensity = metadata.curveIntensity ?? 0.5;
+    const midX = start.x + (end.x - start.x) * intensity;
+
+    p.line(start.x, start.y, midX, start.y);
+    p.line(midX, start.y, midX, end.y);
+    p.line(midX, end.y, end.x, end.y);
+  },
+
+  's-curve': (p, start, end, metadata) => {
+    const intensity = metadata.curveIntensity ?? 0.5;
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+
+    const cp1 = {
+      x: start.x + dx * 0.25,
+      y: start.y + dy * 0.25 + intensity * 50,
+    };
+    const cp2 = {
+      x: start.x + dx * 0.75,
+      y: start.y + dy * 0.75 - intensity * 50,
+    };
+
+    p.noFill();
+    p.bezier(start.x, start.y, cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+  },
+
+  catenary: (p, start, end, metadata) => {
+    const intensity = metadata.curveIntensity ?? 0.5;
+    const segments = 20;
+    const sag = intensity * 100; // How much the curve sags
+
+    if (intensity === 0 || sag === 0) {
+      p.line(start.x, start.y, end.x, end.y);
+      return;
+    }
+
+    p.noFill();
+    p.beginShape();
+    p.vertex(start.x, start.y);
+
+    for (let i = 1; i < segments; i++) {
+      const t = i / segments;
+      const x = start.x + (end.x - start.x) * t;
+      const catenaryY = sag * (Math.cosh((t - 0.5) * 3) - 1);
+      const y = start.y + (end.y - start.y) * t + catenaryY;
+      p.vertex(x, y);
+    }
+
+    p.vertex(end.x, end.y);
+    p.endShape();
+  },
+};
+
+/**
+ * Draw an edge with the appropriate curve type
+ */
+function drawEdge(
+  p: p5,
+  start: Point,
+  end: Point,
+  metadata: VisualMetadata,
+): void {
+  const curveType = metadata.curveType ?? 'straight';
+  const renderer = CURVE_RENDERERS[curveType];
+
+  if (renderer) {
+    renderer(p, start, end, metadata);
+  } else {
+    // Fallback to straight line for unknown curve types
+    CURVE_RENDERERS.straight(p, start, end, metadata);
+  }
+}
+
 /**
  * Create a sketch function for the given configuration
  */
@@ -92,7 +257,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
           strokeColor.setAlpha(opacity * 255);
           p.stroke(strokeColor);
           p.strokeWeight(weight);
-          p.line(coord1.x, coord1.y, coord2.x, coord2.y);
+
+          // Draw edge with appropriate curve type
+          drawEdge(p, coord1, coord2, edgeMetadata ?? {});
         }
       }
 
