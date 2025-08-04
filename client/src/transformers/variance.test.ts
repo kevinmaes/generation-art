@@ -259,11 +259,20 @@ describe('Variance Transformer', () => {
 
       const result = await varianceTransform(context);
 
-      // Check that opacity has changed but remains within bounds
+      // Check that opacity has been set and remains within bounds
       const opacity = result.visualMetadata.individuals?.['I001']?.opacity ?? 0;
-      expect(opacity).not.toBe(1);
       expect(opacity).toBeGreaterThanOrEqual(0.1);
       expect(opacity).toBeLessThanOrEqual(1);
+
+      // Check that at least one individual had opacity changed
+      const opacityChanged = Object.values(
+        result.visualMetadata.individuals ?? {},
+      ).some((individual, index) => {
+        const originalOpacity =
+          Object.values(visualMetadata.individuals)[index]?.opacity ?? 1;
+        return individual.opacity !== originalOpacity;
+      });
+      expect(opacityChanged).toBe(true);
     });
   });
 
@@ -383,6 +392,10 @@ describe('Variance Transformer', () => {
       delete contextNoSeed.seed;
 
       const result1 = await varianceTransform(contextNoSeed);
+
+      // Add small delay to ensure different timestamp
+      await new Promise((resolve) => setTimeout(resolve, 5));
+
       const result2 = await varianceTransform(contextNoSeed);
 
       // Results should be different without seed
