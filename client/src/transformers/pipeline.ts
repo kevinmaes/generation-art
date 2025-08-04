@@ -82,6 +82,20 @@ interface PipelineInput {
   ) => void;
 }
 
+export type PipelineYield =
+  | {
+      type: 'progress';
+      current: number;
+      total: number;
+      transformerName: string;
+    }
+  | {
+      type: 'transformer-result';
+      transformerId: string;
+      visualMetadata: Partial<CompleteVisualMetadata>;
+    }
+  | { type: 'complete'; result: PipelineResult };
+
 interface TransformerResult {
   transformerId: TransformerId;
   transformerName: string;
@@ -295,16 +309,14 @@ function mergeVisualMetadata(
 }
 
 /**
- * Run the VisualTransformer pipeline
- * Executes all transformers in sequence, passing the output of each
- * as input to the next transformer.
+ * Generator-based pipeline execution for non-blocking UI
+ * Yields control back to the browser between each transformer
  */
-export async function runPipeline({
+export async function* runPipelineGenerator({
   fullData,
   llmData,
   config,
-  onProgress,
-}: PipelineInput): Promise<PipelineResult> {
+}: PipelineInput): AsyncGenerator<PipelineYield, PipelineResult, unknown> {
   const startTime = performance.now();
 
   // Validate input data with Zod
@@ -350,10 +362,13 @@ export async function runPipeline({
       // Get transformer configuration from registry
       const transformer = getTransformer(transformerInstance.type);
 
-      // Report progress
-      if (onProgress) {
-        onProgress(i + 1, config.transformers.length, transformer.name);
-      }
+      // Yield progress update
+      yield {
+        type: 'progress',
+        current: i + 1,
+        total: config.transformers.length,
+        transformerName: transformer.name,
+      };
 
       // Create context for this transformer instance
       const context: TransformerContext = {
@@ -394,6 +409,16 @@ export async function runPipeline({
         visualMetadata,
         result.visualMetadata,
       );
+
+      // Yield transformer result
+      yield {
+        type: 'transformer-result',
+        transformerId: transformerInstance.type,
+        visualMetadata: result.visualMetadata,
+      };
+
+      // Yield control back to browser to prevent UI blocking
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       // Debug: check if shape transformer updated shapes
       if (
@@ -455,7 +480,7 @@ export async function runPipeline({
 
   const executionTime = performance.now() - startTime;
 
-  return {
+  const pipelineResult: PipelineResult = {
     visualMetadata,
     config,
     debug: {
@@ -470,6 +495,39 @@ export async function runPipeline({
       totalExecutionTime: executionTime,
     },
   };
+
+  // Yield final result
+  yield {
+    type: 'complete',
+    result: pipelineResult,
+  };
+
+  return pipelineResult;
+}
+
+/**
+ * Backward-compatible wrapper for the generator-based pipeline
+ * Consumes the generator and returns the final result
+ */
+export async function runPipeline(
+  input: PipelineInput,
+): Promise<PipelineResult> {
+  const generator = runPipelineGenerator(input);
+  let result: PipelineResult | undefined;
+
+  for await (const yielded of generator) {
+    if (yielded.type === 'progress' && input.onProgress) {
+      input.onProgress(yielded.current, yielded.total, yielded.transformerName);
+    } else if (yielded.type === 'complete') {
+      result = yielded.result;
+    }
+  }
+
+  if (!result) {
+    throw new Error('Pipeline did not complete successfully');
+  }
+
+  return result;
 }
 
 /**

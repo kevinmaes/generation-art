@@ -18,7 +18,9 @@
       "Bash(pnpm add:*)",
       "Bash(brew install:*)",
       "Bash(act:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }
