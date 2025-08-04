@@ -109,21 +109,25 @@ Create a system to generate diverse test GEDCOM files that exercise all genealog
 ### Test Tree Types
 
 1. **Simple Nuclear Families**
+
    - 3-4 generations
    - Traditional father/mother/children structure
    - Minimal geographic movement
 
 2. **Complex Multi-Generational Trees**
+
    - 6-8 generations
    - Multiple family branches
    - Various relationship types
 
 3. **Immigration/Migration Patterns**
+
    - Cross-continental movements
    - Multiple place changes per generation
    - Cultural integration patterns
 
 4. **Cultural/Ethnic Variations**
+
    - Different naming conventions
    - Cultural-specific occupational patterns
    - Traditional family structures
@@ -210,18 +214,21 @@ Build quantitative methods to measure visual similarity between generated artwor
 ### Metrics to Implement
 
 1. **Color Distribution Analysis**
+
    - RGB histogram comparison
    - HSV color space analysis
    - Dominant color extraction
    - Palette harmony measurement
 
 2. **Edge Detection and Shape Comparison**
+
    - Canny edge detection
    - Contour matching algorithms
    - Shape descriptor comparison
    - Structural similarity index
 
 3. **Spatial Frequency Analysis**
+
    - Fourier transform comparison
    - Texture analysis using LBP
    - Pattern repetition detection
@@ -237,12 +244,12 @@ Build quantitative methods to measure visual similarity between generated artwor
 
 ```typescript
 interface SimilarityMetrics {
-  colorSimilarity: number;      // 0-1 score
+  colorSimilarity: number; // 0-1 score
   structuralSimilarity: number; // 0-1 score
-  textureSimilarity: number;    // 0-1 score
-  compositionSimilarity: number;// 0-1 score
-  overallSimilarity: number;    // Weighted combination
-  perceptualHash: string;       // For quick comparisons
+  textureSimilarity: number; // 0-1 score
+  compositionSimilarity: number; // 0-1 score
+  overallSimilarity: number; // Weighted combination
+  perceptualHash: string; // For quick comparisons
 }
 
 interface ComparisonResult {
@@ -310,16 +317,19 @@ Create deterministic mapping from tree characteristics to visual art parameters.
 ### Visual Mappings
 
 1. **Places → Color Palettes**
+
    - Geographic regions mapped to color families
    - Cultural backgrounds influencing palette warmth/coolness
    - Migration patterns affecting color transitions
 
 2. **Family Density → Line Weights/Patterns**
+
    - Large families = thicker strokes, complex patterns
    - Small families = delicate lines, minimal patterns
    - Family complexity affecting pattern intricacy
 
 3. **Generation Gaps → Composition Layouts**
+
    - Short gaps = tight compositions
    - Long gaps = spacious layouts
    - Generation depth affecting overall structure
@@ -518,16 +528,19 @@ Build interface and tools for conducting human perception studies to validate th
 ### Study Types
 
 1. **Blind Tree Identification from Artwork**
+
    - Present artwork without tree information
    - Ask participants to identify which artworks come from same tree
    - Measure accuracy rates and confidence levels
 
 2. **Similarity Rating Between Art Pieces**
+
    - Show pairs of artworks
    - Collect similarity ratings on 1-10 scale
    - Compare with automated similarity metrics
 
 3. **Aesthetic Quality Assessment**
+
    - Rate visual appeal of generated artwork
    - Identify factors that enhance/detract from quality
    - Validate aesthetic coherence across tree types
@@ -620,6 +633,7 @@ Issue #2 (Test Generator) → Issue #5 (Testing Suite) → Issue #6 (Human Studi
 ### Labels to Create
 
 Ensure these labels exist in the repository:
+
 - `tree-uniqueness-validation` (primary label for all issues)
 - `enhancement` (for new features)
 - `core-feature` (for critical functionality)
@@ -634,6 +648,7 @@ Ensure these labels exist in the repository:
 ### Milestones
 
 Consider creating these milestones:
+
 - **Phase 1: Foundation** (Issues #1, #2)
 - **Phase 2: Core Systems** (Issues #3, #4)
 - **Phase 3: Validation** (Issues #5, #6)
