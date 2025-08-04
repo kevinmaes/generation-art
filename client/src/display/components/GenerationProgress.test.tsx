@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { GenerationProgress } from './GenerationProgress';
@@ -34,8 +35,8 @@ describe('GenerationProgress', () => {
 
     render(<GenerationProgress progress={progress} />);
 
-    expect(screen.getByText('Step 2 of 5')).toBeDefined();
-    expect(screen.getByText('Smart Layout')).toBeDefined();
+    expect(screen.getByText('Step 2 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Smart Layout')).toBeInTheDocument();
 
     // Check progress bar exists
     const progressBar = document.querySelector('.bg-blue-500');
@@ -76,7 +77,7 @@ describe('GenerationProgress', () => {
 
     render(<GenerationProgress progress={progress} />);
 
-    expect(screen.getByText('Step 5 of 5')).toBeDefined();
+    expect(screen.getByText('Step 5 of 5')).toBeInTheDocument();
 
     const progressBar = document.querySelector('.bg-blue-500');
     expect(progressBar).toBeTruthy();
