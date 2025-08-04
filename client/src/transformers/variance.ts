@@ -170,6 +170,7 @@ function applyVariance(
  * Variance transform function
  * Applies controlled randomness to visual properties
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function varianceTransform(
   context: TransformerContext,
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
@@ -306,9 +307,6 @@ export async function varianceTransform(
       }
     });
   }
-
-  // Small delay to simulate async work
-  await new Promise((resolve) => setTimeout(resolve, 1));
 
   return {
     visualMetadata: {
