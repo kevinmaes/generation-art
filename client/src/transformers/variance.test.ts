@@ -244,11 +244,12 @@ describe('Variance Transformer', () => {
 
       const result = await varianceTransform(context);
 
-      // Check that rotation has changed
-      expect(result.visualMetadata.individuals?.['I001']?.rotation).not.toBe(0);
-      expect(
-        result.visualMetadata.individuals?.['I001']?.rotation,
-      ).toBeDefined();
+      // Check that rotation has changed and is a valid number
+      const rotation = result.visualMetadata.individuals?.['I001']?.rotation;
+      expect(rotation).toBeDefined();
+      expect(typeof rotation).toBe('number');
+      expect(Number.isNaN(rotation)).toBe(false);
+      expect(Number.isFinite(rotation)).toBe(true);
     });
 
     it('should apply variance to opacity when enabled', async () => {

@@ -265,14 +265,12 @@ export async function varianceTransform(
     // Apply variance to rotation
     if (varyRotation) {
       const baseRotation = currentMetadata.rotation ?? 0;
-      // Rotation variance is in degrees
-      const rotationVariance = varianceFactor * 45; // Max 45 degrees at 100% variance
-      newMetadata.rotation = applyVariance(
-        baseRotation,
-        rotationVariance / baseRotation || 1,
-        seed,
-        individual.id.charCodeAt(0) + 4,
-      );
+      // Rotation variance is applied as absolute degrees, not relative
+      const maxRotationVariance = varianceFactor * 45; // Max 45 degrees at 100% variance
+      const random = seededRandom(seed, individual.id.charCodeAt(0) + 4);
+      // Convert 0-1 random to -1 to 1
+      const randomOffset = (random - 0.5) * 2;
+      newMetadata.rotation = baseRotation + maxRotationVariance * randomOffset;
     }
 
     // Apply variance to opacity
