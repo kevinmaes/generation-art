@@ -198,6 +198,14 @@ function drawEdge(
 }
 
 /**
+ * Enhanced P5 sketch with parameter update methods
+ */
+export interface EnhancedP5 extends p5 {
+  setShowIndividuals: (show: boolean) => void;
+  setShowRelations: (show: boolean) => void;
+}
+
+/**
  * Create a sketch function for the given configuration
  */
 function createSketch(props: SketchProps): (p: p5) => void {
@@ -215,17 +223,34 @@ function createSketch(props: SketchProps): (p: p5) => void {
   } = config;
 
   return (p: p5) => {
+    // Internal state for display parameters
+    let currentShowIndividuals = showIndividuals;
+    let currentShowRelations = showRelations;
+
+    // Add update methods to the p5 instance
+    (p as EnhancedP5).setShowIndividuals = (show: boolean) => {
+      currentShowIndividuals = show;
+      // Trigger redraw
+      p.redraw();
+    };
+
+    (p as EnhancedP5).setShowRelations = (show: boolean) => {
+      currentShowRelations = show;
+      // Trigger redraw
+      p.redraw();
+    };
     p.setup = () => {
       p.createCanvas(width, height, p.P2D);
       p.pixelDensity(1);
       p.background(255);
+      p.noLoop(); // Only redraw when explicitly called
     };
 
     p.draw = () => {
       p.background(255);
 
       // Draw edges using visual metadata
-      if (showRelations) {
+      if (currentShowRelations) {
         for (const edge of gedcomData.metadata.edges) {
           const coord1 = getIndividualCoord(
             edge.sourceId,
@@ -264,7 +289,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
       }
 
       // Draw nodes (individuals) using per-entity visual metadata
-      if (showIndividuals) {
+      if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
 
         for (const ind of individuals) {
