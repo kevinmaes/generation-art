@@ -267,27 +267,41 @@ export function PipelineManager({
   const showTwoColumns = containerWidth >= minWidthForTwoColumns;
 
   // Calculate dynamic heights for open accordion items
-  const calculateDynamicHeight = (isInSecondColumn = false) => {
+  const calculateDynamicHeight = (section: 'available' | 'input' | 'output', isInSecondColumn = false) => {
     if (isInSecondColumn) {
       // In second column, Active Pipeline can use full height
       return undefined; // Let it expand naturally
     }
 
-    // In first column, calculate available space
-    const openAccordionCount = [
+    // Count open sections in first column
+    const openSections = [
       !isAvailableTransformersCollapsed,
       !isPipelineInputCollapsed,
       !isPipelineOutputCollapsed,
       !showTwoColumns && !isActivePipelineCollapsed, // Only count if in same column
     ].filter(Boolean).length;
 
-    if (openAccordionCount <= 1) {
-      // If only one is open, it can expand more
-      return undefined;
+    if (openSections <= 1) {
+      // If only one section is open, allow more height but still constrain it
+      return 500; // Generous height for single open section
     }
 
-    // Multiple open, use the configured max height
-    return ACCORDION_PANEL_CONSTANTS.AVAILABLE_TRANSFORMERS.MAX_HEIGHT;
+    // Multiple sections open - distribute height based on section type and priority
+    if (openSections === 2) {
+      // Two sections open - give each a reasonable height
+      return section === 'output' ? 300 : 250; // Output gets slightly more space
+    }
+
+    // All three sections open - constrain more tightly
+    if (section === 'available') {
+      return 200; // Transformers list - compact
+    } else if (section === 'input') {
+      return 250; // Input data - medium
+    } else if (section === 'output') {
+      return 300; // Output results - most important, gets most space
+    }
+
+    return 200; // Fallback
   };
 
   React.useEffect(() => {
@@ -320,14 +334,11 @@ export function PipelineManager({
             : 0,
         }}
       >
-        {/* First Column: Accordion Container */}
-        <div
-          className="overflow-y-auto flex flex-col"
-          style={{
-            scrollbarWidth: 'thin',
-            scrollbarColor: '#888 #f1f1f1',
-          }}
-        >
+        {/* First Column: All sections flowing naturally */}
+        <div className="flex flex-col overflow-y-auto" style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#888 #f1f1f1',
+        }}>
           {/* Available Transformers Panel */}
           <CollapsiblePanel
             title="Available Transformers"
@@ -338,8 +349,8 @@ export function PipelineManager({
               )
             }
             hasContent={availableTransformerIds.length > 0}
-            maxHeight={calculateDynamicHeight()}
-            allowExpansion={calculateDynamicHeight() === undefined}
+            maxHeight={calculateDynamicHeight('available')}
+            allowExpansion={false}
           >
             <div className="space-y-2">
               {availableTransformerIds.length === 0 ? (
@@ -388,8 +399,8 @@ export function PipelineManager({
               setIsPipelineInputCollapsed(!isPipelineInputCollapsed)
             }
             hasContent={!!pipelineInput}
-            maxHeight={calculateDynamicHeight()}
-            allowExpansion={calculateDynamicHeight() === undefined}
+            maxHeight={calculateDynamicHeight('input')}
+            allowExpansion={false}
             buttons={
               pipelineInput && (
                 <>
@@ -465,8 +476,8 @@ export function PipelineManager({
               setIsPipelineOutputCollapsed(!isPipelineOutputCollapsed)
             }
             hasContent={!!pipelineResult}
-            maxHeight={calculateDynamicHeight()}
-            allowExpansion={calculateDynamicHeight() === undefined}
+            maxHeight={calculateDynamicHeight('output')}
+            allowExpansion={false}
             buttons={
               pipelineResult && (
                 <button
@@ -527,8 +538,8 @@ export function PipelineManager({
                 setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
               }
               hasContent={activeTransformerIds.length > 0}
-              maxHeight={calculateDynamicHeight()}
-              allowExpansion={calculateDynamicHeight() === undefined}
+              maxHeight={calculateDynamicHeight('available')}
+              allowExpansion={false}
             >
               <div className="space-y-2">
                 {activeTransformerIds.length === 0 ? (
