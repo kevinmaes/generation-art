@@ -240,11 +240,6 @@ function App(): React.ReactElement {
     }
   };
 
-  const handlePipelineResult = (result: PipelineResult | null) => {
-    setPipelineResult(result);
-    // Don't update activeTransformerIds from pipeline results
-    // The user's current transformer selection should be preserved
-  };
 
   return (
     <div className="min-h-screen w-full bg-gray-100">
@@ -278,7 +273,6 @@ function App(): React.ReactElement {
                 gedcomData={dualData.full}
                 pipelineResult={pipelineResult}
                 className="mb-8"
-                onPipelineResult={handlePipelineResult}
                 onOpenPipelineClick={() => {
                   setIsPipelineModalOpen(true);
                 }}

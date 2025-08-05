@@ -18,7 +18,6 @@ interface ArtGeneratorProps {
   showIndividuals?: boolean;
   showRelations?: boolean;
   onExportReady?: (p5Instance: p5) => void;
-  onPipelineResult?: (result: PipelineResult | null) => void;
   onVisualize?: () => void;
   isVisualizing?: boolean;
   pipelineProgress?: {
@@ -36,7 +35,6 @@ export function ArtGenerator({
   showIndividuals = true,
   showRelations = true,
   onExportReady,
-  onPipelineResult: _onPipelineResult,
   onVisualize,
   isVisualizing = false,
   pipelineProgress = null,
