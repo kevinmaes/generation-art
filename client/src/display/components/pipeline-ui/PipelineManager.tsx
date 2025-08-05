@@ -518,7 +518,9 @@ export function PipelineManager({
               subtitle={
                 pipelineResult
                   ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
-                  : 'Ready to visualize'
+                  : activeTransformerIds.length > 0
+                    ? 'Ready to visualize'
+                    : undefined
               }
               isCollapsed={isActivePipelineCollapsed}
               onToggle={() =>
@@ -584,7 +586,9 @@ export function PipelineManager({
               subtitle={
                 pipelineResult
                   ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
-                  : 'Ready to visualize'
+                  : activeTransformerIds.length > 0
+                    ? 'Ready to visualize'
+                    : undefined
               }
               isCollapsed={isActivePipelineCollapsed}
               onToggle={() =>
@@ -678,7 +682,7 @@ export function PipelineManager({
           </div>
         ) : (
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 text-left">
               No pipeline results yet. Configure transformers and click
               Visualize.
             </div>
