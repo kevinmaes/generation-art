@@ -253,7 +253,9 @@ export function PipelineManager({
 
   // Calculate responsive layout breakpoint
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const columnRef = React.useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = React.useState(0);
+  const [columnHeight, setColumnHeight] = React.useState(600);
 
   // Calculate the minimum width needed for 2 columns
   const maxAccordionWidth = Math.max(
@@ -266,56 +268,65 @@ export function PipelineManager({
     2 * maxAccordionWidth + ACCORDION_PANEL_CONSTANTS.GAP;
   const showTwoColumns = containerWidth >= minWidthForTwoColumns;
 
-  // Calculate dynamic heights for open accordion items
-  const calculateDynamicHeight = (section: 'available' | 'input' | 'output', isInSecondColumn = false) => {
-    if (isInSecondColumn) {
-      // In second column, Active Pipeline can use full height
-      return undefined; // Let it expand naturally
+  // Calculate dynamic heights for sections in first column
+  const calculateSectionHeight = (section: 'available' | 'input' | 'output') => {
+    // Count expanded sections 
+    const isAvailableExpanded = !isAvailableTransformersCollapsed;
+    const isInputExpanded = !isPipelineInputCollapsed;
+    const isOutputExpanded = !isPipelineOutputCollapsed;
+    
+    const expandedCount = [isAvailableExpanded, isInputExpanded, isOutputExpanded].filter(Boolean).length;
+    
+    // Header height for collapsed items
+    const headerHeight = 48;
+    
+    // Use the actual measured column height
+    const containerHeight = columnHeight;
+    
+    if (expandedCount === 0) {
+      return undefined; // All collapsed
     }
-
-    // Count open sections in first column
-    const openSections = [
-      !isAvailableTransformersCollapsed,
-      !isPipelineInputCollapsed,
-      !isPipelineOutputCollapsed,
-      !showTwoColumns && !isActivePipelineCollapsed, // Only count if in same column
-    ].filter(Boolean).length;
-
-    if (openSections <= 1) {
-      // If only one section is open, allow more height but still constrain it
-      return 500; // Generous height for single open section
+    
+    if (expandedCount === 3) {
+      // All 3 sections expanded: each gets 1/3 of the total column height
+      return Math.floor(containerHeight / 3);
     }
-
-    // Multiple sections open - distribute height based on section type and priority
-    if (openSections === 2) {
-      // Two sections open - give each a reasonable height
-      return section === 'output' ? 300 : 250; // Output gets slightly more space
+    
+    if (expandedCount === 2) {
+      // 2 sections expanded: each gets half of (column height - collapsed header height)
+      const collapsedHeadersHeight = 1 * headerHeight; // 1 collapsed item
+      const availableHeight = containerHeight - collapsedHeadersHeight;
+      return Math.floor(availableHeight / 2);
     }
-
-    // All three sections open - constrain more tightly
-    if (section === 'available') {
-      return 200; // Transformers list - compact
-    } else if (section === 'input') {
-      return 250; // Input data - medium
-    } else if (section === 'output') {
-      return 300; // Output results - most important, gets most space
+    
+    if (expandedCount === 1) {
+      // 1 section expanded: gets (column height - 2 collapsed header heights)
+      const collapsedHeadersHeight = 2 * headerHeight; // 2 collapsed items
+      const availableHeight = containerHeight - collapsedHeadersHeight;
+      return availableHeight;
     }
-
+    
     return 200; // Fallback
   };
 
   React.useEffect(() => {
-    const updateWidth = () => {
+    const updateDimensions = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
       }
+      if (columnRef.current) {
+        setColumnHeight(columnRef.current.offsetHeight);
+      }
     };
 
-    updateWidth();
+    updateDimensions();
 
-    const resizeObserver = new ResizeObserver(updateWidth);
+    const resizeObserver = new ResizeObserver(updateDimensions);
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
+    }
+    if (columnRef.current) {
+      resizeObserver.observe(columnRef.current);
     }
 
     return () => {
@@ -326,7 +337,7 @@ export function PipelineManager({
   return (
     <div ref={containerRef} className="h-full flex flex-col bg-white p-6">
       <div
-        className="flex-1 grid min-h-0"
+        className="flex-1 grid min-h-0 h-full"
         style={{
           gridTemplateColumns: showTwoColumns ? '1fr 1fr' : '1fr',
           gap: showTwoColumns
@@ -334,8 +345,8 @@ export function PipelineManager({
             : 0,
         }}
       >
-        {/* First Column: All sections flowing naturally */}
-        <div className="flex flex-col overflow-y-auto" style={{
+        {/* First Column: All sections flowing naturally with smart height constraints */}
+        <div ref={columnRef} className="flex flex-col overflow-y-auto h-full" style={{
           scrollbarWidth: 'thin',
           scrollbarColor: '#888 #f1f1f1',
         }}>
@@ -349,7 +360,7 @@ export function PipelineManager({
               )
             }
             hasContent={availableTransformerIds.length > 0}
-            maxHeight={calculateDynamicHeight('available')}
+            maxHeight={calculateSectionHeight('available')}
             allowExpansion={false}
           >
             <div className="space-y-2">
@@ -399,7 +410,7 @@ export function PipelineManager({
               setIsPipelineInputCollapsed(!isPipelineInputCollapsed)
             }
             hasContent={!!pipelineInput}
-            maxHeight={calculateDynamicHeight('input')}
+            maxHeight={calculateSectionHeight('input')}
             allowExpansion={false}
             buttons={
               pipelineInput && (
@@ -476,7 +487,7 @@ export function PipelineManager({
               setIsPipelineOutputCollapsed(!isPipelineOutputCollapsed)
             }
             hasContent={!!pipelineResult}
-            maxHeight={calculateDynamicHeight('output')}
+            maxHeight={calculateSectionHeight('output')}
             allowExpansion={false}
             buttons={
               pipelineResult && (
@@ -538,7 +549,7 @@ export function PipelineManager({
                 setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
               }
               hasContent={activeTransformerIds.length > 0}
-              maxHeight={calculateDynamicHeight('available')}
+              maxHeight={calculateSectionHeight('available')}
               allowExpansion={false}
             >
               <div className="space-y-2">
@@ -606,7 +617,7 @@ export function PipelineManager({
                 setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
               }
               hasContent={activeTransformerIds.length > 0}
-              maxHeight={calculateDynamicHeight(true)}
+              maxHeight={undefined}
               allowExpansion={true}
             >
               <div className="space-y-2">
