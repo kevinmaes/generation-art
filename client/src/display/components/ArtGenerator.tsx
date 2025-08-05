@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
 import p5 from 'p5';
-import { createWebSketch, type SketchConfig, type EnhancedP5 } from '../FamilyTreeSketch';
+import {
+  createWebSketch,
+  type SketchConfig,
+  type EnhancedP5,
+} from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { PipelineResult } from '../../transformers/pipeline';
@@ -110,13 +114,7 @@ export function ArtGenerator({
       container.innerHTML = '';
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showIndividuals and showRelations handled in separate useEffects
-  }, [
-    pipelineResult,
-    gedcomData,
-    width,
-    height,
-    onExportReady,
-  ]);
+  }, [pipelineResult, gedcomData, width, height, onExportReady]);
 
   if (!gedcomData) {
     return (
