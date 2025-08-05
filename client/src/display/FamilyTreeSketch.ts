@@ -219,23 +219,10 @@ function createSketch(props: SketchProps): (p: p5) => void {
       p.createCanvas(width, height, p.P2D);
       p.pixelDensity(1);
       p.background(255);
-      
-      // Debug: Log canvas setup and visual metadata
-      console.log('🎨 Canvas setup:', { width, height });
-      console.log('🎨 Visual metadata sample:', {
-        individualsCount: Object.keys(visualMetadata.individuals).length,
-        firstIndividual: Object.entries(visualMetadata.individuals)[0],
-        globalSettings: visualMetadata.global
-      });
     };
 
     p.draw = () => {
       p.background(255);
-      
-      // Debug: Log draw loop info (only once)
-      if (p.frameCount === 1) {
-        console.log('🎨 Draw loop started, individuals to render:', Object.keys(visualMetadata.individuals).length);
-      }
 
       // Draw edges using visual metadata
       if (showRelations) {
@@ -279,8 +266,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
       // Draw nodes (individuals) using per-entity visual metadata
       if (showIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
-        let renderedCount = 0;
-        let skippedCount = 0;
 
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
@@ -308,11 +293,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
           // Skip rendering if no position data from transformers
           if (individualMetadata?.x === undefined || individualMetadata?.y === undefined) {
-            skippedCount++;
             continue;
           }
-          
-          renderedCount++;
 
           const pColor = p.color(color);
           pColor.setAlpha(opacity * 255);
@@ -373,11 +355,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
             p.textAlign(p.CENTER);
             p.text('', x, y + size + size * 0.3); // Names disabled in visual-only mode
           }
-        }
-        
-        // Debug: Log rendering stats (only once)
-        if (p.frameCount === 1) {
-          console.log('🎨 Rendering stats:', { renderedCount, skippedCount, totalIndividuals: individuals.length });
         }
       }
 
