@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
 import p5 from 'p5';
-import { createWebSketch, type SketchConfig } from '../FamilyTreeSketch';
+import {
+  createWebSketch,
+  type SketchConfig,
+  type EnhancedP5,
+} from '../FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { PipelineResult } from '../../transformers/pipeline';
@@ -40,10 +44,23 @@ export function ArtGenerator({
   pipelineProgress = null,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
-  const p5InstanceRef = useRef<p5 | null>(null);
+  const p5InstanceRef = useRef<EnhancedP5 | null>(null);
 
   // Removed problematic useEffect that was causing feedback loop
   // The parent component already manages the pipeline result state
+
+  // Handle parameter updates without canvas recreation
+  useEffect(() => {
+    if (p5InstanceRef.current) {
+      p5InstanceRef.current.setShowIndividuals(showIndividuals);
+    }
+  }, [showIndividuals]);
+
+  useEffect(() => {
+    if (p5InstanceRef.current) {
+      p5InstanceRef.current.setShowRelations(showRelations);
+    }
+  }, [showRelations]);
 
   // Only create the sketch after pipelineResult is available
   useEffect(() => {
@@ -83,7 +100,7 @@ export function ArtGenerator({
       sketchConfig,
       pipelineResult?.visualMetadata,
     );
-    p5InstanceRef.current = new p5(sketch, container);
+    p5InstanceRef.current = new p5(sketch, container) as EnhancedP5;
 
     if (onExportReady) {
       onExportReady(p5InstanceRef.current);
@@ -96,15 +113,8 @@ export function ArtGenerator({
       }
       container.innerHTML = '';
     };
-  }, [
-    pipelineResult,
-    gedcomData,
-    width,
-    height,
-    showIndividuals,
-    showRelations,
-    onExportReady,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showIndividuals and showRelations handled in separate useEffects
+  }, [pipelineResult, gedcomData, width, height, onExportReady]);
 
   if (!gedcomData) {
     return (
