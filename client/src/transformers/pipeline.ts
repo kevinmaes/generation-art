@@ -50,7 +50,11 @@ import {
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [TRANSFORMERS.SMART_LAYOUT.ID],
+  TRANSFORMER_IDS: [
+    TRANSFORMERS.HORIZONTAL_SPREAD.ID,
+    TRANSFORMERS.VERTICAL_SPREAD.ID,
+    TRANSFORMERS.VARIANCE.ID,
+  ],
 };
 
 /**
@@ -419,30 +423,6 @@ export async function* runPipelineGenerator({
 
       // Yield control back to browser to prevent UI blocking
       await new Promise((resolve) => setTimeout(resolve, 0));
-
-      // Debug: check if shape transformer updated shapes
-      if (
-        transformerInstance.type === 'node-shape' &&
-        result.visualMetadata.individuals
-      ) {
-        const sampleShapes = Object.entries(result.visualMetadata.individuals)
-          .slice(0, 3)
-          .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
-          .join(', ');
-        console.log(
-          `🔍 After ${transformerInstance.type} (${transformerInstance.instanceId}): Sample shapes in result:`,
-          sampleShapes,
-        );
-
-        const sampleFinalShapes = Object.entries(visualMetadata.individuals)
-          .slice(0, 3)
-          .map(([id, meta]) => `${id}:${meta.shape || 'undefined'}`)
-          .join(', ');
-        console.log(
-          `🔍 After ${transformerInstance.type} (${transformerInstance.instanceId}): Sample shapes in final metadata:`,
-          sampleFinalShapes,
-        );
-      }
 
       // Record successful execution
       transformerResults.push({

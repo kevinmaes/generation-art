@@ -8,10 +8,8 @@ import {
   createSimplePipeline,
   type PipelineResult,
 } from '../../../transformers/pipeline';
-import {
-  transformerConfigs,
-  type TransformerId,
-} from '../../../transformers/transformers';
+import { type TransformerId } from '../../../transformers/transformers';
+import { PIPELINE_DEFAULTS } from '../../../transformers/pipeline';
 
 interface UsePipelineOptions {
   temperature?: number;
@@ -44,9 +42,7 @@ export function usePipeline(
       llmData: LLMReadyData,
       width: number,
       height: number,
-      transformerIds: TransformerId[] = Object.keys(
-        transformerConfigs,
-      ) as TransformerId[],
+      transformerIds: TransformerId[] = PIPELINE_DEFAULTS.TRANSFORMER_IDS,
     ): Promise<PipelineResult> => {
       setResult(null);
       setError(null);

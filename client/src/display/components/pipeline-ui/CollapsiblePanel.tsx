@@ -7,7 +7,6 @@ interface CollapsiblePanelProps {
   onToggle: () => void;
   buttons?: React.ReactNode;
   children: React.ReactNode;
-  hasContent?: boolean;
   maxHeight?: number;
   allowExpansion?: boolean;
 }
@@ -19,15 +18,17 @@ export const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
   onToggle,
   buttons,
   children,
-  hasContent = false,
   maxHeight,
   allowExpansion = false,
 }) => (
   <div
-    className="border-l border-r border-t last:border-b flex flex-col"
+    className="border-l border-r border-t last:border-b flex flex-col overflow-hidden"
     style={{
-      flexShrink: 0,
+      flexShrink: isCollapsed ? 0 : 1,
       ...(allowExpansion && !isCollapsed ? { flex: 1 } : {}),
+      ...(maxHeight && !isCollapsed && !allowExpansion
+        ? { maxHeight: `${String(maxHeight)}px` }
+        : {}),
     }}
   >
     {/* Clickable Header */}
@@ -77,13 +78,7 @@ export const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
     {/* Collapsible Content */}
     {!isCollapsed && (
       <div
-        className={`overflow-auto p-4 ${allowExpansion ? 'flex-1 min-h-0' : ''}`}
-        style={{
-          maxHeight:
-            hasContent && maxHeight && !allowExpansion
-              ? `${String(maxHeight)}px`
-              : undefined,
-        }}
+        className={`overflow-auto p-4 ${allowExpansion ? 'flex-1 min-h-0' : 'min-h-0'}`}
       >
         {children}
       </div>

@@ -18,7 +18,6 @@ interface ArtGeneratorProps {
   showIndividuals?: boolean;
   showRelations?: boolean;
   onExportReady?: (p5Instance: p5) => void;
-  onPipelineResult?: (result: PipelineResult | null) => void;
   onVisualize?: () => void;
   isVisualizing?: boolean;
   pipelineProgress?: {
@@ -36,7 +35,6 @@ export function ArtGenerator({
   showIndividuals = true,
   showRelations = true,
   onExportReady,
-  onPipelineResult,
   onVisualize,
   isVisualizing = false,
   pipelineProgress = null,
@@ -44,10 +42,8 @@ export function ArtGenerator({
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
 
-  // Notify parent component when pipeline result changes
-  useEffect(() => {
-    onPipelineResult?.(pipelineResult ?? null);
-  }, [pipelineResult, onPipelineResult]);
+  // Removed problematic useEffect that was causing feedback loop
+  // The parent component already manages the pipeline result state
 
   // Only create the sketch after pipelineResult is available
   useEffect(() => {

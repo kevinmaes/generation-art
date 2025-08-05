@@ -271,10 +271,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
           // Only use visual metadata - no config fallbacks
-          const x =
-            individualMetadata?.x ?? visualMetadata.global.defaultNodeSize ?? 0;
-          const y =
-            individualMetadata?.y ?? visualMetadata.global.defaultNodeSize ?? 0;
+          const x = individualMetadata?.x ?? 0;
+          const y = individualMetadata?.y ?? 0;
           const size =
             individualMetadata?.size ??
             visualMetadata.global.defaultNodeSize ??
@@ -294,7 +292,10 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const opacity = individualMetadata?.opacity ?? 0.8;
 
           // Skip rendering if no position data from transformers
-          if (!individualMetadata?.x || !individualMetadata?.y) {
+          if (
+            individualMetadata?.x === undefined ||
+            individualMetadata?.y === undefined
+          ) {
             continue;
           }
 

@@ -6,7 +6,7 @@ describe('GenerationProgress', () => {
   it('should render spinner and default message', () => {
     render(<GenerationProgress />);
 
-    expect(screen.getByText('Generating art...')).toBeDefined();
+    expect(screen.getByText('Generating art...')).toBeTruthy();
     // Check for spinner by looking for the animated div
     const spinner = document.querySelector('.animate-spin');
     expect(spinner).toBeTruthy();
@@ -15,14 +15,14 @@ describe('GenerationProgress', () => {
   it('should render custom message', () => {
     render(<GenerationProgress message="Custom loading message" />);
 
-    expect(screen.getByText('Custom loading message')).toBeDefined();
-    expect(screen.queryByText('Generating art...')).toBeFalsy();
+    expect(screen.getByText('Custom loading message')).toBeTruthy();
+    expect(screen.queryByText('Generating art...')).toBeNull();
   });
 
   it('should not render progress details when progress is null', () => {
     render(<GenerationProgress progress={null} />);
 
-    expect(screen.queryByText(/Step \d+ of \d+/)).toBeFalsy();
+    expect(screen.queryByText(/Step \d+ of \d+/)).toBeNull();
   });
 
   it('should render progress details when progress is provided', () => {
@@ -34,8 +34,8 @@ describe('GenerationProgress', () => {
 
     render(<GenerationProgress progress={progress} />);
 
-    expect(screen.getByText('Step 2 of 5')).toBeDefined();
-    expect(screen.getByText('Smart Layout')).toBeDefined();
+    expect(screen.getByText('Step 2 of 5')).toBeTruthy();
+    expect(screen.getByText('Smart Layout')).toBeTruthy();
 
     // Check progress bar exists
     const progressBar = document.querySelector('.bg-blue-500');
@@ -76,7 +76,7 @@ describe('GenerationProgress', () => {
 
     render(<GenerationProgress progress={progress} />);
 
-    expect(screen.getByText('Step 5 of 5')).toBeDefined();
+    expect(screen.getByText('Step 5 of 5')).toBeTruthy();
 
     const progressBar = document.querySelector('.bg-blue-500');
     expect(progressBar).toBeTruthy();

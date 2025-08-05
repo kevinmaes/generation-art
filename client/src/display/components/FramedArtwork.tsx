@@ -15,7 +15,6 @@ interface FramedArtworkProps {
   gedcomData?: GedcomDataWithMetadata;
   pipelineResult?: PipelineResult | null;
   className?: string;
-  onPipelineResult?: (result: PipelineResult | null) => void;
   onOpenPipelineClick?: () => void;
   onVisualize?: () => void;
   isVisualizing?: boolean;
@@ -34,7 +33,6 @@ export function FramedArtwork({
   gedcomData,
   pipelineResult,
   className = '',
-  onPipelineResult,
   onOpenPipelineClick,
   onVisualize,
   isVisualizing = false,
@@ -156,7 +154,6 @@ export function FramedArtwork({
             showIndividuals={showIndividuals}
             showRelations={showRelations}
             onExportReady={handleExport}
-            onPipelineResult={onPipelineResult}
             onVisualize={onVisualize}
             isVisualizing={isVisualizing}
             pipelineProgress={pipelineProgress}

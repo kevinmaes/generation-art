@@ -17,6 +17,7 @@ import { nodeRotationConfig } from './node-rotation';
 import { nodeScaleConfig } from './node-scale';
 import { smartLayoutTransformerConfig } from './smart-layout';
 import { edgeCurveConfig } from './edge-curve';
+import { varianceConfig } from './variance';
 
 // Transformer constants for type safety
 export const TRANSFORMERS = {
@@ -60,6 +61,10 @@ export const TRANSFORMERS = {
     ID: 'edge-curve',
     NAME: 'Edge Curve',
   },
+  VARIANCE: {
+    ID: 'variance',
+    NAME: 'Variance',
+  },
 } as const;
 
 export type TransformerId =
@@ -86,6 +91,7 @@ export const transformerConfigs: Record<
   'node-scale': nodeScaleConfig,
   'smart-layout': smartLayoutTransformerConfig,
   'edge-curve': edgeCurveConfig,
+  variance: varianceConfig,
 };
 
 /**
