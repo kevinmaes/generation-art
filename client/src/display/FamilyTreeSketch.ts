@@ -187,14 +187,8 @@ function drawEdge(
   metadata: VisualMetadata,
 ): void {
   const curveType = metadata.curveType ?? 'straight';
-  const renderer = CURVE_RENDERERS[curveType];
-
-  if (renderer) {
-    renderer(p, start, end, metadata);
-  } else {
-    // Fallback to straight line for unknown curve types
-    CURVE_RENDERERS.straight(p, start, end, metadata);
-  }
+  const renderer = CURVE_RENDERERS[curveType] ?? CURVE_RENDERERS.straight;
+  renderer(p, start, end, metadata);
 }
 
 /**
