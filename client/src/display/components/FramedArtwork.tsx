@@ -44,6 +44,13 @@ export function FramedArtwork({
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);
 
+  // Debug: Log FramedArtwork renders and props
+  console.log('🖼️ FramedArtwork render:', {
+    hasPipelineResult: !!pipelineResult,
+    isVisualizing,
+    hasGedcomData: !!gedcomData,
+  });
+
   const { shareState, exportWebCanvas } = useShareArt();
 
   const handleExport = useCallback((p5Instance: p5) => {

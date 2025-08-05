@@ -44,14 +44,28 @@ export function ArtGenerator({
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
 
-  // Notify parent component when pipeline result changes
-  useEffect(() => {
-    onPipelineResult?.(pipelineResult ?? null);
-  }, [pipelineResult, onPipelineResult]);
+  // Debug: Log component renders and pipeline result status
+  console.log('🎨 ArtGenerator render:', {
+    hasPipelineResult: !!pipelineResult,
+    pipelineResultKeys: pipelineResult ? Object.keys(pipelineResult) : 'null',
+    isVisualizing,
+    hasGedcomData: !!gedcomData,
+  });
+
+  // Removed problematic useEffect that was causing feedback loop
+  // The parent component already manages the pipeline result state
 
   // Only create the sketch after pipelineResult is available
   useEffect(() => {
     if (!containerRef.current || !gedcomData) return;
+
+    // Debug: Log what we're working with
+    console.log('🎨 ArtGenerator useEffect triggered:', {
+      hasContainer: !!containerRef.current,
+      hasGedcomData: !!gedcomData,
+      hasPipelineResult: !!pipelineResult,
+      pipelineResultType: typeof pipelineResult,
+    });
 
     const container = containerRef.current;
 
@@ -78,6 +92,15 @@ export function ArtGenerator({
       showIndividuals,
       showRelations,
     };
+
+    // Debug: Log the pipeline result details
+    if (pipelineResult) {
+      console.log('🎨 Creating sketch with pipeline result:', {
+        hasVisualMetadata: !!pipelineResult.visualMetadata,
+        individualsCount: Object.keys(pipelineResult.visualMetadata?.individuals || {}).length,
+        sampleIndividual: Object.entries(pipelineResult.visualMetadata?.individuals || {})[0],
+      });
+    }
 
     // Pass the pipeline result's visual metadata to the sketch
     const sketch = createWebSketch(

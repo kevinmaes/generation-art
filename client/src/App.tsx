@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FramedArtwork } from './display/components/FramedArtwork';
 import { PipelinePanel } from './display/components/pipeline-ui/PipelinePanel';
 import { ErrorBoundary } from './display/components/ErrorBoundary';
@@ -32,9 +32,20 @@ function App(): React.ReactElement {
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
   );
-  const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(
+  const [pipelineResult, setPipelineResultInternal] = useState<PipelineResult | null>(
     null,
   );
+  
+  // Debug wrapper to track all setPipelineResult calls
+  const setPipelineResult = useCallback((result: PipelineResult | null | ((prev: PipelineResult | null) => PipelineResult | null)) => {
+    const stack = new Error().stack;
+    console.log('🔧 setPipelineResult called:', {
+      resultType: typeof result === 'function' ? 'function' : (result ? 'object' : 'null'),
+      hasResult: typeof result === 'function' ? 'unknown' : !!result,
+      stack: stack?.split('\n')[2]?.trim() // Show where it was called from
+    });
+    setPipelineResultInternal(result);
+  }, []);
   const [activeTransformerIds, setActiveTransformerIds] = useState<
     TransformerId[]
   >(PIPELINE_DEFAULTS.TRANSFORMER_IDS);
@@ -204,7 +215,24 @@ function App(): React.ReactElement {
           setPipelineProgress({ current, total, transformerName });
         },
       });
-      setPipelineResult(result);
+      
+      // Debug: Log the pipeline result before setting state
+      console.log('🔄 Pipeline completed, setting result:', {
+        hasResult: !!result,
+        resultKeys: result ? Object.keys(result) : 'null',
+        visualMetadataKeys: result?.visualMetadata ? Object.keys(result.visualMetadata) : 'null',
+        individualsCount: result?.visualMetadata?.individuals ? Object.keys(result.visualMetadata.individuals).length : 0,
+      });
+      
+      // Force state update using functional update pattern
+      setPipelineResult(() => {
+        console.log('🔄 Setting pipeline result via functional update');
+        return result;
+      });
+      
+      // Debug: Log that we've called setPipelineResult
+      console.log('🔄 Called setPipelineResult with:', result ? 'valid result' : 'null result');
+      
       // Update lastRunParameters with current transformerParameters after successful pipeline run
       // Ensure we capture the actual parameters used, including defaults for transformers without explicit parameters
       const actualParametersUsed: Record<
@@ -244,6 +272,14 @@ function App(): React.ReactElement {
     // Don't update activeTransformerIds from pipeline results
     // The user's current transformer selection should be preserved
   };
+
+  // Debug: Log App renders and pipeline result state
+  console.log('📱 App render:', {
+    hasPipelineResult: !!pipelineResult,
+    hasData: !!dualData,
+    currentView,
+    isVisualizing,
+  });
 
   return (
     <div className="min-h-screen w-full bg-gray-100">

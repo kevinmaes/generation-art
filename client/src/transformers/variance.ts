@@ -193,6 +193,16 @@ export async function varianceTransform(
     return { visualMetadata: {} };
   }
 
+  // Temporary debug: Log variance settings
+  console.log('🔍 Variance settings:', {
+    varianceAmount,
+    varianceMode,
+    varySize,
+    varyPosition,
+    varyRotation,
+    varyOpacity,
+  });
+
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual) => individual !== null && individual !== undefined,
   );
@@ -205,8 +215,13 @@ export async function varianceTransform(
   const updatedEdges: Record<string, VisualMetadata> = {};
 
   // Apply variance to individuals
-  individuals.forEach((individual) => {
+  individuals.forEach((individual, index) => {
     const currentMetadata = visualMetadata.individuals?.[individual.id] ?? {};
+
+    // Debug: Log first few individuals to see what we're working with
+    if (index < 2) {
+      console.log(`🔍 Variance - Individual ${individual.id} currentMetadata:`, currentMetadata);
+    }
 
     // Find family ID for clustered mode
     const familyId = Object.values(gedcomData.families).find(
@@ -227,17 +242,22 @@ export async function varianceTransform(
 
     // Start with existing metadata
     const newMetadata: VisualMetadata = { ...currentMetadata };
+    let hasChanges = false;
 
     // Apply variance to size
     if (varySize && currentMetadata.size !== undefined) {
-      newMetadata.size = applyVariance(
+      const newSize = applyVariance(
         currentMetadata.size,
         varianceFactor,
         seed,
         individual.id.charCodeAt(0) + 1,
       );
       // Ensure size stays positive
-      newMetadata.size = Math.max(5, newMetadata.size);
+      const clampedSize = Math.max(5, newSize);
+      if (Math.abs(clampedSize - currentMetadata.size) > 0.1) {
+        newMetadata.size = clampedSize;
+        hasChanges = true;
+      }
     }
 
     // Apply variance to position
@@ -245,21 +265,29 @@ export async function varianceTransform(
       if (currentMetadata.x !== undefined) {
         // Position variance is limited to prevent overlaps
         const positionVariance = varianceFactor * 0.3; // 30% of normal variance
-        newMetadata.x = applyVariance(
+        const newX = applyVariance(
           currentMetadata.x,
           positionVariance,
           seed,
           individual.id.charCodeAt(0) + 2,
         );
+        if (Math.abs(newX - currentMetadata.x) > 0.5) {
+          newMetadata.x = newX;
+          hasChanges = true;
+        }
       }
       if (currentMetadata.y !== undefined) {
         const positionVariance = varianceFactor * 0.3;
-        newMetadata.y = applyVariance(
+        const newY = applyVariance(
           currentMetadata.y,
           positionVariance,
           seed,
           individual.id.charCodeAt(0) + 3,
         );
+        if (Math.abs(newY - currentMetadata.y) > 0.5) {
+          newMetadata.y = newY;
+          hasChanges = true;
+        }
       }
     }
 
@@ -286,7 +314,13 @@ export async function varianceTransform(
       newMetadata.opacity = Math.max(0.1, Math.min(1, newMetadata.opacity));
     }
 
+    // Always include the individual (even without changes) to preserve existing data
     updatedIndividuals[individual.id] = newMetadata;
+
+    // Debug: Log first few results
+    if (index < 2) {
+      console.log(`🔍 Variance - Individual ${individual.id} hasChanges:`, hasChanges, 'newMetadata:', newMetadata);
+    }
   });
 
   // Apply subtle variance to edge curves if position is varied
