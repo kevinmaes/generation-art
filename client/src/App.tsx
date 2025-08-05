@@ -240,7 +240,6 @@ function App(): React.ReactElement {
     }
   };
 
-
   return (
     <div className="min-h-screen w-full bg-gray-100">
       <div className="flex flex-col justify-center items-center min-h-screen">
