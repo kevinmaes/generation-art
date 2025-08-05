@@ -193,7 +193,6 @@ export async function varianceTransform(
     return { visualMetadata: {} };
   }
 
-
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual) => individual !== null && individual !== undefined,
   );

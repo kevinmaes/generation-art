@@ -269,43 +269,49 @@ export function PipelineManager({
   const showTwoColumns = containerWidth >= minWidthForTwoColumns;
 
   // Calculate dynamic heights for sections in first column
-  const calculateSectionHeight = (section: 'available' | 'input' | 'output') => {
-    // Count expanded sections 
+  const calculateSectionHeight = (
+    _section: 'available' | 'input' | 'output',
+  ) => {
+    // Count expanded sections
     const isAvailableExpanded = !isAvailableTransformersCollapsed;
     const isInputExpanded = !isPipelineInputCollapsed;
     const isOutputExpanded = !isPipelineOutputCollapsed;
-    
-    const expandedCount = [isAvailableExpanded, isInputExpanded, isOutputExpanded].filter(Boolean).length;
-    
+
+    const expandedCount = [
+      isAvailableExpanded,
+      isInputExpanded,
+      isOutputExpanded,
+    ].filter(Boolean).length;
+
     // Header height for collapsed items
     const headerHeight = 48;
-    
+
     // Use the actual measured column height
     const containerHeight = columnHeight;
-    
+
     if (expandedCount === 0) {
       return undefined; // All collapsed
     }
-    
+
     if (expandedCount === 3) {
       // All 3 sections expanded: each gets 1/3 of the total column height
       return Math.floor(containerHeight / 3);
     }
-    
+
     if (expandedCount === 2) {
       // 2 sections expanded: each gets half of (column height - collapsed header height)
       const collapsedHeadersHeight = 1 * headerHeight; // 1 collapsed item
       const availableHeight = containerHeight - collapsedHeadersHeight;
       return Math.floor(availableHeight / 2);
     }
-    
+
     if (expandedCount === 1) {
       // 1 section expanded: gets (column height - 2 collapsed header heights)
       const collapsedHeadersHeight = 2 * headerHeight; // 2 collapsed items
       const availableHeight = containerHeight - collapsedHeadersHeight;
       return availableHeight;
     }
-    
+
     return 200; // Fallback
   };
 
@@ -346,10 +352,14 @@ export function PipelineManager({
         }}
       >
         {/* First Column: All sections flowing naturally with smart height constraints */}
-        <div ref={columnRef} className="flex flex-col overflow-y-auto h-full" style={{
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#888 #f1f1f1',
-        }}>
+        <div
+          ref={columnRef}
+          className="flex flex-col overflow-y-auto h-full"
+          style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#888 #f1f1f1',
+          }}
+        >
           {/* Available Transformers Panel */}
           <CollapsiblePanel
             title="Available Transformers"
@@ -359,7 +369,6 @@ export function PipelineManager({
                 !isAvailableTransformersCollapsed,
               )
             }
-            hasContent={availableTransformerIds.length > 0}
             maxHeight={calculateSectionHeight('available')}
             allowExpansion={false}
           >
@@ -409,7 +418,6 @@ export function PipelineManager({
             onToggle={() =>
               setIsPipelineInputCollapsed(!isPipelineInputCollapsed)
             }
-            hasContent={!!pipelineInput}
             maxHeight={calculateSectionHeight('input')}
             allowExpansion={false}
             buttons={
@@ -486,7 +494,6 @@ export function PipelineManager({
             onToggle={() =>
               setIsPipelineOutputCollapsed(!isPipelineOutputCollapsed)
             }
-            hasContent={!!pipelineResult}
             maxHeight={calculateSectionHeight('output')}
             allowExpansion={false}
             buttons={
@@ -548,7 +555,6 @@ export function PipelineManager({
               onToggle={() =>
                 setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
               }
-              hasContent={activeTransformerIds.length > 0}
               maxHeight={calculateSectionHeight('available')}
               allowExpansion={false}
             >
@@ -616,7 +622,6 @@ export function PipelineManager({
               onToggle={() =>
                 setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
               }
-              hasContent={activeTransformerIds.length > 0}
               maxHeight={undefined}
               allowExpansion={true}
             >

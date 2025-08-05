@@ -292,7 +292,10 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const opacity = individualMetadata?.opacity ?? 0.8;
 
           // Skip rendering if no position data from transformers
-          if (individualMetadata?.x === undefined || individualMetadata?.y === undefined) {
+          if (
+            individualMetadata?.x === undefined ||
+            individualMetadata?.y === undefined
+          ) {
             continue;
           }
 

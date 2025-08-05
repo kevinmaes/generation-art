@@ -44,7 +44,6 @@ export function FramedArtwork({
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);
 
-
   const { shareState, exportWebCanvas } = useShareArt();
 
   const handleExport = useCallback((p5Instance: p5) => {

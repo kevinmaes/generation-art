@@ -7,7 +7,6 @@ interface CollapsiblePanelProps {
   onToggle: () => void;
   buttons?: React.ReactNode;
   children: React.ReactNode;
-  hasContent?: boolean;
   maxHeight?: number;
   allowExpansion?: boolean;
 }
@@ -19,7 +18,6 @@ export const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
   onToggle,
   buttons,
   children,
-  hasContent = false,
   maxHeight,
   allowExpansion = false,
 }) => (
@@ -28,7 +26,9 @@ export const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({
     style={{
       flexShrink: isCollapsed ? 0 : 1,
       ...(allowExpansion && !isCollapsed ? { flex: 1 } : {}),
-      ...(maxHeight && !isCollapsed && !allowExpansion ? { maxHeight: `${maxHeight}px` } : {}),
+      ...(maxHeight && !isCollapsed && !allowExpansion
+        ? { maxHeight: `${String(maxHeight)}px` }
+        : {}),
     }}
   >
     {/* Clickable Header */}

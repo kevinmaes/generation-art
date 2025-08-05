@@ -205,7 +205,7 @@ function App(): React.ReactElement {
         },
       });
       setPipelineResult(result);
-      
+
       // Update lastRunParameters with current transformerParameters after successful pipeline run
       // Ensure we capture the actual parameters used, including defaults for transformers without explicit parameters
       const actualParametersUsed: Record<
@@ -245,7 +245,6 @@ function App(): React.ReactElement {
     // Don't update activeTransformerIds from pipeline results
     // The user's current transformer selection should be preserved
   };
-
 
   return (
     <div className="min-h-screen w-full bg-gray-100">

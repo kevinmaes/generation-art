@@ -36,7 +36,7 @@ export function ArtGenerator({
   showIndividuals = true,
   showRelations = true,
   onExportReady,
-  onPipelineResult,
+  onPipelineResult: _onPipelineResult,
   onVisualize,
   isVisualizing = false,
   pipelineProgress = null,
@@ -44,14 +44,12 @@ export function ArtGenerator({
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
 
-
   // Removed problematic useEffect that was causing feedback loop
   // The parent component already manages the pipeline result state
 
   // Only create the sketch after pipelineResult is available
   useEffect(() => {
     if (!containerRef.current || !gedcomData) return;
-
 
     const container = containerRef.current;
 
@@ -78,7 +76,6 @@ export function ArtGenerator({
       showIndividuals,
       showRelations,
     };
-
 
     // Pass the pipeline result's visual metadata to the sketch
     const sketch = createWebSketch(
