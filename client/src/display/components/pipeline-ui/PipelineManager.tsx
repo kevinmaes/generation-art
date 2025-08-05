@@ -20,19 +20,19 @@ import { CollapsiblePanel } from './CollapsiblePanel';
 // Accordion panel constants
 const ACCORDION_PANEL_CONSTANTS = {
   AVAILABLE_TRANSFORMERS: {
-    MIN_WIDTH: 450,
+    MIN_WIDTH: 360,
     MAX_HEIGHT: 350,
   },
   PIPELINE_INPUT: {
-    MIN_WIDTH: 450,
+    MIN_WIDTH: 360,
     MAX_HEIGHT: 350,
   },
   PIPELINE_OUTPUT: {
-    MIN_WIDTH: 450,
+    MIN_WIDTH: 360,
     MAX_HEIGHT: 350,
   },
   ACTIVE_PIPELINE: {
-    MIN_WIDTH: 450,
+    MIN_WIDTH: 360,
     MAX_HEIGHT: 650,
   },
   GAP: 20, // Gap between columns in 2-column layout
