@@ -347,11 +347,11 @@ export function TransformerItem({
                 {transformer.availableDimensions.length > 0 && (
                   <div>
                     <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
-                      Dimensions + Temperature
+                      {transformer.requiresLLM ? 'Dimensions + Temperature' : 'Dimensions'}
                     </h4>
 
                     {/* Dimensions Row */}
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className={`grid gap-2 ${transformer.requiresLLM ? 'grid-cols-3' : 'grid-cols-2'}`}>
                       {/* Primary Dimension */}
                       <div>
                         <label className="block text-xs text-gray-600 mb-1 text-left">
@@ -406,43 +406,45 @@ export function TransformerItem({
                         </select>
                       </div>
 
-                      {/* Temperature */}
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1 text-left">
-                          Temperature
-                        </label>
-                        <input
-                          type="range"
-                          min={0}
-                          max={1}
-                          step={0.1}
-                          value={
-                            sliderValues.temperature !== undefined
-                              ? (sliderValues.temperature as number)
-                              : (parameters.visual.temperature as number) ||
-                                (VISUAL_PARAMETERS.temperature
-                                  .defaultValue as number)
-                          }
-                          onInput={(e) => {
-                            handleSliderInput(
-                              'temperature',
-                              Number((e.target as HTMLInputElement).value),
-                            );
-                          }}
-                          onChange={(e) => {
-                            handleSliderChangeComplete(
-                              'temperature',
-                              Number(e.target.value),
-                            );
-                          }}
-                          className="w-full"
-                          disabled={isDisabled}
-                        />
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>0</span>
-                          <span>1</span>
+                      {/* Temperature - only show for LLM transformers */}
+                      {transformer.requiresLLM && (
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1 text-left">
+                            Temperature
+                          </label>
+                          <input
+                            type="range"
+                            min={0}
+                            max={1}
+                            step={0.1}
+                            value={
+                              sliderValues.temperature !== undefined
+                                ? (sliderValues.temperature as number)
+                                : (parameters.visual.temperature as number) ||
+                                  (VISUAL_PARAMETERS.temperature
+                                    .defaultValue as number)
+                            }
+                            onInput={(e) => {
+                              handleSliderInput(
+                                'temperature',
+                                Number((e.target as HTMLInputElement).value),
+                              );
+                            }}
+                            onChange={(e) => {
+                              handleSliderChangeComplete(
+                                'temperature',
+                                Number(e.target.value),
+                              );
+                            }}
+                            className="w-full"
+                            disabled={isDisabled}
+                          />
+                          <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>0</span>
+                            <span>1</span>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 )}
