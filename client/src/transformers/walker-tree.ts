@@ -116,7 +116,7 @@ interface WalkerNode {
   change: number; // Change value for spacing
   thread?: WalkerNode; // Thread pointer for contour tracking
   ancestor: WalkerNode; // Ancestor pointer
-  
+
   // Enhanced contour tracking
   leftContour?: WalkerNode; // Leftmost descendant at each level
   rightContour?: WalkerNode; // Rightmost descendant at each level
@@ -295,29 +295,29 @@ function buildWalkerTree(
     const gen = ind.metadata.generation ?? 0;
     generationCounts.set(gen, (generationCounts.get(gen) ?? 0) + 1);
   });
-  
+
   // Find max individuals in any generation
   const maxIndividualsInGeneration = Math.max(...generationCounts.values());
-  
+
   // Calculate adaptive node size based on canvas width and max generation size
   const baseNodeSize = Math.min(
     60, // Max node size
     Math.max(
       15, // Min node size
-      (config.canvasWidth * 0.7) / (maxIndividualsInGeneration * 1.5)
-    )
+      (config.canvasWidth * 0.7) / (maxIndividualsInGeneration * 1.5),
+    ),
   );
 
   // Create Walker nodes for all individuals with adaptive sizing
   individuals.forEach((individual) => {
     const generation = individual.metadata.generation ?? 0;
     const genCount = generationCounts.get(generation) ?? 1;
-    
+
     // Scale node size inversely with generation density
     const scaleFactor = Math.min(1.0, 10 / genCount); // Smaller nodes for crowded generations
     const nodeWidth = baseNodeSize * scaleFactor;
     const nodeHeight = nodeWidth * 0.67; // Maintain aspect ratio
-    
+
     const node: WalkerNode = {
       id: individual.id,
       individual,
@@ -351,9 +351,12 @@ function buildWalkerTree(
   const traversalUtils = graphData.traversalUtils;
 
   console.log('🔗 Building parent-child relationships...');
-  console.log(`📊 Generation distribution:`, Array.from(generationCounts.entries()));
+  console.log(
+    `📊 Generation distribution:`,
+    Array.from(generationCounts.entries()),
+  );
   console.log(`📏 Base node size: ${String(baseNodeSize)}px`);
-  
+
   let totalChildren = 0;
 
   nodes.forEach((node, index) => {
@@ -545,7 +548,7 @@ function firstWalk(node: WalkerNode, config: LayoutConfig): void {
     node.extremeRight = node;
     node.msel = 0;
     node.mser = 0;
-    
+
     if (node.leftSibling) {
       node.prelim =
         node.leftSibling.prelim +
@@ -556,18 +559,18 @@ function firstWalk(node: WalkerNode, config: LayoutConfig): void {
   } else {
     // Internal node - process children with contour tracking
     let defaultAncestor = node.children[0];
-    
+
     node.children.forEach((child) => {
       firstWalk(child, config);
       defaultAncestor = apportion(child, defaultAncestor, config);
     });
-    
+
     executeShifts(node);
-    
+
     const leftmost = node.children[0];
     const rightmost = node.children[node.children.length - 1];
     const midpoint = (leftmost.prelim + rightmost.prelim) / 2;
-    
+
     // Set up extreme nodes for contour tracking
     node.extremeLeft = leftmost.extremeLeft;
     node.extremeRight = rightmost.extremeRight;
@@ -611,56 +614,56 @@ function apportion(
   config: LayoutConfig,
 ): WalkerNode {
   const leftSibling = node.leftSibling;
-  
+
   if (!leftSibling) return defaultAncestor;
-  
+
   // Initialize contour traversal pointers
   let vir = node; // Inside right contour
-  let vor = node; // Outside right contour  
+  let vor = node; // Outside right contour
   let vil = leftSibling; // Inside left contour
   let vol = leftSibling.extremeLeft || leftSibling; // Outside left contour
-  
+
   let sir = node.mod; // Sum of modifiers, inside right
   let sor = node.mod; // Sum of modifiers, outside right
   let sil = vil.mod; // Sum of modifiers, inside left
   let sol = vol.mod; // Sum of modifiers, outside left
-  
+
   // Traverse contours until one is exhausted
   while (vil.extremeRight && vir.extremeLeft) {
     vil = vil.extremeRight;
     vir = vir.extremeLeft;
     vol = nextLeft(vol);
     vor = nextRight(vor);
-    
+
     vor.ancestor = node;
-    
-    const shift = (vil.prelim + sil) - (vir.prelim + sir) + 
-                  getNodeDistance(vil, vir, config);
-    
+
+    const shift =
+      vil.prelim + sil - (vir.prelim + sir) + getNodeDistance(vil, vir, config);
+
     if (shift > 0) {
       moveSubtree(ancestorSibling(vil, node, defaultAncestor), node, shift);
       sir += shift;
       sor += shift;
     }
-    
+
     sil += vil.mod;
     sir += vir.mod;
     sol += vol.mod;
     sor += vor.mod;
   }
-  
+
   // Set threads for efficient contour traversal
   if (vil.extremeRight && !vor.extremeRight) {
     vor.thread = vil.extremeRight;
     vor.mod += sil - sor;
   }
-  
+
   if (vir.extremeLeft && !vol.extremeLeft) {
     vol.thread = vir.extremeLeft;
     vol.mod += sir - sol;
     defaultAncestor = node;
   }
-  
+
   return defaultAncestor;
 }
 
@@ -692,7 +695,7 @@ function nodeNumber(node: WalkerNode): number {
 function executeShifts(node: WalkerNode): void {
   let shift = 0;
   let change = 0;
-  
+
   for (let i = node.children.length - 1; i >= 0; i--) {
     const child = node.children[i];
     child.prelim += shift;
@@ -745,7 +748,7 @@ function getNodeDistance(
   config: LayoutConfig,
 ): number {
   const baseDistance = (left.width + right.width) / 2;
-  
+
   // For very small nodes (crowded generations), use tighter spacing
   const minNodeSize = Math.min(left.width, right.width);
   const spacingMultiplier = minNodeSize < 20 ? 0.3 : 1.0;
@@ -757,12 +760,18 @@ function getNodeDistance(
 
   // Check if nodes are from different families (need more space)
   if (left.familyId && right.familyId && left.familyId !== right.familyId) {
-    return Math.max(config.familySpacing * spacingMultiplier, baseDistance + 10);
+    return Math.max(
+      config.familySpacing * spacingMultiplier,
+      baseDistance + 10,
+    );
   }
 
   // Check if they're siblings from the same parent
   if (areSiblings(left, right)) {
-    return Math.max(config.nodeSpacing * 0.5 * spacingMultiplier, baseDistance + 5);
+    return Math.max(
+      config.nodeSpacing * 0.5 * spacingMultiplier,
+      baseDistance + 5,
+    );
   }
 
   // Default spacing for unrelated nodes in same generation
@@ -1249,21 +1258,24 @@ async function fallbackLayout(
   const maxIndividualsInGeneration = Math.max(
     ...Object.values(generationGroups).map((g) => g.length),
   );
-  
+
   // Calculate node size to fit the largest generation
   const horizontalMargin = 100;
   const availableWidth = config.canvasWidth - 2 * horizontalMargin;
   const minNodeSize = 15;
   const maxNodeSize = 60;
   const minSpacing = 5;
-  
+
   // Calculate node size that will fit all nodes in the largest generation
   let nodeSize = maxNodeSize;
   if (maxIndividualsInGeneration > 1) {
     const maxPossibleWidth = availableWidth / maxIndividualsInGeneration;
-    nodeSize = Math.min(maxNodeSize, Math.max(minNodeSize, maxPossibleWidth - minSpacing));
+    nodeSize = Math.min(
+      maxNodeSize,
+      Math.max(minNodeSize, maxPossibleWidth - minSpacing),
+    );
   }
-  
+
   console.log('Adaptive sizing:', {
     maxIndividualsInGeneration,
     calculatedNodeSize: nodeSize,
@@ -1278,27 +1290,34 @@ async function fallbackLayout(
     // Handle very large generations by creating multiple rows
     const maxNodesPerRow = Math.floor(availableWidth / (nodeSize + minSpacing));
     const needsMultipleRows = genIndividuals.length > maxNodesPerRow;
-    
+
     if (needsMultipleRows) {
       // Split into multiple rows
       const numRows = Math.ceil(genIndividuals.length / maxNodesPerRow);
       const nodesPerRow = Math.ceil(genIndividuals.length / numRows);
-      
-      console.log(`Generation ${String(generation)} needs ${String(numRows)} rows:`, {
-        totalNodes: genIndividuals.length,
-        maxNodesPerRow,
-        nodesPerRow,
-      });
-      
+
+      console.log(
+        `Generation ${String(generation)} needs ${String(numRows)} rows:`,
+        {
+          totalNodes: genIndividuals.length,
+          maxNodesPerRow,
+          nodesPerRow,
+        },
+      );
+
       for (let row = 0; row < numRows; row++) {
         const rowStart = row * nodesPerRow;
         const rowEnd = Math.min(rowStart + nodesPerRow, genIndividuals.length);
         const rowIndividuals = genIndividuals.slice(rowStart, rowEnd);
-        
-        const baseY = 100 + generationIndex * config.generationSpacing + row * (nodeSize + 10);
-        const rowWidth = rowIndividuals.length * (nodeSize + minSpacing) - minSpacing;
+
+        const baseY =
+          100 +
+          generationIndex * config.generationSpacing +
+          row * (nodeSize + 10);
+        const rowWidth =
+          rowIndividuals.length * (nodeSize + minSpacing) - minSpacing;
         const startX = horizontalMargin + (availableWidth - rowWidth) / 2;
-        
+
         rowIndividuals.forEach((individual, index) => {
           const x = startX + index * (nodeSize + minSpacing) + nodeSize / 2;
 
@@ -1326,12 +1345,13 @@ async function fallbackLayout(
     } else {
       // Single row for smaller generations
       const baseY = 100 + generationIndex * config.generationSpacing;
-      const totalNodesWidth = genIndividuals.length * (nodeSize + minSpacing) - minSpacing;
+      const totalNodesWidth =
+        genIndividuals.length * (nodeSize + minSpacing) - minSpacing;
       const startX = horizontalMargin + (availableWidth - totalNodesWidth) / 2;
-      
+
       genIndividuals.forEach((individual, index) => {
         const x = startX + index * (nodeSize + minSpacing) + nodeSize / 2;
-        
+
         positions[individual.id] = {
           x,
           y: baseY,

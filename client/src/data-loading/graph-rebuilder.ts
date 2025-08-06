@@ -128,9 +128,7 @@ function createTraversalUtils(
     adjacencyMaps;
 
   const getIndividuals = (ids: string[]): AugmentedIndividual[] => {
-    return ids
-      .map((id) => individuals[id])
-      .filter(Boolean);
+    return ids.map((id) => individuals[id]).filter(Boolean);
   };
 
   return {
@@ -338,7 +336,7 @@ function buildWalkerTreeData(
     // Determine generation (use first parent's generation if available)
     const firstParent = family.husband ?? family.wife;
     const generation = firstParent
-      ? (firstParent as AugmentedIndividual).metadata.generation ?? 0
+      ? ((firstParent as AugmentedIndividual).metadata.generation ?? 0)
       : 0;
 
     return {
