@@ -242,12 +242,12 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
     p.draw = () => {
       p.background(255);
-      
+
       // Debug logging
       console.log('Drawing with visual metadata:', {
         individualCount: Object.keys(visualMetadata.individuals).length,
         edgeCount: Object.keys(visualMetadata.edges).length,
-        sampleIndividual: Object.values(visualMetadata.individuals)[0]
+        sampleIndividual: Object.values(visualMetadata.individuals)[0],
       });
 
       // Draw edges using visual metadata
@@ -296,7 +296,10 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
           // Skip individuals that don't have visual metadata from transformers
-          if (individualMetadata?.x === undefined || individualMetadata?.y === undefined) {
+          if (
+            individualMetadata?.x === undefined ||
+            individualMetadata?.y === undefined
+          ) {
             continue;
           }
 
@@ -330,16 +333,22 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const pColor = p.color(color);
           pColor.setAlpha(opacity * 255);
           p.fill(pColor);
-          
+
           // Debug first few individuals only
-          if (Math.random() < 0.01) { // Only log ~1% of individuals
+          if (Math.random() < 0.01) {
+            // Only log ~1% of individuals
             console.log('Sample individual rendering:', {
               id: ind.id,
-              x, y, size: finalWidth, finalHeight: finalHeight,
-              color, opacity, shape
+              x,
+              y,
+              size: finalWidth,
+              finalHeight: finalHeight,
+              color,
+              opacity,
+              shape,
             });
           }
-          
+
           // Apply stroke if specified
           if (strokeColor && strokeWeight > 0) {
             const pStrokeColor = p.color(strokeColor);
@@ -400,7 +409,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
             p.text('', x, y + size + size * 0.3); // Names disabled in visual-only mode
           }
         }
-        
       }
 
       p.fill(100);
@@ -411,10 +419,18 @@ function createSketch(props: SketchProps): (p: p5) => void {
       if (seed) {
         p.text(`Seed: ${seed}`, 10, 50);
       }
-      
+
       // Debug info
-      p.text(`Individuals: ${String(Object.keys(visualMetadata.individuals).length)}`, 10, 65);
-      p.text(`With positions: ${String(Object.values(visualMetadata.individuals).filter(i => i.x !== undefined && i.y !== undefined).length)}`, 10, 80);
+      p.text(
+        `Individuals: ${String(Object.keys(visualMetadata.individuals).length)}`,
+        10,
+        65,
+      );
+      p.text(
+        `With positions: ${String(Object.values(visualMetadata.individuals).filter((i) => i.x !== undefined && i.y !== undefined).length)}`,
+        10,
+        80,
+      );
     };
   };
 }

@@ -12,7 +12,11 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from './types';
-import type { AugmentedIndividual, GraphData, GraphTraversalUtils } from '../../../shared/types';
+import type {
+  AugmentedIndividual,
+  GraphData,
+  GraphTraversalUtils,
+} from '../../../shared/types';
 import { createTransformerInstance } from './utils';
 
 /**
@@ -22,8 +26,8 @@ export const walkerTreeConfig: VisualTransformerConfig = {
   id: 'walker-tree',
   name: 'Walker Tree Layout',
   description:
-    'Advanced tree layout using Walker\'s algorithm for optimal positioning. Provides professional genealogy tree layouts with proper family clustering and spacing.',
-  shortDescription: 'Professional tree layout with Walker\'s algorithm',
+    "Advanced tree layout using Walker's algorithm for optimal positioning. Provides professional genealogy tree layouts with proper family clustering and spacing.",
+  shortDescription: "Professional tree layout with Walker's algorithm",
   transform: walkerTreeTransform,
   categories: ['layout', 'positioning', 'advanced'],
   availableDimensions: ['generation'],
@@ -96,32 +100,32 @@ export const walkerTreeConfig: VisualTransformerConfig = {
 interface WalkerNode {
   id: string;
   individual: AugmentedIndividual;
-  
+
   // Tree structure
   parent?: WalkerNode;
   children: WalkerNode[];
   leftSibling?: WalkerNode;
   rightSibling?: WalkerNode;
-  
+
   // Walker's algorithm fields
-  x: number;           // Final x position
-  y: number;           // Final y position
-  prelim: number;      // Preliminary x position
-  mod: number;         // Modifier value
-  shift: number;       // Shift value for subtree
-  change: number;      // Change value for spacing
+  x: number; // Final x position
+  y: number; // Final y position
+  prelim: number; // Preliminary x position
+  mod: number; // Modifier value
+  shift: number; // Shift value for subtree
+  change: number; // Change value for spacing
   thread?: WalkerNode; // Thread pointer for contour tracking
-  ancestor: WalkerNode;// Ancestor pointer
-  
+  ancestor: WalkerNode; // Ancestor pointer
+
   // Family clustering
   spouses: WalkerNode[];
   familyId?: string;
   isSpouseGroup: boolean;
-  
+
   // Layout properties
-  width: number;       // Node width
-  height: number;      // Node height
-  generation: number;  // Generation level
+  width: number; // Node width
+  height: number; // Node height
+  generation: number; // Generation level
 }
 
 /**
@@ -145,13 +149,13 @@ export async function walkerTreeTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   console.log('🌳 WALKER TREE TRANSFORMER STARTING (Updated Version)');
   console.log('Context keys:', Object.keys(context));
-  
+
   const { gedcomData, visualMetadata, visual } = context;
-  
+
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual) => individual !== null && individual !== undefined,
   );
-  
+
   console.log('Walker tree: Found', individuals.length, 'individuals');
 
   if (individuals.length === 0) {
@@ -176,11 +180,13 @@ export async function walkerTreeTransform(
   console.log('🔍 Graph data check:', {
     hasGraph: !!graphData,
     hasTraversalUtils: !!graphData?.traversalUtils,
-    graphKeys: graphData ? Object.keys(graphData) : 'none'
+    graphKeys: graphData ? Object.keys(graphData) : 'none',
   });
 
   if (!hasGraphData) {
-    console.warn('Walker tree layout: No graph data available, falling back to basic layout');
+    console.warn(
+      'Walker tree layout: No graph data available, falling back to basic layout',
+    );
     console.log('Debug - Available gedcomData keys:', Object.keys(gedcomData));
     console.log('Debug - Graph data:', graphData);
     console.log('Debug - Individual count:', individuals.length);
@@ -192,14 +198,14 @@ export async function walkerTreeTransform(
 
   // Build Walker tree structure from graph data
   const walkerTree = buildWalkerTree(individuals, graphData, layoutConfig);
-  
+
   console.log('🏗️ Walker tree built:', {
     rootFound: !!walkerTree.root,
     totalNodes: walkerTree.nodes.length,
     rootId: walkerTree.root?.id,
-    sampleNodeChildren: walkerTree.nodes[0]?.children.length
+    sampleNodeChildren: walkerTree.nodes[0]?.children.length,
   });
-  
+
   if (!walkerTree.root) {
     console.warn('Walker tree layout: No root node found');
     return { visualMetadata: {} };
@@ -207,31 +213,36 @@ export async function walkerTreeTransform(
 
   // Apply Walker's algorithm
   executeWalkerAlgorithm(walkerTree.root, layoutConfig);
-  
-  console.log('🧮 Walker algorithm completed. Sample positions:', 
-    walkerTree.nodes.slice(0, 3).map(n => ({ id: n.id, x: n.x, y: n.y }))
+
+  console.log(
+    '🧮 Walker algorithm completed. Sample positions:',
+    walkerTree.nodes.slice(0, 3).map((n) => ({ id: n.id, x: n.x, y: n.y })),
   );
-  
+
   // Convert Walker nodes to visual metadata
   const positions = extractPositions(walkerTree.nodes, layoutConfig);
-  
+
   console.log('📍 Final extracted positions:', {
     totalPositions: Object.keys(positions).length,
-    sample: Object.entries(positions).slice(0, 3).map(([id, pos]) => ({ id, x: pos.x, y: pos.y }))
+    sample: Object.entries(positions)
+      .slice(0, 3)
+      .map(([id, pos]) => ({ id, x: pos.x, y: pos.y })),
   });
-  
+
   // Build visual metadata
   const nodeMetadata: Record<string, VisualMetadata> = {};
-  
+
   Object.entries(positions).forEach(([individualId, position]) => {
     nodeMetadata[individualId] = {
       x: position.x,
       y: position.y,
-      width: 1.0,  // Multiplier, not absolute width
+      width: 1.0, // Multiplier, not absolute width
       height: 1.0, // Multiplier, not absolute height
       size: Math.min(position.width, position.height), // Base size from position
       shape: 'square' as const,
-      color: getNodeColor(individuals.find(i => i.id === individualId)?.gender),
+      color: getNodeColor(
+        individuals.find((i) => i.id === individualId)?.gender,
+      ),
       strokeColor: '#000000',
       strokeWeight: 1,
       opacity: 1.0,
@@ -239,10 +250,14 @@ export async function walkerTreeTransform(
   });
 
   // Generate family tree edges - override ALL existing edges for proper tree rendering
-  const edgeMetadata = generateFamilyTreeEdges(walkerTree.nodes, positions, gedcomData);
+  const edgeMetadata = generateFamilyTreeEdges(
+    walkerTree.nodes,
+    positions,
+    gedcomData,
+  );
 
   // Add debugging metadata if enabled
-  const debugMetadata = layoutConfig.enableDebugging 
+  const debugMetadata = layoutConfig.enableDebugging
     ? generateDebugMetadata(walkerTree.nodes, layoutConfig)
     : {};
 
@@ -261,7 +276,7 @@ export async function walkerTreeTransform(
 function buildWalkerTree(
   individuals: AugmentedIndividual[],
   graphData: GraphData,
-  config: LayoutConfig
+  config: LayoutConfig,
 ): { root: WalkerNode | null; nodes: WalkerNode[] } {
   const nodeMap = new Map<string, WalkerNode>();
   const nodes: WalkerNode[] = [];
@@ -286,45 +301,52 @@ function buildWalkerTree(
       generation: individual.metadata.generation ?? 0,
     };
     node.ancestor = node; // Self-reference for Walker's algorithm
-    
+
     nodeMap.set(individual.id, node);
     nodes.push(node);
   });
 
   // Build parent-child relationships using graph utilities
   const traversalUtils = graphData.traversalUtils;
-  
+
   console.log('🔗 Building parent-child relationships...');
   let totalChildren = 0;
-  
+
   nodes.forEach((node, index) => {
     const children = traversalUtils.getChildren(node.id);
     node.children = children
-      .map(child => nodeMap.get(child.id))
+      .map((child) => nodeMap.get(child.id))
       .filter(Boolean) as WalkerNode[];
-    
+
     totalChildren += node.children.length;
-    
-    if (index < 3) { // Debug first few nodes
-      console.log(`  Node ${node.id}: ${String(node.children.length)} children`, 
-        node.children.map(c => c.id));
+
+    if (index < 3) {
+      // Debug first few nodes
+      console.log(
+        `  Node ${node.id}: ${String(node.children.length)} children`,
+        node.children.map((c) => c.id),
+      );
     }
-    
+
     // Set parent references
-    node.children.forEach(child => {
+    node.children.forEach((child) => {
       child.parent = node;
     });
   });
-  
-  console.log(`📊 Tree structure: ${String(totalChildren)} total parent-child relationships`);
-  console.log(`🌳 Nodes with children: ${String(nodes.filter(n => n.children.length > 0).length)}/${String(nodes.length)}`);
+
+  console.log(
+    `📊 Tree structure: ${String(totalChildren)} total parent-child relationships`,
+  );
+  console.log(
+    `🌳 Nodes with children: ${String(nodes.filter((n) => n.children.length > 0).length)}/${String(nodes.length)}`,
+  );
 
   // Build sibling relationships
   nodes.forEach((node) => {
     if (node.parent) {
       const siblings = node.parent.children;
       const index = siblings.indexOf(node);
-      
+
       if (index > 0) {
         node.leftSibling = siblings[index - 1];
       }
@@ -338,31 +360,39 @@ function buildWalkerTree(
   buildFamilyClusters(nodes, traversalUtils, config);
 
   // Find root nodes (nodes with no parents)
-  const rootNodes = nodes.filter(node => !node.parent);
-  
+  const rootNodes = nodes.filter((node) => !node.parent);
+
   console.log('🔍 Root node selection:', {
     totalRoots: rootNodes.length,
-    rootIds: rootNodes.slice(0, 5).map(n => ({
-      id: n.id, 
+    rootIds: rootNodes.slice(0, 5).map((n) => ({
+      id: n.id,
       name: n.individual.name,
       children: n.children.length,
-      generation: n.generation
-    }))
+      generation: n.generation,
+    })),
   });
-  
+
   // Find the root with the most descendants for better tree layout
-  const rootWithMostChildren = rootNodes.reduce<WalkerNode | null>((best, current) => 
-    current.children.length > (best?.children.length ?? -1) ? current : best, null
+  const rootWithMostChildren = rootNodes.reduce<WalkerNode | null>(
+    (best, current) =>
+      current.children.length > (best?.children.length ?? -1) ? current : best,
+    null,
   );
-  
-  const root = rootWithMostChildren ?? (rootNodes.length > 0 ? rootNodes[0] : null);
-  
-  console.log('📍 Selected root:', root ? {
-    id: root.id,
-    name: root.individual.name,
-    children: root.children.length,
-    generation: root.generation
-  } : 'none');
+
+  const root =
+    rootWithMostChildren ?? (rootNodes.length > 0 ? rootNodes[0] : null);
+
+  console.log(
+    '📍 Selected root:',
+    root
+      ? {
+          id: root.id,
+          name: root.individual.name,
+          children: root.children.length,
+          generation: root.generation,
+        }
+      : 'none',
+  );
 
   return { root, nodes };
 }
@@ -373,13 +403,12 @@ function buildWalkerTree(
 function buildFamilyClusters(
   nodes: WalkerNode[],
   traversalUtils: GraphTraversalUtils,
-  _config: LayoutConfig
+  _config: LayoutConfig,
 ): void {
-  
   nodes.forEach((node) => {
     const spouses = traversalUtils.getSpouses(node.id);
     node.spouses = spouses
-      .map(spouse => nodes.find(n => n.id === spouse.id))
+      .map((spouse) => nodes.find((n) => n.id === spouse.id))
       .filter(Boolean) as WalkerNode[];
   });
 
@@ -394,7 +423,7 @@ function buildFamilyClusters(
     processedNodes.add(node.id);
 
     // Add all spouses to the same family cluster
-    node.spouses.forEach(spouse => {
+    node.spouses.forEach((spouse) => {
       if (!processedNodes.has(spouse.id)) {
         familyCluster.push(spouse);
         processedNodes.add(spouse.id);
@@ -407,15 +436,15 @@ function buildFamilyClusters(
     if (!node.familyId) {
       node.familyId = `family_${node.id}`;
     }
-    
+
     // Apply family ID to all members
-    familyCluster.forEach(member => {
+    familyCluster.forEach((member) => {
       member.familyId = node.familyId;
     });
 
     if (familyCluster.length > 1) {
       familyClusters.push(familyCluster);
-      
+
       // Adjust sibling relationships within family clusters
       // Spouses should be treated as siblings for positioning
       for (let i = 0; i < familyCluster.length - 1; i++) {
@@ -428,16 +457,18 @@ function buildFamilyClusters(
   });
 
   // Optimize spouse positioning within clusters
-  familyClusters.forEach(cluster => {
+  familyClusters.forEach((cluster) => {
     if (cluster.length === 2) {
       // For spouse pairs, ensure they're positioned optimally
       const [spouse1, spouse2] = cluster;
-      
+
       // Prefer positioning based on gender or alphabetical order
-      const shouldSwap = (spouse1.individual.gender === 'F' && spouse2.individual.gender === 'M') ||
-                        (spouse1.individual.gender === spouse2.individual.gender && 
-                         spouse1.individual.name > spouse2.individual.name);
-      
+      const shouldSwap =
+        (spouse1.individual.gender === 'F' &&
+          spouse2.individual.gender === 'M') ||
+        (spouse1.individual.gender === spouse2.individual.gender &&
+          spouse1.individual.name > spouse2.individual.name);
+
       if (shouldSwap && spouse1.leftSibling === spouse2) {
         // Swap sibling relationships
         spouse1.leftSibling = undefined;
@@ -455,7 +486,7 @@ function buildFamilyClusters(
 function executeWalkerAlgorithm(root: WalkerNode, config: LayoutConfig): void {
   // First pass: Assign preliminary positions
   firstWalk(root, config);
-  
+
   // Second pass: Assign final positions
   secondWalk(root, 0, 0, config);
 }
@@ -467,20 +498,24 @@ function firstWalk(node: WalkerNode, config: LayoutConfig): void {
   if (node.children.length === 0) {
     // Leaf node
     if (node.leftSibling) {
-      node.prelim = node.leftSibling.prelim + getNodeDistance(node.leftSibling, node, config);
+      node.prelim =
+        node.leftSibling.prelim +
+        getNodeDistance(node.leftSibling, node, config);
     } else {
       node.prelim = 0;
     }
   } else {
     // Internal node - process children first
-    node.children.forEach(child => firstWalk(child, config));
-    
+    node.children.forEach((child) => firstWalk(child, config));
+
     const leftmost = node.children[0];
     const rightmost = node.children[node.children.length - 1];
     const midpoint = (leftmost.prelim + rightmost.prelim) / 2;
 
     if (node.leftSibling) {
-      node.prelim = node.leftSibling.prelim + getNodeDistance(node.leftSibling, node, config);
+      node.prelim =
+        node.leftSibling.prelim +
+        getNodeDistance(node.leftSibling, node, config);
       node.mod = node.prelim - midpoint;
       apportion(node, config);
     } else {
@@ -492,11 +527,16 @@ function firstWalk(node: WalkerNode, config: LayoutConfig): void {
 /**
  * Second walk: Assign final positions (pre-order traversal)
  */
-function secondWalk(node: WalkerNode, modSum: number, level: number, config: LayoutConfig): void {
+function secondWalk(
+  node: WalkerNode,
+  modSum: number,
+  level: number,
+  config: LayoutConfig,
+): void {
   node.x = node.prelim + modSum;
   node.y = level * config.generationSpacing;
-  
-  node.children.forEach(child => {
+
+  node.children.forEach((child) => {
     secondWalk(child, modSum + node.mod, level + 1, config);
   });
 }
@@ -507,25 +547,26 @@ function secondWalk(node: WalkerNode, modSum: number, level: number, config: Lay
 function apportion(node: WalkerNode, config: LayoutConfig): void {
   let leftmost = node.children[0];
   let neighbor = leftmost.leftSibling;
-  
+
   if (!neighbor) return;
 
   let compareDepth = 1;
   const maxDepth = 10; // Limit depth to prevent infinite loops
-  
+
   while (leftmost && neighbor && compareDepth <= maxDepth) {
     // Calculate separation needed
     const leftContour = leftmost.prelim + leftmost.mod;
     const rightContour = neighbor.prelim + neighbor.mod;
-    const separation = rightContour - leftContour + getNodeDistance(neighbor, leftmost, config);
-    
+    const separation =
+      rightContour - leftContour + getNodeDistance(neighbor, leftmost, config);
+
     if (separation > 0) {
       // Move subtree to the right
       moveSubtree(ancestor(neighbor, node), node, separation);
     }
-    
+
     compareDepth++;
-    
+
     // Move to next level
     if (leftmost.children.length === 0) {
       const nextLeftmost = getLeftmost(node, compareDepth);
@@ -534,7 +575,7 @@ function apportion(node: WalkerNode, config: LayoutConfig): void {
     } else {
       leftmost = leftmost.children[0];
     }
-    
+
     if (neighbor.children.length === 0) {
       const nextNeighbor = getLeftmost(neighbor, compareDepth);
       if (!nextNeighbor) break;
@@ -550,13 +591,13 @@ function apportion(node: WalkerNode, config: LayoutConfig): void {
  */
 function moveSubtree(wl: WalkerNode, wr: WalkerNode, shift: number): void {
   if (!wl.parent || !wr.parent || wl.parent !== wr.parent) return;
-  
+
   const siblings = wl.parent.children;
   const leftIndex = siblings.indexOf(wl);
   const rightIndex = siblings.indexOf(wr);
-  
+
   if (leftIndex === -1 || rightIndex === -1 || leftIndex >= rightIndex) return;
-  
+
   const subtrees = rightIndex - leftIndex;
   wr.change -= shift / subtrees;
   wr.shift += shift;
@@ -568,24 +609,28 @@ function moveSubtree(wl: WalkerNode, wr: WalkerNode, shift: number): void {
 /**
  * Get distance between two adjacent nodes
  */
-function getNodeDistance(left: WalkerNode, right: WalkerNode, config: LayoutConfig): number {
+function getNodeDistance(
+  left: WalkerNode,
+  right: WalkerNode,
+  config: LayoutConfig,
+): number {
   const baseDistance = (left.width + right.width) / 2;
-  
+
   // Check if nodes are spouses (should be closer)
   if (areSpouses(left, right)) {
     return Math.max(config.spouseSpacing, baseDistance * 1.2);
   }
-  
+
   // Check if nodes are from different families (need more space)
   if (left.familyId && right.familyId && left.familyId !== right.familyId) {
     return Math.max(config.familySpacing, baseDistance * 2.5);
   }
-  
+
   // Check if they're siblings from the same parent
   if (areSiblings(left, right)) {
     return Math.max(config.nodeSpacing * 0.8, baseDistance * 1.5);
   }
-  
+
   // Default spacing for unrelated nodes
   return Math.max(config.nodeSpacing, baseDistance * 2.0);
 }
@@ -594,8 +639,10 @@ function getNodeDistance(left: WalkerNode, right: WalkerNode, config: LayoutConf
  * Check if two nodes are spouses
  */
 function areSpouses(left: WalkerNode, right: WalkerNode): boolean {
-  return left.spouses.some(spouse => spouse.id === right.id) ||
-         right.spouses.some(spouse => spouse.id === left.id);
+  return (
+    left.spouses.some((spouse) => spouse.id === right.id) ||
+    right.spouses.some((spouse) => spouse.id === left.id)
+  );
 }
 
 /**
@@ -610,9 +657,12 @@ function areSiblings(left: WalkerNode, right: WalkerNode): boolean {
  */
 function getNodeColor(gender?: 'M' | 'F' | 'U'): string {
   switch (gender) {
-    case 'M': return '#4A90E2'; // Blue for males
-    case 'F': return '#FF69B4'; // Pink for females
-    default: return '#9E9E9E'; // Gray for unknown
+    case 'M':
+      return '#4A90E2'; // Blue for males
+    case 'F':
+      return '#FF69B4'; // Pink for females
+    default:
+      return '#9E9E9E'; // Gray for unknown
   }
 }
 
@@ -621,16 +671,28 @@ function getNodeColor(gender?: 'M' | 'F' | 'U'): string {
  */
 function generateFamilyTreeEdges(
   nodes: WalkerNode[],
-  positions: Record<string, { x: number; y: number; width: number; height: number }>,
-  gedcomData: { metadata: { edges: { id: string; sourceId: string; targetId: string; relationshipType: string }[] } }
+  positions: Record<
+    string,
+    { x: number; y: number; width: number; height: number }
+  >,
+  gedcomData: {
+    metadata: {
+      edges: {
+        id: string;
+        sourceId: string;
+        targetId: string;
+        relationshipType: string;
+      }[];
+    };
+  },
 ): Record<string, VisualMetadata> {
   const edges: Record<string, VisualMetadata> = {};
 
   // First, reset ALL existing edges to prevent curves/transforms from other transformers
-  gedcomData.metadata.edges.forEach(edge => {
+  gedcomData.metadata.edges.forEach((edge) => {
     const sourcePos = positions[edge.sourceId];
     const targetPos = positions[edge.targetId];
-    
+
     if (sourcePos && targetPos) {
       edges[edge.id] = {
         x: (sourcePos.x + targetPos.x) / 2,
@@ -660,14 +722,20 @@ function generateFamilyTreeEdges(
     node.children.forEach((child) => {
       const parentPos = positions[node.id];
       const childPos = positions[child.id];
-      
+
       if (parentPos && childPos) {
         const edgeId = `walker_pc_${node.id}_${child.id}`;
         // Only add if we don't already have this edge from GEDCOM data
-        if (!edges[edgeId] && !Object.values(edges).some(e => 
-          e.custom?.sourceX === parentPos.x && e.custom?.sourceY === parentPos.y &&
-          e.custom?.targetX === childPos.x && e.custom?.targetY === childPos.y
-        )) {
+        if (
+          !edges[edgeId] &&
+          !Object.values(edges).some(
+            (e) =>
+              e.custom?.sourceX === parentPos.x &&
+              e.custom?.sourceY === parentPos.y &&
+              e.custom?.targetX === childPos.x &&
+              e.custom?.targetY === childPos.y,
+          )
+        ) {
           edges[edgeId] = {
             x: (parentPos.x + childPos.x) / 2,
             y: (parentPos.y + childPos.y) / 2,
@@ -692,19 +760,28 @@ function generateFamilyTreeEdges(
 
     // Spouse edges (if not already covered)
     node.spouses.forEach((spouse) => {
-      if (node.id < spouse.id) { // Avoid duplicates
+      if (node.id < spouse.id) {
+        // Avoid duplicates
         const node1Pos = positions[node.id];
         const node2Pos = positions[spouse.id];
-        
+
         if (node1Pos && node2Pos) {
           const edgeId = `walker_sp_${node.id}_${spouse.id}`;
           // Only add if we don't already have this edge from GEDCOM data
-          if (!edges[edgeId] && !Object.values(edges).some(e => 
-            (e.custom?.sourceX === node1Pos.x && e.custom?.sourceY === node1Pos.y &&
-             e.custom?.targetX === node2Pos.x && e.custom?.targetY === node2Pos.y) ||
-            (e.custom?.sourceX === node2Pos.x && e.custom?.sourceY === node2Pos.y &&
-             e.custom?.targetX === node1Pos.x && e.custom?.targetY === node1Pos.y)
-          )) {
+          if (
+            !edges[edgeId] &&
+            !Object.values(edges).some(
+              (e) =>
+                (e.custom?.sourceX === node1Pos.x &&
+                  e.custom?.sourceY === node1Pos.y &&
+                  e.custom?.targetX === node2Pos.x &&
+                  e.custom?.targetY === node2Pos.y) ||
+                (e.custom?.sourceX === node2Pos.x &&
+                  e.custom?.sourceY === node2Pos.y &&
+                  e.custom?.targetX === node1Pos.x &&
+                  e.custom?.targetY === node1Pos.y),
+            )
+          ) {
             edges[edgeId] = {
               x: (node1Pos.x + node2Pos.x) / 2,
               y: (node1Pos.y + node2Pos.y) / 2,
@@ -748,7 +825,7 @@ function ancestor(node: WalkerNode, defaultAncestor: WalkerNode): WalkerNode {
 function getLeftmost(node: WalkerNode, depth: number): WalkerNode | null {
   if (depth <= 1) return node;
   if (node.children.length === 0) return null;
-  
+
   return getLeftmost(node.children[0], depth - 1);
 }
 
@@ -757,63 +834,68 @@ function getLeftmost(node: WalkerNode, depth: number): WalkerNode | null {
  */
 function extractPositions(
   nodes: WalkerNode[],
-  config: LayoutConfig
+  config: LayoutConfig,
 ): Record<string, { x: number; y: number; width: number; height: number }> {
-  const positions: Record<string, { x: number; y: number; width: number; height: number }> = {};
-  
+  const positions: Record<
+    string,
+    { x: number; y: number; width: number; height: number }
+  > = {};
+
   if (nodes.length === 0) return positions;
-  
+
   // Find bounds to center the tree
   let minX = Infinity;
   let maxX = -Infinity;
   let minY = Infinity;
   let maxY = -Infinity;
-  
-  nodes.forEach(node => {
+
+  nodes.forEach((node) => {
     const nodeLeft = node.x - node.width / 2;
     const nodeRight = node.x + node.width / 2;
     const nodeTop = node.y - node.height / 2;
     const nodeBottom = node.y + node.height / 2;
-    
+
     minX = Math.min(minX, nodeLeft);
     maxX = Math.max(maxX, nodeRight);
     minY = Math.min(minY, nodeTop);
     maxY = Math.max(maxY, nodeBottom);
   });
-  
+
   const treeWidth = maxX - minX;
   const treeHeight = maxY - minY;
-  
+
   // Calculate margins (10% of canvas size or minimum of 50px)
   const horizontalMargin = Math.max(50, config.canvasWidth * 0.1);
   const verticalMargin = Math.max(50, config.canvasHeight * 0.1);
-  
+
   // Calculate available space
   const availableWidth = config.canvasWidth - 2 * horizontalMargin;
   const availableHeight = config.canvasHeight - 2 * verticalMargin;
-  
+
   // Calculate scaling if needed (but prefer not to scale)
   let scaleX = 1;
   let scaleY = 1;
-  
+
   if (treeWidth > availableWidth) {
     scaleX = availableWidth / treeWidth;
   }
   if (treeHeight > availableHeight) {
     scaleY = availableHeight / treeHeight;
   }
-  
+
   // Use the smaller scale to maintain aspect ratio
   const scale = Math.min(scaleX, scaleY, 1); // Never scale up
-  
+
   // Calculate centering offsets
   const scaledTreeWidth = treeWidth * scale;
   const scaledTreeHeight = treeHeight * scale;
-  
-  const offsetX = horizontalMargin + (availableWidth - scaledTreeWidth) / 2 - minX * scale;
-  const offsetY = verticalMargin + (availableHeight - scaledTreeHeight) / 2 - minY * scale;
-  
-  nodes.forEach(node => {
+
+  const offsetX =
+    horizontalMargin + (availableWidth - scaledTreeWidth) / 2 - minX * scale;
+  const offsetY =
+    verticalMargin + (availableHeight - scaledTreeHeight) / 2 - minY * scale;
+
+  nodes.forEach((node) => {
     positions[node.id] = {
       x: node.x * scale + offsetX,
       y: node.y * scale + offsetY,
@@ -821,7 +903,7 @@ function extractPositions(
       height: node.height * scale,
     };
   });
-  
+
   return positions;
 }
 
@@ -830,12 +912,12 @@ function extractPositions(
  */
 function generateDebugMetadata(
   nodes: WalkerNode[],
-  config: LayoutConfig
+  config: LayoutConfig,
 ): Partial<CompleteVisualMetadata> {
   if (!config.enableDebugging) return {};
 
   const debugElements: Record<string, VisualMetadata> = {};
-  
+
   // Generate bounding boxes for each node
   nodes.forEach((node) => {
     const boundingBoxId = `debug_bbox_${node.id}`;
@@ -891,7 +973,7 @@ function generateDebugMetadata(
       debugElements[parentLineId] = {
         x: (node.x + node.parent.x) / 2,
         y: (node.y + node.parent.y) / 2,
-        strokeColor: '#ff8800', // Orange for parent-child relationships  
+        strokeColor: '#ff8800', // Orange for parent-child relationships
         strokeWeight: 1,
         opacity: 0.6,
         custom: {
@@ -924,13 +1006,13 @@ function generateDebugMetadata(
   });
 
   // Add generation level indicators
-  const generations = new Set(nodes.map(node => node.generation));
+  const generations = new Set(nodes.map((node) => node.generation));
   generations.forEach((generation) => {
-    const genNodes = nodes.filter(n => n.generation === generation);
+    const genNodes = nodes.filter((n) => n.generation === generation);
     if (genNodes.length === 0) return;
 
-    const minX = Math.min(...genNodes.map(n => n.x - n.width / 2));
-    const maxX = Math.max(...genNodes.map(n => n.x + n.width / 2));
+    const minX = Math.min(...genNodes.map((n) => n.x - n.width / 2));
+    const maxX = Math.max(...genNodes.map((n) => n.x + n.width / 2));
     const avgY = genNodes.reduce((sum, n) => sum + n.y, 0) / genNodes.length;
 
     const genLineId = `debug_generation_${String(generation)}`;
@@ -973,21 +1055,30 @@ function generateDebugMetadata(
 async function fallbackLayout(
   individuals: AugmentedIndividual[],
   config: LayoutConfig,
-  gedcomData: { metadata: { edges: { id: string; sourceId: string; targetId: string; relationshipType: string }[] } }
+  gedcomData: {
+    metadata: {
+      edges: {
+        id: string;
+        sourceId: string;
+        targetId: string;
+        relationshipType: string;
+      }[];
+    };
+  },
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   console.log('Walker fallback layout starting with:', {
     individualCount: individuals.length,
-    config: config
+    config: config,
   });
-  
+
   // Generation-based tree layout as fallback (even without graph utilities)
   const nodeMetadata: Record<string, VisualMetadata> = {};
-  
+
   // Group by generation
   let generationGroups: Record<number, AugmentedIndividual[]> = {};
   let minGeneration = Number.MAX_SAFE_INTEGER;
   let maxGeneration = Number.MIN_SAFE_INTEGER;
-  
+
   individuals.forEach((individual) => {
     const generation = individual.metadata?.generation ?? 0;
     if (!generationGroups[generation]) {
@@ -997,76 +1088,86 @@ async function fallbackLayout(
     minGeneration = Math.min(minGeneration, generation);
     maxGeneration = Math.max(maxGeneration, generation);
   });
-  
+
   // If all individuals are in one generation, spread them across multiple rows
   if (Object.keys(generationGroups).length === 1 && individuals.length > 10) {
-    console.log('All individuals in single generation, creating artificial layout');
+    console.log(
+      'All individuals in single generation, creating artificial layout',
+    );
     const singleGen = Object.keys(generationGroups)[0];
     const allIndividuals = generationGroups[parseInt(singleGen)];
     generationGroups = {}; // Reset
-    
+
     // Create multiple generations with reasonable number per row
-    const individualsPerGeneration = Math.ceil(Math.sqrt(allIndividuals.length)); // Square-ish layout
+    const individualsPerGeneration = Math.ceil(
+      Math.sqrt(allIndividuals.length),
+    ); // Square-ish layout
     let currentGeneration = 0;
-    
+
     for (let i = 0; i < allIndividuals.length; i += individualsPerGeneration) {
       const slice = allIndividuals.slice(i, i + individualsPerGeneration);
       generationGroups[currentGeneration] = slice;
       currentGeneration++;
     }
-    
+
     minGeneration = 0;
     maxGeneration = currentGeneration - 1;
   }
-  
-  const positions: Record<string, { x: number; y: number; width: number; height: number }> = {};
-  
+
+  const positions: Record<
+    string,
+    { x: number; y: number; width: number; height: number }
+  > = {};
+
   console.log('Generation groups:', {
-    groups: Object.keys(generationGroups).map(gen => ({
+    groups: Object.keys(generationGroups).map((gen) => ({
       generation: gen,
-      count: generationGroups[parseInt(gen)].length
+      count: generationGroups[parseInt(gen)].length,
     })),
     minGeneration,
-    maxGeneration
+    maxGeneration,
   });
 
   // Calculate positions by generation with proper tree layout
   Object.entries(generationGroups).forEach(([genStr, genIndividuals]) => {
     const generation = parseInt(genStr);
     const generationIndex = generation - minGeneration;
-    
+
     const baseY = 100 + generationIndex * config.generationSpacing;
-    
+
     console.log(`Processing generation ${String(generation)}:`, {
       generationIndex,
       baseY,
       individualCount: genIndividuals.length,
-      individuals: genIndividuals.map(i => i.id)
+      individuals: genIndividuals.map((i) => i.id),
     });
-    
+
     // Center individuals horizontally within each generation
     const totalWidth = config.canvasWidth - 200; // 100px margin on each side
-    const spacing = genIndividuals.length > 1 ? totalWidth / (genIndividuals.length - 1) : 0;
+    const spacing =
+      genIndividuals.length > 1 ? totalWidth / (genIndividuals.length - 1) : 0;
     const startX = genIndividuals.length === 1 ? config.canvasWidth / 2 : 100;
-    
+
     genIndividuals.forEach((individual, index) => {
       const x = genIndividuals.length === 1 ? startX : startX + index * spacing;
-      
-      console.log(`  Individual ${individual.id} (${String(index)}): x=${String(x)}, y=${String(baseY)}`);
-      
+
+      console.log(
+        `  Individual ${individual.id} (${String(index)}): x=${String(x)}, y=${String(baseY)}`,
+      );
+
       positions[individual.id] = {
         x,
         y: baseY,
         width: 60,
         height: 40,
       };
-      
+
       nodeMetadata[individual.id] = {
         x,
         y: baseY,
-        width: 1.0,  // Multiplier, not absolute width
+        width: 1.0, // Multiplier, not absolute width
         height: 1.0, // Multiplier, not absolute height
-        size: 60,    // Base size
+        size: 60, // Base size
         shape: 'square' as const,
         color: getNodeColor(individual.gender),
         strokeColor: '#000000',
@@ -1075,13 +1176,13 @@ async function fallbackLayout(
       };
     });
   });
-  
+
   // Generate straight-line edges for fallback layout too
   const edgeMetadata: Record<string, VisualMetadata> = {};
-  gedcomData.metadata.edges.forEach(edge => {
+  gedcomData.metadata.edges.forEach((edge) => {
     const sourcePos = positions[edge.sourceId];
     const targetPos = positions[edge.targetId];
-    
+
     if (sourcePos && targetPos) {
       edgeMetadata[edge.id] = {
         x: (sourcePos.x + targetPos.x) / 2,
@@ -1103,20 +1204,20 @@ async function fallbackLayout(
       };
     }
   });
-  
+
   console.log('Walker fallback layout result:', {
     individualCount: Object.keys(nodeMetadata).length,
     edgeCount: Object.keys(edgeMetadata).length,
-    sampleIndividual: Object.values(nodeMetadata)[0]
+    sampleIndividual: Object.values(nodeMetadata)[0],
   });
 
   // Add a small delay to satisfy async requirement
   await new Promise((resolve) => setTimeout(resolve, 0));
 
-  return { 
-    visualMetadata: { 
+  return {
+    visualMetadata: {
       individuals: nodeMetadata,
       edges: edgeMetadata,
-    } 
+    },
   };
 }

@@ -5,11 +5,13 @@ Implement a genealogy tree layout system with automatic scaling to fit a fixed c
 ## Core Requirements
 
 **Canvas Constraints:**
+
 - Fixed width and height (no scrolling/panning)
 - All nodes must be visible and readable
 - Automatic scaling based on tree size and complexity
 
 **Layout Algorithm:**
+
 1. **Family Clustering:** Group spouses side-by-side, center parents over children
 2. **Walker's Node Positioning:** Use modified Walker algorithm for tree layout
 3. **Automatic Scaling:** Calculate scale factor to fit all content in canvas
@@ -19,21 +21,21 @@ Implement a genealogy tree layout system with automatic scaling to fit a fixed c
 
 ```typescript
 const BASE_SPACING = {
-  spouse: 15,           // Gap between spouses
-  sibling: 60,          // Gap between siblings  
-  generation: 120,      // Vertical gap between generations
-  familyGroup: 100,     // Gap between different families
-  nodeWidth: 150,       // Width per person node
-  nodeHeight: 80,       // Height per person node
-  connectorOffset: 20,  // Space for connection lines
-  padding: 30           // Canvas edge padding
+  spouse: 15, // Gap between spouses
+  sibling: 60, // Gap between siblings
+  generation: 120, // Vertical gap between generations
+  familyGroup: 100, // Gap between different families
+  nodeWidth: 150, // Width per person node
+  nodeHeight: 80, // Height per person node
+  connectorOffset: 20, // Space for connection lines
+  padding: 30, // Canvas edge padding
 };
 ```
 
 ## Scaling Strategy
 
 1. **Calculate tree bounds:** Determine total width/height needed with base spacing
-2. **Compute scale factors:** 
+2. **Compute scale factors:**
    - `scaleX = (canvasWidth - 2*padding) / totalTreeWidth`
    - `scaleY = (canvasHeight - 2*padding) / totalTreeHeight`
    - `finalScale = Math.min(scaleX, scaleY, 1.0)` // Never scale up

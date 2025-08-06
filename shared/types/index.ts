@@ -18,5 +18,5 @@ export type {
   GraphTraversalUtils,
   GraphAdjacencyMaps,
   WalkerTreeData,
-  GraphData
+  GraphData,
 } from './metadata';

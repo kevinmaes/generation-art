@@ -263,7 +263,11 @@ describe('Walker Tree Layout Transformer', () => {
         expect(child2Pos).toBeDefined();
 
         // Parent should be above children
-        if (parentPos?.y !== undefined && child1Pos?.y !== undefined && child2Pos?.y !== undefined) {
+        if (
+          parentPos?.y !== undefined &&
+          child1Pos?.y !== undefined &&
+          child2Pos?.y !== undefined
+        ) {
           expect(parentPos.y).toBeLessThan(child1Pos.y);
           expect(parentPos.y).toBeLessThan(child2Pos.y);
         }

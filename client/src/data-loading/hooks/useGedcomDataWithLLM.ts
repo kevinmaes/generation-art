@@ -75,7 +75,7 @@ export function useGedcomDataWithLLM({
 
       // Validate full data
       const validatedFullData = validateFlexibleGedcomData(fullJsonData);
-      
+
       // Rebuild graph data since functions can't be serialized to JSON
       const fullDataWithGraph = rebuildGraphData(validatedFullData);
 

@@ -18,7 +18,7 @@ import type {
  */
 function buildAdjacencyMaps(
   _individuals: Record<string, AugmentedIndividual>,
-  families: Record<string, FamilyWithMetadata>
+  families: Record<string, FamilyWithMetadata>,
 ): GraphAdjacencyMaps {
   const parentToChildren = new Map<string, string[]>();
   const childToParents = new Map<string, string[]>();
@@ -30,23 +30,26 @@ function buildAdjacencyMaps(
   Object.values(families).forEach((family) => {
     if (!family || !family.id) return; // Skip invalid families
     const familyId = family.id;
-    
+
     // Parent-child relationships
     if (family.husband) {
       const husbandId = family.husband.id;
-      const childIds = family.children.map(child => child.id);
-      
-      parentToChildren.set(husbandId, [...(parentToChildren.get(husbandId) ?? []), ...childIds]);
-      
+      const childIds = family.children.map((child) => child.id);
+
+      parentToChildren.set(husbandId, [
+        ...(parentToChildren.get(husbandId) ?? []),
+        ...childIds,
+      ]);
+
       // Add family membership
       const husbandFamilies = familyMembership.get(husbandId) ?? [];
       familyMembership.set(husbandId, [...husbandFamilies, familyId]);
-      
+
       // Set children's parent references
-      childIds.forEach(childId => {
+      childIds.forEach((childId) => {
         const parents = childToParents.get(childId) ?? [];
         childToParents.set(childId, [...parents, husbandId]);
-        
+
         // Add family membership for children
         const childFamilies = familyMembership.get(childId) ?? [];
         familyMembership.set(childId, [...childFamilies, familyId]);
@@ -55,19 +58,22 @@ function buildAdjacencyMaps(
 
     if (family.wife) {
       const wifeId = family.wife.id;
-      const childIds = family.children.map(child => child.id);
-      
-      parentToChildren.set(wifeId, [...(parentToChildren.get(wifeId) ?? []), ...childIds]);
-      
+      const childIds = family.children.map((child) => child.id);
+
+      parentToChildren.set(wifeId, [
+        ...(parentToChildren.get(wifeId) ?? []),
+        ...childIds,
+      ]);
+
       // Add family membership
       const wifeFamilies = familyMembership.get(wifeId) ?? [];
       familyMembership.set(wifeId, [...wifeFamilies, familyId]);
-      
+
       // Set children's parent references
-      childIds.forEach(childId => {
+      childIds.forEach((childId) => {
         const parents = childToParents.get(childId) ?? [];
         childToParents.set(childId, [...parents, wifeId]);
-        
+
         // Add family membership for children
         const childFamilies = familyMembership.get(childId) ?? [];
         familyMembership.set(childId, [...childFamilies, familyId]);
@@ -78,17 +84,26 @@ function buildAdjacencyMaps(
     if (family.husband && family.wife) {
       const husbandId = family.husband.id;
       const wifeId = family.wife.id;
-      
-      spouseToSpouse.set(husbandId, [...(spouseToSpouse.get(husbandId) ?? []), wifeId]);
-      spouseToSpouse.set(wifeId, [...(spouseToSpouse.get(wifeId) ?? []), husbandId]);
+
+      spouseToSpouse.set(husbandId, [
+        ...(spouseToSpouse.get(husbandId) ?? []),
+        wifeId,
+      ]);
+      spouseToSpouse.set(wifeId, [
+        ...(spouseToSpouse.get(wifeId) ?? []),
+        husbandId,
+      ]);
     }
 
     // Sibling relationships
     if (family.children.length > 1) {
-      const childIds = family.children.map(child => child.id);
-      childIds.forEach(childId => {
-        const siblings = childIds.filter(id => id !== childId);
-        siblingGroups.set(childId, [...(siblingGroups.get(childId) ?? []), ...siblings]);
+      const childIds = family.children.map((child) => child.id);
+      childIds.forEach((childId) => {
+        const siblings = childIds.filter((id) => id !== childId);
+        siblingGroups.set(childId, [
+          ...(siblingGroups.get(childId) ?? []),
+          ...siblings,
+        ]);
       });
     }
   });
@@ -107,17 +122,16 @@ function buildAdjacencyMaps(
  */
 function createTraversalUtils(
   individuals: Record<string, AugmentedIndividual>,
-  adjacencyMaps: GraphAdjacencyMaps
+  adjacencyMaps: GraphAdjacencyMaps,
 ): GraphTraversalUtils {
-  const {
-    parentToChildren,
-    childToParents,
-    spouseToSpouse,
-    siblingGroups,
-  } = adjacencyMaps;
+  const { parentToChildren, childToParents, spouseToSpouse, siblingGroups } =
+    adjacencyMaps;
 
   const getIndividuals = (ids: string[]): AugmentedIndividual[] => {
-    return ids.map(id => individuals[id]).filter(Boolean).filter(ind => ind != null);
+    return ids
+      .map((id) => individuals[id])
+      .filter(Boolean)
+      .filter((ind) => ind != null);
   };
 
   return {
@@ -141,17 +155,22 @@ function createTraversalUtils(
       return getIndividuals(siblingIds);
     },
 
-    getAncestors: (individualId: string, maxLevels?: number): AugmentedIndividual[] => {
+    getAncestors: (
+      individualId: string,
+      maxLevels?: number,
+    ): AugmentedIndividual[] => {
       const ancestors: AugmentedIndividual[] = [];
       const visited = new Set<string>();
-      const queue: { id: string; level: number }[] = [{ id: individualId, level: 0 }];
+      const queue: { id: string; level: number }[] = [
+        { id: individualId, level: 0 },
+      ];
 
       while (queue.length > 0) {
         const current = queue.shift();
         if (!current) break;
-        
+
         const { id, level } = current;
-        
+
         if (visited.has(id) || (maxLevels && level >= maxLevels)) continue;
         visited.add(id);
 
@@ -168,17 +187,22 @@ function createTraversalUtils(
       return ancestors;
     },
 
-    getDescendants: (individualId: string, maxLevels?: number): AugmentedIndividual[] => {
+    getDescendants: (
+      individualId: string,
+      maxLevels?: number,
+    ): AugmentedIndividual[] => {
       const descendants: AugmentedIndividual[] = [];
       const visited = new Set<string>();
-      const queue: { id: string; level: number }[] = [{ id: individualId, level: 0 }];
+      const queue: { id: string; level: number }[] = [
+        { id: individualId, level: 0 },
+      ];
 
       while (queue.length > 0) {
         const current = queue.shift();
         if (!current) break;
-        
+
         const { id, level } = current;
-        
+
         if (visited.has(id) || (maxLevels && level >= maxLevels)) continue;
         visited.add(id);
 
@@ -197,10 +221,18 @@ function createTraversalUtils(
 
     getFamilyCluster: (individualId: string) => {
       return {
-        parents: (childToParents.get(individualId) ?? []).map((id: string) => individuals[id]).filter(Boolean),
-        spouses: (spouseToSpouse.get(individualId) ?? []).map((id: string) => individuals[id]).filter(Boolean),
-        children: (parentToChildren.get(individualId) ?? []).map((id: string) => individuals[id]).filter(Boolean),
-        siblings: (siblingGroups.get(individualId) ?? []).map((id: string) => individuals[id]).filter(Boolean),
+        parents: (childToParents.get(individualId) ?? [])
+          .map((id: string) => individuals[id])
+          .filter(Boolean),
+        spouses: (spouseToSpouse.get(individualId) ?? [])
+          .map((id: string) => individuals[id])
+          .filter(Boolean),
+        children: (parentToChildren.get(individualId) ?? [])
+          .map((id: string) => individuals[id])
+          .filter(Boolean),
+        siblings: (siblingGroups.get(individualId) ?? [])
+          .map((id: string) => individuals[id])
+          .filter(Boolean),
       };
     },
   };
@@ -212,40 +244,45 @@ function createTraversalUtils(
 function buildWalkerTreeData(
   individuals: Record<string, AugmentedIndividual>,
   families: Record<string, FamilyWithMetadata>,
-  adjacencyMaps: GraphAdjacencyMaps
+  adjacencyMaps: GraphAdjacencyMaps,
 ): WalkerTreeData {
   const { childToParents, parentToChildren } = adjacencyMaps;
-  
+
   // Find root nodes (individuals with no parents)
-  const rootNodes = Object.keys(individuals).filter(id => {
+  const rootNodes = Object.keys(individuals).filter((id) => {
     const parents = childToParents.get(id) ?? [];
     return parents.length === 0;
   });
 
   // Build node hierarchy
-  const nodeHierarchy = new Map<string, {
-    parent?: string;
-    children: string[];
-    leftSibling?: string;
-    rightSibling?: string;
-    depth: number;
-  }>();
+  const nodeHierarchy = new Map<
+    string,
+    {
+      parent?: string;
+      children: string[];
+      leftSibling?: string;
+      rightSibling?: string;
+      depth: number;
+    }
+  >();
 
   // BFS to calculate depths and build hierarchy
-  const queue: { id: string; depth: number; parent?: string }[] = rootNodes.map(id => ({ id, depth: 0 }));
+  const queue: { id: string; depth: number; parent?: string }[] = rootNodes.map(
+    (id) => ({ id, depth: 0 }),
+  );
   const visited = new Set<string>();
 
   while (queue.length > 0) {
     const current = queue.shift();
     if (!current) break;
-    
+
     const { id, depth, parent } = current;
-    
+
     if (visited.has(id)) continue;
     visited.add(id);
 
     const children = parentToChildren.get(id) ?? [];
-    
+
     nodeHierarchy.set(id, {
       parent,
       children,
@@ -287,7 +324,7 @@ function buildWalkerTreeData(
   const familyClusters = Object.values(families).map((family) => {
     const parents = [];
     const spouseOrder = [];
-    
+
     if (family.husband) {
       parents.push(family.husband.id);
       spouseOrder.push(family.husband.id);
@@ -297,11 +334,13 @@ function buildWalkerTreeData(
       spouseOrder.push(family.wife.id);
     }
 
-    const children = family.children.map(child => child.id);
-    
+    const children = family.children.map((child) => child.id);
+
     // Determine generation (use first parent's generation if available)
     const firstParent = family.husband ?? family.wife;
-    const generation = (firstParent as AugmentedIndividual | undefined)?.metadata?.generation ?? 0;
+    const generation =
+      (firstParent as AugmentedIndividual | undefined)?.metadata?.generation ??
+      0;
 
     return {
       id: family.id,
@@ -325,7 +364,7 @@ function buildWalkerTreeData(
  */
 function buildGraphData(
   individuals: Record<string, AugmentedIndividual>,
-  families: Record<string, FamilyWithMetadata>
+  families: Record<string, FamilyWithMetadata>,
 ): GraphData {
   const adjacencyMaps = buildAdjacencyMaps(individuals, families);
   const traversalUtils = createTraversalUtils(individuals, adjacencyMaps);
@@ -342,7 +381,9 @@ function buildGraphData(
  * Rebuild graph data for a GedcomDataWithMetadata object
  * Call this after loading serialized data to restore the graph utilities
  */
-export function rebuildGraphData(data: GedcomDataWithMetadata): GedcomDataWithMetadata {
+export function rebuildGraphData(
+  data: GedcomDataWithMetadata,
+): GedcomDataWithMetadata {
   try {
     // Skip if graph data already exists (shouldn't happen but safety check)
     if (data.graph?.traversalUtils) {
@@ -351,12 +392,16 @@ export function rebuildGraphData(data: GedcomDataWithMetadata): GedcomDataWithMe
 
     // Validate input data
     if (!data.individuals || typeof data.individuals !== 'object') {
-      console.warn('rebuildGraphData: Invalid individuals data, skipping graph rebuilding');
+      console.warn(
+        'rebuildGraphData: Invalid individuals data, skipping graph rebuilding',
+      );
       return data;
     }
 
     if (!data.families || typeof data.families !== 'object') {
-      console.warn('rebuildGraphData: Invalid families data, using empty families');
+      console.warn(
+        'rebuildGraphData: Invalid families data, using empty families',
+      );
       data.families = {};
     }
 

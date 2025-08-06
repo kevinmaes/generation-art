@@ -356,7 +356,10 @@ export interface GraphTraversalUtils {
   getSpouses(individualId: string): AugmentedIndividual[];
   getSiblings(individualId: string): AugmentedIndividual[];
   getAncestors(individualId: string, maxLevels?: number): AugmentedIndividual[];
-  getDescendants(individualId: string, maxLevels?: number): AugmentedIndividual[];
+  getDescendants(
+    individualId: string,
+    maxLevels?: number,
+  ): AugmentedIndividual[];
   getFamilyCluster(individualId: string): {
     parents: AugmentedIndividual[];
     spouses: AugmentedIndividual[];
@@ -381,26 +384,29 @@ export interface GraphAdjacencyMaps {
  */
 export interface WalkerTreeData {
   // Pre-computed tree structure for Walker's algorithm
-  nodeHierarchy: Map<string, {
-    parent?: string;
-    children: string[];
-    leftSibling?: string;
-    rightSibling?: string;
-    depth: number;
-  }>;
-  
+  nodeHierarchy: Map<
+    string,
+    {
+      parent?: string;
+      children: string[];
+      leftSibling?: string;
+      rightSibling?: string;
+      depth: number;
+    }
+  >;
+
   // Family clustering information
   familyClusters: {
     id: string;
     parents: string[];
     children: string[];
-    spouseOrder: string[];  // Order spouses should appear
+    spouseOrder: string[]; // Order spouses should appear
     generation: number;
   }[];
-  
+
   // Root nodes for tree traversal
   rootNodes: string[];
-  
+
   // Pre-computed generation levels
   generationLevels: Map<number, string[]>;
 }

@@ -362,7 +362,9 @@ export async function* runPipelineGenerator({
       // Get transformer configuration from registry
       const transformer = getTransformer(transformerInstance.type);
 
-      console.log(`🔄 Executing transformer ${String(i + 1)}/${String(config.transformers.length)}: ${transformer.name} (${transformerInstance.type})`);
+      console.log(
+        `🔄 Executing transformer ${String(i + 1)}/${String(config.transformers.length)}: ${transformer.name} (${transformerInstance.type})`,
+      );
 
       // Yield progress update
       yield {
@@ -413,13 +415,23 @@ export async function* runPipelineGenerator({
       );
 
       // Debug what positions this transformer created
-      const positionedIndividuals = Object.entries(result.visualMetadata.individuals || {})
+      const positionedIndividuals = Object.entries(
+        result.visualMetadata.individuals || {},
+      )
         .filter(([, meta]) => meta.x !== undefined && meta.y !== undefined)
         .slice(0, 3); // First 3 individuals
-      
-      const individualCount = positionedIndividuals.length > 0 ? Object.keys(result.visualMetadata.individuals || {}).length : 0;
-      console.log(`✅ Transformer ${transformer.name} positioned ${String(individualCount)} individuals. Sample:`, 
-        positionedIndividuals.map(([id, meta]) => ({ id, x: meta.x, y: meta.y }))
+
+      const individualCount =
+        positionedIndividuals.length > 0
+          ? Object.keys(result.visualMetadata.individuals || {}).length
+          : 0;
+      console.log(
+        `✅ Transformer ${transformer.name} positioned ${String(individualCount)} individuals. Sample:`,
+        positionedIndividuals.map(([id, meta]) => ({
+          id,
+          x: meta.x,
+          y: meta.y,
+        })),
       );
 
       // Yield transformer result

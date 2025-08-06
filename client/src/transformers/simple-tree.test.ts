@@ -509,11 +509,11 @@ describe('Simple Tree Layout Transformer', () => {
 
       // Check that we have both parent-child and spousal edges with different styling
       const parentChildEdges = Object.entries(edges).filter(([edgeId]) => {
-        const edge = mockGedcomData.metadata.edges.find(e => e.id === edgeId);
+        const edge = mockGedcomData.metadata.edges.find((e) => e.id === edgeId);
         return edge?.relationshipType === 'parent-child';
       });
       const spouseEdges = Object.entries(edges).filter(([edgeId]) => {
-        const edge = mockGedcomData.metadata.edges.find(e => e.id === edgeId);
+        const edge = mockGedcomData.metadata.edges.find((e) => e.id === edgeId);
         return edge?.relationshipType === 'spouse';
       });
 

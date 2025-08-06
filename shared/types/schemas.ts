@@ -331,20 +331,25 @@ export const GraphAdjacencyMapsSchema = z.object({
 });
 
 export const WalkerTreeDataSchema = z.object({
-  nodeHierarchy: z.map(z.string(), z.object({
-    parent: z.string().optional(),
-    children: z.array(z.string()),
-    leftSibling: z.string().optional(),
-    rightSibling: z.string().optional(),
-    depth: z.number(),
-  })),
-  familyClusters: z.array(z.object({
-    id: z.string(),
-    parents: z.array(z.string()),
-    children: z.array(z.string()),
-    spouseOrder: z.array(z.string()),
-    generation: z.number(),
-  })),
+  nodeHierarchy: z.map(
+    z.string(),
+    z.object({
+      parent: z.string().optional(),
+      children: z.array(z.string()),
+      leftSibling: z.string().optional(),
+      rightSibling: z.string().optional(),
+      depth: z.number(),
+    }),
+  ),
+  familyClusters: z.array(
+    z.object({
+      id: z.string(),
+      parents: z.array(z.string()),
+      children: z.array(z.string()),
+      spouseOrder: z.array(z.string()),
+      generation: z.number(),
+    }),
+  ),
   rootNodes: z.array(z.string()),
   generationLevels: z.map(z.number(), z.array(z.string())),
 });
