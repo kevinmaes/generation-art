@@ -252,10 +252,10 @@ export function PipelineManager({
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
-    // Calculate responsive layout breakpoint
+  // Calculate responsive layout breakpoint
   const containerRef = React.useRef<HTMLDivElement>(null);
   const columnRef = React.useRef<HTMLDivElement>(null);
-  
+
   // Use useResizeObserver for container and column dimensions
   const containerSize = useResizeObserver({
     ref: containerRef as React.RefObject<HTMLElement>,
