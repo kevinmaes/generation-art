@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../../shared/types';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import { rebuildGraphData } from '../graph-rebuilder';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
@@ -69,8 +70,11 @@ export function useGedcomData({
       // Use Zod validation to handle flexible data formats
       const validatedData = validateFlexibleGedcomData(jsonData);
 
-      setData(validatedData);
-      onDataLoadedRef.current?.(validatedData);
+      // Rebuild graph data since functions can't be serialized to JSON
+      const dataWithGraph = rebuildGraphData(validatedData);
+
+      setData(dataWithGraph);
+      onDataLoadedRef.current?.(dataWithGraph);
     } catch (err) {
       let errorMessage: string;
 

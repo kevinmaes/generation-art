@@ -242,6 +242,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
     p.draw = () => {
       p.background(255);
+      
+      // Debug logging
+      console.log('Drawing with visual metadata:', {
+        individualCount: Object.keys(visualMetadata.individuals).length,
+        edgeCount: Object.keys(visualMetadata.edges).length,
+        sampleIndividual: Object.values(visualMetadata.individuals)[0]
+      });
 
       // Draw edges using visual metadata
       if (currentShowRelations) {
@@ -289,7 +296,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
           // Skip individuals that don't have visual metadata from transformers
-          if (!individualMetadata?.x || !individualMetadata?.y) {
+          if (individualMetadata?.x === undefined || individualMetadata?.y === undefined) {
             continue;
           }
 
@@ -316,10 +323,22 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const strokeColor = individualMetadata?.strokeColor;
           const strokeWeight = individualMetadata?.strokeWeight ?? 0;
 
+          // Calculate final dimensions
+          const finalWidth = size * width;
+          const finalHeight = size * height;
 
           const pColor = p.color(color);
           pColor.setAlpha(opacity * 255);
           p.fill(pColor);
+          
+          // Debug first few individuals only
+          if (Math.random() < 0.01) { // Only log ~1% of individuals
+            console.log('Sample individual rendering:', {
+              id: ind.id,
+              x, y, size: finalWidth, finalHeight: finalHeight,
+              color, opacity, shape
+            });
+          }
           
           // Apply stroke if specified
           if (strokeColor && strokeWeight > 0) {
@@ -329,10 +348,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
           } else {
             p.noStroke();
           }
-
-          // Calculate final dimensions
-          const finalWidth = size * width;
-          const finalHeight = size * height;
 
           // Apply transformations
           p.push();
@@ -396,6 +411,10 @@ function createSketch(props: SketchProps): (p: p5) => void {
       if (seed) {
         p.text(`Seed: ${seed}`, 10, 50);
       }
+      
+      // Debug info
+      p.text(`Individuals: ${String(Object.keys(visualMetadata.individuals).length)}`, 10, 65);
+      p.text(`With positions: ${String(Object.values(visualMetadata.individuals).filter(i => i.x !== undefined && i.y !== undefined).length)}`, 10, 80);
     };
   };
 }

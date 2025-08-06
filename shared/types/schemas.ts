@@ -556,6 +556,8 @@ export const validateFlexibleGedcomData = (
 ): GedcomDataWithMetadata => {
   const result = FlexibleGedcomDataSchema.parse(data);
 
+  let validatedData: GedcomDataWithMetadata;
+
   // If it's just an array of individuals, convert to full structure
   if (Array.isArray(result)) {
     // Convert array to ID-keyed object
@@ -564,7 +566,7 @@ export const validateFlexibleGedcomData = (
       individualsById[individual.id] = individual;
     });
 
-    return {
+    validatedData = {
       individuals: individualsById,
       families: {},
       metadata: createDefaultMetadata(result.length, 0),
@@ -583,7 +585,7 @@ export const validateFlexibleGedcomData = (
       });
     }
 
-    return {
+    validatedData = {
       individuals: individualsById,
       families: familiesById,
       metadata:
@@ -598,10 +600,10 @@ export const validateFlexibleGedcomData = (
   } else if ('individuals' in result && 'families' in result) {
     // Already in correct format, but might be missing metadata
     if ('metadata' in result) {
-      return result;
+      validatedData = result;
     } else {
       // Add default metadata
-      return {
+      validatedData = {
         ...result,
         metadata: createDefaultMetadata(
           Object.keys(result.individuals).length,
@@ -611,8 +613,12 @@ export const validateFlexibleGedcomData = (
     }
   } else {
     // Fallback - should not happen with proper schema validation
-    return result;
+    validatedData = result;
   }
+
+  // Always rebuild graph data on the client-side since functions can't be serialized
+  // This is done in a separate function to avoid circular dependencies
+  return validatedData;
 };
 
 // Safe validation functions that don't throw

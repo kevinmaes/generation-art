@@ -19,6 +19,7 @@ import { smartLayoutTransformerConfig } from './smart-layout';
 import { edgeCurveConfig } from './edge-curve';
 import { varianceConfig } from './variance';
 import { simpleTreeConfig } from './simple-tree';
+import { walkerTreeConfig } from './walker-tree';
 
 // Transformer constants for type safety
 export const TRANSFORMERS = {
@@ -70,6 +71,10 @@ export const TRANSFORMERS = {
     ID: 'simple-tree',
     NAME: 'Simple Tree Layout',
   },
+  WALKER_TREE: {
+    ID: 'walker-tree',
+    NAME: 'Walker Tree Layout',
+  },
 } as const;
 
 export type TransformerId =
@@ -98,6 +103,7 @@ export const transformerConfigs: Record<
   'edge-curve': edgeCurveConfig,
   variance: varianceConfig,
   'simple-tree': simpleTreeConfig,
+  'walker-tree': walkerTreeConfig,
 };
 
 /**
