@@ -22,7 +22,8 @@
       "Bash(pnpm lint:*)",
       "Bash(pnpm test:*)",
       "Bash(pnpm typecheck:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
