@@ -347,11 +347,15 @@ export function TransformerItem({
                 {transformer.availableDimensions.length > 0 && (
                   <div>
                     <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
-                      {transformer.requiresLLM ? 'Dimensions + Temperature' : 'Dimensions'}
+                      {transformer.requiresLLM
+                        ? 'Dimensions + Temperature'
+                        : 'Dimensions'}
                     </h4>
 
                     {/* Dimensions Row */}
-                    <div className={`grid gap-2 ${transformer.requiresLLM ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                    <div
+                      className={`grid gap-2 ${transformer.requiresLLM ? 'grid-cols-3' : 'grid-cols-2'}`}
+                    >
                       {/* Primary Dimension */}
                       <div>
                         <label className="block text-xs text-gray-600 mb-1 text-left">
