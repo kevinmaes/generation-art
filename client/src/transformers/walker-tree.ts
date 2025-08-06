@@ -116,6 +116,14 @@ interface WalkerNode {
   change: number; // Change value for spacing
   thread?: WalkerNode; // Thread pointer for contour tracking
   ancestor: WalkerNode; // Ancestor pointer
+  
+  // Enhanced contour tracking
+  leftContour?: WalkerNode; // Leftmost descendant at each level
+  rightContour?: WalkerNode; // Rightmost descendant at each level
+  extremeLeft?: WalkerNode; // Extreme left node in subtree
+  extremeRight?: WalkerNode; // Extreme right node in subtree
+  msel: number; // Sum of modifiers for left extreme
+  mser: number; // Sum of modifiers for right extreme
 
   // Family clustering
   spouses: WalkerNode[];
@@ -281,8 +289,35 @@ function buildWalkerTree(
   const nodeMap = new Map<string, WalkerNode>();
   const nodes: WalkerNode[] = [];
 
-  // Create Walker nodes for all individuals
+  // Calculate generation density for adaptive sizing
+  const generationCounts = new Map<number, number>();
+  individuals.forEach((ind) => {
+    const gen = ind.metadata.generation ?? 0;
+    generationCounts.set(gen, (generationCounts.get(gen) ?? 0) + 1);
+  });
+  
+  // Find max individuals in any generation
+  const maxIndividualsInGeneration = Math.max(...generationCounts.values());
+  
+  // Calculate adaptive node size based on canvas width and max generation size
+  const baseNodeSize = Math.min(
+    60, // Max node size
+    Math.max(
+      15, // Min node size
+      (config.canvasWidth * 0.7) / (maxIndividualsInGeneration * 1.5)
+    )
+  );
+
+  // Create Walker nodes for all individuals with adaptive sizing
   individuals.forEach((individual) => {
+    const generation = individual.metadata.generation ?? 0;
+    const genCount = generationCounts.get(generation) ?? 1;
+    
+    // Scale node size inversely with generation density
+    const scaleFactor = Math.min(1.0, 10 / genCount); // Smaller nodes for crowded generations
+    const nodeWidth = baseNodeSize * scaleFactor;
+    const nodeHeight = nodeWidth * 0.67; // Maintain aspect ratio
+    
     const node: WalkerNode = {
       id: individual.id,
       individual,
@@ -295,10 +330,16 @@ function buildWalkerTree(
       shift: 0,
       change: 0,
       ancestor: null as any, // Will be set to self
+      leftContour: undefined,
+      rightContour: undefined,
+      extremeLeft: undefined,
+      extremeRight: undefined,
+      msel: 0,
+      mser: 0,
       isSpouseGroup: false,
-      width: 60, // Default node width
-      height: 40, // Default node height
-      generation: individual.metadata.generation ?? 0,
+      width: nodeWidth,
+      height: nodeHeight,
+      generation,
     };
     node.ancestor = node; // Self-reference for Walker's algorithm
 
@@ -310,6 +351,9 @@ function buildWalkerTree(
   const traversalUtils = graphData.traversalUtils;
 
   console.log('🔗 Building parent-child relationships...');
+  console.log(`📊 Generation distribution:`, Array.from(generationCounts.entries()));
+  console.log(`📏 Base node size: ${String(baseNodeSize)}px`);
+  
   let totalChildren = 0;
 
   nodes.forEach((node, index) => {
@@ -323,7 +367,7 @@ function buildWalkerTree(
     if (index < 3) {
       // Debug first few nodes
       console.log(
-        `  Node ${node.id}: ${String(node.children.length)} children`,
+        `  Node ${node.id}: ${String(node.children.length)} children, size: ${String(node.width)}x${String(node.height)}`,
         node.children.map((c) => c.id),
       );
     }
@@ -492,11 +536,16 @@ function executeWalkerAlgorithm(root: WalkerNode, config: LayoutConfig): void {
 }
 
 /**
- * First walk: Assign preliminary positions (post-order traversal)
+ * First walk: Assign preliminary positions with enhanced contour tracking
  */
 function firstWalk(node: WalkerNode, config: LayoutConfig): void {
   if (node.children.length === 0) {
-    // Leaf node
+    // Leaf node - set up contours
+    node.extremeLeft = node;
+    node.extremeRight = node;
+    node.msel = 0;
+    node.mser = 0;
+    
     if (node.leftSibling) {
       node.prelim =
         node.leftSibling.prelim +
@@ -505,19 +554,31 @@ function firstWalk(node: WalkerNode, config: LayoutConfig): void {
       node.prelim = 0;
     }
   } else {
-    // Internal node - process children first
-    node.children.forEach((child) => firstWalk(child, config));
-
+    // Internal node - process children with contour tracking
+    let defaultAncestor = node.children[0];
+    
+    node.children.forEach((child) => {
+      firstWalk(child, config);
+      defaultAncestor = apportion(child, defaultAncestor, config);
+    });
+    
+    executeShifts(node);
+    
     const leftmost = node.children[0];
     const rightmost = node.children[node.children.length - 1];
     const midpoint = (leftmost.prelim + rightmost.prelim) / 2;
+    
+    // Set up extreme nodes for contour tracking
+    node.extremeLeft = leftmost.extremeLeft;
+    node.extremeRight = rightmost.extremeRight;
+    node.msel = leftmost.msel;
+    node.mser = rightmost.mser;
 
     if (node.leftSibling) {
       node.prelim =
         node.leftSibling.prelim +
         getNodeDistance(node.leftSibling, node, config);
       node.mod = node.prelim - midpoint;
-      apportion(node, config);
     } else {
       node.prelim = midpoint;
     }
@@ -542,68 +603,137 @@ function secondWalk(
 }
 
 /**
- * Apportion: Resolve conflicts between subtrees
+ * Enhanced apportion with thread-based contour tracking
  */
-function apportion(node: WalkerNode, config: LayoutConfig): void {
-  let leftmost = node.children[0];
-  let neighbor = leftmost.leftSibling;
-
-  if (!neighbor) return;
-
-  let compareDepth = 1;
-  const maxDepth = 10; // Limit depth to prevent infinite loops
-
-  while (leftmost && neighbor && compareDepth <= maxDepth) {
-    // Calculate separation needed
-    const leftContour = leftmost.prelim + leftmost.mod;
-    const rightContour = neighbor.prelim + neighbor.mod;
-    const separation =
-      rightContour - leftContour + getNodeDistance(neighbor, leftmost, config);
-
-    if (separation > 0) {
-      // Move subtree to the right
-      moveSubtree(ancestor(neighbor, node), node, separation);
+function apportion(
+  node: WalkerNode,
+  defaultAncestor: WalkerNode,
+  config: LayoutConfig,
+): WalkerNode {
+  const leftSibling = node.leftSibling;
+  
+  if (!leftSibling) return defaultAncestor;
+  
+  // Initialize contour traversal pointers
+  let vir = node; // Inside right contour
+  let vor = node; // Outside right contour  
+  let vil = leftSibling; // Inside left contour
+  let vol = leftSibling.extremeLeft || leftSibling; // Outside left contour
+  
+  let sir = node.mod; // Sum of modifiers, inside right
+  let sor = node.mod; // Sum of modifiers, outside right
+  let sil = vil.mod; // Sum of modifiers, inside left
+  let sol = vol.mod; // Sum of modifiers, outside left
+  
+  // Traverse contours until one is exhausted
+  while (vil.extremeRight && vir.extremeLeft) {
+    vil = vil.extremeRight;
+    vir = vir.extremeLeft;
+    vol = nextLeft(vol);
+    vor = nextRight(vor);
+    
+    vor.ancestor = node;
+    
+    const shift = (vil.prelim + sil) - (vir.prelim + sir) + 
+                  getNodeDistance(vil, vir, config);
+    
+    if (shift > 0) {
+      moveSubtree(ancestorSibling(vil, node, defaultAncestor), node, shift);
+      sir += shift;
+      sor += shift;
     }
-
-    compareDepth++;
-
-    // Move to next level
-    if (leftmost.children.length === 0) {
-      const nextLeftmost = getLeftmost(node, compareDepth);
-      if (!nextLeftmost) break;
-      leftmost = nextLeftmost;
-    } else {
-      leftmost = leftmost.children[0];
-    }
-
-    if (neighbor.children.length === 0) {
-      const nextNeighbor = getLeftmost(neighbor, compareDepth);
-      if (!nextNeighbor) break;
-      neighbor = nextNeighbor;
-    } else {
-      neighbor = neighbor.children[neighbor.children.length - 1];
-    }
+    
+    sil += vil.mod;
+    sir += vir.mod;
+    sol += vol.mod;
+    sor += vor.mod;
   }
+  
+  // Set threads for efficient contour traversal
+  if (vil.extremeRight && !vor.extremeRight) {
+    vor.thread = vil.extremeRight;
+    vor.mod += sil - sor;
+  }
+  
+  if (vir.extremeLeft && !vol.extremeLeft) {
+    vol.thread = vir.extremeLeft;
+    vol.mod += sir - sol;
+    defaultAncestor = node;
+  }
+  
+  return defaultAncestor;
 }
 
 /**
  * Move subtree to resolve conflicts
  */
 function moveSubtree(wl: WalkerNode, wr: WalkerNode, shift: number): void {
-  if (!wl.parent || !wr.parent || wl.parent !== wr.parent) return;
+  const subtrees = nodeNumber(wr) - nodeNumber(wl);
+  if (subtrees > 0) {
+    wr.change -= shift / subtrees;
+    wr.shift += shift;
+    wl.change += shift / subtrees;
+    wr.prelim += shift;
+    wr.mod += shift;
+  }
+}
 
-  const siblings = wl.parent.children;
-  const leftIndex = siblings.indexOf(wl);
-  const rightIndex = siblings.indexOf(wr);
+/**
+ * Get the position number of a node among its siblings
+ */
+function nodeNumber(node: WalkerNode): number {
+  if (!node.parent) return 0;
+  return node.parent.children.indexOf(node) + 1;
+}
 
-  if (leftIndex === -1 || rightIndex === -1 || leftIndex >= rightIndex) return;
+/**
+ * Execute shifts to finalize positions after apportion
+ */
+function executeShifts(node: WalkerNode): void {
+  let shift = 0;
+  let change = 0;
+  
+  for (let i = node.children.length - 1; i >= 0; i--) {
+    const child = node.children[i];
+    child.prelim += shift;
+    child.mod += shift;
+    change += child.change;
+    shift += child.shift + change;
+  }
+}
 
-  const subtrees = rightIndex - leftIndex;
-  wr.change -= shift / subtrees;
-  wr.shift += shift;
-  wl.change += shift / subtrees;
-  wr.prelim += shift;
-  wr.mod += shift;
+/**
+ * Find the next node on the left contour
+ */
+function nextLeft(node: WalkerNode): WalkerNode {
+  if (node.children.length > 0) {
+    return node.children[0];
+  }
+  return node.thread || node;
+}
+
+/**
+ * Find the next node on the right contour
+ */
+function nextRight(node: WalkerNode): WalkerNode {
+  if (node.children.length > 0) {
+    return node.children[node.children.length - 1];
+  }
+  return node.thread || node;
+}
+
+/**
+ * Find the ancestor for moving subtrees
+ */
+function ancestorSibling(
+  vil: WalkerNode,
+  node: WalkerNode,
+  defaultAncestor: WalkerNode,
+): WalkerNode {
+  if (node.parent?.children.includes(vil.ancestor)) {
+    return vil.ancestor;
+  }
+  return defaultAncestor;
 }
 
 /**
@@ -615,24 +745,29 @@ function getNodeDistance(
   config: LayoutConfig,
 ): number {
   const baseDistance = (left.width + right.width) / 2;
+  
+  // For very small nodes (crowded generations), use tighter spacing
+  const minNodeSize = Math.min(left.width, right.width);
+  const spacingMultiplier = minNodeSize < 20 ? 0.3 : 1.0;
 
   // Check if nodes are spouses (should be closer)
   if (areSpouses(left, right)) {
-    return Math.max(config.spouseSpacing, baseDistance * 1.2);
+    return Math.max(config.spouseSpacing * spacingMultiplier, baseDistance + 2);
   }
 
   // Check if nodes are from different families (need more space)
   if (left.familyId && right.familyId && left.familyId !== right.familyId) {
-    return Math.max(config.familySpacing, baseDistance * 2.5);
+    return Math.max(config.familySpacing * spacingMultiplier, baseDistance + 10);
   }
 
   // Check if they're siblings from the same parent
   if (areSiblings(left, right)) {
-    return Math.max(config.nodeSpacing * 0.8, baseDistance * 1.5);
+    return Math.max(config.nodeSpacing * 0.5 * spacingMultiplier, baseDistance + 5);
   }
 
-  // Default spacing for unrelated nodes
-  return Math.max(config.nodeSpacing, baseDistance * 2.0);
+  // Default spacing for unrelated nodes in same generation
+  // Tighter spacing for crowded generations
+  return Math.max(config.nodeSpacing * spacingMultiplier, baseDistance + 8);
 }
 
 /**
@@ -809,25 +944,7 @@ function generateFamilyTreeEdges(
   return edges;
 }
 
-/**
- * Find ancestor node for conflict resolution
- */
-function ancestor(node: WalkerNode, defaultAncestor: WalkerNode): WalkerNode {
-  if (node.ancestor && node.ancestor.parent === defaultAncestor.parent) {
-    return node.ancestor;
-  }
-  return defaultAncestor;
-}
-
-/**
- * Get leftmost descendant at a specific depth
- */
-function getLeftmost(node: WalkerNode, depth: number): WalkerNode | null {
-  if (depth <= 1) return node;
-  if (node.children.length === 0) return null;
-
-  return getLeftmost(node.children[0], depth - 1);
-}
+// Removed legacy ancestor and getLeftmost functions - replaced with contour-based traversal
 
 /**
  * Extract final positions from Walker nodes
@@ -1128,53 +1245,114 @@ async function fallbackLayout(
     maxGeneration,
   });
 
+  // Calculate adaptive node size based on the largest generation
+  const maxIndividualsInGeneration = Math.max(
+    ...Object.values(generationGroups).map((g) => g.length),
+  );
+  
+  // Calculate node size to fit the largest generation
+  const horizontalMargin = 100;
+  const availableWidth = config.canvasWidth - 2 * horizontalMargin;
+  const minNodeSize = 15;
+  const maxNodeSize = 60;
+  const minSpacing = 5;
+  
+  // Calculate node size that will fit all nodes in the largest generation
+  let nodeSize = maxNodeSize;
+  if (maxIndividualsInGeneration > 1) {
+    const maxPossibleWidth = availableWidth / maxIndividualsInGeneration;
+    nodeSize = Math.min(maxNodeSize, Math.max(minNodeSize, maxPossibleWidth - minSpacing));
+  }
+  
+  console.log('Adaptive sizing:', {
+    maxIndividualsInGeneration,
+    calculatedNodeSize: nodeSize,
+    availableWidth,
+  });
+
   // Calculate positions by generation with proper tree layout
   Object.entries(generationGroups).forEach(([genStr, genIndividuals]) => {
     const generation = parseInt(genStr);
     const generationIndex = generation - minGeneration;
 
-    const baseY = 100 + generationIndex * config.generationSpacing;
+    // Handle very large generations by creating multiple rows
+    const maxNodesPerRow = Math.floor(availableWidth / (nodeSize + minSpacing));
+    const needsMultipleRows = genIndividuals.length > maxNodesPerRow;
+    
+    if (needsMultipleRows) {
+      // Split into multiple rows
+      const numRows = Math.ceil(genIndividuals.length / maxNodesPerRow);
+      const nodesPerRow = Math.ceil(genIndividuals.length / numRows);
+      
+      console.log(`Generation ${String(generation)} needs ${String(numRows)} rows:`, {
+        totalNodes: genIndividuals.length,
+        maxNodesPerRow,
+        nodesPerRow,
+      });
+      
+      for (let row = 0; row < numRows; row++) {
+        const rowStart = row * nodesPerRow;
+        const rowEnd = Math.min(rowStart + nodesPerRow, genIndividuals.length);
+        const rowIndividuals = genIndividuals.slice(rowStart, rowEnd);
+        
+        const baseY = 100 + generationIndex * config.generationSpacing + row * (nodeSize + 10);
+        const rowWidth = rowIndividuals.length * (nodeSize + minSpacing) - minSpacing;
+        const startX = horizontalMargin + (availableWidth - rowWidth) / 2;
+        
+        rowIndividuals.forEach((individual, index) => {
+          const x = startX + index * (nodeSize + minSpacing) + nodeSize / 2;
 
-    console.log(`Processing generation ${String(generation)}:`, {
-      generationIndex,
-      baseY,
-      individualCount: genIndividuals.length,
-      individuals: genIndividuals.map((i) => i.id),
-    });
+          positions[individual.id] = {
+            x,
+            y: baseY,
+            width: nodeSize,
+            height: nodeSize * 0.67,
+          };
 
-    // Center individuals horizontally within each generation
-    const totalWidth = config.canvasWidth - 200; // 100px margin on each side
-    const spacing =
-      genIndividuals.length > 1 ? totalWidth / (genIndividuals.length - 1) : 0;
-    const startX = genIndividuals.length === 1 ? config.canvasWidth / 2 : 100;
+          nodeMetadata[individual.id] = {
+            x,
+            y: baseY,
+            width: 1.0,
+            height: 1.0,
+            size: nodeSize,
+            shape: 'square' as const,
+            color: getNodeColor(individual.gender),
+            strokeColor: '#000000',
+            strokeWeight: 1,
+            opacity: 1.0,
+          };
+        });
+      }
+    } else {
+      // Single row for smaller generations
+      const baseY = 100 + generationIndex * config.generationSpacing;
+      const totalNodesWidth = genIndividuals.length * (nodeSize + minSpacing) - minSpacing;
+      const startX = horizontalMargin + (availableWidth - totalNodesWidth) / 2;
+      
+      genIndividuals.forEach((individual, index) => {
+        const x = startX + index * (nodeSize + minSpacing) + nodeSize / 2;
+        
+        positions[individual.id] = {
+          x,
+          y: baseY,
+          width: nodeSize,
+          height: nodeSize * 0.67,
+        };
 
-    genIndividuals.forEach((individual, index) => {
-      const x = genIndividuals.length === 1 ? startX : startX + index * spacing;
-
-      console.log(
-        `  Individual ${individual.id} (${String(index)}): x=${String(x)}, y=${String(baseY)}`,
-      );
-
-      positions[individual.id] = {
-        x,
-        y: baseY,
-        width: 60,
-        height: 40,
-      };
-
-      nodeMetadata[individual.id] = {
-        x,
-        y: baseY,
-        width: 1.0, // Multiplier, not absolute width
-        height: 1.0, // Multiplier, not absolute height
-        size: 60, // Base size
-        shape: 'square' as const,
-        color: getNodeColor(individual.gender),
-        strokeColor: '#000000',
-        strokeWeight: 1,
-        opacity: 1.0,
-      };
-    });
+        nodeMetadata[individual.id] = {
+          x,
+          y: baseY,
+          width: 1.0,
+          height: 1.0,
+          size: nodeSize,
+          shape: 'square' as const,
+          color: getNodeColor(individual.gender),
+          strokeColor: '#000000',
+          strokeWeight: 1,
+          opacity: 1.0,
+        };
+      });
+    }
   });
 
   // Generate straight-line edges for fallback layout too
