@@ -285,13 +285,20 @@ function createSketch(props: SketchProps): (p: p5) => void {
       // Draw nodes (individuals) using per-entity visual metadata
       if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
-
+        let renderedCount = 0;
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
+          // Skip individuals that don't have visual metadata from transformers
+          if (!individualMetadata || individualMetadata.x === undefined || individualMetadata.y === undefined) {
+            continue;
+          }
+          
+          renderedCount++;
+
           // Only use visual metadata - no config fallbacks
-          const x = individualMetadata?.x ?? 0;
-          const y = individualMetadata?.y ?? 0;
+          const x = individualMetadata.x;
+          const y = individualMetadata.y;
           const size =
             individualMetadata?.size ??
             visualMetadata.global.defaultNodeSize ??
@@ -309,29 +316,32 @@ function createSketch(props: SketchProps): (p: p5) => void {
             visualMetadata.global.defaultNodeShape ??
             'circle';
           const opacity = individualMetadata?.opacity ?? 0.8;
+          const strokeColor = individualMetadata?.strokeColor;
+          const strokeWeight = individualMetadata?.strokeWeight ?? 0;
 
-          // Skip rendering if no position data from transformers
-          if (
-            individualMetadata?.x === undefined ||
-            individualMetadata?.y === undefined
-          ) {
-            continue;
-          }
 
           const pColor = p.color(color);
           pColor.setAlpha(opacity * 255);
           p.fill(pColor);
-          p.noStroke();
+          
+          // Apply stroke if specified
+          if (strokeColor && strokeWeight > 0) {
+            const pStrokeColor = p.color(strokeColor);
+            p.stroke(pStrokeColor);
+            p.strokeWeight(strokeWeight);
+          } else {
+            p.noStroke();
+          }
+
+          // Calculate final dimensions
+          const finalWidth = size * width;
+          const finalHeight = size * height;
 
           // Apply transformations
           p.push();
           p.translate(x, y);
           p.rotate(rotation);
           p.scale(scale);
-
-          // Calculate final dimensions
-          const finalWidth = size * width;
-          const finalHeight = size * height;
 
           // Render based on shape
           if (shape === 'circle') {
@@ -378,6 +388,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
             p.text('', x, y + size + size * 0.3); // Names disabled in visual-only mode
           }
         }
+        
       }
 
       p.fill(100);

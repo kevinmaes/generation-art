@@ -88,6 +88,7 @@ export const calculateGeneration = (
     );
   });
 
+
   if (rootIndividuals.length === 0) return 0;
 
   // Simple approach: count generations from root

@@ -512,6 +512,7 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
   const enhancedIndividuals = enhanceIndividualMetadata(
     individuals,
     enhancedMetadata,
+    families,
   );
   const enhancedFamilies = enhanceFamilyMetadata(families, enhancedMetadata);
 
@@ -540,16 +541,17 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
 export const enhanceIndividualMetadata = (
   individuals: Individual[],
   treeMetadata: TreeMetadata,
+  families: Family[] = [],
 ): AugmentedIndividual[] => {
   return individuals.map((individual) => {
     // Get existing metadata
     const existingMetadata = extractIndividualMetadata(individual, {
       allIndividuals: individuals,
-      allFamilies: [], // Will be populated later
+      allFamilies: families,
     });
 
     // Calculate graph-based metadata
-    const generation = calculateGeneration(individual, individuals, []);
+    const generation = calculateGeneration(individual, individuals, families);
 
     // Calculate centrality (simplified - count of relationships)
     const centrality = treeMetadata.edges.filter(
