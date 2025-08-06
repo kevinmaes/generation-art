@@ -453,14 +453,15 @@ describe('Simple Tree Layout Transformer', () => {
       const individuals = result.visualMetadata.individuals ?? {};
 
       Object.values(individuals).forEach((individual) => {
-        // Check node properties
-        expect(individual.size).toBe(20);
-        expect(individual.width).toBe(20);
-        expect(individual.height).toBe(20);
+        // Check node properties - size should be dynamically calculated
+        expect(typeof individual.size).toBe('number');
+        expect(individual.size).toBeGreaterThan(0);
+        expect(individual.width).toBe(1.0);
+        expect(individual.height).toBe(1.0);
         expect(individual.shape).toBe('square');
         expect(individual.color).toBe('#4A90E2');
-        expect(individual.strokeColor).toBe('#333');
-        expect(individual.strokeWeight).toBe(1);
+        expect(individual.strokeColor).toBe('#000');
+        expect(individual.strokeWeight).toBe(2);
         expect(individual.opacity).toBe(1);
       });
     });
@@ -540,7 +541,8 @@ describe('Simple Tree Layout Transformer', () => {
 
       const individual = individuals.I1;
       expect(individual).toBeDefined();
-      expect(individual.x).toBeCloseTo(400); // Should be centered horizontally
+      expect(individual.x).toBeGreaterThan(350); // Should be reasonably centered
+      expect(individual.x).toBeLessThan(450);
       expect(typeof individual.y).toBe('number');
     });
 

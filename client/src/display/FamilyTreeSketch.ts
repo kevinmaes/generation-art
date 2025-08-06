@@ -285,16 +285,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
       // Draw nodes (individuals) using per-entity visual metadata
       if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
-        let renderedCount = 0;
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
           // Skip individuals that don't have visual metadata from transformers
-          if (!individualMetadata || individualMetadata.x === undefined || individualMetadata.y === undefined) {
+          if (!individualMetadata?.x || !individualMetadata?.y) {
             continue;
           }
-          
-          renderedCount++;
 
           // Only use visual metadata - no config fallbacks
           const x = individualMetadata.x;

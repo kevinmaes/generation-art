@@ -137,13 +137,6 @@ function calculateFamilyPositions(
     optimalNodeSize = Math.max(6, optimalNodeSize);
     totalNeededWidth = calculateNeededWidth(optimalNodeSize);
     
-    console.log('Scaled node size for generation:', {
-      originalSize: baseNodeSize,
-      optimalSize: optimalNodeSize,
-      originalWidth: calculateNeededWidth(baseNodeSize),
-      scaledWidth: totalNeededWidth,
-      availableWidth: totalWidth
-    });
   }
   
   // Calculate actual spacing with optimal node size
@@ -253,7 +246,23 @@ function calculateTreeLayout(
 
 
 
-  // Calculate Y positions based on generation structure
+  // First pass: Calculate optimal node size for ALL generations
+  let globalOptimalNodeSize = baseNodeSize;
+  
+  Object.entries(generationGroups).forEach(([, genIndividuals]) => {
+    const familyGroups = groupIndividualsByFamilies(genIndividuals, families);
+    const { optimalNodeSize } = calculateFamilyPositions(
+      familyGroups,
+      canvasWidth,
+      horizontalMargin,
+      baseNodeSize
+    );
+    
+    // Use the smallest optimal size across all generations
+    globalOptimalNodeSize = Math.min(globalOptimalNodeSize, optimalNodeSize);
+  });
+
+  // Second pass: Position all individuals using consistent node size
   Object.entries(generationGroups).forEach(([genStr, genIndividuals]) => {
     const generation = parseInt(genStr, 10);
 
@@ -266,23 +275,16 @@ function calculateTreeLayout(
     // Group individuals by families for better positioning
     const familyGroups = groupIndividualsByFamilies(genIndividuals, families);
     
-    // Debug logging for family distribution
-    console.log('Generation ' + generation + ':', {
-      individuals: genIndividuals.length,
-      families: familyGroups.length,
-      familySizes: familyGroups.map(f => f.length),
-      baseY
-    });
     
-    // Calculate family-aware horizontal positions with optimal node size
-    const { positions: familyPositions, optimalNodeSize } = calculateFamilyPositions(
+    // Calculate positions using global optimal node size
+    const { positions: familyPositions } = calculateFamilyPositions(
       familyGroups,
       canvasWidth,
       horizontalMargin,
-      baseNodeSize
+      globalOptimalNodeSize
     );
 
-    // Assign positions to individuals with optimal node size
+    // Assign positions to individuals with consistent node size
     familyPositions.forEach(({ individuals: familyMembers, startX, spacing }) => {
       familyMembers.forEach((individual, index) => {
         const x = startX + index * spacing;
@@ -290,7 +292,7 @@ function calculateTreeLayout(
         positions[individual.id] = { 
           x, 
           y, 
-          nodeSize: optimalNodeSize // Store optimal size per individual
+          nodeSize: globalOptimalNodeSize // Same size for all individuals
         };
       });
     });
