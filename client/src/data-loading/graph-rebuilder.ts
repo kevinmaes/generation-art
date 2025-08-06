@@ -404,6 +404,14 @@ export function rebuildGraphData(
 
     // Build graph data from the existing individuals and families
     const graphData = buildGraphData(data.individuals, data.families);
+    
+    console.log('🔧 Graph data rebuilt:', {
+      hasAdjacencyMaps: !!graphData.adjacencyMaps,
+      hasTraversalUtils: !!graphData.traversalUtils,
+      hasWalkerData: !!graphData.walkerData,
+      individualCount: Object.keys(data.individuals).length,
+      familyCount: Object.keys(data.families).length,
+    });
 
     // Return new object with graph data
     return {
