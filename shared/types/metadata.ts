@@ -348,10 +348,80 @@ export interface FamilyWithMetadata extends Family {
 }
 
 /**
- * Complete GEDCOM data with metadata
+ * Graph traversal utilities for efficient lookups
+ */
+export interface GraphTraversalUtils {
+  getParents(individualId: string): AugmentedIndividual[];
+  getChildren(individualId: string): AugmentedIndividual[];
+  getSpouses(individualId: string): AugmentedIndividual[];
+  getSiblings(individualId: string): AugmentedIndividual[];
+  getAncestors(individualId: string, maxLevels?: number): AugmentedIndividual[];
+  getDescendants(individualId: string, maxLevels?: number): AugmentedIndividual[];
+  getFamilyCluster(individualId: string): {
+    parents: AugmentedIndividual[];
+    spouses: AugmentedIndividual[];
+    children: AugmentedIndividual[];
+    siblings: AugmentedIndividual[];
+  };
+}
+
+/**
+ * Pre-computed adjacency maps for O(1) graph lookups
+ */
+export interface GraphAdjacencyMaps {
+  parentToChildren: Map<string, string[]>;
+  childToParents: Map<string, string[]>;
+  spouseToSpouse: Map<string, string[]>;
+  siblingGroups: Map<string, string[]>;
+  familyMembership: Map<string, string[]>; // Individual ID -> Family IDs they belong to
+}
+
+/**
+ * Walker's algorithm support data
+ */
+export interface WalkerTreeData {
+  // Pre-computed tree structure for Walker's algorithm
+  nodeHierarchy: Map<string, {
+    parent?: string;
+    children: string[];
+    leftSibling?: string;
+    rightSibling?: string;
+    depth: number;
+  }>;
+  
+  // Family clustering information
+  familyClusters: {
+    id: string;
+    parents: string[];
+    children: string[];
+    spouseOrder: string[];  // Order spouses should appear
+    generation: number;
+  }[];
+  
+  // Root nodes for tree traversal
+  rootNodes: string[];
+  
+  // Pre-computed generation levels
+  generationLevels: Map<number, string[]>;
+}
+
+/**
+ * Enhanced graph data for efficient traversal
+ */
+export interface GraphData {
+  adjacencyMaps: GraphAdjacencyMaps;
+  traversalUtils: GraphTraversalUtils;
+  walkerData: WalkerTreeData;
+}
+
+/**
+ * Complete GEDCOM data with metadata (backward compatible)
+ * Note: individuals and families are Record objects for efficient lookup
  */
 export interface GedcomDataWithMetadata {
-  individuals: AugmentedIndividual[];
-  families: FamilyWithMetadata[];
+  individuals: Record<string, AugmentedIndividual>;
+  families: Record<string, FamilyWithMetadata>;
   metadata: TreeMetadata;
+  // Optional graph data - added for enhanced performance
+  graph?: GraphData;
 }

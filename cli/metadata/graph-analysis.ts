@@ -115,6 +115,22 @@ export const calculateGeneration = (
     );
 
     for (const family of parentFamilies) {
+      // Ensure both spouses are in the same generation
+      if (family.husband && family.wife) {
+        const husbandGen = generationMap.get(family.husband.id);
+        const wifeGen = generationMap.get(family.wife.id);
+        
+        // If one spouse doesn't have a generation assigned yet, assign them the same as their spouse
+        if (husbandGen !== undefined && wifeGen === undefined) {
+          generationMap.set(family.wife.id, husbandGen);
+          visited.add(family.wife.id);
+        } else if (wifeGen !== undefined && husbandGen === undefined) {
+          generationMap.set(family.husband.id, wifeGen);
+          visited.add(family.husband.id);
+        }
+      }
+      
+      // Assign children to the next generation
       for (const child of family.children) {
         if (!visited.has(child.id)) {
           generationMap.set(child.id, currentGen + 1);

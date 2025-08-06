@@ -321,10 +321,45 @@ export const FamilyWithMetadataSchema = FamilySchema.extend({
   metadata: FamilyMetadataSchema,
 });
 
+// Graph data schemas
+export const GraphAdjacencyMapsSchema = z.object({
+  parentToChildren: z.map(z.string(), z.array(z.string())),
+  childToParents: z.map(z.string(), z.array(z.string())),
+  spouseToSpouse: z.map(z.string(), z.array(z.string())),
+  siblingGroups: z.map(z.string(), z.array(z.string())),
+  familyMembership: z.map(z.string(), z.array(z.string())),
+});
+
+export const WalkerTreeDataSchema = z.object({
+  nodeHierarchy: z.map(z.string(), z.object({
+    parent: z.string().optional(),
+    children: z.array(z.string()),
+    leftSibling: z.string().optional(),
+    rightSibling: z.string().optional(),
+    depth: z.number(),
+  })),
+  familyClusters: z.array(z.object({
+    id: z.string(),
+    parents: z.array(z.string()),
+    children: z.array(z.string()),
+    spouseOrder: z.array(z.string()),
+    generation: z.number(),
+  })),
+  rootNodes: z.array(z.string()),
+  generationLevels: z.map(z.number(), z.array(z.string())),
+});
+
+export const GraphDataSchema = z.object({
+  adjacencyMaps: GraphAdjacencyMapsSchema,
+  traversalUtils: z.any(), // Functions can't be properly validated with Zod
+  walkerData: WalkerTreeDataSchema,
+});
+
 export const GedcomDataWithMetadataSchema = z.object({
   individuals: z.record(z.string(), AugmentedIndividualSchema),
   families: z.record(z.string(), FamilyWithMetadataSchema),
   metadata: TreeMetadataSchema,
+  graph: GraphDataSchema.optional(), // Optional for backward compatibility
 });
 
 // Helper function to create default metadata

@@ -9,6 +9,7 @@ const mockGedcomData = {
     I0: {
       id: 'I0',
       name: 'Primary Individual',
+      gender: 'M' as const,
       parents: ['I1', 'I2'],
       spouses: [],
       children: ['I-1'],
@@ -24,6 +25,7 @@ const mockGedcomData = {
     I1: {
       id: 'I1',
       name: 'Father',
+      gender: 'M' as const,
       parents: ['I3', 'I4'],
       spouses: ['I2'],
       children: ['I0'],
@@ -38,6 +40,7 @@ const mockGedcomData = {
     I2: {
       id: 'I2',
       name: 'Mother',
+      gender: 'F' as const,
       parents: ['I5', 'I6'],
       spouses: ['I1'],
       children: ['I0'],
@@ -53,6 +56,7 @@ const mockGedcomData = {
     I3: {
       id: 'I3',
       name: 'Paternal Grandfather',
+      gender: 'M' as const,
       parents: [],
       spouses: ['I4'],
       children: ['I1'],
@@ -67,6 +71,7 @@ const mockGedcomData = {
     I4: {
       id: 'I4',
       name: 'Paternal Grandmother',
+      gender: 'F' as const,
       parents: [],
       spouses: ['I3'],
       children: ['I1'],
@@ -81,6 +86,7 @@ const mockGedcomData = {
     I5: {
       id: 'I5',
       name: 'Maternal Grandfather',
+      gender: 'M' as const,
       parents: [],
       spouses: ['I6'],
       children: ['I2'],
@@ -95,6 +101,7 @@ const mockGedcomData = {
     I6: {
       id: 'I6',
       name: 'Maternal Grandmother',
+      gender: 'F' as const,
       parents: [],
       spouses: ['I5'],
       children: ['I2'],
@@ -110,6 +117,7 @@ const mockGedcomData = {
     'I-1': {
       id: 'I-1',
       name: 'Child',
+      gender: 'F' as const,
       parents: ['I0'],
       spouses: [],
       children: [],
@@ -132,6 +140,7 @@ const mockGedcomData = {
       husband: {
         id: 'I1',
         name: 'Father',
+        gender: 'M' as const,
         parents: [],
         spouses: [],
         children: [],
@@ -140,6 +149,7 @@ const mockGedcomData = {
       wife: {
         id: 'I2',
         name: 'Mother',
+        gender: 'F' as const,
         parents: [],
         spouses: [],
         children: [],
@@ -304,19 +314,32 @@ const mockGedcomData = {
           sameDeathCountry: true,
         },
       },
+      {
+        id: 'E4',
+        sourceId: 'I1',
+        targetId: 'I2',
+        relationshipType: 'spouse' as const,
+        metadata: {
+          relationshipStrength: 1.0,
+          isDirectRelationship: true,
+          familySize: 3,
+          sameBirthCountry: true,
+          sameDeathCountry: true,
+        },
+      },
     ],
     edgeAnalysis: {
-      totalEdges: 3,
+      totalEdges: 4,
       parentChildEdges: 3,
-      spouseEdges: 0,
+      spouseEdges: 1,
       siblingEdges: 0,
       averageEdgeWeight: 1,
-      edgeWeightDistribution: { '1.0': 3 },
-      strongRelationships: 3,
+      edgeWeightDistribution: { '1.0': 4 },
+      strongRelationships: 4,
       weakRelationships: 0,
       averageRelationshipDuration: 30,
-      relationshipDurationDistribution: { '30': 3 },
-      sameCountryRelationships: 3,
+      relationshipDurationDistribution: { '30': 4 },
+      sameCountryRelationships: 4,
       crossCountryRelationships: 0,
       averageDistanceBetweenSpouses: 0,
     },
@@ -459,8 +482,10 @@ describe('Simple Tree Layout Transformer', () => {
         expect(individual.width).toBe(1.0);
         expect(individual.height).toBe(1.0);
         expect(individual.shape).toBe('square');
-        expect(individual.color).toBe('#4A90E2');
-        expect(individual.strokeColor).toBe('#000');
+        // Color should be gender-based: blue (#4A90E2) for male, pink (#FF69B4) for female
+        expect(['#4A90E2', '#FF69B4', '#9E9E9E']).toContain(individual.color);
+        // Stroke color should be either black or a random couple color
+        expect(typeof individual.strokeColor).toBe('string');
         expect(individual.strokeWeight).toBe(2);
         expect(individual.opacity).toBe(1);
       });
@@ -480,12 +505,41 @@ describe('Simple Tree Layout Transformer', () => {
       const edges = result.visualMetadata.edges ?? {};
 
       // Should have edges for all relationships in metadata
-      expect(Object.keys(edges)).toHaveLength(3);
+      expect(Object.keys(edges)).toHaveLength(4);
 
-      Object.values(edges).forEach((edge) => {
-        // Check edge properties
+      // Check that we have both parent-child and spousal edges with different styling
+      const parentChildEdges = Object.entries(edges).filter(([edgeId]) => {
+        const edge = mockGedcomData.metadata.edges.find(e => e.id === edgeId);
+        return edge?.relationshipType === 'parent-child';
+      });
+      const spouseEdges = Object.entries(edges).filter(([edgeId]) => {
+        const edge = mockGedcomData.metadata.edges.find(e => e.id === edgeId);
+        return edge?.relationshipType === 'spouse';
+      });
+
+      expect(parentChildEdges).toHaveLength(3);
+      expect(spouseEdges).toHaveLength(1);
+
+      // Check parent-child edges have standard styling
+      parentChildEdges.forEach(([, edge]) => {
         expect(edge.strokeColor).toBe('#666');
         expect(edge.strokeWeight).toBe(1);
+        expect(edge.strokeStyle).toBe('solid');
+        expect(edge.opacity).toBe(0.8);
+        expect(edge.curveType).toBe('straight');
+
+        // Should have custom source/target positions
+        expect(edge.custom).toBeDefined();
+        expect(edge.custom).toHaveProperty('sourceX');
+        expect(edge.custom).toHaveProperty('sourceY');
+        expect(edge.custom).toHaveProperty('targetX');
+        expect(edge.custom).toHaveProperty('targetY');
+      });
+
+      // Check spousal edges have thicker styling
+      spouseEdges.forEach(([, edge]) => {
+        expect(edge.strokeColor).toBe('#333');
+        expect(edge.strokeWeight).toBe(4); // Thicker for couples
         expect(edge.strokeStyle).toBe('solid');
         expect(edge.opacity).toBe(0.8);
         expect(edge.curveType).toBe('straight');
@@ -508,6 +562,7 @@ describe('Simple Tree Layout Transformer', () => {
           I1: {
             id: 'I1',
             name: 'Only Individual',
+            gender: 'M' as const,
             parents: [],
             spouses: [],
             children: [],
@@ -553,6 +608,7 @@ describe('Simple Tree Layout Transformer', () => {
           I1: {
             id: 'I1',
             name: 'Individual 1',
+            gender: 'M' as const,
             parents: [],
             spouses: [],
             children: [],
@@ -562,6 +618,7 @@ describe('Simple Tree Layout Transformer', () => {
           I2: {
             id: 'I2',
             name: 'Individual 2',
+            gender: 'F' as const,
             parents: [],
             spouses: [],
             children: [],
@@ -571,6 +628,7 @@ describe('Simple Tree Layout Transformer', () => {
           I3: {
             id: 'I3',
             name: 'Individual 3',
+            gender: 'M' as const,
             parents: [],
             spouses: [],
             children: [],
@@ -679,6 +737,7 @@ describe('Simple Tree Layout Transformer', () => {
           I1: {
             id: 'I1',
             name: 'Individual without generation',
+            gender: 'F' as const,
             parents: [],
             spouses: [],
             children: [],
@@ -772,8 +831,8 @@ describe('Simple Tree Layout Transformer', () => {
       // Should preserve existing custom property
       expect(individuals.I0.custom).toEqual({ existingProperty: 'test' });
 
-      // Should override color but preserve custom
-      expect(individuals.I0.color).toBe('#4A90E2'); // New color
+      // Should override color based on gender but preserve custom
+      expect(individuals.I0.color).toBe('#4A90E2'); // Blue for male I0
     });
   });
 });

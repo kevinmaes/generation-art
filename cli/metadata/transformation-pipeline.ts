@@ -29,6 +29,7 @@ import {
   generateTreeSummary,
   calculateGeneration,
 } from './graph-analysis';
+import { buildGraphData } from './graph-utilities';
 
 /**
  * PII Masking utilities - pure functions
@@ -527,11 +528,15 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     familiesById[family.id] = family;
   });
 
-  // 6. Return enhanced data structure with ID-keyed objects
+  // 6. Build enhanced graph data for efficient traversals
+  const graphData = buildGraphData(individualsById, familiesById);
+
+  // 7. Return enhanced data structure with ID-keyed objects and graph data
   return {
     individuals: individualsById,
     families: familiesById,
     metadata: enhancedMetadata,
+    graph: graphData,
   } as GedcomDataWithMetadata;
 };
 

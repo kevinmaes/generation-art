@@ -12,7 +12,7 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from './types';
-import type { AugmentedIndividual, Family } from '../../../shared/types';
+import type { AugmentedIndividual, Family, GraphTraversalUtils } from '../../../shared/types';
 import { createTransformerInstance } from './utils';
 
 /**
@@ -36,51 +36,77 @@ export const simpleTreeConfig: VisualTransformerConfig = {
 
 /**
  * Group individuals within a generation by their family relationships
+ * Uses enhanced graph data if available for O(1) lookups
  */
 function groupIndividualsByFamilies(
   individuals: AugmentedIndividual[],
-  families: Family[]
+  families: Family[],
+  context?: TransformerContext
 ): AugmentedIndividual[][] {
   const familyGroups: AugmentedIndividual[][] = [];
   const processed = new Set<string>();
 
+  // Use enhanced graph data if available for O(1) lookups
+  const graphData = context?.gedcomData?.graph;
+  const useEnhancedGraph = graphData?.traversalUtils != null;
+
   individuals.forEach((individual) => {
     if (processed.has(individual.id)) return;
 
-    // Find family where this person is a spouse
-    const spouseFamily = families.find(
-      (family) => 
-        family.husband?.id === individual.id || 
-        family.wife?.id === individual.id
-    );
-
-    if (spouseFamily) {
-      // Group spouses together
-      const familyMembers: AugmentedIndividual[] = [];
-      
-      if (spouseFamily.husband && !processed.has(spouseFamily.husband.id)) {
-        const husband = individuals.find(ind => ind.id === spouseFamily.husband?.id);
-        if (husband) {
-          familyMembers.push(husband);
-          processed.add(husband.id);
-        }
-      }
-      
-      if (spouseFamily.wife && !processed.has(spouseFamily.wife.id)) {
-        const wife = individuals.find(ind => ind.id === spouseFamily.wife?.id);
-        if (wife) {
-          familyMembers.push(wife);
-          processed.add(wife.id);
-        }
-      }
-
-      if (familyMembers.length > 0) {
-        familyGroups.push(familyMembers);
-      }
-    } else {
-      // Single individual not in a spousal relationship in this generation
-      familyGroups.push([individual]);
+    if (useEnhancedGraph && graphData?.traversalUtils) {
+      // Use enhanced graph data for O(1) spouse lookup
+      const spouses = (graphData.traversalUtils as GraphTraversalUtils).getSpouses(individual.id);
+      const familyMembers: AugmentedIndividual[] = [individual];
       processed.add(individual.id);
+
+      // Add spouses that are in the current individuals list and not yet processed
+      spouses.forEach((spouse: AugmentedIndividual) => {
+        if (!processed.has(spouse.id)) {
+          const spouseInCurrentGeneration = individuals.find(ind => ind.id === spouse.id);
+          if (spouseInCurrentGeneration) {
+            familyMembers.push(spouseInCurrentGeneration);
+            processed.add(spouse.id);
+          }
+        }
+      });
+
+      familyGroups.push(familyMembers);
+    } else {
+      // Fallback to original family-based lookup
+      const spouseFamily = families.find(
+        (family) => 
+          family.husband?.id === individual.id || 
+          family.wife?.id === individual.id
+      );
+
+      if (spouseFamily) {
+        // Group spouses together
+        const familyMembers: AugmentedIndividual[] = [];
+        
+        if (spouseFamily.husband && !processed.has(spouseFamily.husband.id)) {
+          const husband = individuals.find(ind => ind.id === spouseFamily.husband?.id);
+          if (husband) {
+            familyMembers.push(husband);
+            processed.add(husband.id);
+          }
+        }
+        
+        if (spouseFamily.wife && !processed.has(spouseFamily.wife.id)) {
+          const wife = individuals.find(ind => ind.id === spouseFamily.wife?.id);
+          if (wife) {
+            familyMembers.push(wife);
+            processed.add(wife.id);
+          }
+        }
+
+        if (familyMembers.length > 0) {
+          familyGroups.push(familyMembers);
+        }
+      } else {
+        // Single individual not in a spousal relationship in this generation
+        familyGroups.push([individual]);
+        processed.add(individual.id);
+      }
     }
   });
 
@@ -170,6 +196,110 @@ function calculateFamilyPositions(
 }
 
 
+
+/**
+ * Get gender-based color for individuals
+ */
+function getGenderColor(individual: AugmentedIndividual): string {
+  switch (individual.gender) {
+    case 'M':
+      return '#4A90E2'; // Blue for males
+    case 'F':
+      return '#FF69B4'; // Pink for females
+    default:
+      return '#9E9E9E'; // Gray for unknown gender
+  }
+}
+
+/**
+ * Position children underneath their parents based on family relationships
+ */
+function positionChildrenUnderParents(
+  genIndividuals: AugmentedIndividual[],
+  families: Family[],
+  positions: Record<string, { x: number; y: number; nodeSize: number }>,
+  baseY: number,
+  nodeSize: number,
+  canvasWidth: number,
+  horizontalMargin: number,
+): void {
+  // Group individuals by their parent families
+  const childrenByFamily: Record<string, AugmentedIndividual[]> = {};
+  
+  // Find families where these individuals are children
+  genIndividuals.forEach((individual) => {
+    const parentFamily = families.find((family) =>
+      family.children.some((child) => child.id === individual.id)
+    );
+    
+    if (parentFamily) {
+      if (!childrenByFamily[parentFamily.id]) {
+        childrenByFamily[parentFamily.id] = [];
+      }
+      childrenByFamily[parentFamily.id].push(individual);
+    } else {
+      // If no parent family found, treat as orphan - position using fallback
+      const fallbackX = horizontalMargin + (Math.random() * (canvasWidth - horizontalMargin * 2));
+      positions[individual.id] = { x: fallbackX, y: baseY, nodeSize };
+    }
+  });
+
+  // Position children under their parents
+  Object.entries(childrenByFamily).forEach(([familyId, children]) => {
+    const family = families.find(f => f.id === familyId);
+    if (!family) return;
+
+    // Find parent positions
+    const parentPositions: { x: number; y: number }[] = [];
+    
+    if (family.husband && positions[family.husband.id]) {
+      parentPositions.push(positions[family.husband.id]);
+    }
+    if (family.wife && positions[family.wife.id]) {
+      parentPositions.push(positions[family.wife.id]);
+    }
+
+    if (parentPositions.length === 0) {
+      // No parents positioned yet, use fallback
+      children.forEach((child, index) => {
+        const fallbackX = horizontalMargin + (index + 1) * ((canvasWidth - horizontalMargin * 2) / (children.length + 1));
+        positions[child.id] = { x: fallbackX, y: baseY, nodeSize };
+      });
+      return;
+    }
+
+    // Calculate center point of parents
+    const parentCenterX = parentPositions.reduce((sum, pos) => sum + pos.x, 0) / parentPositions.length;
+    
+    // Position children centered under parents with sibling spacing
+    const siblingSpacing = nodeSize * 1.3; // Small gap between siblings
+    const totalChildrenWidth = (children.length - 1) * siblingSpacing + nodeSize;
+    
+    // Check if children fit under parents, otherwise spread them out more
+    const availableWidth = canvasWidth - horizontalMargin * 2;
+    let actualSpacing = siblingSpacing;
+    
+    if (totalChildrenWidth > availableWidth * 0.8) {
+      // If too crowded, use wider spacing
+      actualSpacing = Math.min(siblingSpacing * 2, (availableWidth * 0.8) / Math.max(1, children.length - 1));
+    }
+    
+    const actualTotalWidth = (children.length - 1) * actualSpacing;
+    const startX = parentCenterX - actualTotalWidth / 2;
+    
+    // Ensure children don't go off canvas
+    const clampedStartX = Math.max(
+      horizontalMargin + nodeSize / 2,
+      Math.min(startX, canvasWidth - horizontalMargin - actualTotalWidth - nodeSize / 2)
+    );
+
+    children.forEach((child, index) => {
+      const x = clampedStartX + index * actualSpacing;
+      positions[child.id] = { x, y: baseY, nodeSize };
+    });
+  });
+}
+
 /**
  * Calculate tree layout positions for all individuals
  */
@@ -250,7 +380,7 @@ function calculateTreeLayout(
   let globalOptimalNodeSize = baseNodeSize;
   
   Object.entries(generationGroups).forEach(([, genIndividuals]) => {
-    const familyGroups = groupIndividualsByFamilies(genIndividuals, families);
+    const familyGroups = groupIndividualsByFamilies(genIndividuals, families, context);
     const { optimalNodeSize } = calculateFamilyPositions(
       familyGroups,
       canvasWidth,
@@ -262,40 +392,52 @@ function calculateTreeLayout(
     globalOptimalNodeSize = Math.min(globalOptimalNodeSize, optimalNodeSize);
   });
 
-  // Second pass: Position all individuals using consistent node size
-  Object.entries(generationGroups).forEach(([genStr, genIndividuals]) => {
-    const generation = parseInt(genStr, 10);
+  // Second pass: Position all individuals using parent-child alignment
+  // Sort generations from highest (ancestors) to lowest (descendants)  
+  const orderedGenerations = Object.keys(generationGroups)
+    .map(Number)
+    .sort((a, b) => b - a); // Highest generation first (ancestors)
 
-    // Position from top to bottom: highest generation (grandparents) at top,
-    // lowest generation (descendants) at bottom
-    // Invert the index since higher generation numbers should be at the top
+  orderedGenerations.forEach((generation) => {
+    const genIndividuals = generationGroups[generation];
     const generationIndex = maxGeneration - generation;
     const baseY = verticalMargin + generationIndex * verticalSpacing;
 
-    // Group individuals by families for better positioning
-    const familyGroups = groupIndividualsByFamilies(genIndividuals, families);
+    // Group individuals by families for positioning
+    const familyGroups = groupIndividualsByFamilies(genIndividuals, families, context);
     
-    
-    // Calculate positions using global optimal node size
-    const { positions: familyPositions } = calculateFamilyPositions(
-      familyGroups,
-      canvasWidth,
-      horizontalMargin,
-      globalOptimalNodeSize
-    );
+    // Position each family group
+    if (generation === maxGeneration) {
+      // For root generation (highest), use standard family positioning
+      const { positions: familyPositions } = calculateFamilyPositions(
+        familyGroups,
+        canvasWidth,
+        horizontalMargin,
+        globalOptimalNodeSize
+      );
 
-    // Assign positions to individuals with consistent node size
-    familyPositions.forEach(({ individuals: familyMembers, startX, spacing }) => {
-      familyMembers.forEach((individual, index) => {
-        const x = startX + index * spacing;
-        const y = baseY;
-        positions[individual.id] = { 
-          x, 
-          y, 
-          nodeSize: globalOptimalNodeSize // Same size for all individuals
-        };
+      familyPositions.forEach(({ individuals: familyMembers, startX, spacing }) => {
+        familyMembers.forEach((individual, index) => {
+          const x = startX + index * spacing;
+          positions[individual.id] = { 
+            x, 
+            y: baseY, 
+            nodeSize: globalOptimalNodeSize 
+          };
+        });
       });
-    });
+    } else {
+      // For child generations, position underneath their parents
+      positionChildrenUnderParents(
+        genIndividuals,
+        families,
+        positions,
+        baseY,
+        globalOptimalNodeSize,
+        canvasWidth,
+        horizontalMargin
+      );
+    }
   });
 
   return positions;
@@ -328,6 +470,7 @@ export async function simpleTreeTransform(
   // Calculate positions for all individuals
   const positions = calculateTreeLayout(context, nodeSize);
 
+
   // Create updated individual visual metadata
   const updatedIndividuals: Record<string, VisualMetadata> = {};
 
@@ -344,15 +487,13 @@ export async function simpleTreeTransform(
         width: 1.0,
         height: 1.0,
         shape: 'square' as const,
-        color: '#4A90E2',
-        strokeColor: '#000',
+        color: getGenderColor(individual), // Blue for male, pink for female
+        strokeColor: '#000', // Black stroke for all individuals
         strokeWeight: 2,
         opacity: 1,
       };
       
       updatedIndividuals[individual.id] = visualData;
-      
-      
     }
   });
   
@@ -371,12 +512,16 @@ export async function simpleTreeTransform(
 
       const currentEdgeMetadata = visualMetadata.edges[edge.id] ?? {};
 
+      // Make spousal edges much thicker to show couples clearly
+      const strokeWeight = edge.relationshipType === 'spouse' ? 4 : 1;
+      const strokeColor = edge.relationshipType === 'spouse' ? '#333' : '#666';
+      
       updatedEdges[edge.id] = {
         ...currentEdgeMetadata,
         x: edgeX,
         y: edgeY,
-        strokeColor: '#666',
-        strokeWeight: 1,
+        strokeColor,
+        strokeWeight,
         strokeStyle: 'solid' as const,
         opacity: 0.8,
         curveType: 'straight' as const,
