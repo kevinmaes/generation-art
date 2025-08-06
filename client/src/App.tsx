@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './display/components/FramedArtwork';
 import { PipelinePanel } from './display/components/pipeline-ui/PipelinePanel';
 import { ErrorBoundary } from './display/components/ErrorBoundary';
@@ -93,20 +94,13 @@ function App(): React.ReactElement {
   }, [currentView, dualData]);
 
   // Handle keyboard shortcut for pipeline modal
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Handle Cmd+D or Ctrl+D
-      if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
-        event.preventDefault(); // Prevent browser bookmark
-        setIsPipelineModalOpen((prev) => !prev);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  useEventListener('keydown', (event) => {
+    // Handle Cmd+D or Ctrl+D
+    if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
+      event.preventDefault(); // Prevent browser bookmark
+      setIsPipelineModalOpen((prev) => !prev);
+    }
+  });
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,

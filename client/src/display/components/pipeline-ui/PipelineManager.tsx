@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useResizeObserver } from 'usehooks-ts';
 import ReactJson from 'react-json-view';
 import type { PipelineResult } from '../../../transformers/types';
 import { createInitialCompleteVisualMetadata } from '../../../transformers/pipeline';
@@ -254,8 +255,19 @@ export function PipelineManager({
   // Calculate responsive layout breakpoint
   const containerRef = React.useRef<HTMLDivElement>(null);
   const columnRef = React.useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = React.useState(0);
-  const [columnHeight, setColumnHeight] = React.useState(600);
+
+  // Use useResizeObserver for container and column dimensions
+  const containerSize = useResizeObserver({
+    ref: containerRef as React.RefObject<HTMLElement>,
+    box: 'border-box',
+  });
+  const columnSize = useResizeObserver({
+    ref: columnRef as React.RefObject<HTMLElement>,
+    box: 'border-box',
+  });
+
+  const containerWidth = containerSize.width ?? 0;
+  const columnHeight = columnSize.height ?? 600;
 
   // Calculate the minimum width needed for 2 columns
   const maxAccordionWidth = Math.max(
@@ -314,31 +326,6 @@ export function PipelineManager({
 
     return 200; // Fallback
   };
-
-  React.useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
-      if (columnRef.current) {
-        setColumnHeight(columnRef.current.offsetHeight);
-      }
-    };
-
-    updateDimensions();
-
-    const resizeObserver = new ResizeObserver(updateDimensions);
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-    if (columnRef.current) {
-      resizeObserver.observe(columnRef.current);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
 
   return (
     <div ref={containerRef} className="h-full flex flex-col bg-white p-6">
