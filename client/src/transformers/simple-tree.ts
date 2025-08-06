@@ -12,7 +12,7 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from './types';
-import type { AugmentedIndividual } from '../../../shared/types';
+import type { AugmentedIndividual, Family } from '../../../shared/types';
 import { createTransformerInstance } from './utils';
 
 /**
@@ -35,16 +35,160 @@ export const simpleTreeConfig: VisualTransformerConfig = {
 };
 
 /**
+ * Group individuals within a generation by their family relationships
+ */
+function groupIndividualsByFamilies(
+  individuals: AugmentedIndividual[],
+  families: Family[]
+): AugmentedIndividual[][] {
+  const familyGroups: AugmentedIndividual[][] = [];
+  const processed = new Set<string>();
+
+  individuals.forEach((individual) => {
+    if (processed.has(individual.id)) return;
+
+    // Find family where this person is a spouse
+    const spouseFamily = families.find(
+      (family) => 
+        family.husband?.id === individual.id || 
+        family.wife?.id === individual.id
+    );
+
+    if (spouseFamily) {
+      // Group spouses together
+      const familyMembers: AugmentedIndividual[] = [];
+      
+      if (spouseFamily.husband && !processed.has(spouseFamily.husband.id)) {
+        const husband = individuals.find(ind => ind.id === spouseFamily.husband?.id);
+        if (husband) {
+          familyMembers.push(husband);
+          processed.add(husband.id);
+        }
+      }
+      
+      if (spouseFamily.wife && !processed.has(spouseFamily.wife.id)) {
+        const wife = individuals.find(ind => ind.id === spouseFamily.wife?.id);
+        if (wife) {
+          familyMembers.push(wife);
+          processed.add(wife.id);
+        }
+      }
+
+      if (familyMembers.length > 0) {
+        familyGroups.push(familyMembers);
+      }
+    } else {
+      // Single individual not in a spousal relationship in this generation
+      familyGroups.push([individual]);
+      processed.add(individual.id);
+    }
+  });
+
+  return familyGroups;
+}
+
+/**
+ * Calculate horizontal positions for family groups with appropriate spacing
+ * Returns both positioning data and the optimal node size for this generation
+ */
+function calculateFamilyPositions(
+  familyGroups: AugmentedIndividual[][],
+  canvasWidth: number,
+  horizontalMargin: number,
+  baseNodeSize: number
+): { positions: { individuals: AugmentedIndividual[]; startX: number; spacing: number }[]; optimalNodeSize: number } {
+  const results: { individuals: AugmentedIndividual[]; startX: number; spacing: number }[] = [];
+  
+  if (familyGroups.length === 0) return { positions: results, optimalNodeSize: baseNodeSize };
+
+  const totalWidth = canvasWidth - horizontalMargin * 2;
+  
+  // Calculate ideal spacing ratios (will scale with node size)
+  const spouseSpacingRatio = 1.3; // Small gap between spouses
+  const familySpacingRatio = 3.0; // Larger gap between families
+  
+  // Calculate total width needed with base node size
+  function calculateNeededWidth(nodeSize: number): number {
+    const spouseSpacing = nodeSize * spouseSpacingRatio;
+    const familySpacing = nodeSize * familySpacingRatio;
+    
+    let totalNeeded = 0;
+    familyGroups.forEach((family, index) => {
+      if (family.length > 1) {
+        totalNeeded += (family.length - 1) * spouseSpacing + nodeSize;
+      } else {
+        totalNeeded += nodeSize;
+      }
+      if (index < familyGroups.length - 1) {
+        totalNeeded += familySpacing;
+      }
+    });
+    return totalNeeded;
+  }
+  
+  // Find optimal node size that fits everything
+  let optimalNodeSize = baseNodeSize;
+  let totalNeededWidth = calculateNeededWidth(optimalNodeSize);
+  
+  if (totalNeededWidth > totalWidth) {
+    // Scale down node size to fit
+    optimalNodeSize = (totalWidth * baseNodeSize) / totalNeededWidth;
+    // Set minimum node size to keep things readable
+    optimalNodeSize = Math.max(6, optimalNodeSize);
+    totalNeededWidth = calculateNeededWidth(optimalNodeSize);
+    
+    console.log('Scaled node size for generation:', {
+      originalSize: baseNodeSize,
+      optimalSize: optimalNodeSize,
+      originalWidth: calculateNeededWidth(baseNodeSize),
+      scaledWidth: totalNeededWidth,
+      availableWidth: totalWidth
+    });
+  }
+  
+  // Calculate actual spacing with optimal node size
+  const actualSpouseSpacing = optimalNodeSize * spouseSpacingRatio;
+  const actualFamilySpacing = optimalNodeSize * familySpacingRatio;
+
+  // Center the entire group
+  const startX = horizontalMargin + (totalWidth - totalNeededWidth) / 2;
+  let currentX = startX;
+
+  familyGroups.forEach((family, familyIndex) => {
+    results.push({
+      individuals: family,
+      startX: currentX,
+      spacing: actualSpouseSpacing
+    });
+
+    // Move to next family position
+    if (family.length > 1) {
+      currentX += (family.length - 1) * actualSpouseSpacing + optimalNodeSize;
+    } else {
+      currentX += optimalNodeSize;
+    }
+    
+    if (familyIndex < familyGroups.length - 1) {
+      currentX += actualFamilySpacing;
+    }
+  });
+
+  return { positions: results, optimalNodeSize };
+}
+
+
+/**
  * Calculate tree layout positions for all individuals
  */
 function calculateTreeLayout(
   context: TransformerContext,
-  nodeSize: number,
-): Record<string, { x: number; y: number }> {
+  baseNodeSize: number,
+): Record<string, { x: number; y: number; nodeSize: number }> {
   const { gedcomData, visualMetadata } = context;
+  const families = Object.values(gedcomData.families);
   const canvasWidth = visualMetadata.global.canvasWidth ?? 800;
   const canvasHeight = visualMetadata.global.canvasHeight ?? 600;
-  const positions: Record<string, { x: number; y: number }> = {};
+  const positions: Record<string, { x: number; y: number; nodeSize: number }> = {};
 
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual) => individual !== null && individual !== undefined,
@@ -119,43 +263,36 @@ function calculateTreeLayout(
     const generationIndex = maxGeneration - generation;
     const baseY = verticalMargin + generationIndex * verticalSpacing;
 
-    // Calculate horizontal positions - center the generation on canvas
-    const generationSize = genIndividuals.length;
-    const nodeWidth = nodeSize; // Size of the nodes (matches nodeSize)
-    const minSpacing = nodeWidth * 1.2; // Minimum spacing between nodes
-    const totalWidth = canvasWidth - horizontalMargin * 2;
+    // Group individuals by families for better positioning
+    const familyGroups = groupIndividualsByFamilies(genIndividuals, families);
     
-    let horizontalSpacing: number;
-    let startX: number;
+    // Debug logging for family distribution
+    console.log('Generation ' + generation + ':', {
+      individuals: genIndividuals.length,
+      families: familyGroups.length,
+      familySizes: familyGroups.map(f => f.length),
+      baseY
+    });
     
-    if (generationSize === 1) {
-      // Single node - center it
-      startX = canvasWidth / 2;
-      horizontalSpacing = 0;
-    } else {
-      // Multiple nodes - calculate spacing that fits on canvas
-      const maxPossibleSpacing = totalWidth / (generationSize - 1);
-      horizontalSpacing = Math.min(maxPossibleSpacing, minSpacing);
-      
-      // If nodes don't fit with minimum spacing, use maximum available width
-      if (horizontalSpacing < minSpacing) {
-        horizontalSpacing = totalWidth / Math.max(1, generationSize - 1);
-      }
-      
-      // Center the group
-      const groupWidth = horizontalSpacing * Math.max(0, generationSize - 1);
-      startX = horizontalMargin + (totalWidth - groupWidth) / 2;
-      
-      // Ensure startX is never negative
-      startX = Math.max(horizontalMargin, startX);
-    }
+    // Calculate family-aware horizontal positions with optimal node size
+    const { positions: familyPositions, optimalNodeSize } = calculateFamilyPositions(
+      familyGroups,
+      canvasWidth,
+      horizontalMargin,
+      baseNodeSize
+    );
 
-
-    genIndividuals.forEach((individual, index) => {
-      const x = startX + index * horizontalSpacing;
-      const y = baseY;
-
-      positions[individual.id] = { x, y };
+    // Assign positions to individuals with optimal node size
+    familyPositions.forEach(({ individuals: familyMembers, startX, spacing }) => {
+      familyMembers.forEach((individual, index) => {
+        const x = startX + index * spacing;
+        const y = baseY;
+        positions[individual.id] = { 
+          x, 
+          y, 
+          nodeSize: optimalNodeSize // Store optimal size per individual
+        };
+      });
     });
   });
 
@@ -201,7 +338,7 @@ export async function simpleTreeTransform(
         ...currentMetadata,
         x: position.x,
         y: position.y,
-        size: nodeSize,
+        size: position.nodeSize, // Use optimal size per individual
         width: 1.0,
         height: 1.0,
         shape: 'square' as const,
