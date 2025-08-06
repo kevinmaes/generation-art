@@ -1182,6 +1182,7 @@ async function fallbackLayout(
   individuals: AugmentedIndividual[],
   config: LayoutConfig,
   gedcomData: {
+    families?: Record<string, any>;
     metadata: {
       edges: {
         id: string;
@@ -1282,44 +1283,179 @@ async function fallbackLayout(
     availableWidth,
   });
 
-  // Calculate positions by generation with proper tree layout
+  // Build family groups within each generation using edges
+  const familyGroups: Record<number, AugmentedIndividual[][]> = {};
+
   Object.entries(generationGroups).forEach(([genStr, genIndividuals]) => {
     const generation = parseInt(genStr);
+    const genFamilies: AugmentedIndividual[][] = [];
+    const processed = new Set<string>();
+
+    // Try to group by spouse relationships first
+    genIndividuals.forEach((individual) => {
+      if (processed.has(individual.id)) return;
+
+      const familyGroup: AugmentedIndividual[] = [individual];
+      processed.add(individual.id);
+
+      // Find spouses in the same generation
+      const spouseEdges = gedcomData.metadata.edges.filter(
+        (edge) =>
+          edge.relationshipType === 'spouse' &&
+          (edge.sourceId === individual.id || edge.targetId === individual.id),
+      );
+
+      spouseEdges.forEach((edge) => {
+        const spouseId =
+          edge.sourceId === individual.id ? edge.targetId : edge.sourceId;
+        const spouse = genIndividuals.find((ind) => ind.id === spouseId);
+        if (spouse && !processed.has(spouse.id)) {
+          familyGroup.push(spouse);
+          processed.add(spouse.id);
+        }
+      });
+
+      // Add siblings who are not yet processed
+      individual.siblings?.forEach((siblingId) => {
+        const sibling = genIndividuals.find((ind) => ind.id === siblingId);
+        if (sibling && !processed.has(sibling.id)) {
+          familyGroup.push(sibling);
+          processed.add(sibling.id);
+        }
+      });
+
+      genFamilies.push(familyGroup);
+    });
+
+    familyGroups[generation] = genFamilies;
+  });
+
+  console.log(
+    'Family groups per generation:',
+    Object.entries(familyGroups).map(([gen, families]) => ({
+      generation: gen,
+      familyCount: families.length,
+      familySizes: families.map((f) => f.length),
+    })),
+  );
+
+  // Calculate positions by generation with family clustering
+  Object.entries(familyGroups).forEach(([genStr, genFamilies]) => {
+    const generation = parseInt(genStr);
     const generationIndex = generation - minGeneration;
+    const allIndividuals = genFamilies.flat();
 
     // Handle very large generations by creating multiple rows
     const maxNodesPerRow = Math.floor(availableWidth / (nodeSize + minSpacing));
-    const needsMultipleRows = genIndividuals.length > maxNodesPerRow;
+    const needsMultipleRows = allIndividuals.length > maxNodesPerRow;
 
     if (needsMultipleRows) {
-      // Split into multiple rows
-      const numRows = Math.ceil(genIndividuals.length / maxNodesPerRow);
-      const nodesPerRow = Math.ceil(genIndividuals.length / numRows);
+      // Split families across multiple rows, keeping families together
+      const familiesPerRow: AugmentedIndividual[][][] = [[]];
+      let currentRowWidth = 0;
+      let currentRow = 0;
+
+      genFamilies.forEach((family) => {
+        const familyWidth =
+          family.length * (nodeSize + minSpacing) + config.familySpacing;
+
+        if (
+          currentRowWidth + familyWidth > availableWidth &&
+          familiesPerRow[currentRow].length > 0
+        ) {
+          currentRow++;
+          familiesPerRow[currentRow] = [];
+          currentRowWidth = 0;
+        }
+
+        familiesPerRow[currentRow].push(family);
+        currentRowWidth += familyWidth;
+      });
 
       console.log(
-        `Generation ${String(generation)} needs ${String(numRows)} rows:`,
+        `Generation ${String(generation)} needs ${String(familiesPerRow.length)} rows:`,
         {
-          totalNodes: genIndividuals.length,
-          maxNodesPerRow,
-          nodesPerRow,
+          totalNodes: allIndividuals.length,
+          totalFamilies: genFamilies.length,
+          rowDistribution: familiesPerRow.map((r) => r.map((f) => f.length)),
         },
       );
 
-      for (let row = 0; row < numRows; row++) {
-        const rowStart = row * nodesPerRow;
-        const rowEnd = Math.min(rowStart + nodesPerRow, genIndividuals.length);
-        const rowIndividuals = genIndividuals.slice(rowStart, rowEnd);
+      for (let row = 0; row < familiesPerRow.length; row++) {
+        const rowFamilies = familiesPerRow[row];
 
         const baseY =
           100 +
           generationIndex * config.generationSpacing +
-          row * (nodeSize + 10);
-        const rowWidth =
-          rowIndividuals.length * (nodeSize + minSpacing) - minSpacing;
-        const startX = horizontalMargin + (availableWidth - rowWidth) / 2;
+          row * (nodeSize + 20);
 
-        rowIndividuals.forEach((individual, index) => {
-          const x = startX + index * (nodeSize + minSpacing) + nodeSize / 2;
+        // Calculate total width including family spacing
+        const totalFamilyWidths = rowFamilies.reduce(
+          (sum, family) =>
+            sum + family.length * (nodeSize + minSpacing) - minSpacing,
+          0,
+        );
+        const totalFamilySpacing =
+          (rowFamilies.length - 1) * config.familySpacing;
+        const totalRowWidth = totalFamilyWidths + totalFamilySpacing;
+
+        let currentX = horizontalMargin + (availableWidth - totalRowWidth) / 2;
+
+        // Position each family with spacing between them
+        rowFamilies.forEach((family) => {
+          family.forEach((individual, index) => {
+            const x = currentX + index * (nodeSize + minSpacing) + nodeSize / 2;
+
+            positions[individual.id] = {
+              x,
+              y: baseY,
+              width: nodeSize,
+              height: nodeSize * 0.67,
+            };
+
+            nodeMetadata[individual.id] = {
+              x,
+              y: baseY,
+              width: 1.0,
+              height: 1.0,
+              size: nodeSize,
+              shape: 'square' as const,
+              color: getNodeColor(individual.gender),
+              strokeColor: '#000000',
+              strokeWeight: 1,
+              opacity: 1.0,
+            };
+          });
+
+          // Move to next family position
+          currentX +=
+            family.length * (nodeSize + minSpacing) -
+            minSpacing +
+            config.familySpacing;
+        });
+      }
+    } else {
+      // Single row for smaller generations with family clustering
+      const baseY = 100 + generationIndex * config.generationSpacing;
+
+      // Calculate total width including family spacing
+      const totalFamilyWidths = genFamilies.reduce(
+        (sum, family) =>
+          sum + family.length * (nodeSize + minSpacing) - minSpacing,
+        0,
+      );
+      const totalFamilySpacing = Math.max(
+        0,
+        (genFamilies.length - 1) * config.familySpacing,
+      );
+      const totalRowWidth = totalFamilyWidths + totalFamilySpacing;
+
+      let currentX = horizontalMargin + (availableWidth - totalRowWidth) / 2;
+
+      // Position each family with spacing between them
+      genFamilies.forEach((family) => {
+        family.forEach((individual, index) => {
+          const x = currentX + index * (nodeSize + minSpacing) + nodeSize / 2;
 
           positions[individual.id] = {
             x,
@@ -1341,36 +1477,12 @@ async function fallbackLayout(
             opacity: 1.0,
           };
         });
-      }
-    } else {
-      // Single row for smaller generations
-      const baseY = 100 + generationIndex * config.generationSpacing;
-      const totalNodesWidth =
-        genIndividuals.length * (nodeSize + minSpacing) - minSpacing;
-      const startX = horizontalMargin + (availableWidth - totalNodesWidth) / 2;
 
-      genIndividuals.forEach((individual, index) => {
-        const x = startX + index * (nodeSize + minSpacing) + nodeSize / 2;
-
-        positions[individual.id] = {
-          x,
-          y: baseY,
-          width: nodeSize,
-          height: nodeSize * 0.67,
-        };
-
-        nodeMetadata[individual.id] = {
-          x,
-          y: baseY,
-          width: 1.0,
-          height: 1.0,
-          size: nodeSize,
-          shape: 'square' as const,
-          color: getNodeColor(individual.gender),
-          strokeColor: '#000000',
-          strokeWeight: 1,
-          opacity: 1.0,
-        };
+        // Move to next family position
+        currentX +=
+          family.length * (nodeSize + minSpacing) -
+          minSpacing +
+          config.familySpacing;
       });
     }
   });
