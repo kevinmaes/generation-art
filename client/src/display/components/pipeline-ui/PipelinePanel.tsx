@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useEventListener, useWindowSize, useMediaQuery } from 'usehooks-ts';
 import { PipelineManager } from './PipelineManager';
 import type { PipelineResult } from '../../../transformers/types';
 import type { TransformerId } from '../../../transformers/transformers';
@@ -64,57 +65,47 @@ export function PipelinePanel({
   hasData,
   lastRunParameters,
 }: PipelinePanelProps): React.ReactElement {
+  const { width: windowWidth } = useWindowSize();
   const [panelWidth, setPanelWidth] = useState<number>(() => {
     // Initialize with default width in pixels
-    return (window.innerWidth * PANEL_WIDTH_CONSTANTS.DEFAULT_WIDTH_VW) / 100;
+    return (windowWidth * PANEL_WIDTH_CONSTANTS.DEFAULT_WIDTH_VW) / 100;
   });
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef<number>(0);
   const dragStartWidth = useRef<number>(0);
 
+  // Use media query for responsive behavior
+  const isNarrowViewport = useMediaQuery('(max-width: 768px)');
+
   // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Handle Escape key
-      if (event.key === 'Escape' && isOpen) {
+  useEventListener('keydown', (event: KeyboardEvent) => {
+    // Handle Escape key
+    if (event.key === 'Escape' && isOpen) {
+      onClose();
+    }
+
+    // Handle Cmd+D or Ctrl+D
+    if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
+      event.preventDefault(); // Prevent browser bookmark
+      if (isOpen) {
         onClose();
       }
+    }
+  });
 
-      // Handle Cmd+D or Ctrl+D
-      if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
-        event.preventDefault(); // Prevent browser bookmark
-        if (isOpen) {
-          onClose();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  // Handle window resize
+  // Handle window resize - using windowWidth from useWindowSize
   useEffect(() => {
-    const handleWindowResize = () => {
-      // Ensure panel width stays within bounds when window resizes
-      const newMaxWidth =
-        (window.innerWidth * PANEL_WIDTH_CONSTANTS.MAX_WIDTH_VW) / 100;
-      setPanelWidth((prevWidth) => {
-        if (prevWidth > newMaxWidth) {
-          return newMaxWidth;
-        }
-        return Math.max(prevWidth, PANEL_WIDTH_CONSTANTS.MIN_WIDTH);
-      });
-    };
-
-    window.addEventListener('resize', handleWindowResize);
-    return () => {
-      window.removeEventListener('resize', handleWindowResize);
-    };
-  }, []);
+    // Ensure panel width stays within bounds when window resizes
+    const newMaxWidth =
+      (windowWidth * PANEL_WIDTH_CONSTANTS.MAX_WIDTH_VW) / 100;
+    setPanelWidth((prevWidth) => {
+      if (prevWidth > newMaxWidth) {
+        return newMaxWidth;
+      }
+      return Math.max(prevWidth, PANEL_WIDTH_CONSTANTS.MIN_WIDTH);
+    });
+  }, [windowWidth]);
 
   // Mouse event handlers for resizing
   const handleMouseDown = useCallback(
@@ -129,41 +120,32 @@ export function PipelinePanel({
     [panelWidth],
   );
 
-  useEffect(() => {
+  useEventListener('mousemove', (e: MouseEvent) => {
     if (!isDragging) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - dragStartX.current;
-      const newWidth = dragStartWidth.current + deltaX;
-      const currentMaxWidth =
-        (window.innerWidth * PANEL_WIDTH_CONSTANTS.MAX_WIDTH_VW) / 100;
+    const deltaX = e.clientX - dragStartX.current;
+    const newWidth = dragStartWidth.current + deltaX;
+    const currentMaxWidth =
+      (windowWidth * PANEL_WIDTH_CONSTANTS.MAX_WIDTH_VW) / 100;
 
-      // Clamp width between min and max
-      const clampedWidth = Math.max(
-        PANEL_WIDTH_CONSTANTS.MIN_WIDTH,
-        Math.min(newWidth, currentMaxWidth),
-      );
+    // Clamp width between min and max
+    const clampedWidth = Math.max(
+      PANEL_WIDTH_CONSTANTS.MIN_WIDTH,
+      Math.min(newWidth, currentMaxWidth),
+    );
 
-      setPanelWidth(clampedWidth);
-    };
+    setPanelWidth(clampedWidth);
+  });
 
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging]);
+  useEventListener('mouseup', () => {
+    setIsDragging(false);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
 
   // Determine if panel is narrow (for responsive layout)
-  const isNarrow = panelWidth < 500;
+  // Combine panel width check with viewport width check for better responsiveness
+  const isNarrow = panelWidth < 500 || isNarrowViewport;
 
   return (
     <>
