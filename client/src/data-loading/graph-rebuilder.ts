@@ -28,7 +28,7 @@ function buildAdjacencyMaps(
 
   // Process each family to build adjacency maps
   Object.values(families).forEach((family) => {
-    if (!family || !family.id) return; // Skip invalid families
+    if (!family.id) return; // Skip invalid families
     const familyId = family.id;
 
     // Parent-child relationships
@@ -130,8 +130,7 @@ function createTraversalUtils(
   const getIndividuals = (ids: string[]): AugmentedIndividual[] => {
     return ids
       .map((id) => individuals[id])
-      .filter(Boolean)
-      .filter((ind) => ind != null);
+      .filter(Boolean);
   };
 
   return {
@@ -177,7 +176,7 @@ function createTraversalUtils(
         const parentIds = childToParents.get(id) ?? [];
         parentIds.forEach((parentId: string) => {
           const parent = individuals[parentId];
-          if (parent && !visited.has(parentId)) {
+          if (!visited.has(parentId)) {
             ancestors.push(parent);
             queue.push({ id: parentId, level: level + 1 });
           }
@@ -209,7 +208,7 @@ function createTraversalUtils(
         const childIds = parentToChildren.get(id) ?? [];
         childIds.forEach((childId: string) => {
           const child = individuals[childId];
-          if (child && !visited.has(childId)) {
+          if (!visited.has(childId)) {
             descendants.push(child);
             queue.push({ id: childId, level: level + 1 });
           }
@@ -315,7 +314,7 @@ function buildWalkerTreeData(
   // Group by generations
   const generationLevels = new Map<number, string[]>();
   Object.entries(individuals).forEach(([id, individual]) => {
-    const generation = individual?.metadata?.generation ?? 0;
+    const generation = individual.metadata.generation ?? 0;
     const currentLevel = generationLevels.get(generation) ?? [];
     generationLevels.set(generation, [...currentLevel, id]);
   });
@@ -338,9 +337,9 @@ function buildWalkerTreeData(
 
     // Determine generation (use first parent's generation if available)
     const firstParent = family.husband ?? family.wife;
-    const generation =
-      (firstParent as AugmentedIndividual | undefined)?.metadata?.generation ??
-      0;
+    const generation = firstParent
+      ? (firstParent as AugmentedIndividual).metadata.generation ?? 0
+      : 0;
 
     return {
       id: family.id,
@@ -391,14 +390,14 @@ export function rebuildGraphData(
     }
 
     // Validate input data
-    if (!data.individuals || typeof data.individuals !== 'object') {
+    if (typeof data.individuals !== 'object') {
       console.warn(
         'rebuildGraphData: Invalid individuals data, skipping graph rebuilding',
       );
       return data;
     }
 
-    if (!data.families || typeof data.families !== 'object') {
+    if (typeof data.families !== 'object') {
       console.warn(
         'rebuildGraphData: Invalid families data, using empty families',
       );
