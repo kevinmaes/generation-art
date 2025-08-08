@@ -31,6 +31,7 @@ interface PipelinePanelProps {
   onTransformerSelect?: (transformerId: TransformerId) => void;
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
+  onReorderTransformers?: (newOrder: TransformerId[]) => void;
   onParameterChange?: (
     transformerId: TransformerId,
     parameters: {
@@ -59,6 +60,7 @@ export function PipelinePanel({
   onTransformerSelect,
   onAddTransformer,
   onRemoveTransformer,
+  onReorderTransformers,
   onParameterChange,
   onVisualize,
   isVisualizing,
@@ -203,6 +205,7 @@ export function PipelinePanel({
                 onTransformerSelect={onTransformerSelect}
                 onAddTransformer={onAddTransformer}
                 onRemoveTransformer={onRemoveTransformer}
+                onReorderTransformers={onReorderTransformers}
                 onParameterChange={onParameterChange}
                 onVisualize={onVisualize}
                 isVisualizing={isVisualizing}

@@ -15,8 +15,24 @@ import type {
   LLMReadyData,
 } from '../../../../../shared/types';
 import type { VisualParameterValues } from '../../../transformers/visual-parameters';
-import { TransformerItem } from './TransformerItem';
+import { DraggableTransformerItem } from './DraggableTransformerItem';
+import { SortableTransformerItem } from './SortableTransformerItem';
+import { DroppablePipeline } from './DroppablePipeline';
 import { CollapsiblePanel } from './CollapsiblePanel';
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type {
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+} from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 
 // Accordion panel constants
 const ACCORDION_PANEL_CONSTANTS = {
@@ -52,6 +68,7 @@ interface PipelineManagerProps {
   onTransformerSelect?: (transformerId: TransformerId) => void;
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
+  onReorderTransformers?: (newOrder: TransformerId[]) => void;
   onParameterChange?: (
     transformerId: TransformerId,
     parameters: {
@@ -117,6 +134,7 @@ export function PipelineManager({
   onTransformerSelect,
   onAddTransformer,
   onRemoveTransformer,
+  onReorderTransformers,
   onParameterChange,
   onVisualize,
   isVisualizing = false,
@@ -126,6 +144,21 @@ export function PipelineManager({
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
+  
+  // Drag and drop state
+  const [draggedItem, setDraggedItem] = useState<{
+    id: TransformerId;
+    fromAvailable: boolean;
+  } | null>(null);
+
+  // Configure sensors for drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Minimum drag distance before activating
+      },
+    })
+  );
 
   // Collapsible panel states
   const [
@@ -221,6 +254,61 @@ export function PipelineManager({
       ...prev,
       [transformerId]: !prev[transformerId],
     }));
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const transformerId = active.id as TransformerId;
+    const fromAvailable = !activeTransformerIds.includes(transformerId);
+    
+    setDraggedItem({
+      id: transformerId,
+      fromAvailable,
+    });
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    
+    if (!over) return;
+    
+    const overId = over.id as string;
+    
+    // Handle dragging from available to pipeline
+    if (overId === 'active-pipeline-dropzone' && draggedItem?.fromAvailable) {
+      // Will be handled in dragEnd
+      return;
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over || !draggedItem) {
+      setDraggedItem(null);
+      return;
+    }
+    
+    const activeId = active.id as TransformerId;
+    const overId = over.id as string;
+    
+    // Handle adding transformer from available to pipeline
+    if (overId === 'active-pipeline-dropzone' && draggedItem.fromAvailable) {
+      onAddTransformer?.(activeId);
+    }
+    // Handle reordering within pipeline
+    else if (overId.startsWith('pipeline-') && !draggedItem.fromAvailable) {
+      const overIndex = parseInt(overId.split('-')[1]);
+      const activeIndex = activeTransformerIds.indexOf(activeId);
+      
+      if (activeIndex !== -1 && activeIndex !== overIndex) {
+        const newOrder = arrayMove(activeTransformerIds, activeIndex, overIndex);
+        onReorderTransformers?.(newOrder);
+      }
+    }
+    
+    setDraggedItem(null);
   };
 
   // Note: selectedTransformer is no longer used since we show complete pipeline data
@@ -328,16 +416,23 @@ export function PipelineManager({
   };
 
   return (
-    <div ref={containerRef} className="h-full flex flex-col bg-white p-6">
-      <div
-        className="flex-1 grid min-h-0 h-full"
-        style={{
-          gridTemplateColumns: showTwoColumns ? '1fr 1fr' : '1fr',
-          gap: showTwoColumns
-            ? `${String(ACCORDION_PANEL_CONSTANTS.GAP)}px`
-            : 0,
-        }}
-      >
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
+      <div ref={containerRef} className="h-full flex flex-col bg-white p-6">
+        <div
+          className="flex-1 grid min-h-0 h-full"
+          style={{
+            gridTemplateColumns: showTwoColumns ? '1fr 1fr' : '1fr',
+            gap: showTwoColumns
+              ? `${String(ACCORDION_PANEL_CONSTANTS.GAP)}px`
+              : 0,
+          }}
+        >
         {/* First Column: All sections flowing naturally with smart height constraints */}
         <div
           ref={columnRef}
@@ -367,7 +462,7 @@ export function PipelineManager({
                   const transformer = transformerConfigs[transformerId];
 
                   return (
-                    <TransformerItem
+                    <DraggableTransformerItem
                       key={transformerId}
                       transformer={transformer}
                       isSelected={false}
@@ -545,44 +640,37 @@ export function PipelineManager({
               maxHeight={calculateSectionHeight('available')}
               allowExpansion={false}
             >
-              <div className="space-y-2">
-                {activeTransformerIds.length === 0 ? (
-                  <p className="text-gray-500 text-sm">
-                    No transformers in pipeline
-                  </p>
-                ) : (
-                  activeTransformerIds.map((transformerId, index) => {
-                    const transformer = getTransformer(transformerId);
-                    const isSelected = selectedTransformerId === transformerId;
+              <DroppablePipeline activeTransformerIds={activeTransformerIds}>
+                {activeTransformerIds.map((transformerId, index) => {
+                  const transformer = getTransformer(transformerId);
+                  const isSelected = selectedTransformerId === transformerId;
 
-                    return (
-                      <TransformerItem
-                        key={transformerId}
-                        transformer={transformer}
-                        isSelected={isSelected}
-                        handleTransformerSelect={handleTransformerSelect}
-                        index={index}
-                        isInPipeline={true}
-                        onAddTransformer={onAddTransformer}
-                        onRemoveTransformer={onRemoveTransformer}
-                        onParameterChange={handleParameterChange}
-                        onParameterReset={handleParameterReset}
-                        currentParameters={
-                          transformerParameters[transformerId] ?? {
-                            dimensions: {
-                              primary: transformer.defaultPrimaryDimension,
-                              secondary: transformer.defaultSecondaryDimension,
-                            },
-                            visual: {},
-                          }
+                  return (
+                    <SortableTransformerItem
+                      key={transformerId}
+                      transformer={transformer}
+                      isSelected={isSelected}
+                      handleTransformerSelect={handleTransformerSelect}
+                      index={index}
+                      onAddTransformer={onAddTransformer}
+                      onRemoveTransformer={onRemoveTransformer}
+                      onParameterChange={handleParameterChange}
+                      onParameterReset={handleParameterReset}
+                      currentParameters={
+                        transformerParameters[transformerId] ?? {
+                          dimensions: {
+                            primary: transformer.defaultPrimaryDimension,
+                            secondary: transformer.defaultSecondaryDimension,
+                          },
+                          visual: {},
                         }
-                        isVisualizing={isVisualizing}
-                        lastRunParameters={lastRunParameters?.[transformerId]}
-                      />
-                    );
-                  })
-                )}
-              </div>
+                      }
+                      isVisualizing={isVisualizing}
+                      lastRunParameters={lastRunParameters?.[transformerId]}
+                    />
+                  );
+                })}
+              </DroppablePipeline>
             </CollapsiblePanel>
           )}
         </div>
@@ -612,44 +700,37 @@ export function PipelineManager({
               maxHeight={undefined}
               allowExpansion={true}
             >
-              <div className="space-y-2">
-                {activeTransformerIds.length === 0 ? (
-                  <p className="text-gray-500 text-sm">
-                    No transformers in pipeline
-                  </p>
-                ) : (
-                  activeTransformerIds.map((transformerId, index) => {
-                    const transformer = getTransformer(transformerId);
-                    const isSelected = selectedTransformerId === transformerId;
+              <DroppablePipeline activeTransformerIds={activeTransformerIds}>
+                {activeTransformerIds.map((transformerId, index) => {
+                  const transformer = getTransformer(transformerId);
+                  const isSelected = selectedTransformerId === transformerId;
 
-                    return (
-                      <TransformerItem
-                        key={transformerId}
-                        transformer={transformer}
-                        isSelected={isSelected}
-                        handleTransformerSelect={handleTransformerSelect}
-                        index={index}
-                        isInPipeline={true}
-                        onAddTransformer={onAddTransformer}
-                        onRemoveTransformer={onRemoveTransformer}
-                        onParameterChange={handleParameterChange}
-                        onParameterReset={handleParameterReset}
-                        currentParameters={
-                          transformerParameters[transformerId] ?? {
-                            dimensions: {
-                              primary: transformer.defaultPrimaryDimension,
-                              secondary: transformer.defaultSecondaryDimension,
-                            },
-                            visual: {},
-                          }
+                  return (
+                    <SortableTransformerItem
+                      key={transformerId}
+                      transformer={transformer}
+                      isSelected={isSelected}
+                      handleTransformerSelect={handleTransformerSelect}
+                      index={index}
+                      onAddTransformer={onAddTransformer}
+                      onRemoveTransformer={onRemoveTransformer}
+                      onParameterChange={handleParameterChange}
+                      onParameterReset={handleParameterReset}
+                      currentParameters={
+                        transformerParameters[transformerId] ?? {
+                          dimensions: {
+                            primary: transformer.defaultPrimaryDimension,
+                            secondary: transformer.defaultSecondaryDimension,
+                          },
+                          visual: {},
                         }
-                        isVisualizing={isVisualizing}
-                        lastRunParameters={lastRunParameters?.[transformerId]}
-                      />
-                    );
-                  })
-                )}
-              </div>
+                      }
+                      isVisualizing={isVisualizing}
+                      lastRunParameters={lastRunParameters?.[transformerId]}
+                    />
+                  );
+                })}
+              </DroppablePipeline>
             </CollapsiblePanel>
           </div>
         )}
@@ -727,7 +808,18 @@ export function PipelineManager({
             </button>
           </div>
         )}
+        </div>
+
+        <DragOverlay>
+          {draggedItem ? (
+            <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
+              <span className="text-sm font-medium">
+                {transformerConfigs[draggedItem.id].name || draggedItem.id}
+              </span>
+            </div>
+          ) : null}
+        </DragOverlay>
       </div>
-    </div>
+    </DndContext>
   );
 }
