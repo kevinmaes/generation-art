@@ -34,7 +34,7 @@ interface SortableTransformerItemProps {
 
 export function SortableTransformerItem(props: SortableTransformerItemProps) {
   const { transformer, onRemoveTransformer, isVisualizing, index } = props;
-  
+
   const {
     attributes,
     listeners,
@@ -43,7 +43,7 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
     transition,
     isDragging,
   } = useSortable({
-    id: `pipeline-${index}`, // Use index-based ID for sorting
+    id: `pipeline-${String(index)}`, // Use index-based ID for sorting
     data: {
       type: 'pipeline-transformer',
       transformer,
@@ -87,7 +87,7 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`${isDragging ? 'opacity-50' : ''}`}
+      className={isDragging ? 'opacity-50' : ''}
     >
       <div className="flex items-start space-x-2">
         {dragHandle}

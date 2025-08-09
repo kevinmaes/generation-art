@@ -246,7 +246,7 @@ export function TransformerItem({
           )}
         </div>
         {isInPipeline ? (
-          customActions?.removeButton || (
+          (customActions?.removeButton ?? (
             <button
               className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
               onClick={(e) => {
@@ -259,7 +259,7 @@ export function TransformerItem({
             >
               ×
             </button>
-          )
+          ))
         ) : (
           <button
             className="text-gray-400 hover:text-green-500 text-xs flex-shrink-0"

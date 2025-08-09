@@ -35,31 +35,28 @@ interface DraggableTransformerItemProps {
 
 export function DraggableTransformerItem(props: DraggableTransformerItemProps) {
   const { transformer, isInPipeline } = props;
-  
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    isDragging,
-  } = useDraggable({
-    id: transformer.id,
-    data: {
-      type: 'transformer',
-      transformer,
-      fromAvailable: !isInPipeline,
-    },
-  });
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  } : undefined;
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id: transformer.id,
+      data: {
+        type: 'transformer',
+        transformer,
+        fromAvailable: !isInPipeline,
+      },
+    });
+
+  const style = transform
+    ? {
+        transform: `translate3d(${String(transform.x)}px, ${String(transform.y)}px, 0)`,
+      }
+    : undefined;
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`${isDragging ? 'opacity-50' : ''}`}
+      className={isDragging ? 'opacity-50' : ''}
       {...attributes}
       {...listeners}
     >
