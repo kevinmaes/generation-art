@@ -8,6 +8,7 @@ import type {
 import { TRANSFORMERS, type TransformerId } from '../transformers/transformers';
 import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
 import { DEFAULT_COLOR } from '../transformers/constants';
+import { renderEdgeRouting } from './edge-renderer';
 
 export interface SketchConfig {
   width: number;
@@ -24,6 +25,8 @@ export interface SketchConfig {
   // Visibility controls
   showIndividuals?: boolean;
   showRelations?: boolean;
+  // Edge rendering
+  debugEdgeRouting?: boolean;
 }
 
 export interface SketchProps {
@@ -214,6 +217,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
     seed,
     showIndividuals = true,
     showRelations = true,
+    debugEdgeRouting = false,
   } = config;
 
   return (p: p5) => {
@@ -252,40 +256,47 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
       // Draw edges using visual metadata
       if (currentShowRelations) {
-        for (const edge of gedcomData.metadata.edges) {
-          const coord1 = getIndividualCoord(
-            edge.sourceId,
-            width,
-            height,
-            visualMetadata,
-          );
-          const coord2 = getIndividualCoord(
-            edge.targetId,
-            width,
-            height,
-            visualMetadata,
-          );
+        // Check if we have routing output (orthogonal edges)
+        if (visualMetadata.routing) {
+          // Use the functional edge renderer for advanced routing
+          renderEdgeRouting(visualMetadata.routing, p, { debugMode: debugEdgeRouting });
+        } else {
+          // Fall back to legacy edge drawing
+          for (const edge of gedcomData.metadata.edges) {
+            const coord1 = getIndividualCoord(
+              edge.sourceId,
+              width,
+              height,
+              visualMetadata,
+            );
+            const coord2 = getIndividualCoord(
+              edge.targetId,
+              width,
+              height,
+              visualMetadata,
+            );
 
-          // Use edge visual metadata (if available)
-          const edgeMetadata = visualMetadata.edges[edge.id];
-          const strokeColor = p.color(
-            edgeMetadata?.strokeColor ??
-              edgeMetadata?.color ??
-              visualMetadata.global.defaultEdgeColor ??
-              '#ccc',
-          );
-          const opacity = edgeMetadata?.opacity ?? 0.8;
-          const weight =
-            edgeMetadata?.strokeWeight ??
-            visualMetadata.global.defaultEdgeWeight ??
-            strokeWeight;
+            // Use edge visual metadata (if available)
+            const edgeMetadata = visualMetadata.edges[edge.id];
+            const strokeColor = p.color(
+              edgeMetadata?.strokeColor ??
+                edgeMetadata?.color ??
+                visualMetadata.global.defaultEdgeColor ??
+                '#ccc',
+            );
+            const opacity = edgeMetadata?.opacity ?? 0.8;
+            const weight =
+              edgeMetadata?.strokeWeight ??
+              visualMetadata.global.defaultEdgeWeight ??
+              strokeWeight;
 
-          strokeColor.setAlpha(opacity * 255);
-          p.stroke(strokeColor);
-          p.strokeWeight(weight);
+            strokeColor.setAlpha(opacity * 255);
+            p.stroke(strokeColor);
+            p.strokeWeight(weight);
 
-          // Draw edge with appropriate curve type
-          drawEdge(p, coord1, coord2, edgeMetadata ?? {});
+            // Draw edge with appropriate curve type
+            drawEdge(p, coord1, coord2, edgeMetadata ?? {});
+          }
         }
       }
 

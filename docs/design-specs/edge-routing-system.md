@@ -484,25 +484,148 @@ class EdgeRenderer {
 2. Add segment merging for collinear segments
 3. Performance profiling
 
-## Open Questions
+## Design Decisions
 
-1. **Segment ID Generation**: 
-   - Option A: Auto-generate based on coordinates (deterministic)
-   - Option B: Let transformers specify (more control)
-   - Recommendation: Use deterministic IDs based on content for automatic sharing detection
+Based on architectural analysis and requirements, the following decisions have been made:
 
-2. **Z-Order Management**:
-   - Option A: Use priority field on edges
-   - Option B: Layer-based system with named layers
-   - Recommendation: Priority field is simpler and sufficient
+### 1. Segment ID Generation
+**Decision**: Use deterministic IDs based on segment content (coordinates + type)
 
-3. **Segment Merging**:
-   - Should adjacent collinear segments auto-merge?
-   - Recommendation: Yes, but only during optimization phase
+**Implementation**:
+```typescript
+function generateSegmentId(segment: Omit<EdgeSegment, 'id'>): string {
+  const [start, end] = segment.points;
+  const typePrefix = segment.type.charAt(0); // 's' for straight, 'a' for arc, etc.
+  
+  // For straight segments: "s_x1_y1_x2_y2"
+  if (segment.type === 'straight') {
+    return `${typePrefix}_${start.x}_${start.y}_${end.x}_${end.y}`;
+  }
+  
+  // For curves: include control points
+  if (segment.controlPoints && segment.controlPoints.length > 0) {
+    const cpString = segment.controlPoints
+      .map(cp => `${cp.x}_${cp.y}`)
+      .join('_');
+    return `${typePrefix}_${start.x}_${start.y}_${cpString}_${end.x}_${end.y}`;
+  }
+  
+  // For arcs: include radius and direction
+  if (segment.type === 'arc') {
+    return `${typePrefix}_${start.x}_${start.y}_${end.x}_${end.y}_r${segment.radius}_${segment.clockwise ? 'cw' : 'ccw'}`;
+  }
+  
+  return `${typePrefix}_${start.x}_${start.y}_${end.x}_${end.y}`;
+}
+```
 
-4. **Performance Optimization**:
-   - Should we cache rendered segments for static views?
-   - Recommendation: Yes, but implement in Phase 4
+**Benefits**:
+- Automatic segment sharing detection
+- No need for transformers to manage IDs
+- Consistent across renders
+- Cache-friendly
+
+### 2. Z-Order Management
+**Decision**: Use the layered system as already implemented
+
+The design already uses a layer-based system with array indices determining z-order. This provides:
+- Semantic meaning through layer names
+- Clear visual hierarchy
+- Easy debugging by toggling layer visibility
+- Consistent rendering order
+
+### 3. Segment Merging
+**Decision**: Implement collinear segment merging as an optimization pass
+
+**Implementation Strategy**:
+```typescript
+function mergeCollinearSegments(segments: EdgeSegment[]): EdgeSegment[] {
+  // Only merge consecutive straight segments that are collinear
+  const merged: EdgeSegment[] = [];
+  let current: EdgeSegment | null = null;
+  
+  for (const segment of segments) {
+    if (!current) {
+      current = segment;
+      continue;
+    }
+    
+    if (canMerge(current, segment)) {
+      // Extend current segment to include next segment's endpoint
+      current = {
+        ...current,
+        points: [current.points[0], segment.points[1]],
+        id: generateSegmentId({ ...current, points: [current.points[0], segment.points[1]] })
+      };
+    } else {
+      merged.push(current);
+      current = segment;
+    }
+  }
+  
+  if (current) merged.push(current);
+  return merged;
+}
+
+function canMerge(seg1: EdgeSegment, seg2: EdgeSegment): boolean {
+  if (seg1.type !== 'straight' || seg2.type !== 'straight') return false;
+  
+  // Check if endpoint of seg1 matches startpoint of seg2
+  const [, end1] = seg1.points;
+  const [start2, ] = seg2.points;
+  if (end1.x !== start2.x || end1.y !== start2.y) return false;
+  
+  // Check if segments are collinear (same slope)
+  const [start1, ] = seg1.points;
+  const [, end2] = seg2.points;
+  
+  const dx1 = end1.x - start1.x;
+  const dy1 = end1.y - start1.y;
+  const dx2 = end2.x - start2.x;
+  const dy2 = end2.y - start2.y;
+  
+  // Check for collinearity using cross product
+  return Math.abs(dx1 * dy2 - dy1 * dx2) < 0.001;
+}
+```
+
+**When to Apply**:
+- After initial routing calculation
+- Before rendering (cached result)
+- Optional based on performance needs
+
+### 4. Performance Optimization
+**Decision**: Implement multi-level caching strategy
+
+**Cache Levels**:
+1. **Segment Cache**: Cache rendered segments by ID (Phase 4)
+2. **Route Cache**: Cache complete routing outputs per transformer state
+3. **Draw Call Cache**: For static views, cache entire canvas state
+
+**Implementation Plan**:
+```typescript
+class SegmentCache {
+  private cache = new Map<string, Path2D>();
+  private maxSize = 1000;
+  
+  get(segment: EdgeSegment): Path2D | null {
+    return this.cache.get(segment.id) || null;
+  }
+  
+  set(segment: EdgeSegment, path: Path2D): void {
+    if (this.cache.size >= this.maxSize) {
+      // LRU eviction
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(segment.id, path);
+  }
+  
+  clear(): void {
+    this.cache.clear();
+  }
+}
+```
 
 ## Success Criteria
 

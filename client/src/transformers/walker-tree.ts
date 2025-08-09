@@ -17,7 +17,9 @@ import type {
   GraphData,
   GraphTraversalUtils,
 } from '../../../shared/types';
+import type { RoutingOutput } from '../display/types/edge-routing';
 import { createTransformerInstance } from './utils';
+import { OrthogonalRouter, type FamilyNode, type FamilyRelationship } from './routing/orthogonal-router';
 
 /**
  * Configuration for the Walker tree transformer
@@ -76,6 +78,13 @@ export const walkerTreeConfig: VisualTransformerConfig = {
       label: 'Debug Mode',
       description: 'Show debugging information (bounding boxes, contours)',
     },
+    {
+      name: 'useOrthogonalRouting',
+      type: 'boolean',
+      defaultValue: true,
+      label: 'Orthogonal Edge Routing',
+      description: 'Use 90-degree edges with T-junctions for family connections',
+    },
   ],
   getDefaults: () => ({
     nodeSpacing: 40,
@@ -83,6 +92,7 @@ export const walkerTreeConfig: VisualTransformerConfig = {
     spouseSpacing: 15,
     familySpacing: 80,
     enableDebugging: false,
+    useOrthogonalRouting: true,
   }),
   createTransformerInstance: (params) =>
     createTransformerInstance(params, walkerTreeTransform, [
@@ -91,6 +101,7 @@ export const walkerTreeConfig: VisualTransformerConfig = {
       { name: 'spouseSpacing', defaultValue: 15 },
       { name: 'familySpacing', defaultValue: 80 },
       { name: 'enableDebugging', defaultValue: false },
+      { name: 'useOrthogonalRouting', defaultValue: true },
     ]),
 };
 
@@ -145,6 +156,7 @@ interface LayoutConfig {
   spouseSpacing: number;
   familySpacing: number;
   enableDebugging: boolean;
+  useOrthogonalRouting: boolean;
   canvasWidth: number;
   canvasHeight: number;
 }
@@ -177,6 +189,7 @@ export async function walkerTreeTransform(
     spouseSpacing: (visual.spouseSpacing as number) ?? 15,
     familySpacing: (visual.familySpacing as number) ?? 80,
     enableDebugging: (visual.enableDebugging as boolean) ?? false,
+    useOrthogonalRouting: (visual.useOrthogonalRouting as boolean) ?? true,
     canvasWidth: visualMetadata.global.canvasWidth ?? 800,
     canvasHeight: visualMetadata.global.canvasHeight ?? 600,
   };
@@ -257,12 +270,26 @@ export async function walkerTreeTransform(
     };
   });
 
-  // Generate family tree edges - override ALL existing edges for proper tree rendering
-  const edgeMetadata = generateFamilyTreeEdges(
-    walkerTree.nodes,
-    positions,
-    gedcomData,
-  );
+  // Generate routing output based on configuration
+  let routingOutput: RoutingOutput | undefined;
+  let edgeMetadata: Record<string, VisualMetadata> = {};
+  
+  if (layoutConfig.useOrthogonalRouting) {
+    // Use orthogonal routing for edges
+    routingOutput = generateOrthogonalRouting(
+      walkerTree.nodes,
+      positions,
+      gedcomData,
+      layoutConfig
+    );
+  } else {
+    // Use legacy straight-line edges
+    edgeMetadata = generateFamilyTreeEdges(
+      walkerTree.nodes,
+      positions,
+      gedcomData,
+    );
+  }
 
   // Add debugging metadata if enabled
   const debugMetadata = layoutConfig.enableDebugging
@@ -272,7 +299,8 @@ export async function walkerTreeTransform(
   return {
     visualMetadata: {
       individuals: nodeMetadata,
-      edges: edgeMetadata,
+      edges: layoutConfig.useOrthogonalRouting ? {} : edgeMetadata, // Only include legacy edges if not using orthogonal
+      routing: routingOutput, // New routing output for orthogonal edges
       ...debugMetadata,
     },
   };
@@ -951,6 +979,103 @@ function generateFamilyTreeEdges(
   });
 
   return edges;
+}
+
+/**
+ * Generate orthogonal routing for family tree edges
+ */
+function generateOrthogonalRouting(
+  nodes: WalkerNode[],
+  positions: Record<string, { x: number; y: number; width: number; height: number }>,
+  gedcomData: any,
+  config: LayoutConfig
+): RoutingOutput {
+  // Convert Walker nodes to FamilyNodes for the router
+  const familyNodes: FamilyNode[] = nodes.map(node => ({
+    id: node.id,
+    position: {
+      x: positions[node.id].x,
+      y: positions[node.id].y
+    },
+    type: 'individual' as const,
+    generation: node.generation
+  }));
+
+  // Extract relationships from the Walker tree structure and GEDCOM data
+  const relationships: FamilyRelationship[] = [];
+  
+  // Parent-child relationships from Walker tree
+  nodes.forEach(node => {
+    node.children.forEach(child => {
+      relationships.push({
+        sourceId: node.id,
+        targetId: child.id,
+        type: 'parent-child',
+        familyId: node.familyId
+      });
+    });
+    
+    // Spouse relationships
+    node.spouses.forEach(spouse => {
+      // Only add once (avoid duplicates)
+      if (node.id < spouse.id) {
+        relationships.push({
+          sourceId: node.id,
+          targetId: spouse.id,
+          type: 'spouse',
+          familyId: node.familyId
+        });
+      }
+    });
+    
+    // Sibling relationships (if we want to show them)
+    if (node.leftSibling) {
+      relationships.push({
+        sourceId: node.leftSibling.id,
+        targetId: node.id,
+        type: 'sibling',
+        familyId: node.familyId
+      });
+    }
+  });
+  
+  // Also add relationships from GEDCOM metadata if available
+  if (gedcomData.metadata?.edges) {
+    gedcomData.metadata.edges.forEach((edge: any) => {
+      // Check if we already have this relationship from the Walker tree
+      const exists = relationships.some(rel => 
+        (rel.sourceId === edge.sourceId && rel.targetId === edge.targetId) ||
+        (rel.sourceId === edge.targetId && rel.targetId === edge.sourceId)
+      );
+      
+      if (!exists && positions[edge.sourceId] && positions[edge.targetId]) {
+        let relType: 'parent-child' | 'spouse' | 'sibling' = 'parent-child';
+        if (edge.relationshipType === 'spouse') relType = 'spouse';
+        else if (edge.relationshipType === 'sibling') relType = 'sibling';
+        
+        relationships.push({
+          sourceId: edge.sourceId,
+          targetId: edge.targetId,
+          type: relType,
+          familyId: edge.familyId
+        });
+      }
+    });
+  }
+  
+  // Create orthogonal router with configuration
+  const router = new OrthogonalRouter({
+    dropDistance: config.generationSpacing * 0.4, // 40% of generation spacing for drop
+    busOffset: config.generationSpacing * 0.3,    // 30% for bus position
+    childSpacing: config.nodeSpacing * 0.5,       // Half node spacing for child drops
+    minSegmentLength: 5,
+    gridSnap: 1,
+    preferredAngles: [0, 90, 180, 270],
+    cornerStyle: 'sharp'
+  });
+  
+  // Generate the routing
+  return router.route(familyNodes, relationships);
 }
 
 // Removed legacy ancestor and getLeftmost functions - replaced with contour-based traversal
