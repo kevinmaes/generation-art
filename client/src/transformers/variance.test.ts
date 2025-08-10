@@ -396,16 +396,16 @@ describe('Variance Transformer', () => {
       let foundDifference = false;
       for (let i = 0; i < 10 && !foundDifference; i++) {
         const result1 = await varianceTransform(contextNoSeed);
-        
+
         // Add small delay to ensure different timestamp
         await new Promise((resolve) => setTimeout(resolve, 5));
-        
+
         const result2 = await varianceTransform(contextNoSeed);
 
         // Check multiple properties for differences
         const individual1 = result1.visualMetadata.individuals?.['I001'];
         const individual2 = result2.visualMetadata.individuals?.['I001'];
-        
+
         if (
           individual1?.size !== individual2?.size ||
           individual1?.x !== individual2?.x ||
