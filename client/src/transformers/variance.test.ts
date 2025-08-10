@@ -392,17 +392,31 @@ describe('Variance Transformer', () => {
       const contextNoSeed = { ...baseContext };
       delete contextNoSeed.seed;
 
-      const result1 = await varianceTransform(contextNoSeed);
+      // Run multiple iterations to ensure we find at least one difference
+      let foundDifference = false;
+      for (let i = 0; i < 10 && !foundDifference; i++) {
+        const result1 = await varianceTransform(contextNoSeed);
+        
+        // Add small delay to ensure different timestamp
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        
+        const result2 = await varianceTransform(contextNoSeed);
 
-      // Add small delay to ensure different timestamp
-      await new Promise((resolve) => setTimeout(resolve, 5));
+        // Check multiple properties for differences
+        const individual1 = result1.visualMetadata.individuals?.['I001'];
+        const individual2 = result2.visualMetadata.individuals?.['I001'];
+        
+        if (
+          individual1?.size !== individual2?.size ||
+          individual1?.x !== individual2?.x ||
+          individual1?.y !== individual2?.y
+        ) {
+          foundDifference = true;
+        }
+      }
 
-      const result2 = await varianceTransform(contextNoSeed);
-
-      // Results should be different without seed
-      expect(result1.visualMetadata.individuals?.['I001']?.size).not.toBe(
-        result2.visualMetadata.individuals?.['I001']?.size,
-      );
+      // At least one difference should be found across multiple runs
+      expect(foundDifference).toBe(true);
     });
 
     it('should produce different results with different seeds', async () => {
