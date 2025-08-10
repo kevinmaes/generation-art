@@ -38,6 +38,10 @@ interface TransformerItemProps {
   // NEW: Expanded state management for available transformers
   isExpanded?: boolean;
   onToggleExpanded?: (transformerId: string) => void;
+  // NEW: Custom action buttons for different contexts
+  customActions?: {
+    removeButton?: React.ReactNode;
+  };
 }
 
 export function TransformerItem({
@@ -55,6 +59,7 @@ export function TransformerItem({
   lastRunParameters,
   isExpanded = false,
   onToggleExpanded,
+  customActions,
 }: TransformerItemProps) {
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -241,18 +246,20 @@ export function TransformerItem({
           )}
         </div>
         {isInPipeline ? (
-          <button
-            className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!isDisabled) {
-                onRemoveTransformer?.(transformer.id);
-              }
-            }}
-            disabled={isDisabled}
-          >
-            ×
-          </button>
+          (customActions?.removeButton ?? (
+            <button
+              className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isDisabled) {
+                  onRemoveTransformer?.(transformer.id);
+                }
+              }}
+              disabled={isDisabled}
+            >
+              ×
+            </button>
+          ))
         ) : (
           <button
             className="text-gray-400 hover:text-green-500 text-xs flex-shrink-0"

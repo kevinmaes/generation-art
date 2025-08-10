@@ -161,6 +161,10 @@ function App(): React.ReactElement {
     );
   };
 
+  const handleReorderTransformers = (newOrder: TransformerId[]) => {
+    setActiveTransformerIds(newOrder);
+  };
+
   const handleParameterChange = (
     transformerId: string,
     parameters: {
@@ -379,6 +383,7 @@ function App(): React.ReactElement {
           onTransformerSelect={handleTransformerSelect}
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}
+          onReorderTransformers={handleReorderTransformers}
           onParameterChange={handleParameterChange}
           onVisualize={() => {
             void handleVisualize();

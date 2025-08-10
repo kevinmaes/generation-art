@@ -15,8 +15,24 @@ import type {
   LLMReadyData,
 } from '../../../../../shared/types';
 import type { VisualParameterValues } from '../../../transformers/visual-parameters';
-import { TransformerItem } from './TransformerItem';
+import { DraggableTransformerItem } from './DraggableTransformerItem';
+import { SortableTransformerItem } from './SortableTransformerItem';
+import { DroppablePipeline } from './DroppablePipeline';
 import { CollapsiblePanel } from './CollapsiblePanel';
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type {
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+} from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 
 // Accordion panel constants
 const ACCORDION_PANEL_CONSTANTS = {
@@ -52,6 +68,7 @@ interface PipelineManagerProps {
   onTransformerSelect?: (transformerId: TransformerId) => void;
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
+  onReorderTransformers?: (newOrder: TransformerId[]) => void;
   onParameterChange?: (
     transformerId: TransformerId,
     parameters: {
@@ -117,6 +134,7 @@ export function PipelineManager({
   onTransformerSelect,
   onAddTransformer,
   onRemoveTransformer,
+  onReorderTransformers,
   onParameterChange,
   onVisualize,
   isVisualizing = false,
@@ -138,6 +156,21 @@ export function PipelineManager({
     useState(true); // Collapsed by default
   const [isActivePipelineCollapsed, setIsActivePipelineCollapsed] =
     useState(false); // Open by default
+
+  // Drag and drop state
+  const [draggedItem, setDraggedItem] = useState<{
+    id: TransformerId;
+    fromAvailable: boolean;
+  } | null>(null);
+
+  // Configure sensors for drag and drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Minimum drag distance before activating
+      },
+    }),
+  );
 
   // Store parameters for all transformers (persistent across pipeline changes)
   const [transformerParameters, setTransformerParameters] = React.useState<
@@ -221,6 +254,65 @@ export function PipelineManager({
       ...prev,
       [transformerId]: !prev[transformerId],
     }));
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const transformerId = active.id as TransformerId;
+    const fromAvailable = !activeTransformerIds.includes(transformerId);
+
+    setDraggedItem({
+      id: transformerId,
+      fromAvailable,
+    });
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+
+    if (!over) return;
+
+    const overId = over.id as string;
+
+    // Handle dragging from available to pipeline
+    if (overId === 'active-pipeline-dropzone' && draggedItem?.fromAvailable) {
+      // Will be handled in dragEnd
+      return;
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || !draggedItem) {
+      setDraggedItem(null);
+      return;
+    }
+
+    const activeId = active.id as TransformerId;
+    const overId = over.id as string;
+
+    // Handle adding transformer from available to pipeline
+    if (overId === 'active-pipeline-dropzone' && draggedItem.fromAvailable) {
+      onAddTransformer?.(activeId);
+    }
+    // Handle reordering within pipeline
+    else if (overId.startsWith('pipeline-') && !draggedItem.fromAvailable) {
+      const overIndex = parseInt(overId.split('-')[1]);
+      const activeIndex = activeTransformerIds.indexOf(activeId);
+
+      if (activeIndex !== -1 && activeIndex !== overIndex) {
+        const newOrder = arrayMove(
+          activeTransformerIds,
+          activeIndex,
+          overIndex,
+        );
+        onReorderTransformers?.(newOrder);
+      }
+    }
+
+    setDraggedItem(null);
   };
 
   // Note: selectedTransformer is no longer used since we show complete pipeline data
@@ -328,308 +420,246 @@ export function PipelineManager({
   };
 
   return (
-    <div ref={containerRef} className="h-full flex flex-col bg-white p-6">
-      <div
-        className="flex-1 grid min-h-0 h-full"
-        style={{
-          gridTemplateColumns: showTwoColumns ? '1fr 1fr' : '1fr',
-          gap: showTwoColumns
-            ? `${String(ACCORDION_PANEL_CONSTANTS.GAP)}px`
-            : 0,
-        }}
-      >
-        {/* First Column: All sections flowing naturally with smart height constraints */}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
+      <div ref={containerRef} className="h-full flex flex-col bg-white p-6">
         <div
-          ref={columnRef}
-          className="flex flex-col overflow-y-auto h-full"
+          className="flex-1 grid min-h-0 h-full"
           style={{
-            scrollbarWidth: 'thin',
-            scrollbarColor: '#888 #f1f1f1',
+            gridTemplateColumns: showTwoColumns ? '1fr 1fr' : '1fr',
+            gap: showTwoColumns
+              ? `${String(ACCORDION_PANEL_CONSTANTS.GAP)}px`
+              : 0,
           }}
         >
-          {/* Available Transformers Panel */}
-          <CollapsiblePanel
-            title="Available Transformers"
-            isCollapsed={isAvailableTransformersCollapsed}
-            onToggle={() =>
-              setIsAvailableTransformersCollapsed(
-                !isAvailableTransformersCollapsed,
-              )
-            }
-            maxHeight={calculateSectionHeight('available')}
-            allowExpansion={false}
-          >
-            <div className="space-y-2">
-              {availableTransformerIds.length === 0 ? (
-                <p className="text-gray-500 text-sm">All transformers in use</p>
-              ) : (
-                availableTransformerIds.map((transformerId) => {
-                  const transformer = transformerConfigs[transformerId];
-
-                  return (
-                    <TransformerItem
-                      key={transformerId}
-                      transformer={transformer}
-                      isSelected={false}
-                      handleTransformerSelect={handleTransformerSelect}
-                      index={availableTransformerIds.length}
-                      isInPipeline={false}
-                      onAddTransformer={onAddTransformer}
-                      onRemoveTransformer={onRemoveTransformer}
-                      onParameterChange={handleParameterChange}
-                      onParameterReset={handleParameterReset}
-                      currentParameters={
-                        transformerParameters[transformerId] ?? {
-                          dimensions: {
-                            primary: transformer.defaultPrimaryDimension,
-                            secondary: transformer.defaultSecondaryDimension,
-                          },
-                          visual: {},
-                        }
-                      }
-                      isVisualizing={isVisualizing}
-                      lastRunParameters={lastRunParameters?.[transformerId]}
-                      isExpanded={expandedTransformers[transformerId] || false}
-                      onToggleExpanded={handleToggleExpanded}
-                    />
-                  );
-                })
-              )}
-            </div>
-          </CollapsiblePanel>
-
-          {/* Pipeline Input Panel */}
-          <CollapsiblePanel
-            title="Pipeline Input"
-            isCollapsed={isPipelineInputCollapsed}
-            onToggle={() =>
-              setIsPipelineInputCollapsed(!isPipelineInputCollapsed)
-            }
-            maxHeight={calculateSectionHeight('input')}
-            allowExpansion={false}
-            buttons={
-              pipelineInput && (
-                <>
-                  <button
-                    onClick={() => {
-                      void navigator.clipboard.writeText(
-                        JSON.stringify(pipelineInput, null, 2),
-                      );
-                    }}
-                    className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded hover:bg-blue-600 transition-colors"
-                    title="Copy as JSON"
-                  >
-                    Copy
-                  </button>
-                  {pipelineResult && (
-                    <button
-                      onClick={() => {
-                        setShowDiff(!showDiff);
-                      }}
-                      className="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded hover:bg-green-600 transition-colors"
-                      title="Show diff between input and output"
-                    >
-                      {showDiff ? 'Diff' : 'Diff'}
-                    </button>
-                  )}
-                </>
-              )
-            }
-          >
-            {pipelineInput ? (
-              <div className="border rounded bg-gray-50 flex-1 overflow-auto min-h-0">
-                <ReactJson
-                  src={
-                    showDiff && pipelineResult
-                      ? (calculateVisualMetadataDiff(
-                          pipelineInput as unknown as Record<string, unknown>,
-                          pipelineResult.visualMetadata as unknown as Record<
-                            string,
-                            unknown
-                          >,
-                        ) ?? {})
-                      : pipelineInput
-                  }
-                  theme="rjv-default"
-                  style={{
-                    backgroundColor: 'transparent',
-                    fontSize: '11px',
-                    textAlign: 'left',
-                    padding: '8px',
-                  }}
-                  name={null}
-                  collapsed={3}
-                  enableClipboard={false}
-                  displayDataTypes={false}
-                  displayObjectSize={true}
-                  indentWidth={2}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                {dualData
-                  ? 'Add transformers to see pipeline input'
-                  : 'Load data to see pipeline input'}
-              </div>
-            )}
-          </CollapsiblePanel>
-
-          {/* Pipeline Output Panel */}
-          <CollapsiblePanel
-            title="Pipeline Output"
-            isCollapsed={isPipelineOutputCollapsed}
-            onToggle={() =>
-              setIsPipelineOutputCollapsed(!isPipelineOutputCollapsed)
-            }
-            maxHeight={calculateSectionHeight('output')}
-            allowExpansion={false}
-            buttons={
-              pipelineResult && (
-                <button
-                  onClick={() => {
-                    void navigator.clipboard.writeText(
-                      JSON.stringify(pipelineResult, null, 2),
-                    );
-                  }}
-                  className="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded hover:bg-green-600 transition-colors"
-                  title="Copy as JSON"
-                >
-                  Copy
-                </button>
-              )
-            }
-          >
-            {pipelineResult ? (
-              <div className="border rounded bg-gray-50 flex-1 overflow-auto min-h-0">
-                <ReactJson
-                  src={pipelineResult}
-                  theme="rjv-default"
-                  style={{
-                    backgroundColor: 'transparent',
-                    fontSize: '11px',
-                    textAlign: 'left',
-                    padding: '8px',
-                  }}
-                  name={null}
-                  collapsed={2}
-                  enableClipboard={false}
-                  displayDataTypes={false}
-                  displayObjectSize={true}
-                  indentWidth={2}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                {activeTransformerIds.length > 0
-                  ? 'Click Visualize to see pipeline output'
-                  : 'Add transformers and click Visualize to see output'}
-              </div>
-            )}
-          </CollapsiblePanel>
-
-          {/* Active Pipeline in single column layout */}
-          {!showTwoColumns && (
-            <CollapsiblePanel
-              title={`Active Pipeline (${String(activeTransformerIds.length)})`}
-              subtitle={
-                pipelineResult
-                  ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
-                  : activeTransformerIds.length > 0
-                    ? 'Ready to visualize'
-                    : undefined
-              }
-              isCollapsed={isActivePipelineCollapsed}
-              onToggle={() =>
-                setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
-              }
-              maxHeight={calculateSectionHeight('available')}
-              allowExpansion={false}
-            >
-              <div className="space-y-2">
-                {activeTransformerIds.length === 0 ? (
-                  <p className="text-gray-500 text-sm">
-                    No transformers in pipeline
-                  </p>
-                ) : (
-                  activeTransformerIds.map((transformerId, index) => {
-                    const transformer = getTransformer(transformerId);
-                    const isSelected = selectedTransformerId === transformerId;
-
-                    return (
-                      <TransformerItem
-                        key={transformerId}
-                        transformer={transformer}
-                        isSelected={isSelected}
-                        handleTransformerSelect={handleTransformerSelect}
-                        index={index}
-                        isInPipeline={true}
-                        onAddTransformer={onAddTransformer}
-                        onRemoveTransformer={onRemoveTransformer}
-                        onParameterChange={handleParameterChange}
-                        onParameterReset={handleParameterReset}
-                        currentParameters={
-                          transformerParameters[transformerId] ?? {
-                            dimensions: {
-                              primary: transformer.defaultPrimaryDimension,
-                              secondary: transformer.defaultSecondaryDimension,
-                            },
-                            visual: {},
-                          }
-                        }
-                        isVisualizing={isVisualizing}
-                        lastRunParameters={lastRunParameters?.[transformerId]}
-                      />
-                    );
-                  })
-                )}
-              </div>
-            </CollapsiblePanel>
-          )}
-        </div>
-
-        {/* Active Pipeline - conditionally in second column */}
-        {showTwoColumns && (
+          {/* First Column: All sections flowing naturally with smart height constraints */}
           <div
-            className="overflow-y-auto flex flex-col"
+            ref={columnRef}
+            className="flex flex-col overflow-y-auto h-full"
             style={{
               scrollbarWidth: 'thin',
               scrollbarColor: '#888 #f1f1f1',
             }}
           >
+            {/* Available Transformers Panel */}
             <CollapsiblePanel
-              title={`Active Pipeline (${String(activeTransformerIds.length)})`}
-              subtitle={
-                pipelineResult
-                  ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
-                  : activeTransformerIds.length > 0
-                    ? 'Ready to visualize'
-                    : undefined
-              }
-              isCollapsed={isActivePipelineCollapsed}
+              title="Available Transformers"
+              isCollapsed={isAvailableTransformersCollapsed}
               onToggle={() =>
-                setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
+                setIsAvailableTransformersCollapsed(
+                  !isAvailableTransformersCollapsed,
+                )
               }
-              maxHeight={undefined}
-              allowExpansion={true}
+              maxHeight={calculateSectionHeight('available')}
+              allowExpansion={false}
             >
               <div className="space-y-2">
-                {activeTransformerIds.length === 0 ? (
+                {availableTransformerIds.length === 0 ? (
                   <p className="text-gray-500 text-sm">
-                    No transformers in pipeline
+                    All transformers in use
                   </p>
                 ) : (
-                  activeTransformerIds.map((transformerId, index) => {
+                  availableTransformerIds.map((transformerId) => {
+                    const transformer = transformerConfigs[transformerId];
+
+                    return (
+                      <DraggableTransformerItem
+                        key={transformerId}
+                        transformer={transformer}
+                        isSelected={false}
+                        handleTransformerSelect={handleTransformerSelect}
+                        index={availableTransformerIds.length}
+                        isInPipeline={false}
+                        onAddTransformer={onAddTransformer}
+                        onRemoveTransformer={onRemoveTransformer}
+                        onParameterChange={handleParameterChange}
+                        onParameterReset={handleParameterReset}
+                        currentParameters={
+                          transformerParameters[transformerId] ?? {
+                            dimensions: {
+                              primary: transformer.defaultPrimaryDimension,
+                              secondary: transformer.defaultSecondaryDimension,
+                            },
+                            visual: {},
+                          }
+                        }
+                        isVisualizing={isVisualizing}
+                        lastRunParameters={lastRunParameters?.[transformerId]}
+                        isExpanded={
+                          expandedTransformers[transformerId] || false
+                        }
+                        onToggleExpanded={handleToggleExpanded}
+                      />
+                    );
+                  })
+                )}
+              </div>
+            </CollapsiblePanel>
+
+            {/* Pipeline Input Panel */}
+            <CollapsiblePanel
+              title="Pipeline Input"
+              isCollapsed={isPipelineInputCollapsed}
+              onToggle={() =>
+                setIsPipelineInputCollapsed(!isPipelineInputCollapsed)
+              }
+              maxHeight={calculateSectionHeight('input')}
+              allowExpansion={false}
+              buttons={
+                pipelineInput && (
+                  <>
+                    <button
+                      onClick={() => {
+                        void navigator.clipboard.writeText(
+                          JSON.stringify(pipelineInput, null, 2),
+                        );
+                      }}
+                      className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded hover:bg-blue-600 transition-colors"
+                      title="Copy as JSON"
+                    >
+                      Copy
+                    </button>
+                    {pipelineResult && (
+                      <button
+                        onClick={() => {
+                          setShowDiff(!showDiff);
+                        }}
+                        className="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded hover:bg-green-600 transition-colors"
+                        title="Show diff between input and output"
+                      >
+                        {showDiff ? 'Diff' : 'Diff'}
+                      </button>
+                    )}
+                  </>
+                )
+              }
+            >
+              {pipelineInput ? (
+                <div className="border rounded bg-gray-50 flex-1 overflow-auto min-h-0">
+                  <ReactJson
+                    src={
+                      showDiff && pipelineResult
+                        ? (calculateVisualMetadataDiff(
+                            pipelineInput as unknown as Record<string, unknown>,
+                            pipelineResult.visualMetadata as unknown as Record<
+                              string,
+                              unknown
+                            >,
+                          ) ?? {})
+                        : pipelineInput
+                    }
+                    theme="rjv-default"
+                    style={{
+                      backgroundColor: 'transparent',
+                      fontSize: '11px',
+                      textAlign: 'left',
+                      padding: '8px',
+                    }}
+                    name={null}
+                    collapsed={3}
+                    enableClipboard={false}
+                    displayDataTypes={false}
+                    displayObjectSize={true}
+                    indentWidth={2}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+                  {dualData
+                    ? 'Add transformers to see pipeline input'
+                    : 'Load data to see pipeline input'}
+                </div>
+              )}
+            </CollapsiblePanel>
+
+            {/* Pipeline Output Panel */}
+            <CollapsiblePanel
+              title="Pipeline Output"
+              isCollapsed={isPipelineOutputCollapsed}
+              onToggle={() =>
+                setIsPipelineOutputCollapsed(!isPipelineOutputCollapsed)
+              }
+              maxHeight={calculateSectionHeight('output')}
+              allowExpansion={false}
+              buttons={
+                pipelineResult && (
+                  <button
+                    onClick={() => {
+                      void navigator.clipboard.writeText(
+                        JSON.stringify(pipelineResult, null, 2),
+                      );
+                    }}
+                    className="text-xs bg-green-500 text-white px-1.5 py-0.5 rounded hover:bg-green-600 transition-colors"
+                    title="Copy as JSON"
+                  >
+                    Copy
+                  </button>
+                )
+              }
+            >
+              {pipelineResult ? (
+                <div className="border rounded bg-gray-50 flex-1 overflow-auto min-h-0">
+                  <ReactJson
+                    src={pipelineResult}
+                    theme="rjv-default"
+                    style={{
+                      backgroundColor: 'transparent',
+                      fontSize: '11px',
+                      textAlign: 'left',
+                      padding: '8px',
+                    }}
+                    name={null}
+                    collapsed={2}
+                    enableClipboard={false}
+                    displayDataTypes={false}
+                    displayObjectSize={true}
+                    indentWidth={2}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500 text-sm">
+                  {activeTransformerIds.length > 0
+                    ? 'Click Visualize to see pipeline output'
+                    : 'Add transformers and click Visualize to see output'}
+                </div>
+              )}
+            </CollapsiblePanel>
+
+            {/* Active Pipeline in single column layout */}
+            {!showTwoColumns && (
+              <CollapsiblePanel
+                title={`Active Pipeline (${String(activeTransformerIds.length)})`}
+                subtitle={
+                  pipelineResult
+                    ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
+                    : activeTransformerIds.length > 0
+                      ? 'Ready to visualize'
+                      : undefined
+                }
+                isCollapsed={isActivePipelineCollapsed}
+                onToggle={() =>
+                  setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
+                }
+                maxHeight={calculateSectionHeight('available')}
+                allowExpansion={false}
+              >
+                <DroppablePipeline activeTransformerIds={activeTransformerIds}>
+                  {activeTransformerIds.map((transformerId, index) => {
                     const transformer = getTransformer(transformerId);
                     const isSelected = selectedTransformerId === transformerId;
 
                     return (
-                      <TransformerItem
+                      <SortableTransformerItem
                         key={transformerId}
                         transformer={transformer}
                         isSelected={isSelected}
                         handleTransformerSelect={handleTransformerSelect}
                         index={index}
-                        isInPipeline={true}
                         onAddTransformer={onAddTransformer}
                         onRemoveTransformer={onRemoveTransformer}
                         onParameterChange={handleParameterChange}
@@ -647,87 +677,157 @@ export function PipelineManager({
                         lastRunParameters={lastRunParameters?.[transformerId]}
                       />
                     );
-                  })
-                )}
-              </div>
-            </CollapsiblePanel>
+                  })}
+                </DroppablePipeline>
+              </CollapsiblePanel>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Footer with Status and Visualize Button */}
-      <div className="mt-4 p-3 bg-gray-50 border-t">
-        {pipelineResult ? (
-          <div className="flex items-center justify-between text-sm">
-            <div>
-              <span className="font-medium">Pipeline Status:</span>
-              <span className="ml-2 text-green-600">✓ Completed</span>
+          {/* Active Pipeline - conditionally in second column */}
+          {showTwoColumns && (
+            <div
+              className="overflow-y-auto flex flex-col"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#888 #f1f1f1',
+              }}
+            >
+              <CollapsiblePanel
+                title={`Active Pipeline (${String(activeTransformerIds.length)})`}
+                subtitle={
+                  pipelineResult
+                    ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
+                    : activeTransformerIds.length > 0
+                      ? 'Ready to visualize'
+                      : undefined
+                }
+                isCollapsed={isActivePipelineCollapsed}
+                onToggle={() =>
+                  setIsActivePipelineCollapsed(!isActivePipelineCollapsed)
+                }
+                maxHeight={undefined}
+                allowExpansion={true}
+              >
+                <DroppablePipeline activeTransformerIds={activeTransformerIds}>
+                  {activeTransformerIds.map((transformerId, index) => {
+                    const transformer = getTransformer(transformerId);
+                    const isSelected = selectedTransformerId === transformerId;
+
+                    return (
+                      <SortableTransformerItem
+                        key={transformerId}
+                        transformer={transformer}
+                        isSelected={isSelected}
+                        handleTransformerSelect={handleTransformerSelect}
+                        index={index}
+                        onAddTransformer={onAddTransformer}
+                        onRemoveTransformer={onRemoveTransformer}
+                        onParameterChange={handleParameterChange}
+                        onParameterReset={handleParameterReset}
+                        currentParameters={
+                          transformerParameters[transformerId] ?? {
+                            dimensions: {
+                              primary: transformer.defaultPrimaryDimension,
+                              secondary: transformer.defaultSecondaryDimension,
+                            },
+                            visual: {},
+                          }
+                        }
+                        isVisualizing={isVisualizing}
+                        lastRunParameters={lastRunParameters?.[transformerId]}
+                      />
+                    );
+                  })}
+                </DroppablePipeline>
+              </CollapsiblePanel>
             </div>
-            <div>
-              <span className="font-medium">Execution Time:</span>
-              <span className="ml-2">
-                {pipelineResult.debug.totalExecutionTime.toFixed(2)}ms
+          )}
+        </div>
+
+        {/* Footer with Status and Visualize Button */}
+        <div className="mt-4 p-3 bg-gray-50 border-t">
+          {pipelineResult ? (
+            <div className="flex items-center justify-between text-sm">
+              <div>
+                <span className="font-medium">Pipeline Status:</span>
+                <span className="ml-2 text-green-600">✓ Completed</span>
+              </div>
+              <div>
+                <span className="font-medium">Execution Time:</span>
+                <span className="ml-2">
+                  {pipelineResult.debug.totalExecutionTime.toFixed(2)}ms
+                </span>
+              </div>
+              {/* Visualize Button */}
+              <button
+                onClick={onVisualize}
+                disabled={
+                  !hasData || activeTransformerIds.length === 0 || isVisualizing
+                }
+                className={`px-4 py-2 rounded font-medium transition-colors ${
+                  isVisualizing
+                    ? 'bg-blue-500 text-white'
+                    : hasData && activeTransformerIds.length > 0
+                      ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                style={{ width: '250px' }}
+              >
+                {isVisualizing ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Visualizing...</span>
+                  </div>
+                ) : (
+                  'Generate art'
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-500 text-left">
+                No pipeline results yet. Configure transformers and click
+                Visualize.
+              </div>
+              <div></div> {/* Empty spacer */}
+              {/* Visualize Button */}
+              <button
+                onClick={onVisualize}
+                disabled={
+                  !hasData || activeTransformerIds.length === 0 || isVisualizing
+                }
+                className={`px-4 py-2 rounded font-medium transition-colors ${
+                  isVisualizing
+                    ? 'bg-blue-500 text-white'
+                    : hasData && activeTransformerIds.length > 0
+                      ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                style={{ width: '250px' }}
+              >
+                {isVisualizing ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Visualizing...</span>
+                  </div>
+                ) : (
+                  'Generate art'
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <DragOverlay>
+          {draggedItem ? (
+            <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
+              <span className="text-sm font-medium">
+                {transformerConfigs[draggedItem.id].name || draggedItem.id}
               </span>
             </div>
-            {/* Visualize Button */}
-            <button
-              onClick={onVisualize}
-              disabled={
-                !hasData || activeTransformerIds.length === 0 || isVisualizing
-              }
-              className={`px-4 py-2 rounded font-medium transition-colors ${
-                isVisualizing
-                  ? 'bg-blue-500 text-white'
-                  : hasData && activeTransformerIds.length > 0
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-              style={{ width: '250px' }}
-            >
-              {isVisualizing ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>Visualizing...</span>
-                </div>
-              ) : (
-                'Generate art'
-              )}
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500 text-left">
-              No pipeline results yet. Configure transformers and click
-              Visualize.
-            </div>
-            <div></div> {/* Empty spacer */}
-            {/* Visualize Button */}
-            <button
-              onClick={onVisualize}
-              disabled={
-                !hasData || activeTransformerIds.length === 0 || isVisualizing
-              }
-              className={`px-4 py-2 rounded font-medium transition-colors ${
-                isVisualizing
-                  ? 'bg-blue-500 text-white'
-                  : hasData && activeTransformerIds.length > 0
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-              style={{ width: '250px' }}
-            >
-              {isVisualizing ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>Visualizing...</span>
-                </div>
-              ) : (
-                'Generate art'
-              )}
-            </button>
-          </div>
-        )}
+          ) : null}
+        </DragOverlay>
       </div>
-    </div>
+    </DndContext>
   );
 }
