@@ -325,7 +325,7 @@ export function PipelineManager({
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
 
-    if (!over) {
+    if (!over || !draggedItem) {
       setPreviewIndex(null);
       return;
     }
@@ -335,8 +335,8 @@ export function PipelineManager({
     // Calculate preview index based on where we're hovering
     if (overId === 'active-pipeline-dropzone') {
       // Dropping at the end when over the dropzone itself
-      if (draggedItem?.fromAvailable) {
-        setPreviewIndex(activeTransformerIds.length + 1);
+      if (draggedItem.fromAvailable) {
+        setPreviewIndex(activeTransformerIds.length);
       } else {
         setPreviewIndex(null);
       }
@@ -345,16 +345,17 @@ export function PipelineManager({
       const overIndex = parseInt(overId.replace('pipeline-', ''), 10);
       if (!isNaN(overIndex)) {
         // Calculate where this item would be placed
-        if (draggedItem?.fromAvailable) {
-          // Adding new item - show position it would take
-          setPreviewIndex(overIndex + 1);
-        } else if (draggedItem?.originalIndex !== undefined) {
-          // Moving existing item
-          const adjustedIndex =
-            overIndex >= draggedItem.originalIndex
-              ? overIndex + 1
-              : overIndex + 1;
-          setPreviewIndex(adjustedIndex);
+        if (draggedItem.fromAvailable) {
+          // Adding new item - show position where it will be inserted
+          // When hovering over an item, show insertion point before it
+          setPreviewIndex(overIndex);
+        } else if (draggedItem.originalIndex !== undefined) {
+          // Moving existing item - calculate adjusted position
+          if (overIndex > draggedItem.originalIndex) {
+            setPreviewIndex(overIndex + 1);
+          } else {
+            setPreviewIndex(overIndex);
+          }
         }
       }
     } else {
@@ -371,12 +372,10 @@ export function PipelineManager({
 
     // If not dropped on anything, don't do anything
     if (!over || !draggedItem) {
-      console.log('Dropped outside any valid target - canceling');
       return;
     }
 
     const overId = over.id as string;
-    console.log('Dropped on:', overId, 'from available:', draggedItem.fromAvailable);
     
     // Check if this is a valid drop target for items from available transformers
     const isValidPipelineTarget = 
@@ -385,7 +384,6 @@ export function PipelineManager({
 
     // If dragging from available and not dropped on pipeline, return early
     if (draggedItem.fromAvailable && !isValidPipelineTarget) {
-      console.log('Invalid drop target for available transformer - canceling');
       return;
     }
 
@@ -779,7 +777,11 @@ export function PipelineManager({
                 maxHeight={calculateSectionHeight('available')}
                 allowExpansion={false}
               >
-                <DroppablePipeline activeTransformerIds={activeTransformerIds}>
+                <DroppablePipeline 
+                  activeTransformerIds={activeTransformerIds}
+                  draggedOverIndex={previewIndex}
+                  isDraggingFromAvailable={draggedItem?.fromAvailable}
+                >
                   {activeTransformerIds.map((transformerId, index) => {
                     const transformer = getTransformer(transformerId);
                     const isSelected = selectedTransformerId === transformerId;
@@ -839,7 +841,11 @@ export function PipelineManager({
                 maxHeight={undefined}
                 allowExpansion={true}
               >
-                <DroppablePipeline activeTransformerIds={activeTransformerIds}>
+                <DroppablePipeline 
+                  activeTransformerIds={activeTransformerIds}
+                  draggedOverIndex={previewIndex}
+                  isDraggingFromAvailable={draggedItem?.fromAvailable}
+                >
                   {activeTransformerIds.map((transformerId, index) => {
                     const transformer = getTransformer(transformerId);
                     const isSelected = selectedTransformerId === transformerId;
