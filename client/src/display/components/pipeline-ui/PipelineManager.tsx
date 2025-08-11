@@ -10,6 +10,7 @@ import {
   getTransformerIds,
   isTransformerId,
 } from '../../../transformers/transformers';
+import { GripVertical } from 'lucide-react';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
@@ -49,6 +50,9 @@ interface TransformerDragData {
 
 type DragData = PipelineTransformerDragData | TransformerDragData;
 import { arrayMove } from '@dnd-kit/sortable';
+
+// Drag handle configuration (matching SortableTransformerItem)
+const DRAG_HANDLE_ROWS = 2;
 
 // Accordion panel constants
 const ACCORDION_PANEL_CONSTANTS = {
@@ -896,10 +900,55 @@ export function PipelineManager({
 
         <DragOverlay>
           {draggedItem && isTransformerId(draggedItem.id) ? (
-            <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
-              <span className="text-sm font-medium">
-                {transformerConfigs[draggedItem.id]?.name || draggedItem.id}
-              </span>
+            <div
+              className="bg-gray-50 border border-gray-200 rounded shadow-lg"
+              style={{ width: '100%' }}
+            >
+              <div className="flex items-center space-x-2 px-2 py-1">
+                {/* Drag handle preview */}
+                <div
+                  className="text-gray-400 flex flex-col items-center justify-center min-w-6"
+                  style={{ height: `${String(DRAG_HANDLE_ROWS * 16)}px` }}
+                >
+                  {Array.from({ length: DRAG_HANDLE_ROWS }, (_, i) => (
+                    <GripVertical key={i} size={12} className="leading-none" />
+                  ))}
+                </div>
+                {/* Transformer content - matching TransformerItem structure */}
+                <div className="flex-1">
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
+                      {draggedItem.fromAvailable ? 'A' : 'P'}
+                    </span>
+                    <span className="font-medium text-sm truncate">
+                      {transformerConfigs[draggedItem.id]?.name ||
+                        draggedItem.id}
+                    </span>
+                  </div>
+                  {transformerConfigs[draggedItem.id]?.shortDescription && (
+                    <p className="text-xs text-gray-800 font-medium mt-0.5 text-left">
+                      {transformerConfigs[draggedItem.id].shortDescription}
+                    </p>
+                  )}
+
+                  {/* Parameters section placeholder to match height */}
+                  {!draggedItem.fromAvailable && (
+                    <div className="mt-2">
+                      <div className="px-4 py-2 bg-gray-50 border border-gray-200 shadow-sm flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs">▶</span>
+                          <span className="text-xs font-medium text-gray-700">
+                            Parameters
+                          </span>
+                        </div>
+                        <button className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                          Reset
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           ) : null}
         </DragOverlay>
