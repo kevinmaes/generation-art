@@ -376,11 +376,10 @@ export function PipelineManager({
     }
 
     const overId = over.id as string;
-    
+
     // Check if this is a valid drop target for items from available transformers
-    const isValidPipelineTarget = 
-      overId === 'active-pipeline-dropzone' || 
-      overId.startsWith('pipeline-');
+    const isValidPipelineTarget =
+      overId === 'active-pipeline-dropzone' || overId.startsWith('pipeline-');
 
     // If dragging from available and not dropped on pipeline, return early
     if (draggedItem.fromAvailable && !isValidPipelineTarget) {
@@ -777,7 +776,7 @@ export function PipelineManager({
                 maxHeight={calculateSectionHeight('available')}
                 allowExpansion={false}
               >
-                <DroppablePipeline 
+                <DroppablePipeline
                   activeTransformerIds={activeTransformerIds}
                   draggedOverIndex={previewIndex}
                   isDraggingFromAvailable={draggedItem?.fromAvailable}
@@ -841,7 +840,7 @@ export function PipelineManager({
                 maxHeight={undefined}
                 allowExpansion={true}
               >
-                <DroppablePipeline 
+                <DroppablePipeline
                   activeTransformerIds={activeTransformerIds}
                   draggedOverIndex={previewIndex}
                   isDraggingFromAvailable={draggedItem?.fromAvailable}

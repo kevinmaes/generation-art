@@ -50,9 +50,10 @@ export function DroppablePipeline({
           </React.Fragment>
         ))}
         {/* Show insertion indicator at the end if dragging to the end */}
-        {isDraggingFromAvailable && draggedOverIndex === childrenArray.length && (
-          <div className="h-1 bg-blue-500 rounded-full my-2 animate-pulse" />
-        )}
+        {isDraggingFromAvailable &&
+          draggedOverIndex === childrenArray.length && (
+            <div className="h-1 bg-blue-500 rounded-full my-2 animate-pulse" />
+          )}
         {activeTransformerIds.length === 0 && (
           <div className="flex items-center justify-center h-20 text-gray-500 text-sm">
             {isOver ? 'Drop transformer here' : 'No transformers in pipeline'}
