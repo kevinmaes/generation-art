@@ -19,7 +19,11 @@ import type {
 } from '../../../shared/types';
 import type { RoutingOutput } from '../display/types/edge-routing';
 import { createTransformerInstance } from './utils';
-import { OrthogonalRouter, type FamilyNode, type FamilyRelationship } from './routing/orthogonal-router';
+import {
+  OrthogonalRouter,
+  type FamilyNode,
+  type FamilyRelationship,
+} from './routing/orthogonal-router';
 
 /**
  * Configuration for the Walker tree transformer
@@ -83,7 +87,8 @@ export const walkerTreeConfig: VisualTransformerConfig = {
       type: 'boolean',
       defaultValue: true,
       label: 'Orthogonal Edge Routing',
-      description: 'Use 90-degree edges with T-junctions for family connections',
+      description:
+        'Use 90-degree edges with T-junctions for family connections',
     },
   ],
   getDefaults: () => ({
@@ -234,25 +239,34 @@ export async function walkerTreeTransform(
   }
 
   // Apply Walker's algorithm
-  console.log('🚀 About to execute Walker algorithm on root:', walkerTree.root.id);
+  console.log(
+    '🚀 About to execute Walker algorithm on root:',
+    walkerTree.root.id,
+  );
   try {
     executeWalkerAlgorithm(walkerTree.root, layoutConfig);
-    
+
     console.log(
       '🧮 Walker algorithm completed. Sample positions:',
       walkerTree.nodes.slice(0, 3).map((n) => ({ id: n.id, x: n.x, y: n.y })),
     );
   } catch (error) {
     console.error('❌ Error in Walker algorithm:', error);
-    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error(
+      'Stack trace:',
+      error instanceof Error ? error.stack : 'No stack trace',
+    );
     return { visualMetadata: {} };
   }
 
   // Convert Walker nodes to visual metadata
-  let positions: Record<string, { x: number; y: number; width: number; height: number }>;
+  let positions: Record<
+    string,
+    { x: number; y: number; width: number; height: number }
+  >;
   try {
     positions = extractPositions(walkerTree.nodes, layoutConfig);
-    
+
     console.log('📍 Final extracted positions:', {
       totalPositions: Object.keys(positions).length,
       sample: Object.entries(positions)
@@ -287,13 +301,13 @@ export async function walkerTreeTransform(
   // Generate routing output based on configuration
   let routingOutput: RoutingOutput | undefined;
   let edgeMetadata: Record<string, VisualMetadata> = {};
-  
+
   console.log('🔄 Edge routing configuration:', {
     useOrthogonalRouting: layoutConfig.useOrthogonalRouting,
     visualParams: visual,
-    layoutConfig
+    layoutConfig,
   });
-  
+
   if (layoutConfig.useOrthogonalRouting) {
     // Use orthogonal routing for edges
     console.log('✅ Using orthogonal routing for edges');
@@ -302,16 +316,18 @@ export async function walkerTreeTransform(
         walkerTree.nodes,
         positions,
         gedcomData,
-        layoutConfig
+        layoutConfig,
       );
       console.log('📐 Orthogonal routing generated:', {
         hasRouting: !!routingOutput,
-        segmentCount: routingOutput ? Object.keys(routingOutput.segments).length : 0,
+        segmentCount: routingOutput
+          ? Object.keys(routingOutput.segments).length
+          : 0,
         layerCount: routingOutput ? routingOutput.layers.length : 0,
-        layers: routingOutput?.layers.map(l => ({ 
-          name: l.name, 
-          edgeCount: l.edges.length 
-        }))
+        layers: routingOutput?.layers.map((l) => ({
+          name: l.name,
+          edgeCount: l.edges.length,
+        })),
       });
     } catch (error) {
       console.error('❌ Error generating orthogonal routing:', error);
@@ -852,151 +868,161 @@ function generateFamilyTreeEdges(
  */
 function generateOrthogonalRouting(
   nodes: WalkerNode[],
-  positions: Record<string, { x: number; y: number; width: number; height: number }>,
+  positions: Record<
+    string,
+    { x: number; y: number; width: number; height: number }
+  >,
   gedcomData: any,
-  config: LayoutConfig
+  config: LayoutConfig,
 ): RoutingOutput {
   // Convert Walker nodes to FamilyNodes for the router
-  const familyNodes: FamilyNode[] = nodes.map(node => ({
+  const familyNodes: FamilyNode[] = nodes.map((node) => ({
     id: node.id,
     position: {
       x: positions[node.id].x,
-      y: positions[node.id].y
+      y: positions[node.id].y,
     },
     type: 'individual' as const,
-    generation: node.generation
+    generation: node.generation,
   }));
-  
+
   console.log('🔄 Converting nodes to FamilyNodes:', {
     nodeCount: familyNodes.length,
-    sampleNodes: familyNodes.slice(0, 3).map(n => ({
+    sampleNodes: familyNodes.slice(0, 3).map((n) => ({
       id: n.id,
       x: n.position.x,
       y: n.position.y,
-      generation: n.generation
-    }))
+      generation: n.generation,
+    })),
   });
 
   // Extract relationships from the Walker tree structure and GEDCOM data
   const relationships: FamilyRelationship[] = [];
-  
+
   console.log('📊 Building relationships from Walker tree...');
-  
+
   // Parent-child relationships from Walker tree
-  nodes.forEach(node => {
-    node.children.forEach(child => {
+  nodes.forEach((node) => {
+    node.children.forEach((child) => {
       relationships.push({
         sourceId: node.id,
         targetId: child.id,
         type: 'parent-child',
-        familyId: node.familyId
+        familyId: node.familyId,
       });
     });
-    
+
     // Spouse relationships
-    node.spouses.forEach(spouse => {
+    node.spouses.forEach((spouse) => {
       // Only add once (avoid duplicates)
       if (node.id < spouse.id) {
         relationships.push({
           sourceId: node.id,
           targetId: spouse.id,
           type: 'spouse',
-          familyId: node.familyId
+          familyId: node.familyId,
         });
       }
     });
-    
+
     // Sibling relationships (if we want to show them)
     if (node.leftSibling) {
       relationships.push({
         sourceId: node.leftSibling.id,
         targetId: node.id,
         type: 'sibling',
-        familyId: node.familyId
+        familyId: node.familyId,
       });
     }
   });
-  
+
   // Also add relationships from GEDCOM metadata if available
   if (gedcomData.metadata?.edges) {
     gedcomData.metadata.edges.forEach((edge: any) => {
       // Check if we already have this relationship from the Walker tree
-      const exists = relationships.some(rel => 
-        (rel.sourceId === edge.sourceId && rel.targetId === edge.targetId) ||
-        (rel.sourceId === edge.targetId && rel.targetId === edge.sourceId)
+      const exists = relationships.some(
+        (rel) =>
+          (rel.sourceId === edge.sourceId && rel.targetId === edge.targetId) ||
+          (rel.sourceId === edge.targetId && rel.targetId === edge.sourceId),
       );
-      
+
       if (!exists && positions[edge.sourceId] && positions[edge.targetId]) {
         let relType: 'parent-child' | 'spouse' | 'sibling' = 'parent-child';
         if (edge.relationshipType === 'spouse') relType = 'spouse';
         else if (edge.relationshipType === 'sibling') relType = 'sibling';
-        
+
         relationships.push({
           sourceId: edge.sourceId,
           targetId: edge.targetId,
           type: relType,
-          familyId: edge.familyId
+          familyId: edge.familyId,
         });
       }
     });
   }
-  
+
   console.log('🔗 Total relationships extracted:', {
     total: relationships.length,
     byType: {
-      'parent-child': relationships.filter(r => r.type === 'parent-child').length,
-      'spouse': relationships.filter(r => r.type === 'spouse').length,
-      'sibling': relationships.filter(r => r.type === 'sibling').length
+      'parent-child': relationships.filter((r) => r.type === 'parent-child')
+        .length,
+      spouse: relationships.filter((r) => r.type === 'spouse').length,
+      sibling: relationships.filter((r) => r.type === 'sibling').length,
     },
-    sampleRelationships: relationships.slice(0, 5).map(r => ({
+    sampleRelationships: relationships.slice(0, 5).map((r) => ({
       from: r.sourceId,
       to: r.targetId,
-      type: r.type
-    }))
+      type: r.type,
+    })),
   });
-  
+
   // Create orthogonal router with configuration
   const router = new OrthogonalRouter({
     dropDistance: config.generationSpacing * 0.4, // 40% of generation spacing for drop
-    busOffset: config.generationSpacing * 0.3,    // 30% for bus position
-    childSpacing: config.nodeSpacing * 0.5,       // Half node spacing for child drops
+    busOffset: config.generationSpacing * 0.3, // 30% for bus position
+    childSpacing: config.nodeSpacing * 0.5, // Half node spacing for child drops
     minSegmentLength: 5,
     gridSnap: 1,
     preferredAngles: [0, 90, 180, 270],
-    cornerStyle: 'sharp'
+    cornerStyle: 'sharp',
   });
-  
+
   console.log('🛠️ Router configuration:', {
     dropDistance: config.generationSpacing * 0.4,
     busOffset: config.generationSpacing * 0.3,
-    childSpacing: config.nodeSpacing * 0.5
+    childSpacing: config.nodeSpacing * 0.5,
   });
-  
+
   // Generate the routing
   const routingOutput = router.route(familyNodes, relationships);
-  
+
   // Sample a few segments for debugging
-  const sampleSegments = Object.entries(routingOutput.segments).slice(0, 5).map(([id, segment]) => ({
-    id,
-    type: segment.type,
-    points: segment.points.map(p => ({ x: Math.round(p.x), y: Math.round(p.y) })),
-    style: segment.style
-  }));
-  
+  const sampleSegments = Object.entries(routingOutput.segments)
+    .slice(0, 5)
+    .map(([id, segment]) => ({
+      id,
+      type: segment.type,
+      points: segment.points.map((p) => ({
+        x: Math.round(p.x),
+        y: Math.round(p.y),
+      })),
+      style: segment.style,
+    }));
+
   console.log('✅ Routing output generated:', {
     segmentCount: Object.keys(routingOutput.segments).length,
     layerCount: routingOutput.layers.length,
-    layers: routingOutput.layers.map(l => ({
+    layers: routingOutput.layers.map((l) => ({
       name: l.name,
       edgeCount: l.edges.length,
-      sampleEdges: l.edges.slice(0, 2).map(e => ({
+      sampleEdges: l.edges.slice(0, 2).map((e) => ({
         id: e.id,
-        segments: e.segmentIds.length
-      }))
+        segments: e.segmentIds.length,
+      })),
     })),
-    sampleSegments
+    sampleSegments,
   });
-  
+
   return routingOutput;
 }
 
@@ -1007,7 +1033,7 @@ function generateOrthogonalRouting(
 function apportion(
   node: WalkerNode,
   defaultAncestor: WalkerNode,
-  config: LayoutConfig
+  config: LayoutConfig,
 ): WalkerNode {
   if (node.leftSibling) {
     let vInnerLeft = node;
@@ -1035,11 +1061,7 @@ function apportion(
         getNodeDistance(vInnerRight, vInnerLeft, config);
 
       if (shift > 0) {
-        moveSubtree(
-          ancestor(vInnerRight, node, defaultAncestor),
-          node,
-          shift
-        );
+        moveSubtree(ancestor(vInnerRight, node, defaultAncestor), node, shift);
         sInnerLeft += shift;
         sOuterLeft += shift;
       }
@@ -1070,7 +1092,7 @@ function apportion(
 function ancestor(
   vil: WalkerNode,
   node: WalkerNode,
-  defaultAncestor: WalkerNode
+  defaultAncestor: WalkerNode,
 ): WalkerNode {
   if (vil.ancestor?.parent === node.parent) {
     return vil.ancestor;
@@ -1134,7 +1156,7 @@ function nextRight(node: WalkerNode): WalkerNode | undefined {
 function getNodeDistance(
   left: WalkerNode,
   right: WalkerNode,
-  config: LayoutConfig
+  config: LayoutConfig,
 ): number {
   // Base spacing
   let distance = config.nodeSpacing;
