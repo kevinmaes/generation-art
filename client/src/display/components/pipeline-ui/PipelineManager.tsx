@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 import ReactJson from 'react-json-view';
-import type { PipelineResult, VisualTransformerConfig } from '../../../transformers/types';
+import type {
+  PipelineResult,
+  VisualTransformerConfig,
+} from '../../../transformers/types';
 import { createInitialCompleteVisualMetadata } from '../../../transformers/pipeline';
 import {
   transformerConfigs,
