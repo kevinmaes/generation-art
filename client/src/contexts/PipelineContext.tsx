@@ -339,4 +339,3 @@ export function PipelineProvider({
     </PipelineContext.Provider>
   );
 }
-
