@@ -26,7 +26,7 @@ import { CollapsiblePanel } from './CollapsiblePanel';
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
+  rectIntersection,
   PointerSensor,
   useSensor,
   useSensors,
@@ -365,9 +365,27 @@ export function PipelineManager({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
+    // Always reset drag state first
+    setDraggedItem(null);
+    setPreviewIndex(null);
+
+    // If not dropped on anything, don't do anything
     if (!over || !draggedItem) {
-      setDraggedItem(null);
-      setPreviewIndex(null);
+      console.log('Dropped outside any valid target - canceling');
+      return;
+    }
+
+    const overId = over.id as string;
+    console.log('Dropped on:', overId, 'from available:', draggedItem.fromAvailable);
+    
+    // Check if this is a valid drop target for items from available transformers
+    const isValidPipelineTarget = 
+      overId === 'active-pipeline-dropzone' || 
+      overId.startsWith('pipeline-');
+
+    // If dragging from available and not dropped on pipeline, return early
+    if (draggedItem.fromAvailable && !isValidPipelineTarget) {
+      console.log('Invalid drop target for available transformer - canceling');
       return;
     }
 
@@ -390,34 +408,39 @@ export function PipelineManager({
     // Validate that the active item has a valid transformer ID
     if (!isTransformerId(activeId)) {
       console.warn('Invalid transformer ID during drag end:', activeId);
-      setDraggedItem(null);
-      setPreviewIndex(null);
       return;
     }
 
-    const overId = over.id as string;
-
-    // Handle adding transformer from available to pipeline
-    if (overId === 'active-pipeline-dropzone' && draggedItem.fromAvailable) {
-      onAddTransformer?.(activeId);
-    }
-    // Handle reordering within pipeline
-    else if (overId.startsWith('pipeline-') && !draggedItem.fromAvailable) {
-      const overIndex = parseInt(overId.split('-')[1]);
-      const activeIndex = activeTransformerIds.indexOf(activeId);
-
-      if (activeIndex !== -1 && activeIndex !== overIndex) {
-        const newOrder = arrayMove(
-          activeTransformerIds,
-          activeIndex,
-          overIndex,
-        );
+    // Only process drops on valid pipeline targets
+    if (draggedItem.fromAvailable) {
+      // Adding from available transformers - only allow on pipeline dropzone or pipeline items
+      if (overId === 'active-pipeline-dropzone') {
+        // Drop at the end of the pipeline
+        onAddTransformer?.(activeId);
+      } else if (overId.startsWith('pipeline-')) {
+        // Insert at a specific position
+        const overIndex = parseInt(overId.split('-')[1]);
+        const newOrder = [...activeTransformerIds];
+        newOrder.splice(overIndex, 0, activeId);
         onReorderTransformers?.(newOrder);
       }
-    }
+    } else {
+      // Reordering within pipeline - only allow on pipeline items
+      if (overId.startsWith('pipeline-')) {
+        const overIndex = parseInt(overId.split('-')[1]);
+        const activeIndex = activeTransformerIds.indexOf(activeId);
 
-    setDraggedItem(null);
-    setPreviewIndex(null);
+        if (activeIndex !== -1 && activeIndex !== overIndex) {
+          const newOrder = arrayMove(
+            activeTransformerIds,
+            activeIndex,
+            overIndex,
+          );
+          onReorderTransformers?.(newOrder);
+        }
+      }
+      // If dropped anywhere else, item returns to its original position
+    }
   };
 
   // Note: selectedTransformer is no longer used since we show complete pipeline data
@@ -527,7 +550,7 @@ export function PipelineManager({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={rectIntersection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
