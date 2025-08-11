@@ -20,7 +20,7 @@ export function DroppablePipeline({
   });
 
   const sortableIds = activeTransformerIds.map(
-    (_, index) => `pipeline-${index}`,
+    (_, index) => `pipeline-${String(index)}`,
   );
 
   return (

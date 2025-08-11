@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 import ReactJson from 'react-json-view';
-import type { PipelineResult } from '../../../transformers/types';
+import type { PipelineResult, VisualTransformerConfig } from '../../../transformers/types';
 import { createInitialCompleteVisualMetadata } from '../../../transformers/pipeline';
 import {
   transformerConfigs,
@@ -37,14 +37,14 @@ import type {
 // Type definitions for drag data
 interface PipelineTransformerDragData {
   type: 'pipeline-transformer';
-  transformer: any;
+  transformer: VisualTransformerConfig;
   index: number;
   transformerId: TransformerId;
 }
 
 interface TransformerDragData {
   type: 'transformer';
-  transformer: any;
+  transformer: VisualTransformerConfig;
   fromAvailable: boolean;
 }
 
@@ -536,15 +536,6 @@ export function PipelineManager({
                     .map((transformerId) => {
                       const transformer = transformerConfigs[transformerId];
 
-                      // Safety check - skip if transformer config is not found
-                      if (!transformer) {
-                        console.warn(
-                          'Transformer config not found for ID:',
-                          transformerId,
-                        );
-                        return null;
-                      }
-
                       return (
                         <DraggableTransformerItem
                           key={transformerId}
@@ -921,11 +912,11 @@ export function PipelineManager({
                       {draggedItem.fromAvailable ? 'A' : 'P'}
                     </span>
                     <span className="font-medium text-sm truncate">
-                      {transformerConfigs[draggedItem.id]?.name ||
+                      {transformerConfigs[draggedItem.id].name ||
                         draggedItem.id}
                     </span>
                   </div>
-                  {transformerConfigs[draggedItem.id]?.shortDescription && (
+                  {transformerConfigs[draggedItem.id].shortDescription && (
                     <p className="text-xs text-gray-800 font-medium mt-0.5 text-left">
                       {transformerConfigs[draggedItem.id].shortDescription}
                     </p>
