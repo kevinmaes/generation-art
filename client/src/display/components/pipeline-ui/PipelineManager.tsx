@@ -172,7 +172,9 @@ export function PipelineManager({
   const [draggedItem, setDraggedItem] = useState<{
     id: TransformerId;
     fromAvailable: boolean;
+    originalIndex?: number;
   } | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   // Configure sensors for drag and drop
   const sensors = useSensors(
@@ -286,6 +288,7 @@ export function PipelineManager({
     // Get the transformer ID from the drag data, not the sortable ID
     let transformerId: string;
     let fromAvailable = false;
+    let originalIndex: number | undefined;
 
     const dragData = active.data.current as DragData | undefined;
 
@@ -293,6 +296,7 @@ export function PipelineManager({
       // Dragging from pipeline - get transformer ID from data
       transformerId = dragData.transformerId;
       fromAvailable = false;
+      originalIndex = dragData.index;
     } else if (dragData?.type === 'transformer') {
       // Dragging from available transformers
       transformerId = dragData.transformer.id;
@@ -314,20 +318,46 @@ export function PipelineManager({
     setDraggedItem({
       id: transformerId,
       fromAvailable,
+      originalIndex,
     });
   };
 
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
 
-    if (!over) return;
+    if (!over) {
+      setPreviewIndex(null);
+      return;
+    }
 
     const overId = over.id as string;
 
-    // Handle dragging from available to pipeline
-    if (overId === 'active-pipeline-dropzone' && draggedItem?.fromAvailable) {
-      // Will be handled in dragEnd
-      return;
+    // Calculate preview index based on where we're hovering
+    if (overId === 'active-pipeline-dropzone') {
+      // Dropping at the end when over the dropzone itself
+      if (draggedItem?.fromAvailable) {
+        setPreviewIndex(activeTransformerIds.length + 1);
+      } else {
+        setPreviewIndex(null);
+      }
+    } else if (overId.startsWith('pipeline-')) {
+      // Extract the index from the sortable ID
+      const overIndex = parseInt(overId.replace('pipeline-', ''), 10);
+      if (!isNaN(overIndex)) {
+        // Calculate where this item would be placed
+        if (draggedItem?.fromAvailable) {
+          // Adding new item - show position it would take
+          setPreviewIndex(overIndex + 1);
+        } else if (draggedItem?.originalIndex !== undefined) {
+          // Moving existing item
+          const adjustedIndex = overIndex >= draggedItem.originalIndex 
+            ? overIndex + 1 
+            : overIndex + 1;
+          setPreviewIndex(adjustedIndex);
+        }
+      }
+    } else {
+      setPreviewIndex(null);
     }
   };
 
@@ -336,6 +366,7 @@ export function PipelineManager({
 
     if (!over || !draggedItem) {
       setDraggedItem(null);
+    setPreviewIndex(null);
       return;
     }
 
@@ -359,6 +390,7 @@ export function PipelineManager({
     if (!isTransformerId(activeId)) {
       console.warn('Invalid transformer ID during drag end:', activeId);
       setDraggedItem(null);
+    setPreviewIndex(null);
       return;
     }
 
@@ -384,6 +416,7 @@ export function PipelineManager({
     }
 
     setDraggedItem(null);
+    setPreviewIndex(null);
   };
 
   // Note: selectedTransformer is no longer used since we show complete pipeline data
@@ -912,7 +945,7 @@ export function PipelineManager({
                 <div className="flex-1">
                   <div className="flex items-center space-x-1.5">
                     <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
-                      {draggedItem.fromAvailable ? 'A' : 'P'}
+                      {previewIndex ?? (draggedItem.fromAvailable ? 'A' : 'P')}
                     </span>
                     <span className="font-medium text-sm truncate">
                       {transformerConfigs[draggedItem.id].name ||
