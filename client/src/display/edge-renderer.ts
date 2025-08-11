@@ -102,12 +102,6 @@ function renderEdge(
  * Draw a single segment
  */
 function drawSegment(segment: EdgeSegment, style: SegmentStyle, p5: P5): void {
-  // Validate segment points
-  if (!segment.points || segment.points.length < 2) {
-    console.warn('Invalid segment - missing points:', segment);
-    return;
-  }
-
   const [start, end] = segment.points;
   if (isNaN(start.x) || isNaN(start.y) || isNaN(end.x) || isNaN(end.y)) {
     console.warn('Invalid segment coordinates:', { start, end, segment });

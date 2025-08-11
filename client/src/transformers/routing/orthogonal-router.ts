@@ -251,7 +251,7 @@ export class OrthogonalRouter {
         { x: child.position.x, y: busY },
         child.position,
         {
-          label: `child_drop_${index}`,
+          label: `child_drop_${String(index)}`,
         },
       );
       this.segments.set(childDropSegment.id, childDropSegment);
@@ -379,8 +379,11 @@ export class OrthogonalRouter {
       if (!familySiblings.has(familyId)) {
         familySiblings.set(familyId, new Set());
       }
-      familySiblings.get(familyId)!.add(rel.sourceId);
-      familySiblings.get(familyId)!.add(rel.targetId);
+      const siblings = familySiblings.get(familyId);
+      if (siblings) {
+        siblings.add(rel.sourceId);
+        siblings.add(rel.targetId);
+      }
     });
 
     // Create sibling connectors for each family
@@ -419,7 +422,7 @@ export class OrthogonalRouter {
           sibling.position,
           { x: sibling.position.x, y: connectorY },
           {
-            label: `sibling_drop_${index}`,
+            label: `sibling_drop_${String(index)}`,
             style: {
               strokeWeight: 1,
               strokeStyle: 'dotted',

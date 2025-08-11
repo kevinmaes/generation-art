@@ -16,6 +16,8 @@ import type {
   AugmentedIndividual,
   GraphData,
   GraphTraversalUtils,
+  GedcomDataWithMetadata,
+  Edge,
 } from '../../../shared/types';
 import type { RoutingOutput } from '../display/types/edge-routing';
 import { createTransformerInstance } from './utils';
@@ -729,16 +731,7 @@ function generateFamilyTreeEdges(
     string,
     { x: number; y: number; width: number; height: number }
   >,
-  gedcomData: {
-    metadata: {
-      edges: {
-        id: string;
-        sourceId: string;
-        targetId: string;
-        relationshipType: string;
-      }[];
-    };
-  },
+  gedcomData: GedcomDataWithMetadata,
 ): Record<string, VisualMetadata> {
   const edges: Record<string, VisualMetadata> = {};
 
@@ -937,8 +930,9 @@ function generateOrthogonalRouting(
   });
 
   // Also add relationships from GEDCOM metadata if available
-  if (gedcomData.metadata?.edges) {
-    gedcomData.metadata.edges.forEach((edge: any) => {
+  if (gedcomData.metadata.edges) {
+    const edges: Edge[] = gedcomData.metadata.edges;
+    edges.forEach((edge: Edge) => {
       // Check if we already have this relationship from the Walker tree
       const exists = relationships.some(
         (rel) =>
@@ -1047,10 +1041,24 @@ function apportion(
     let sOuterRight = vOuterRight.mod;
 
     while (nextRight(vInnerRight) && nextLeft(vInnerLeft)) {
-      vInnerRight = nextRight(vInnerRight)!;
-      vInnerLeft = nextLeft(vInnerLeft)!;
-      vOuterRight = nextLeft(vOuterRight)!;
-      vOuterLeft = nextRight(vOuterLeft)!;
+      const nextInnerRight = nextRight(vInnerRight);
+      const nextInnerLeft = nextLeft(vInnerLeft);
+      const nextOuterRight = nextLeft(vOuterRight);
+      const nextOuterLeft = nextRight(vOuterLeft);
+
+      if (
+        !nextInnerRight ||
+        !nextInnerLeft ||
+        !nextOuterRight ||
+        !nextOuterLeft
+      ) {
+        break;
+      }
+
+      vInnerRight = nextInnerRight;
+      vInnerLeft = nextInnerLeft;
+      vOuterRight = nextOuterRight;
+      vOuterLeft = nextOuterLeft;
 
       vOuterLeft.ancestor = node;
 
