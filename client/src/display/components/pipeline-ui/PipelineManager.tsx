@@ -350,9 +350,10 @@ export function PipelineManager({
           setPreviewIndex(overIndex + 1);
         } else if (draggedItem?.originalIndex !== undefined) {
           // Moving existing item
-          const adjustedIndex = overIndex >= draggedItem.originalIndex 
-            ? overIndex + 1 
-            : overIndex + 1;
+          const adjustedIndex =
+            overIndex >= draggedItem.originalIndex
+              ? overIndex + 1
+              : overIndex + 1;
           setPreviewIndex(adjustedIndex);
         }
       }
@@ -366,7 +367,7 @@ export function PipelineManager({
 
     if (!over || !draggedItem) {
       setDraggedItem(null);
-    setPreviewIndex(null);
+      setPreviewIndex(null);
       return;
     }
 
@@ -390,7 +391,7 @@ export function PipelineManager({
     if (!isTransformerId(activeId)) {
       console.warn('Invalid transformer ID during drag end:', activeId);
       setDraggedItem(null);
-    setPreviewIndex(null);
+      setPreviewIndex(null);
       return;
     }
 

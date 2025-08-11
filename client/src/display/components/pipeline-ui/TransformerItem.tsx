@@ -200,12 +200,10 @@ export function TransformerItem({
     <div
       key={transformer.id}
       className={`${
-        isInPipeline 
-          ? '' 
+        isInPipeline
+          ? ''
           : 'px-2 py-1 rounded border transition-colors bg-gray-50 border-gray-200 hover:bg-gray-100'
-      } ${
-        isDisabled ? 'opacity-50 pointer-events-none' : ''
-      }`}
+      } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
     >
       {/* Clickable Header */}
       <div
