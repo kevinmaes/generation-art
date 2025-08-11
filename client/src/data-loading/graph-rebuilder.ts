@@ -334,10 +334,17 @@ function buildWalkerTreeData(
     const children = family.children.map((child) => child.id);
 
     // Determine generation (use first parent's generation if available)
-    const firstParent = family.husband ?? family.wife;
-    const generation = firstParent
-      ? ((firstParent as AugmentedIndividual).metadata.generation ?? 0)
-      : 0;
+    const firstParentId = family.husband?.id ?? family.wife?.id;
+    let generation = 0;
+    if (firstParentId) {
+      const parent = individuals[firstParentId];
+      if (
+        parent.metadata.generation !== undefined &&
+        parent.metadata.generation !== null
+      ) {
+        generation = parent.metadata.generation;
+      }
+    }
 
     return {
       id: family.id,
@@ -404,7 +411,7 @@ export function rebuildGraphData(
 
     // Build graph data from the existing individuals and families
     const graphData = buildGraphData(data.individuals, data.families);
-    
+
     console.log('🔧 Graph data rebuilt:', {
       hasAdjacencyMaps: !!graphData.adjacencyMaps,
       hasTraversalUtils: !!graphData.traversalUtils,

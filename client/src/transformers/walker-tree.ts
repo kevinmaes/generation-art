@@ -127,6 +127,7 @@ interface WalkerNode {
   change: number; // Change value for spacing
   thread?: WalkerNode; // Thread pointer for contour tracking
   ancestor: WalkerNode; // Ancestor pointer
+  number: number; // Node number (index among siblings)
 
   // Enhanced contour tracking
   leftContour?: WalkerNode; // Leftmost descendant at each level
@@ -233,22 +234,35 @@ export async function walkerTreeTransform(
   }
 
   // Apply Walker's algorithm
-  executeWalkerAlgorithm(walkerTree.root, layoutConfig);
-
-  console.log(
-    '🧮 Walker algorithm completed. Sample positions:',
-    walkerTree.nodes.slice(0, 3).map((n) => ({ id: n.id, x: n.x, y: n.y })),
-  );
+  console.log('🚀 About to execute Walker algorithm on root:', walkerTree.root.id);
+  try {
+    executeWalkerAlgorithm(walkerTree.root, layoutConfig);
+    
+    console.log(
+      '🧮 Walker algorithm completed. Sample positions:',
+      walkerTree.nodes.slice(0, 3).map((n) => ({ id: n.id, x: n.x, y: n.y })),
+    );
+  } catch (error) {
+    console.error('❌ Error in Walker algorithm:', error);
+    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+    return { visualMetadata: {} };
+  }
 
   // Convert Walker nodes to visual metadata
-  const positions = extractPositions(walkerTree.nodes, layoutConfig);
-
-  console.log('📍 Final extracted positions:', {
-    totalPositions: Object.keys(positions).length,
-    sample: Object.entries(positions)
-      .slice(0, 3)
-      .map(([id, pos]) => ({ id, x: pos.x, y: pos.y })),
-  });
+  let positions: Record<string, { x: number; y: number; width: number; height: number }>;
+  try {
+    positions = extractPositions(walkerTree.nodes, layoutConfig);
+    
+    console.log('📍 Final extracted positions:', {
+      totalPositions: Object.keys(positions).length,
+      sample: Object.entries(positions)
+        .slice(0, 3)
+        .map(([id, pos]) => ({ id, x: pos.x, y: pos.y })),
+    });
+  } catch (error) {
+    console.error('❌ Error extracting positions:', error);
+    return { visualMetadata: {} };
+  }
 
   // Build visual metadata
   const nodeMetadata: Record<string, VisualMetadata> = {};
@@ -274,16 +288,43 @@ export async function walkerTreeTransform(
   let routingOutput: RoutingOutput | undefined;
   let edgeMetadata: Record<string, VisualMetadata> = {};
   
+  console.log('🔄 Edge routing configuration:', {
+    useOrthogonalRouting: layoutConfig.useOrthogonalRouting,
+    visualParams: visual,
+    layoutConfig
+  });
+  
   if (layoutConfig.useOrthogonalRouting) {
     // Use orthogonal routing for edges
-    routingOutput = generateOrthogonalRouting(
-      walkerTree.nodes,
-      positions,
-      gedcomData,
-      layoutConfig
-    );
+    console.log('✅ Using orthogonal routing for edges');
+    try {
+      routingOutput = generateOrthogonalRouting(
+        walkerTree.nodes,
+        positions,
+        gedcomData,
+        layoutConfig
+      );
+      console.log('📐 Orthogonal routing generated:', {
+        hasRouting: !!routingOutput,
+        segmentCount: routingOutput ? Object.keys(routingOutput.segments).length : 0,
+        layerCount: routingOutput ? routingOutput.layers.length : 0,
+        layers: routingOutput?.layers.map(l => ({ 
+          name: l.name, 
+          edgeCount: l.edges.length 
+        }))
+      });
+    } catch (error) {
+      console.error('❌ Error generating orthogonal routing:', error);
+      // Fall back to legacy edges
+      edgeMetadata = generateFamilyTreeEdges(
+        walkerTree.nodes,
+        positions,
+        gedcomData,
+      );
+    }
   } else {
     // Use legacy straight-line edges
+    console.log('📉 Using legacy straight-line edges');
     edgeMetadata = generateFamilyTreeEdges(
       walkerTree.nodes,
       positions,
@@ -358,6 +399,7 @@ function buildWalkerTree(
       shift: 0,
       change: 0,
       ancestor: null as any, // Will be set to self
+      number: 1, // Default, will be set based on sibling order
       leftContour: undefined,
       rightContour: undefined,
       extremeLeft: undefined,
@@ -403,9 +445,10 @@ function buildWalkerTree(
       );
     }
 
-    // Set parent references
-    node.children.forEach((child) => {
+    // Set parent references and node numbers
+    node.children.forEach((child, index) => {
       child.parent = node;
+      child.number = index + 1; // 1-based indexing for Walker's algorithm
     });
   });
 
@@ -559,11 +602,19 @@ function buildFamilyClusters(
  * Execute Walker's algorithm for optimal tree positioning
  */
 function executeWalkerAlgorithm(root: WalkerNode, config: LayoutConfig): void {
-  // First pass: Assign preliminary positions
-  firstWalk(root, config);
+  console.log('🚀 Starting Walker algorithm execution...');
+  try {
+    // First pass: Assign preliminary positions
+    firstWalk(root, config);
+    console.log('✅ First walk completed');
 
-  // Second pass: Assign final positions
-  secondWalk(root, 0, 0, config);
+    // Second pass: Assign final positions
+    secondWalk(root, 0, 0, config);
+    console.log('✅ Second walk completed');
+  } catch (error) {
+    console.error('❌ Walker algorithm execution failed:', error);
+    throw error;
+  }
 }
 
 /**
@@ -633,196 +684,11 @@ function secondWalk(
   });
 }
 
-/**
- * Enhanced apportion with thread-based contour tracking
- */
-function apportion(
-  node: WalkerNode,
-  defaultAncestor: WalkerNode,
-  config: LayoutConfig,
-): WalkerNode {
-  const leftSibling = node.leftSibling;
+// Removed duplicate Walker algorithm helper functions - using the complete implementations above
 
-  if (!leftSibling) return defaultAncestor;
+// Removed first duplicate getNodeDistance function - keeping the one below with areSpouses helper
 
-  // Initialize contour traversal pointers
-  let vir = node; // Inside right contour
-  let vor = node; // Outside right contour
-  let vil = leftSibling; // Inside left contour
-  let vol = leftSibling.extremeLeft || leftSibling; // Outside left contour
-
-  let sir = node.mod; // Sum of modifiers, inside right
-  let sor = node.mod; // Sum of modifiers, outside right
-  let sil = vil.mod; // Sum of modifiers, inside left
-  let sol = vol.mod; // Sum of modifiers, outside left
-
-  // Traverse contours until one is exhausted
-  while (vil.extremeRight && vir.extremeLeft) {
-    vil = vil.extremeRight;
-    vir = vir.extremeLeft;
-    vol = nextLeft(vol);
-    vor = nextRight(vor);
-
-    vor.ancestor = node;
-
-    const shift =
-      vil.prelim + sil - (vir.prelim + sir) + getNodeDistance(vil, vir, config);
-
-    if (shift > 0) {
-      moveSubtree(ancestorSibling(vil, node, defaultAncestor), node, shift);
-      sir += shift;
-      sor += shift;
-    }
-
-    sil += vil.mod;
-    sir += vir.mod;
-    sol += vol.mod;
-    sor += vor.mod;
-  }
-
-  // Set threads for efficient contour traversal
-  if (vil.extremeRight && !vor.extremeRight) {
-    vor.thread = vil.extremeRight;
-    vor.mod += sil - sor;
-  }
-
-  if (vir.extremeLeft && !vol.extremeLeft) {
-    vol.thread = vir.extremeLeft;
-    vol.mod += sir - sol;
-    defaultAncestor = node;
-  }
-
-  return defaultAncestor;
-}
-
-/**
- * Move subtree to resolve conflicts
- */
-function moveSubtree(wl: WalkerNode, wr: WalkerNode, shift: number): void {
-  const subtrees = nodeNumber(wr) - nodeNumber(wl);
-  if (subtrees > 0) {
-    wr.change -= shift / subtrees;
-    wr.shift += shift;
-    wl.change += shift / subtrees;
-    wr.prelim += shift;
-    wr.mod += shift;
-  }
-}
-
-/**
- * Get the position number of a node among its siblings
- */
-function nodeNumber(node: WalkerNode): number {
-  if (!node.parent) return 0;
-  return node.parent.children.indexOf(node) + 1;
-}
-
-/**
- * Execute shifts to finalize positions after apportion
- */
-function executeShifts(node: WalkerNode): void {
-  let shift = 0;
-  let change = 0;
-
-  for (let i = node.children.length - 1; i >= 0; i--) {
-    const child = node.children[i];
-    child.prelim += shift;
-    child.mod += shift;
-    change += child.change;
-    shift += child.shift + change;
-  }
-}
-
-/**
- * Find the next node on the left contour
- */
-function nextLeft(node: WalkerNode): WalkerNode {
-  if (node.children.length > 0) {
-    return node.children[0];
-  }
-  return node.thread || node;
-}
-
-/**
- * Find the next node on the right contour
- */
-function nextRight(node: WalkerNode): WalkerNode {
-  if (node.children.length > 0) {
-    return node.children[node.children.length - 1];
-  }
-  return node.thread || node;
-}
-
-/**
- * Find the ancestor for moving subtrees
- */
-function ancestorSibling(
-  vil: WalkerNode,
-  node: WalkerNode,
-  defaultAncestor: WalkerNode,
-): WalkerNode {
-  if (node.parent?.children.includes(vil.ancestor)) {
-    return vil.ancestor;
-  }
-  return defaultAncestor;
-}
-
-/**
- * Get distance between two adjacent nodes
- */
-function getNodeDistance(
-  left: WalkerNode,
-  right: WalkerNode,
-  config: LayoutConfig,
-): number {
-  const baseDistance = (left.width + right.width) / 2;
-
-  // For very small nodes (crowded generations), use tighter spacing
-  const minNodeSize = Math.min(left.width, right.width);
-  const spacingMultiplier = minNodeSize < 20 ? 0.3 : 1.0;
-
-  // Check if nodes are spouses (should be closer)
-  if (areSpouses(left, right)) {
-    return Math.max(config.spouseSpacing * spacingMultiplier, baseDistance + 2);
-  }
-
-  // Check if nodes are from different families (need more space)
-  if (left.familyId && right.familyId && left.familyId !== right.familyId) {
-    return Math.max(
-      config.familySpacing * spacingMultiplier,
-      baseDistance + 10,
-    );
-  }
-
-  // Check if they're siblings from the same parent
-  if (areSiblings(left, right)) {
-    return Math.max(
-      config.nodeSpacing * 0.5 * spacingMultiplier,
-      baseDistance + 5,
-    );
-  }
-
-  // Default spacing for unrelated nodes in same generation
-  // Tighter spacing for crowded generations
-  return Math.max(config.nodeSpacing * spacingMultiplier, baseDistance + 8);
-}
-
-/**
- * Check if two nodes are spouses
- */
-function areSpouses(left: WalkerNode, right: WalkerNode): boolean {
-  return (
-    left.spouses.some((spouse) => spouse.id === right.id) ||
-    right.spouses.some((spouse) => spouse.id === left.id)
-  );
-}
-
-/**
- * Check if two nodes are siblings (same parents)
- */
-function areSiblings(left: WalkerNode, right: WalkerNode): boolean {
-  return left.parent === right.parent && left.parent !== undefined;
-}
+// Removed unused areSpouses and areSiblings helper functions
 
 /**
  * Get color for node based on gender
@@ -1000,9 +866,21 @@ function generateOrthogonalRouting(
     type: 'individual' as const,
     generation: node.generation
   }));
+  
+  console.log('🔄 Converting nodes to FamilyNodes:', {
+    nodeCount: familyNodes.length,
+    sampleNodes: familyNodes.slice(0, 3).map(n => ({
+      id: n.id,
+      x: n.position.x,
+      y: n.position.y,
+      generation: n.generation
+    }))
+  });
 
   // Extract relationships from the Walker tree structure and GEDCOM data
   const relationships: FamilyRelationship[] = [];
+  
+  console.log('📊 Building relationships from Walker tree...');
   
   // Parent-child relationships from Walker tree
   nodes.forEach(node => {
@@ -1063,6 +941,20 @@ function generateOrthogonalRouting(
     });
   }
   
+  console.log('🔗 Total relationships extracted:', {
+    total: relationships.length,
+    byType: {
+      'parent-child': relationships.filter(r => r.type === 'parent-child').length,
+      'spouse': relationships.filter(r => r.type === 'spouse').length,
+      'sibling': relationships.filter(r => r.type === 'sibling').length
+    },
+    sampleRelationships: relationships.slice(0, 5).map(r => ({
+      from: r.sourceId,
+      to: r.targetId,
+      type: r.type
+    }))
+  });
+  
   // Create orthogonal router with configuration
   const router = new OrthogonalRouter({
     dropDistance: config.generationSpacing * 0.4, // 40% of generation spacing for drop
@@ -1074,11 +966,189 @@ function generateOrthogonalRouting(
     cornerStyle: 'sharp'
   });
   
+  console.log('🛠️ Router configuration:', {
+    dropDistance: config.generationSpacing * 0.4,
+    busOffset: config.generationSpacing * 0.3,
+    childSpacing: config.nodeSpacing * 0.5
+  });
+  
   // Generate the routing
-  return router.route(familyNodes, relationships);
+  const routingOutput = router.route(familyNodes, relationships);
+  
+  // Sample a few segments for debugging
+  const sampleSegments = Object.entries(routingOutput.segments).slice(0, 5).map(([id, segment]) => ({
+    id,
+    type: segment.type,
+    points: segment.points.map(p => ({ x: Math.round(p.x), y: Math.round(p.y) })),
+    style: segment.style
+  }));
+  
+  console.log('✅ Routing output generated:', {
+    segmentCount: Object.keys(routingOutput.segments).length,
+    layerCount: routingOutput.layers.length,
+    layers: routingOutput.layers.map(l => ({
+      name: l.name,
+      edgeCount: l.edges.length,
+      sampleEdges: l.edges.slice(0, 2).map(e => ({
+        id: e.id,
+        segments: e.segmentIds.length
+      }))
+    })),
+    sampleSegments
+  });
+  
+  return routingOutput;
 }
 
-// Removed legacy ancestor and getLeftmost functions - replaced with contour-based traversal
+/**
+ * Apportion function for Walker's algorithm
+ * Handles the spacing between subtrees using thread and ancestor tracking
+ */
+function apportion(
+  node: WalkerNode,
+  defaultAncestor: WalkerNode,
+  config: LayoutConfig
+): WalkerNode {
+  if (node.leftSibling) {
+    let vInnerLeft = node;
+    let vOuterLeft = node;
+    let vInnerRight = node.leftSibling;
+    let vOuterRight = vInnerLeft.leftSibling || vInnerLeft;
+
+    let sInnerLeft = vInnerLeft.mod;
+    let sOuterLeft = vOuterLeft.mod;
+    let sInnerRight = vInnerRight.mod;
+    let sOuterRight = vOuterRight.mod;
+
+    while (nextRight(vInnerRight) && nextLeft(vInnerLeft)) {
+      vInnerRight = nextRight(vInnerRight)!;
+      vInnerLeft = nextLeft(vInnerLeft)!;
+      vOuterRight = nextLeft(vOuterRight)!;
+      vOuterLeft = nextRight(vOuterLeft)!;
+
+      vOuterLeft.ancestor = node;
+
+      const shift =
+        vInnerRight.prelim +
+        sInnerRight -
+        (vInnerLeft.prelim + sInnerLeft) +
+        getNodeDistance(vInnerRight, vInnerLeft, config);
+
+      if (shift > 0) {
+        moveSubtree(
+          ancestor(vInnerRight, node, defaultAncestor),
+          node,
+          shift
+        );
+        sInnerLeft += shift;
+        sOuterLeft += shift;
+      }
+
+      sInnerRight += vInnerRight.mod;
+      sInnerLeft += vInnerLeft.mod;
+      sOuterRight += vOuterRight.mod;
+      sOuterLeft += vOuterLeft.mod;
+    }
+
+    if (nextRight(vInnerRight) && !nextRight(vOuterLeft)) {
+      vOuterLeft.thread = nextRight(vInnerRight);
+      vOuterLeft.mod += sInnerRight - sOuterLeft;
+    }
+
+    if (nextLeft(vInnerLeft) && !nextLeft(vOuterRight)) {
+      vOuterRight.thread = nextLeft(vInnerLeft);
+      vOuterRight.mod += sInnerLeft - sOuterRight;
+      defaultAncestor = node;
+    }
+  }
+  return defaultAncestor;
+}
+
+/**
+ * Get the ancestor of a node for the apportion algorithm
+ */
+function ancestor(
+  vil: WalkerNode,
+  node: WalkerNode,
+  defaultAncestor: WalkerNode
+): WalkerNode {
+  if (vil.ancestor?.parent === node.parent) {
+    return vil.ancestor;
+  }
+  return defaultAncestor;
+}
+
+/**
+ * Move a subtree by the given shift amount
+ */
+function moveSubtree(wm: WalkerNode, wp: WalkerNode, shift: number): void {
+  const subtrees = wp.number - wm.number;
+  if (subtrees !== 0) {
+    wp.change -= shift / subtrees;
+    wp.shift += shift;
+    wm.change += shift / subtrees;
+    wp.prelim += shift;
+    wp.mod += shift;
+  }
+}
+
+/**
+ * Execute shifts for all children of a node
+ */
+function executeShifts(node: WalkerNode): void {
+  let shift = 0;
+  let change = 0;
+
+  for (let i = node.children.length - 1; i >= 0; i--) {
+    const child = node.children[i];
+    child.prelim += shift;
+    child.mod += shift;
+    change += child.change;
+    shift += child.shift + change;
+  }
+}
+
+/**
+ * Get the next node on the left contour
+ */
+function nextLeft(node: WalkerNode): WalkerNode | undefined {
+  if (node.children.length > 0) {
+    return node.children[0];
+  }
+  return node.thread;
+}
+
+/**
+ * Get the next node on the right contour
+ */
+function nextRight(node: WalkerNode): WalkerNode | undefined {
+  if (node.children.length > 0) {
+    return node.children[node.children.length - 1];
+  }
+  return node.thread;
+}
+
+/**
+ * Calculate the distance between two nodes
+ */
+function getNodeDistance(
+  left: WalkerNode,
+  right: WalkerNode,
+  config: LayoutConfig
+): number {
+  // Base spacing
+  let distance = config.nodeSpacing;
+
+  // Add extra space for spouse groups
+  if (left.spouses.length > 0 || right.spouses.length > 0) {
+    distance += config.nodeSpacing * 0.5;
+  }
+
+  // Account for node widths
+  distance += (left.width + right.width) / 2;
+
+  return distance;
+}
 
 /**
  * Extract final positions from Walker nodes

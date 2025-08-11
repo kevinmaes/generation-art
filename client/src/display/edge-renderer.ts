@@ -106,6 +106,18 @@ function drawSegment(
   style: SegmentStyle,
   p5: P5
 ): void {
+  // Validate segment points
+  if (!segment.points || segment.points.length < 2) {
+    console.warn('Invalid segment - missing points:', segment);
+    return;
+  }
+  
+  const [start, end] = segment.points;
+  if (isNaN(start.x) || isNaN(start.y) || isNaN(end.x) || isNaN(end.y)) {
+    console.warn('Invalid segment coordinates:', { start, end, segment });
+    return;
+  }
+  
   // Apply style
   p5.push(); // Save current style
   
@@ -149,8 +161,6 @@ function drawSegment(
   }
   
   // Draw based on segment type
-  const [start, end] = segment.points;
-  
   switch (segment.type) {
     case 'straight':
       p5.line(start.x, start.y, end.x, end.y);

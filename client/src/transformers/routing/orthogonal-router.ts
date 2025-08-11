@@ -63,6 +63,12 @@ export class OrthogonalRouter {
     nodes: FamilyNode[],
     relationships: FamilyRelationship[]
   ): RoutingOutput {
+    console.log('🎯 OrthogonalRouter.route() called with:', {
+      nodeCount: nodes.length,
+      relationshipCount: relationships.length,
+      sampleNodes: nodes.slice(0, 3).map(n => ({ id: n.id, x: n.position.x, y: n.position.y }))
+    });
+    
     // Clear previous routing
     this.segments.clear();
     this.edges.clear();
@@ -71,6 +77,12 @@ export class OrthogonalRouter {
     const parentChildRels = relationships.filter(r => r.type === 'parent-child');
     const spouseRels = relationships.filter(r => r.type === 'spouse');
     const siblingRels = relationships.filter(r => r.type === 'sibling');
+    
+    console.log('📦 Relationships by type:', {
+      parentChild: parentChildRels.length,
+      spouse: spouseRels.length,
+      sibling: siblingRels.length
+    });
     
     // Create a node lookup map
     const nodeMap = new Map(nodes.map(n => [n.id, n]));
@@ -115,10 +127,18 @@ export class OrthogonalRouter {
       segmentsObject[id] = segment;
     });
     
-    return {
+    const result = {
       segments: segmentsObject,
       layers
     };
+    
+    console.log('✅ OrthogonalRouter.route() returning:', {
+      segmentCount: Object.keys(segmentsObject).length,
+      layerCount: layers.length,
+      layers: layers.map(l => ({ name: l.name, edgeCount: l.edges.length }))
+    });
+    
+    return result;
   }
   
   /**

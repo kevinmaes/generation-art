@@ -299,6 +299,11 @@ function mergeVisualMetadata(
   if (updates.tree) {
     result.tree = { ...result.tree, ...updates.tree };
   }
+  
+  // Merge routing output (for orthogonal edge routing)
+  if (updates.routing) {
+    result.routing = updates.routing;
+  }
 
   // Merge global settings
   if (updates.global) {
