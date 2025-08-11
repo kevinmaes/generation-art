@@ -324,7 +324,9 @@ export function PipelineProvider({
       // Actions
       setPipelineResult: () => {
         // Pipeline result is now managed by usePipeline hook
-        console.warn('setPipelineResult is deprecated, pipeline result is managed internally');
+        console.warn(
+          'setPipelineResult is deprecated, pipeline result is managed internally',
+        );
       },
       setActiveTransformerIds,
       setDualData,
