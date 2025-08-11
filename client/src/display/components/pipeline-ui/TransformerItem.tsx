@@ -199,7 +199,11 @@ export function TransformerItem({
   return (
     <div
       key={transformer.id}
-      className={`px-2 py-1 rounded border transition-colors bg-gray-50 border-gray-200 hover:bg-gray-100 ${
+      className={`${
+        isInPipeline 
+          ? '' 
+          : 'px-2 py-1 rounded border transition-colors bg-gray-50 border-gray-200 hover:bg-gray-100'
+      } ${
         isDisabled ? 'opacity-50 pointer-events-none' : ''
       }`}
     >

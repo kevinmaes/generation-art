@@ -931,10 +931,10 @@ export function PipelineManager({
               className="bg-gray-50 border border-gray-200 rounded shadow-lg"
               style={{ width: '100%' }}
             >
-              <div className="flex items-center space-x-2 px-2 py-1">
+              <div className="flex items-center px-2 pt-3 pb-2">
                 {/* Drag handle preview */}
                 <div
-                  className="text-gray-400 flex flex-col items-center justify-center min-w-6"
+                  className="text-gray-400 flex flex-col items-center justify-center min-w-6 mr-2"
                   style={{ height: `${String(DRAG_HANDLE_ROWS * 16)}px` }}
                 >
                   {Array.from({ length: DRAG_HANDLE_ROWS }, (_, i) => (

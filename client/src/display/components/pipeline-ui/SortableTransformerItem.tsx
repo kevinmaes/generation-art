@@ -80,7 +80,7 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
   // Custom multi-row drag handle
   const dragHandle = (
     <div
-      className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing flex flex-col items-center justify-center min-w-6"
+      className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing flex flex-col items-center justify-center min-w-6 mr-2"
       style={{ height: `${String(DRAG_HANDLE_HEIGHT)}px` }}
       {...attributes}
       {...listeners}
@@ -95,9 +95,9 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={isDragging ? 'opacity-50' : ''}
+      className={`bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition-colors ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center px-2 py-2">
         {dragHandle}
         <div className="flex-1">
           <TransformerItem
