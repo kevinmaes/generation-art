@@ -4,21 +4,21 @@ import ReactJson from 'react-json-view';
 import type {
   PipelineResult,
   VisualTransformerConfig,
-} from '../../../transformers/types';
-import { createInitialCompleteVisualMetadata } from '../../../transformers/pipeline';
+} from '../../transformers/types';
+import { createInitialCompleteVisualMetadata } from '../../transformers/pipeline';
 import {
   transformerConfigs,
   type TransformerId,
   getTransformer,
   getTransformerIds,
   isTransformerId,
-} from '../../../transformers/transformers';
+} from '../../transformers/transformers';
 import { GripVertical } from 'lucide-react';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
-} from '../../../../../shared/types';
-import type { VisualParameterValues } from '../../../transformers/visual-parameters';
+} from '../../../../shared/types';
+import type { VisualParameterValues } from '../../transformers/visual-parameters';
 import { DraggableTransformerItem } from './DraggableTransformerItem';
 import { SortableTransformerItem } from './SortableTransformerItem';
 import { DroppablePipeline } from './DroppablePipeline';

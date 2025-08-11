@@ -5,17 +5,17 @@ import {
   exportPrintCanvas as exportPrintCanvasService,
   type ExportOptions,
   type PrintExportOptions,
-} from '../../services/ExportService';
-import type { GedcomDataWithMetadata } from '../../../../shared/types';
+} from '../services/ExportService';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
 
-export interface ShareState {
-  isSharing: boolean;
+export interface ExportState {
+  isExporting: boolean;
   status: string;
   error: string | null;
 }
 
-export interface UseShareArtReturn {
-  shareState: ShareState;
+export interface UseCanvasExportReturn {
+  exportState: ExportState;
   exportWebCanvas: (p5Instance: p5, options?: ExportOptions) => void;
   exportPrintCanvas: (
     familyData: GedcomDataWithMetadata,
@@ -25,24 +25,24 @@ export interface UseShareArtReturn {
 }
 
 /**
- * Custom hook for managing art sharing functionality (export and print)
+ * Custom hook for managing canvas export functionality
  */
-export function useShareArt(): UseShareArtReturn {
-  const [shareState, setShareState] = useState<ShareState>({
-    isSharing: false,
+export function useCanvasExport(): UseCanvasExportReturn {
+  const [exportState, setExportState] = useState<ExportState>({
+    isExporting: false,
     status: '',
     error: null,
   });
 
-  const updateState = useCallback((updates: Partial<ShareState>) => {
-    setShareState((prev) => ({ ...prev, ...updates }));
+  const updateState = useCallback((updates: Partial<ExportState>) => {
+    setExportState((prev) => ({ ...prev, ...updates }));
   }, []);
 
   const exportWebCanvas = useCallback(
     (p5Instance: p5, options: ExportOptions = {}) => {
       try {
         updateState({
-          isSharing: true,
+          isExporting: true,
           status: 'Exporting web canvas...',
           error: null,
         });
@@ -50,7 +50,7 @@ export function useShareArt(): UseShareArtReturn {
         exportWebCanvasService(p5Instance, options);
 
         updateState({
-          isSharing: false,
+          isExporting: false,
           status: 'Web export completed!',
           error: null,
         });
@@ -58,7 +58,7 @@ export function useShareArt(): UseShareArtReturn {
         const errorMessage =
           error instanceof Error ? error.message : 'Export failed';
         updateState({
-          isSharing: false,
+          isExporting: false,
           status: '',
           error: errorMessage,
         });
@@ -74,7 +74,7 @@ export function useShareArt(): UseShareArtReturn {
     ) => {
       try {
         updateState({
-          isSharing: true,
+          isExporting: true,
           status: 'Creating print-ready version...',
           error: null,
         });
@@ -82,7 +82,7 @@ export function useShareArt(): UseShareArtReturn {
         await exportPrintCanvasService(familyData, options);
 
         updateState({
-          isSharing: false,
+          isExporting: false,
           status: 'Print-ready export completed!',
           error: null,
         });
@@ -90,7 +90,7 @@ export function useShareArt(): UseShareArtReturn {
         const errorMessage =
           error instanceof Error ? error.message : 'Print export failed';
         updateState({
-          isSharing: false,
+          isExporting: false,
           status: '',
           error: errorMessage,
         });
@@ -104,7 +104,7 @@ export function useShareArt(): UseShareArtReturn {
   }, [updateState]);
 
   return {
-    shareState,
+    exportState,
     exportWebCanvas,
     exportPrintCanvas,
     clearStatus,

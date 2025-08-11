@@ -4,11 +4,11 @@ import {
   createWebSketch,
   type SketchConfig,
   type EnhancedP5,
-} from '../FamilyTreeSketch';
-import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
-import type { GedcomDataWithMetadata } from '../../../../shared/types';
-import type { PipelineResult } from '../../transformers/pipeline';
-import { TRANSFORMERS } from '../../transformers/transformers';
+} from '../display/FamilyTreeSketch';
+import { CANVAS_DIMENSIONS } from '../../../shared/constants';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { PipelineResult } from '../transformers/pipeline';
+import { TRANSFORMERS } from '../transformers/transformers';
 import { GenerationProgress } from './GenerationProgress';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;

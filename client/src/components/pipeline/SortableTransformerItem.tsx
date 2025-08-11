@@ -1,9 +1,9 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2 } from 'lucide-react';
-import type { VisualTransformerConfig } from '../../../transformers/types';
-import type { TransformerId } from '../../../transformers/transformers';
-import type { VisualParameterValues } from '../../../transformers/visual-parameters';
+import type { VisualTransformerConfig } from '../../transformers/types';
+import type { TransformerId } from '../../transformers/transformers';
+import type { VisualParameterValues } from '../../transformers/visual-parameters';
 import { TransformerItem } from './TransformerItem';
 
 // Drag handle configuration

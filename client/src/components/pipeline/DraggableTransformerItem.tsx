@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/core';
-import type { VisualTransformerConfig } from '../../../transformers/types';
-import type { TransformerId } from '../../../transformers/transformers';
-import type { VisualParameterValues } from '../../../transformers/visual-parameters';
+import type { VisualTransformerConfig } from '../../transformers/types';
+import type { TransformerId } from '../../transformers/transformers';
+import type { VisualParameterValues } from '../../transformers/visual-parameters';
 import { TransformerItem } from './TransformerItem';
 
 interface DraggableTransformerItemProps {

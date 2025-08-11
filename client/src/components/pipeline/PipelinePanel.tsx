@@ -1,13 +1,13 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useEventListener, useWindowSize, useMediaQuery } from 'usehooks-ts';
 import { PipelineManager } from './PipelineManager';
-import type { PipelineResult } from '../../../transformers/types';
-import type { TransformerId } from '../../../transformers/transformers';
+import type { PipelineResult } from '../../transformers/types';
+import type { TransformerId } from '../../transformers/transformers';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
-} from '../../../../../shared/types';
-import type { VisualParameterValues } from '../../../transformers/visual-parameters';
+} from '../../../../shared/types';
+import type { VisualParameterValues } from '../../transformers/visual-parameters';
 
 // Panel width constants
 const PANEL_WIDTH_CONSTANTS = {

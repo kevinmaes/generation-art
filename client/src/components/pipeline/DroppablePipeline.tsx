@@ -4,7 +4,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import type { TransformerId } from '../../../transformers/transformers';
+import type { TransformerId } from '../../transformers/transformers';
 
 interface DroppablePipelineProps {
   children: React.ReactNode;

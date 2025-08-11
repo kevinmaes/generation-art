@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { validateFlexibleGedcomData } from '../../../../shared/types';
-import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import { validateFlexibleGedcomData } from '../../../shared/types';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
