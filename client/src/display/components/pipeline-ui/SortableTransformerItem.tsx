@@ -6,6 +6,10 @@ import type { TransformerId } from '../../../transformers/transformers';
 import type { VisualParameterValues } from '../../../transformers/visual-parameters';
 import { TransformerItem } from './TransformerItem';
 
+// Drag handle configuration
+const DRAG_HANDLE_ROWS = 2;
+const DRAG_HANDLE_HEIGHT = DRAG_HANDLE_ROWS * 16; // 16px per row
+
 interface SortableTransformerItemProps {
   transformer: VisualTransformerConfig;
   isSelected: boolean;
@@ -48,6 +52,7 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
       type: 'pipeline-transformer',
       transformer,
       index,
+      transformerId: transformer.id, // Store the actual transformer ID
     },
   });
 
@@ -72,14 +77,17 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
     </button>
   );
 
-  // Custom drag handle
+  // Custom multi-row drag handle
   const dragHandle = (
     <div
-      className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing flex items-center"
+      className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing flex flex-col items-center justify-center min-w-6"
+      style={{ height: `${String(DRAG_HANDLE_HEIGHT)}px` }}
       {...attributes}
       {...listeners}
     >
-      <GripVertical size={14} />
+      {Array.from({ length: DRAG_HANDLE_ROWS }, (_, i) => (
+        <GripVertical key={i} size={12} className="leading-none" />
+      ))}
     </div>
   );
 
@@ -89,7 +97,7 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
       style={style}
       className={isDragging ? 'opacity-50' : ''}
     >
-      <div className="flex items-start space-x-2">
+      <div className="flex items-center space-x-2">
         {dragHandle}
         <div className="flex-1">
           <TransformerItem

@@ -46,7 +46,7 @@ interface TransformerItemProps {
 
 export function TransformerItem({
   transformer,
-  isSelected,
+  isSelected: _isSelected,
   handleTransformerSelect,
   index,
   isInPipeline,
@@ -199,11 +199,9 @@ export function TransformerItem({
   return (
     <div
       key={transformer.id}
-      className={`px-2 py-1 rounded border transition-colors ${
-        isSelected
-          ? 'bg-purple-100 border-purple-300'
-          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-      } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
+      className={`px-2 py-1 rounded border transition-colors bg-gray-50 border-gray-200 hover:bg-gray-100 ${
+        isDisabled ? 'opacity-50 pointer-events-none' : ''
+      }`}
     >
       {/* Clickable Header */}
       <div

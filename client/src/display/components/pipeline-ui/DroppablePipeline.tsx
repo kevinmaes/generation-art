@@ -1,9 +1,6 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import type { TransformerId } from '../../../transformers/transformers';
 
 interface DroppablePipelineProps {
@@ -11,17 +8,12 @@ interface DroppablePipelineProps {
   activeTransformerIds: TransformerId[];
 }
 
-export function DroppablePipeline({
-  children,
-  activeTransformerIds,
-}: DroppablePipelineProps) {
+export function DroppablePipeline({ children, activeTransformerIds }: DroppablePipelineProps) {
   const { isOver, setNodeRef } = useDroppable({
     id: 'active-pipeline-dropzone',
   });
 
-  const sortableIds = activeTransformerIds.map(
-    (_, index) => `pipeline-${String(index)}`,
-  );
+  const sortableIds = activeTransformerIds.map((_, index) => `pipeline-${index}`);
 
   return (
     <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>

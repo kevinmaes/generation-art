@@ -32,6 +32,22 @@ import type {
   DragOverEvent,
   DragStartEvent,
 } from '@dnd-kit/core';
+
+// Type definitions for drag data
+interface PipelineTransformerDragData {
+  type: 'pipeline-transformer';
+  transformer: any;
+  index: number;
+  transformerId: TransformerId;
+}
+
+interface TransformerDragData {
+  type: 'transformer';
+  transformer: any;
+  fromAvailable: boolean;
+}
+
+type DragData = PipelineTransformerDragData | TransformerDragData;
 import { arrayMove } from '@dnd-kit/sortable';
 
 // Accordion panel constants
@@ -259,8 +275,34 @@ export function PipelineManager({
   // Drag and drop handlers
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    const transformerId = active.id as TransformerId;
-    const fromAvailable = !activeTransformerIds.includes(transformerId);
+
+    // Get the transformer ID from the drag data, not the sortable ID
+    let transformerId: string;
+    let fromAvailable = false;
+
+    const dragData = active.data.current as DragData | undefined;
+
+    if (dragData?.type === 'pipeline-transformer') {
+      // Dragging from pipeline - get transformer ID from data
+      transformerId = dragData.transformerId;
+      fromAvailable = false;
+    } else if (dragData?.type === 'transformer') {
+      // Dragging from available transformers
+      transformerId = dragData.transformer.id;
+      fromAvailable = true;
+    } else {
+      // Fallback to using the ID directly (for backward compatibility)
+      transformerId = active.id as string;
+      fromAvailable = !activeTransformerIds.includes(
+        transformerId as TransformerId,
+      );
+    }
+
+    // Validate that the dragged item has a valid transformer ID
+    if (!isTransformerId(transformerId)) {
+      console.warn('Invalid transformer ID during drag:', transformerId);
+      return;
+    }
 
     setDraggedItem({
       id: transformerId,
@@ -290,7 +332,29 @@ export function PipelineManager({
       return;
     }
 
-    const activeId = active.id as TransformerId;
+    // Get the transformer ID from the drag data, not the sortable ID
+    let activeId: string;
+
+    const dragData = active.data.current as DragData | undefined;
+
+    if (dragData?.type === 'pipeline-transformer') {
+      // Dragging from pipeline - get transformer ID from data
+      activeId = dragData.transformerId;
+    } else if (dragData?.type === 'transformer') {
+      // Dragging from available transformers
+      activeId = dragData.transformer.id;
+    } else {
+      // Fallback to using the ID directly (for backward compatibility)
+      activeId = active.id as string;
+    }
+
+    // Validate that the active item has a valid transformer ID
+    if (!isTransformerId(activeId)) {
+      console.warn('Invalid transformer ID during drag end:', activeId);
+      setDraggedItem(null);
+      return;
+    }
+
     const overId = over.id as string;
 
     // Handle adding transformer from available to pipeline
@@ -464,39 +528,51 @@ export function PipelineManager({
                     All transformers in use
                   </p>
                 ) : (
-                  availableTransformerIds.map((transformerId) => {
-                    const transformer = transformerConfigs[transformerId];
+                  availableTransformerIds
+                    .map((transformerId) => {
+                      const transformer = transformerConfigs[transformerId];
 
-                    return (
-                      <DraggableTransformerItem
-                        key={transformerId}
-                        transformer={transformer}
-                        isSelected={false}
-                        handleTransformerSelect={handleTransformerSelect}
-                        index={availableTransformerIds.length}
-                        isInPipeline={false}
-                        onAddTransformer={onAddTransformer}
-                        onRemoveTransformer={onRemoveTransformer}
-                        onParameterChange={handleParameterChange}
-                        onParameterReset={handleParameterReset}
-                        currentParameters={
-                          transformerParameters[transformerId] ?? {
-                            dimensions: {
-                              primary: transformer.defaultPrimaryDimension,
-                              secondary: transformer.defaultSecondaryDimension,
-                            },
-                            visual: {},
+                      // Safety check - skip if transformer config is not found
+                      if (!transformer) {
+                        console.warn(
+                          'Transformer config not found for ID:',
+                          transformerId,
+                        );
+                        return null;
+                      }
+
+                      return (
+                        <DraggableTransformerItem
+                          key={transformerId}
+                          transformer={transformer}
+                          isSelected={false}
+                          handleTransformerSelect={handleTransformerSelect}
+                          index={availableTransformerIds.length}
+                          isInPipeline={false}
+                          onAddTransformer={onAddTransformer}
+                          onRemoveTransformer={onRemoveTransformer}
+                          onParameterChange={handleParameterChange}
+                          onParameterReset={handleParameterReset}
+                          currentParameters={
+                            transformerParameters[transformerId] ?? {
+                              dimensions: {
+                                primary: transformer.defaultPrimaryDimension,
+                                secondary:
+                                  transformer.defaultSecondaryDimension,
+                              },
+                              visual: {},
+                            }
                           }
-                        }
-                        isVisualizing={isVisualizing}
-                        lastRunParameters={lastRunParameters?.[transformerId]}
-                        isExpanded={
-                          expandedTransformers[transformerId] || false
-                        }
-                        onToggleExpanded={handleToggleExpanded}
-                      />
-                    );
-                  })
+                          isVisualizing={isVisualizing}
+                          lastRunParameters={lastRunParameters?.[transformerId]}
+                          isExpanded={
+                            expandedTransformers[transformerId] || false
+                          }
+                          onToggleExpanded={handleToggleExpanded}
+                        />
+                      );
+                    })
+                    .filter(Boolean)
                 )}
               </div>
             </CollapsiblePanel>
@@ -819,10 +895,10 @@ export function PipelineManager({
         </div>
 
         <DragOverlay>
-          {draggedItem ? (
+          {draggedItem && isTransformerId(draggedItem.id) ? (
             <div className="bg-white border border-gray-300 rounded p-2 shadow-lg">
               <span className="text-sm font-medium">
-                {transformerConfigs[draggedItem.id].name || draggedItem.id}
+                {transformerConfigs[draggedItem.id]?.name || draggedItem.id}
               </span>
             </div>
           ) : null}
