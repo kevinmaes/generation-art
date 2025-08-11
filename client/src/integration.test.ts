@@ -1,5 +1,5 @@
 import { CANVAS_DIMENSIONS, PRINT_SETTINGS } from '../../shared/constants';
-import { getIndividualCoord } from './display/components/helpers';
+import { getIndividualCoord } from './components/helpers';
 import { describe, it, expect } from 'vitest';
 
 describe('Integration: Constants + Helpers', () => {

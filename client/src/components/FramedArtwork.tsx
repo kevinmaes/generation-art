@@ -2,10 +2,10 @@ import React, { useRef, useCallback, useState } from 'react';
 import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
-import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
-import { useShareArt } from '../../data-loading/hooks/useShareArt';
-import type { GedcomDataWithMetadata } from '../../../../shared/types';
-import type { PipelineResult } from '../../transformers/pipeline';
+import { CANVAS_DIMENSIONS } from '../../../shared/constants';
+import { useShareArt } from '../hooks/useShareArt';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { PipelineResult } from '../transformers/pipeline';
 
 interface FramedArtworkProps {
   title: string;

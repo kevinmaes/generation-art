@@ -1,12 +1,12 @@
 import React from 'react';
-import type { VisualTransformerConfig } from '../../../transformers/types';
-import type { TransformerId } from '../../../transformers/transformers';
-import { DIMENSIONS } from '../../../transformers/dimensions';
+import type { VisualTransformerConfig } from '../../transformers/types';
+import type { TransformerId } from '../../transformers/transformers';
+import { DIMENSIONS } from '../../transformers/dimensions';
 import {
   VISUAL_PARAMETERS,
   type VisualParameterValues,
-} from '../../../transformers/visual-parameters';
-import { getProviderInfo } from '../../../services/llm-service';
+} from '../../transformers/visual-parameters';
+import { getProviderInfo } from '../../services/llm-service';
 
 interface TransformerItemProps {
   transformer: VisualTransformerConfig;
@@ -38,11 +38,15 @@ interface TransformerItemProps {
   // NEW: Expanded state management for available transformers
   isExpanded?: boolean;
   onToggleExpanded?: (transformerId: string) => void;
+  // NEW: Custom action buttons for different contexts
+  customActions?: {
+    removeButton?: React.ReactNode;
+  };
 }
 
 export function TransformerItem({
   transformer,
-  isSelected,
+  isSelected: _isSelected,
   handleTransformerSelect,
   index,
   isInPipeline,
@@ -55,6 +59,7 @@ export function TransformerItem({
   lastRunParameters,
   isExpanded = false,
   onToggleExpanded,
+  customActions,
 }: TransformerItemProps) {
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -194,10 +199,10 @@ export function TransformerItem({
   return (
     <div
       key={transformer.id}
-      className={`px-2 py-1 rounded border transition-colors ${
-        isSelected
-          ? 'bg-purple-100 border-purple-300'
-          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+      className={`${
+        isInPipeline
+          ? ''
+          : 'px-2 py-1 rounded border transition-colors bg-gray-50 border-gray-200 hover:bg-gray-100'
       } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
     >
       {/* Clickable Header */}
@@ -241,18 +246,20 @@ export function TransformerItem({
           )}
         </div>
         {isInPipeline ? (
-          <button
-            className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!isDisabled) {
-                onRemoveTransformer?.(transformer.id);
-              }
-            }}
-            disabled={isDisabled}
-          >
-            ×
-          </button>
+          (customActions?.removeButton ?? (
+            <button
+              className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isDisabled) {
+                  onRemoveTransformer?.(transformer.id);
+                }
+              }}
+              disabled={isDisabled}
+            >
+              ×
+            </button>
+          ))
         ) : (
           <button
             className="text-gray-400 hover:text-green-500 text-xs flex-shrink-0"

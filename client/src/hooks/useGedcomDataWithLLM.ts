@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { validateFlexibleGedcomData } from '../../../../shared/types';
+import { validateFlexibleGedcomData } from '../../../shared/types';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
-} from '../../../../shared/types';
+} from '../../../shared/types';
 
 interface UseGedcomDataWithLLMOptions {
   baseFileName: string; // e.g., "kennedy" (without extension)
