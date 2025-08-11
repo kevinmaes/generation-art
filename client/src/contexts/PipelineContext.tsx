@@ -7,6 +7,7 @@ import type {
   LLMReadyData,
 } from '../../../shared/types';
 import type { VisualParameterValues } from '../transformers/visual-parameters';
+import { usePipeline } from '../hooks/usePipeline';
 
 // Type for the complete dual-data structure
 export interface DualGedcomData {
@@ -42,6 +43,10 @@ export interface PipelineContextValue {
   activeTransformerIds: TransformerId[];
   dualData: DualGedcomData | null;
   selectedTransformerId: TransformerId | null;
+
+  // Pipeline execution states
+  isPipelineRunning: boolean;
+  pipelineError: string | null;
 
   // UI states
   isVisualizing: boolean;
@@ -79,7 +84,7 @@ export interface PipelineContextValue {
     parameters: TransformerParameterConfig,
   ) => void;
   onParameterReset: (transformerId: TransformerId) => void;
-  onVisualize: () => void;
+  onVisualize: () => Promise<void>;
 
   // Transformer UI actions
   setTransformerExpanded: (transformerId: string, expanded: boolean) => void;
@@ -99,6 +104,10 @@ export interface PipelineContextValue {
 export interface PipelineProviderProps {
   children: React.ReactNode;
   initialActiveTransformerIds?: TransformerId[];
+  canvasWidth?: number;
+  canvasHeight?: number;
+  temperature?: number;
+  seed?: string;
   onVisualize?: () => void;
   onTransformerIdsChange?: (ids: TransformerId[]) => void;
   onParameterChange?: (
@@ -116,14 +125,23 @@ export const PipelineContext = createContext<PipelineContextValue | undefined>(
 export function PipelineProvider({
   children,
   initialActiveTransformerIds = [],
+  canvasWidth = 800,
+  canvasHeight = 600,
+  temperature,
+  seed,
   onVisualize: externalOnVisualize,
   onTransformerIdsChange,
   onParameterChange: externalOnParameterChange,
 }: PipelineProviderProps) {
+  // Use the pipeline hook for execution
+  const {
+    result: pipelineResult,
+    error: pipelineError,
+    isRunning: isPipelineRunning,
+    runPipeline: executePipeline,
+  } = usePipeline({ temperature, seed });
+
   // Core state
-  const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(
-    null,
-  );
   const [activeTransformerIds, setActiveTransformerIdsState] = useState<
     TransformerId[]
   >(initialActiveTransformerIds);
@@ -226,10 +244,35 @@ export function PipelineProvider({
     });
   }, []);
 
-  const onVisualize = useCallback(() => {
+  const onVisualize = useCallback(async () => {
+    if (!dualData || activeTransformerIds.length === 0) {
+      return;
+    }
+
     setLastRunParameters({ ...transformerParameters });
-    externalOnVisualize?.();
-  }, [transformerParameters, externalOnVisualize]);
+    setIsVisualizing(true);
+
+    try {
+      await executePipeline(
+        dualData.full,
+        dualData.llm,
+        canvasWidth,
+        canvasHeight,
+        activeTransformerIds,
+      );
+      externalOnVisualize?.();
+    } finally {
+      setIsVisualizing(false);
+    }
+  }, [
+    dualData,
+    activeTransformerIds,
+    transformerParameters,
+    executePipeline,
+    canvasWidth,
+    canvasHeight,
+    externalOnVisualize,
+  ]);
 
   const setTransformerExpanded = useCallback(
     (transformerId: string, expanded: boolean) => {
@@ -257,6 +300,10 @@ export function PipelineProvider({
       dualData,
       selectedTransformerId,
 
+      // Pipeline execution states
+      isPipelineRunning,
+      pipelineError,
+
       // UI states
       isVisualizing,
       hasData,
@@ -275,7 +322,10 @@ export function PipelineProvider({
       panelCollapseStates,
 
       // Actions
-      setPipelineResult,
+      setPipelineResult: () => {
+        // Pipeline result is now managed by usePipeline hook
+        console.warn('setPipelineResult is deprecated, pipeline result is managed internally');
+      },
       setActiveTransformerIds,
       setDualData,
       setSelectedTransformerId,
@@ -307,6 +357,8 @@ export function PipelineProvider({
     }),
     [
       pipelineResult,
+      pipelineError,
+      isPipelineRunning,
       activeTransformerIds,
       dualData,
       selectedTransformerId,
