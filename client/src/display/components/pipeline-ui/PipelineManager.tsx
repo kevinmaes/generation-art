@@ -926,7 +926,7 @@ export function PipelineManager({
           )}
         </div>
 
-        <DragOverlay>
+        <DragOverlay dropAnimation={null}>
           {draggedItem && isTransformerId(draggedItem.id) ? (
             <div
               className="bg-gray-50 border border-gray-200 rounded shadow-lg"
