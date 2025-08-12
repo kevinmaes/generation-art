@@ -19,7 +19,6 @@ import {
 import type { VisualParameterValues } from './transformers/visual-parameters';
 import { useGedcomDataWithLLM } from './hooks/useGedcomDataWithLLM';
 import './App.css';
-import { PipelineProvider } from './contexts/PipelineContext';
 
 // Type for the complete dual-data structure
 interface DualGedcomData {
@@ -373,28 +372,26 @@ function App(): React.ReactElement {
 
       {/* Pipeline Panel */}
       <ErrorBoundary>
-        <PipelineProvider>
-          <PipelinePanel
-            isOpen={isPipelineModalOpen}
-            onClose={() => {
-              setIsPipelineModalOpen(false);
-            }}
-            pipelineResult={pipelineResult}
-            activeTransformerIds={activeTransformerIds}
-            dualData={dualData}
-            onTransformerSelect={handleTransformerSelect}
-            onAddTransformer={handleAddTransformer}
-            onRemoveTransformer={handleRemoveTransformer}
-            onReorderTransformers={handleReorderTransformers}
-            onParameterChange={handleParameterChange}
-            onVisualize={() => {
-              void handleVisualize();
-            }}
-            isVisualizing={isVisualizing}
-            hasData={!!dualData}
-            lastRunParameters={lastRunParameters}
-          />
-        </PipelineProvider>
+        <PipelinePanel
+          isOpen={isPipelineModalOpen}
+          onClose={() => {
+            setIsPipelineModalOpen(false);
+          }}
+          pipelineResult={pipelineResult}
+          activeTransformerIds={activeTransformerIds}
+          dualData={dualData}
+          onTransformerSelect={handleTransformerSelect}
+          onAddTransformer={handleAddTransformer}
+          onRemoveTransformer={handleRemoveTransformer}
+          onReorderTransformers={handleReorderTransformers}
+          onParameterChange={handleParameterChange}
+          onVisualize={() => {
+            void handleVisualize();
+          }}
+          isVisualizing={isVisualizing}
+          hasData={!!dualData}
+          lastRunParameters={lastRunParameters}
+        />
       </ErrorBoundary>
     </div>
   );

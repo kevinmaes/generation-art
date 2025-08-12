@@ -8,6 +8,7 @@ import type {
   LLMReadyData,
 } from '../../../../shared/types';
 import type { VisualParameterValues } from '../../transformers/visual-parameters';
+import { PipelineProvider } from '../../contexts/PipelineContext';
 
 // Panel width constants
 const PANEL_WIDTH_CONSTANTS = {
@@ -198,20 +199,22 @@ export function PipelinePanel({
           {/* Panel Body - PipelineManager with responsive layout hint */}
           <div className="flex-1 overflow-hidden flex flex-col">
             <div className={`h-full ${isNarrow ? 'narrow-layout' : ''}`}>
-              <PipelineManager
-                pipelineResult={pipelineResult}
-                activeTransformerIds={activeTransformerIds}
-                dualData={dualData}
-                onTransformerSelect={onTransformerSelect}
-                onAddTransformer={onAddTransformer}
-                onRemoveTransformer={onRemoveTransformer}
-                onReorderTransformers={onReorderTransformers}
-                onParameterChange={onParameterChange}
-                onVisualize={onVisualize}
-                isVisualizing={isVisualizing}
-                hasData={hasData}
-                lastRunParameters={lastRunParameters}
-              />
+              <PipelineProvider>
+                <PipelineManager
+                  pipelineResult={pipelineResult}
+                  activeTransformerIds={activeTransformerIds}
+                  dualData={dualData}
+                  onTransformerSelect={onTransformerSelect}
+                  onAddTransformer={onAddTransformer}
+                  onRemoveTransformer={onRemoveTransformer}
+                  onReorderTransformers={onReorderTransformers}
+                  onParameterChange={onParameterChange}
+                  onVisualize={onVisualize}
+                  isVisualizing={isVisualizing}
+                  hasData={hasData}
+                  lastRunParameters={lastRunParameters}
+                />
+              </PipelineProvider>
             </div>
           </div>
 
