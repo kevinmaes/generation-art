@@ -200,9 +200,9 @@ export async function walkerTreeTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   console.log('🌳 WALKER TREE TRANSFORMER STARTING (Updated Version)');
   console.log('Context keys:', Object.keys(context));
-  
+
   const { gedcomData, visualMetadata, visual } = context;
-  
+
   // Debug log the visual parameters
   console.log('📊 Visual parameters received:', {
     showLabels: visual.showLabels,
@@ -270,76 +270,83 @@ export async function walkerTreeTransform(
   // Handle multiple disconnected trees (forest)
   const processedNodes = new Set<string>();
   const treesToProcess: WalkerNode[] = [];
-  
+
   // Start with the main root if found
   if (walkerTree.root) {
     treesToProcess.push(walkerTree.root);
   }
-  
+
   // Find all other roots (nodes without parents that haven't been processed)
-  walkerTree.nodes.forEach(node => {
-    if (!node.parent && !processedNodes.has(node.id) && node !== walkerTree.root) {
+  walkerTree.nodes.forEach((node) => {
+    if (
+      !node.parent &&
+      !processedNodes.has(node.id) &&
+      node !== walkerTree.root
+    ) {
       treesToProcess.push(node);
     }
   });
-  
+
   if (treesToProcess.length === 0) {
     console.warn('Walker tree layout: No root nodes found');
     return { visualMetadata: {} };
   }
-  
-  console.log(`🌳 Processing ${String(treesToProcess.length)} separate family tree(s)`);
-  
+
+  console.log(
+    `🌳 Processing ${String(treesToProcess.length)} separate family tree(s)`,
+  );
+
   // Process each tree separately
   let treeOffset = 0;
   const treeSpacing = 200; // Horizontal spacing between separate trees
-  
+
   treesToProcess.forEach((root, treeIndex) => {
     console.log(
       `🚀 Processing tree ${String(treeIndex + 1)}/${String(treesToProcess.length)}, root:`,
       root.id,
     );
-    
+
     try {
       // Apply Walker's algorithm to this tree
       executeWalkerAlgorithm(root, layoutConfig);
-      
+
       // Mark all nodes in this tree as processed
       const markProcessed = (node: WalkerNode) => {
         if (processedNodes.has(node.id)) return;
         processedNodes.add(node.id);
-        node.children.forEach(child => markProcessed(child));
+        node.children.forEach((child) => markProcessed(child));
       };
       markProcessed(root);
-      
+
       // Adjust positions for this tree (offset horizontally if multiple trees)
       if (treeIndex > 0) {
         const adjustPositions = (node: WalkerNode) => {
           node.x += treeOffset;
-          node.children.forEach(child => adjustPositions(child));
+          node.children.forEach((child) => adjustPositions(child));
         };
         adjustPositions(root);
-        
+
         // Calculate width of this tree for next offset
         const treeNodes: WalkerNode[] = [];
         const collectNodes = (node: WalkerNode) => {
           treeNodes.push(node);
-          node.children.forEach(child => collectNodes(child));
+          node.children.forEach((child) => collectNodes(child));
         };
         collectNodes(root);
-        
-        const maxX = Math.max(...treeNodes.map(n => n.x));
+
+        const maxX = Math.max(...treeNodes.map((n) => n.x));
         treeOffset = maxX + treeSpacing;
       }
-      
-      console.log(
-        `✅ Tree ${String(treeIndex + 1)} processed successfully`,
-      );
+
+      console.log(`✅ Tree ${String(treeIndex + 1)} processed successfully`);
     } catch (error) {
-      console.error(`❌ Error processing tree ${String(treeIndex + 1)}:`, error);
+      console.error(
+        `❌ Error processing tree ${String(treeIndex + 1)}:`,
+        error,
+      );
     }
   });
-  
+
   console.log(
     '🧮 All trees processed. Sample positions:',
     walkerTree.nodes.slice(0, 3).map((n) => ({ id: n.id, x: n.x, y: n.y })),
@@ -370,7 +377,7 @@ export async function walkerTreeTransform(
   Object.entries(positions).forEach(([individualId, position]) => {
     const individual = individuals.find((i) => i.id === individualId);
     const shouldAddLabel = layoutConfig.showLabels && individual;
-    
+
     // Debug logging for first few individuals
     if (Object.keys(nodeMetadata).length < 3) {
       console.log(`🏷️ Creating metadata for ${individualId}:`, {
@@ -380,7 +387,7 @@ export async function walkerTreeTransform(
         willAddLabel: shouldAddLabel,
       });
     }
-    
+
     nodeMetadata[individualId] = {
       x: position.x,
       y: position.y,
@@ -398,15 +405,21 @@ export async function walkerTreeTransform(
             custom: {
               label: individual.name || individual.id,
               labelOffsetY: Math.max(20, position.height * 0.7), // Minimum 20px offset
-              labelSize: Math.max(layoutConfig.minLabelSize, Math.min(position.width, position.height) * 0.3), // Use configurable minimum
+              labelSize: Math.max(
+                layoutConfig.minLabelSize,
+                Math.min(position.width, position.height) * 0.3,
+              ), // Use configurable minimum
             },
           }
         : {}),
     };
-    
+
     // Debug log the result for first individual
     if (Object.keys(nodeMetadata).length === 1) {
-      console.log('🏷️ First node metadata created:', nodeMetadata[individualId]);
+      console.log(
+        '🏷️ First node metadata created:',
+        nodeMetadata[individualId],
+      );
     }
   });
 
@@ -615,19 +628,21 @@ function buildWalkerTree(
   // Find root nodes - these should be the oldest ancestors (no parents)
   // In genealogy, we want to start from the oldest known ancestors
   let rootNodes = nodes.filter((node) => !node.parent);
-  
+
   // If everyone has parents (circular reference issue), find the earliest generation
   if (rootNodes.length === 0) {
-    const generationNumbers = Array.from(generationCounts.keys()).sort((a, b) => a - b);
+    const generationNumbers = Array.from(generationCounts.keys()).sort(
+      (a, b) => a - b,
+    );
     if (generationNumbers.length > 0) {
       const earliestGen = generationNumbers[0];
-      rootNodes = nodes.filter(n => n.generation === earliestGen);
+      rootNodes = nodes.filter((n) => n.generation === earliestGen);
     }
   }
-  
+
   // Further filter to only include roots that have descendants
   // This avoids isolated individuals being roots
-  const rootsWithDescendants = rootNodes.filter(n => n.children.length > 0);
+  const rootsWithDescendants = rootNodes.filter((n) => n.children.length > 0);
   if (rootsWithDescendants.length > 0) {
     rootNodes = rootsWithDescendants;
   }
@@ -642,13 +657,17 @@ function buildWalkerTree(
       hasParent: !!n.parent,
     })),
   });
-  
+
   // Log a warning if we have too many roots (indicates disconnected trees)
   if (rootNodes.length > 5) {
-    console.warn('⚠️ Multiple root nodes detected - this indicates multiple family branches:', {
-      rootCount: rootNodes.length,
-      message: 'Consider focusing on a single family branch or using a different layout',
-    });
+    console.warn(
+      '⚠️ Multiple root nodes detected - this indicates multiple family branches:',
+      {
+        rootCount: rootNodes.length,
+        message:
+          'Consider focusing on a single family branch or using a different layout',
+      },
+    );
   }
 
   // Find the root with the most descendants for better tree layout
@@ -657,7 +676,7 @@ function buildWalkerTree(
     const visited = new Set<string>();
     const queue = [node];
     let count = 0;
-    
+
     while (queue.length > 0) {
       const current = queue.shift();
       if (!current || visited.has(current.id)) continue;
@@ -665,10 +684,10 @@ function buildWalkerTree(
       count++;
       queue.push(...current.children);
     }
-    
+
     return count - 1; // Don't count the node itself
   };
-  
+
   const rootWithMostDescendants = rootNodes.reduce<WalkerNode | null>(
     (best, current) => {
       const currentCount = countDescendants(current);
@@ -705,8 +724,8 @@ function buildFamilyClusters(
   _config: LayoutConfig,
 ): void {
   // Create a map for quick node lookup
-  const nodeMap = new Map(nodes.map(n => [n.id, n]));
-  
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+
   nodes.forEach((node) => {
     const spouses = traversalUtils.getSpouses(node.id);
     node.spouses = spouses
@@ -778,14 +797,14 @@ function buildFamilyClusters(
         cluster[1] = spouse1;
       }
     }
-    
+
     // Ensure spouses share children
     cluster.forEach((member, idx) => {
       if (idx > 0) {
         // Merge children lists for spouses
         const allChildren = new Set<WalkerNode>();
-        cluster.forEach(spouse => {
-          spouse.children.forEach(child => allChildren.add(child));
+        cluster.forEach((spouse) => {
+          spouse.children.forEach((child) => allChildren.add(child));
         });
         member.children = Array.from(allChildren);
       }

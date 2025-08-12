@@ -160,7 +160,7 @@ export class OrthogonalRouter {
 
     relationships.forEach((rel) => {
       const familyId = rel.familyId || `family_${rel.sourceId}`;
-      
+
       // Track children for this family
       if (!familyToChildren.has(familyId)) {
         familyToChildren.set(familyId, new Set());
@@ -169,7 +169,7 @@ export class OrthogonalRouter {
       if (childrenSet) {
         childrenSet.add(rel.targetId);
       }
-      
+
       // Track parents for this family
       if (!familyToParents.has(familyId)) {
         familyToParents.set(familyId, new Set());
@@ -178,7 +178,7 @@ export class OrthogonalRouter {
       if (parentsSet) {
         parentsSet.add(rel.sourceId);
       }
-      
+
       // Map child to family for deduplication
       childToFamily.set(rel.targetId, familyId);
     });
@@ -190,18 +190,18 @@ export class OrthogonalRouter {
     familyToChildren.forEach((childIds, familyId) => {
       const parentIds = familyToParents.get(familyId) || new Set();
       const parentNodes = Array.from(parentIds)
-        .map(id => nodeMap.get(id))
+        .map((id) => nodeMap.get(id))
         .filter((node): node is FamilyNode => node !== undefined);
-      
+
       const childNodes = Array.from(childIds)
-        .filter(id => !processedChildren.has(id)) // Avoid duplicate processing
-        .map(id => nodeMap.get(id))
+        .filter((id) => !processedChildren.has(id)) // Avoid duplicate processing
+        .map((id) => nodeMap.get(id))
         .filter((node): node is FamilyNode => node !== undefined);
 
       if (childNodes.length === 0 || parentNodes.length === 0) return;
-      
+
       // Mark children as processed
-      childIds.forEach(id => processedChildren.add(id));
+      childIds.forEach((id) => processedChildren.add(id));
 
       // Create T-junction from parent(s) to children
       const tjunctionEdges = this.createFamilyTJunction(
@@ -216,7 +216,6 @@ export class OrthogonalRouter {
     return edges;
   }
 
-  
   /**
    * Create a T-junction connecting parent(s) to multiple children
    * Handles both single parent and two-parent families
@@ -230,11 +229,11 @@ export class OrthogonalRouter {
 
     // Sort children by x position for cleaner layout
     children.sort((a, b) => a.position.x - b.position.x);
-    
+
     // Calculate the connection point for parents
     let parentConnectionX: number;
     let parentConnectionY: number;
-    
+
     if (parents.length === 2) {
       // Two parents: connect from midpoint between them
       parentConnectionX = (parents[0].position.x + parents[1].position.x) / 2;
@@ -244,13 +243,13 @@ export class OrthogonalRouter {
       parentConnectionX = parents[0].position.x;
       parentConnectionY = parents[0].position.y;
     }
-    
+
     // Calculate bus position (horizontal line connecting to all children)
     const busY = parentConnectionY + this.config.dropDistance;
     const childrenX = children.map((c) => c.position.x);
     const busStartX = Math.min(...childrenX);
     const busEndX = Math.max(...childrenX);
-    
+
     // Extend bus slightly beyond children for cleaner look
     const extendedBusStartX = busStartX - this.config.childSpacing * 0.5;
     const extendedBusEndX = busEndX + this.config.childSpacing * 0.5;
@@ -258,7 +257,8 @@ export class OrthogonalRouter {
     // Create segments for parent connection
     if (parents.length === 2) {
       // Create marriage bracket segment first
-      const marriageBracketY = parentConnectionY + this.config.dropDistance * 0.3;
+      const marriageBracketY =
+        parentConnectionY + this.config.dropDistance * 0.3;
       const marriageSegment = createStraightSegment(
         { x: parents[0].position.x, y: marriageBracketY },
         { x: parents[1].position.x, y: marriageBracketY },
@@ -271,7 +271,7 @@ export class OrthogonalRouter {
         },
       );
       this.segments.set(marriageSegment.id, marriageSegment);
-      
+
       // Drop from marriage bracket to bus
       const marriageDropSegment = createStraightSegment(
         { x: parentConnectionX, y: marriageBracketY },
