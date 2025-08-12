@@ -11,7 +11,7 @@ import type {
   GraphTraversalUtils,
   WalkerTreeData,
   GedcomDataWithMetadata,
-} from '../../../shared/types';
+} from '../../shared/types';
 
 /**
  * Build adjacency maps for O(1) graph lookups

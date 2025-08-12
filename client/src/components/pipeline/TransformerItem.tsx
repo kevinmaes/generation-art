@@ -1,12 +1,12 @@
 import React from 'react';
-import type { VisualTransformerConfig } from '../../../transformers/types';
-import type { TransformerId } from '../../../transformers/transformers';
-import { DIMENSIONS } from '../../../transformers/dimensions';
+import type { VisualTransformerConfig } from '../../transformers/types';
+import type { TransformerId } from '../../transformers/transformers';
+import { DIMENSIONS } from '../../transformers/dimensions';
 import {
   VISUAL_PARAMETERS,
   type VisualParameterValues,
-} from '../../../transformers/visual-parameters';
-import { getProviderInfo } from '../../../services/llm-service';
+} from '../../transformers/visual-parameters';
+import { getProviderInfo } from '../../services/llm-service';
 
 interface TransformerItemProps {
   transformer: VisualTransformerConfig;
@@ -38,11 +38,15 @@ interface TransformerItemProps {
   // NEW: Expanded state management for available transformers
   isExpanded?: boolean;
   onToggleExpanded?: (transformerId: string) => void;
+  // NEW: Custom action buttons for different contexts
+  customActions?: {
+    removeButton?: React.ReactNode;
+  };
 }
 
 export function TransformerItem({
   transformer,
-  isSelected,
+  isSelected: _isSelected,
   handleTransformerSelect,
   index,
   isInPipeline,
@@ -55,6 +59,7 @@ export function TransformerItem({
   lastRunParameters,
   isExpanded = false,
   onToggleExpanded,
+  customActions,
 }: TransformerItemProps) {
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -194,10 +199,10 @@ export function TransformerItem({
   return (
     <div
       key={transformer.id}
-      className={`px-2 py-1 rounded border transition-colors ${
-        isSelected
-          ? 'bg-purple-100 border-purple-300'
-          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+      className={`${
+        isInPipeline
+          ? ''
+          : 'px-2 py-1 rounded border transition-colors bg-gray-50 border-gray-200 hover:bg-gray-100'
       } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
     >
       {/* Clickable Header */}
@@ -241,18 +246,20 @@ export function TransformerItem({
           )}
         </div>
         {isInPipeline ? (
-          <button
-            className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (!isDisabled) {
-                onRemoveTransformer?.(transformer.id);
-              }
-            }}
-            disabled={isDisabled}
-          >
-            ×
-          </button>
+          (customActions?.removeButton ?? (
+            <button
+              className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isDisabled) {
+                  onRemoveTransformer?.(transformer.id);
+                }
+              }}
+              disabled={isDisabled}
+            >
+              ×
+            </button>
+          ))
         ) : (
           <button
             className="text-gray-400 hover:text-green-500 text-xs flex-shrink-0"
@@ -347,11 +354,15 @@ export function TransformerItem({
                 {transformer.availableDimensions.length > 0 && (
                   <div>
                     <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
-                      Dimensions + Temperature
+                      {transformer.requiresLLM
+                        ? 'Dimensions + Temperature'
+                        : 'Dimensions'}
                     </h4>
 
                     {/* Dimensions Row */}
-                    <div className="grid grid-cols-3 gap-2">
+                    <div
+                      className={`grid gap-2 ${transformer.requiresLLM ? 'grid-cols-3' : 'grid-cols-2'}`}
+                    >
                       {/* Primary Dimension */}
                       <div>
                         <label className="block text-xs text-gray-600 mb-1 text-left">
@@ -406,43 +417,45 @@ export function TransformerItem({
                         </select>
                       </div>
 
-                      {/* Temperature */}
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1 text-left">
-                          Temperature
-                        </label>
-                        <input
-                          type="range"
-                          min={0}
-                          max={1}
-                          step={0.1}
-                          value={
-                            sliderValues.temperature !== undefined
-                              ? (sliderValues.temperature as number)
-                              : (parameters.visual.temperature as number) ||
-                                (VISUAL_PARAMETERS.temperature
-                                  .defaultValue as number)
-                          }
-                          onInput={(e) => {
-                            handleSliderInput(
-                              'temperature',
-                              Number((e.target as HTMLInputElement).value),
-                            );
-                          }}
-                          onChange={(e) => {
-                            handleSliderChangeComplete(
-                              'temperature',
-                              Number(e.target.value),
-                            );
-                          }}
-                          className="w-full"
-                          disabled={isDisabled}
-                        />
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
-                          <span>0</span>
-                          <span>1</span>
+                      {/* Temperature - only show for LLM transformers */}
+                      {transformer.requiresLLM && (
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1 text-left">
+                            Temperature
+                          </label>
+                          <input
+                            type="range"
+                            min={0}
+                            max={1}
+                            step={0.1}
+                            value={
+                              sliderValues.temperature !== undefined
+                                ? (sliderValues.temperature as number)
+                                : (parameters.visual.temperature as number) ||
+                                  (VISUAL_PARAMETERS.temperature
+                                    .defaultValue as number)
+                            }
+                            onInput={(e) => {
+                              handleSliderInput(
+                                'temperature',
+                                Number((e.target as HTMLInputElement).value),
+                              );
+                            }}
+                            onChange={(e) => {
+                              handleSliderChangeComplete(
+                                'temperature',
+                                Number(e.target.value),
+                              );
+                            }}
+                            className="w-full"
+                            disabled={isDisabled}
+                          />
+                          <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>0</span>
+                            <span>1</span>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 )}

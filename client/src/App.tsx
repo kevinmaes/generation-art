@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FramedArtwork } from './display/components/FramedArtwork';
-import { PipelinePanel } from './display/components/pipeline-ui/PipelinePanel';
-import { ErrorBoundary } from './display/components/ErrorBoundary';
+import { useEventListener } from 'usehooks-ts';
+import { FramedArtwork } from './components/FramedArtwork';
+import { PipelinePanel } from './components/pipeline/PipelinePanel';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
@@ -16,7 +17,7 @@ import {
   type TransformerId,
 } from './transformers/transformers';
 import type { VisualParameterValues } from './transformers/visual-parameters';
-import { useGedcomDataWithLLM } from './data-loading/hooks/useGedcomDataWithLLM';
+import { useGedcomDataWithLLM } from './hooks/useGedcomDataWithLLM';
 import './App.css';
 
 // Type for the complete dual-data structure
@@ -93,20 +94,13 @@ function App(): React.ReactElement {
   }, [currentView, dualData]);
 
   // Handle keyboard shortcut for pipeline modal
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Handle Cmd+D or Ctrl+D
-      if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
-        event.preventDefault(); // Prevent browser bookmark
-        setIsPipelineModalOpen((prev) => !prev);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  useEventListener('keydown', (event) => {
+    // Handle Cmd+D or Ctrl+D
+    if ((event.metaKey || event.ctrlKey) && event.key === 'd') {
+      event.preventDefault(); // Prevent browser bookmark
+      setIsPipelineModalOpen((prev) => !prev);
+    }
+  });
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -165,6 +159,10 @@ function App(): React.ReactElement {
     setActiveTransformerIds(
       activeTransformerIds.filter((id) => id !== transformerId),
     );
+  };
+
+  const handleReorderTransformers = (newOrder: TransformerId[]) => {
+    setActiveTransformerIds(newOrder);
   };
 
   const handleParameterChange = (
@@ -385,6 +383,7 @@ function App(): React.ReactElement {
           onTransformerSelect={handleTransformerSelect}
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}
+          onReorderTransformers={handleReorderTransformers}
           onParameterChange={handleParameterChange}
           onVisualize={() => {
             void handleVisualize();

@@ -23,7 +23,10 @@
       "Bash(pnpm test:*)",
       "Bash(pnpm typecheck:*)",
       "Bash(rm:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(pnpm build:*)"
     ],
     "deny": []
   }

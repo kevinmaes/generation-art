@@ -2,14 +2,14 @@ import { useState, useCallback } from 'react';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
-} from '../../../../../shared/types';
+} from '../../../shared/types';
 import {
   runPipeline,
   createSimplePipeline,
   type PipelineResult,
-} from '../../../transformers/pipeline';
-import { type TransformerId } from '../../../transformers/transformers';
-import { PIPELINE_DEFAULTS } from '../../../transformers/pipeline';
+} from '../transformers/pipeline';
+import { type TransformerId } from '../transformers/transformers';
+import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
 
 interface UsePipelineOptions {
   temperature?: number;
