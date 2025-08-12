@@ -36,6 +36,7 @@ import type {
   DragOverEvent,
   DragStartEvent,
 } from '@dnd-kit/core';
+import { usePipelineContext } from '../../hooks/usePipelineContext';
 
 // Type definitions for drag data
 interface PipelineTransformerDragData {
@@ -168,13 +169,9 @@ export function PipelineManager({
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
 
-  // Drag and drop state
-  const [draggedItem, setDraggedItem] = useState<{
-    id: TransformerId;
-    fromAvailable: boolean;
-    originalIndex?: number;
-  } | null>(null);
-  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  // Drag and drop state from context
+  const { draggedItem, setDraggedItem, previewIndex, setPreviewIndex } =
+    usePipelineContext();
 
   // Configure sensors for drag and drop
   const sensors = useSensors(
