@@ -153,33 +153,61 @@ export class OrthogonalRouter {
     relationships: FamilyRelationship[],
     nodeMap: Map<string, FamilyNode>,
   ): RoutedEdge[] {
-    // Group children by their parents for T-junction creation
-    const parentToChildren = new Map<string, FamilyRelationship[]>();
+    // Group children by their family (both parents) for proper T-junction creation
+    const familyToChildren = new Map<string, Set<string>>();
+    const familyToParents = new Map<string, Set<string>>();
+    const childToFamily = new Map<string, string>();
 
     relationships.forEach((rel) => {
-      const existing = parentToChildren.get(rel.sourceId) || [];
-      existing.push(rel);
-      parentToChildren.set(rel.sourceId, existing);
+      const familyId = rel.familyId || `family_${rel.sourceId}`;
+      
+      // Track children for this family
+      if (!familyToChildren.has(familyId)) {
+        familyToChildren.set(familyId, new Set());
+      }
+      const childrenSet = familyToChildren.get(familyId);
+      if (childrenSet) {
+        childrenSet.add(rel.targetId);
+      }
+      
+      // Track parents for this family
+      if (!familyToParents.has(familyId)) {
+        familyToParents.set(familyId, new Set());
+      }
+      const parentsSet = familyToParents.get(familyId);
+      if (parentsSet) {
+        parentsSet.add(rel.sourceId);
+      }
+      
+      // Map child to family for deduplication
+      childToFamily.set(rel.targetId, familyId);
     });
 
     const edges: RoutedEdge[] = [];
+    const processedChildren = new Set<string>();
 
-    // Create T-junctions for each parent
-    parentToChildren.forEach((childRels, parentId) => {
-      const parentNode = nodeMap.get(parentId);
-      if (!parentNode) return;
-
-      const childNodes = childRels
-        .map((rel) => nodeMap.get(rel.targetId))
+    // Create T-junctions for each family group
+    familyToChildren.forEach((childIds, familyId) => {
+      const parentIds = familyToParents.get(familyId) || new Set();
+      const parentNodes = Array.from(parentIds)
+        .map(id => nodeMap.get(id))
+        .filter((node): node is FamilyNode => node !== undefined);
+      
+      const childNodes = Array.from(childIds)
+        .filter(id => !processedChildren.has(id)) // Avoid duplicate processing
+        .map(id => nodeMap.get(id))
         .filter((node): node is FamilyNode => node !== undefined);
 
-      if (childNodes.length === 0) return;
+      if (childNodes.length === 0 || parentNodes.length === 0) return;
+      
+      // Mark children as processed
+      childIds.forEach(id => processedChildren.add(id));
 
-      // Create T-junction
-      const tjunctionEdges = this.createTJunction(
-        parentNode,
+      // Create T-junction from parent(s) to children
+      const tjunctionEdges = this.createFamilyTJunction(
+        parentNodes,
         childNodes,
-        childRels[0].familyId,
+        familyId,
       );
 
       edges.push(...tjunctionEdges);
@@ -188,84 +216,121 @@ export class OrthogonalRouter {
     return edges;
   }
 
+  
   /**
-   * Create a T-junction connecting a parent to multiple children
+   * Create a T-junction connecting parent(s) to multiple children
+   * Handles both single parent and two-parent families
    */
-  private createTJunction(
-    parent: FamilyNode,
+  private createFamilyTJunction(
+    parents: FamilyNode[],
     children: FamilyNode[],
-    _familyId?: string,
+    familyId: string,
   ): RoutedEdge[] {
     const edges: RoutedEdge[] = [];
 
-    // Calculate bus position
-    const busY = parent.position.y + this.config.dropDistance;
+    // Sort children by x position for cleaner layout
+    children.sort((a, b) => a.position.x - b.position.x);
+    
+    // Calculate the connection point for parents
+    let parentConnectionX: number;
+    let parentConnectionY: number;
+    
+    if (parents.length === 2) {
+      // Two parents: connect from midpoint between them
+      parentConnectionX = (parents[0].position.x + parents[1].position.x) / 2;
+      parentConnectionY = parents[0].position.y;
+    } else {
+      // Single parent: connect directly from parent
+      parentConnectionX = parents[0].position.x;
+      parentConnectionY = parents[0].position.y;
+    }
+    
+    // Calculate bus position (horizontal line connecting to all children)
+    const busY = parentConnectionY + this.config.dropDistance;
     const childrenX = children.map((c) => c.position.x);
-    const busStartX = Math.min(...childrenX) - this.config.childSpacing;
-    const busEndX = Math.max(...childrenX) + this.config.childSpacing;
+    const busStartX = Math.min(...childrenX);
+    const busEndX = Math.max(...childrenX);
+    
+    // Extend bus slightly beyond children for cleaner look
+    const extendedBusStartX = busStartX - this.config.childSpacing * 0.5;
+    const extendedBusEndX = busEndX + this.config.childSpacing * 0.5;
 
-    // Create parent drop segment (shared by all children)
-    const parentDropSegment = createStraightSegment(
-      parent.position,
-      { x: parent.position.x, y: busY },
-      {
-        label: 'parent_drop',
-        shared: true,
-      },
-    );
-    this.segments.set(parentDropSegment.id, parentDropSegment);
+    // Create segments for parent connection
+    if (parents.length === 2) {
+      // Create marriage bracket segment first
+      const marriageBracketY = parentConnectionY + this.config.dropDistance * 0.3;
+      const marriageSegment = createStraightSegment(
+        { x: parents[0].position.x, y: marriageBracketY },
+        { x: parents[1].position.x, y: marriageBracketY },
+        {
+          label: `marriage_bracket_${familyId}`,
+          shared: true,
+          style: {
+            strokeWeight: 2,
+          },
+        },
+      );
+      this.segments.set(marriageSegment.id, marriageSegment);
+      
+      // Drop from marriage bracket to bus
+      const marriageDropSegment = createStraightSegment(
+        { x: parentConnectionX, y: marriageBracketY },
+        { x: parentConnectionX, y: busY },
+        {
+          label: `marriage_drop_${familyId}`,
+          shared: true,
+        },
+      );
+      this.segments.set(marriageDropSegment.id, marriageDropSegment);
+    } else {
+      // Single parent: drop directly to bus
+      const parentDropSegment = createStraightSegment(
+        { x: parentConnectionX, y: parentConnectionY },
+        { x: parentConnectionX, y: busY },
+        {
+          label: `parent_drop_${familyId}`,
+          shared: true,
+        },
+      );
+      this.segments.set(parentDropSegment.id, parentDropSegment);
+    }
 
-    // Create horizontal bus segment (shared by all children)
+    // Create horizontal bus segment
     const busSegment = createStraightSegment(
-      { x: busStartX, y: busY },
-      { x: busEndX, y: busY },
+      { x: extendedBusStartX, y: busY },
+      { x: extendedBusEndX, y: busY },
       {
-        label: 'sibling_bus',
+        label: `sibling_bus_${familyId}`,
         shared: true,
         style: {
-          strokeWeight: 3,
+          strokeWeight: 2,
         },
       },
     );
     this.segments.set(busSegment.id, busSegment);
 
-    // If parent X is outside bus range, add horizontal segment
-    if (parent.position.x < busStartX || parent.position.x > busEndX) {
-      const busConnectionX =
-        parent.position.x < busStartX ? busStartX : busEndX;
-      const horizontalSegment = createStraightSegment(
-        { x: parent.position.x, y: busY },
-        { x: busConnectionX, y: busY },
-        {
-          label: 'parent_horizontal',
-          shared: true,
-        },
-      );
-      this.segments.set(horizontalSegment.id, horizontalSegment);
-    }
-
     // Create individual drops for each child
     children.forEach((child, index) => {
-      // Create child drop segment
       const childDropSegment = createStraightSegment(
         { x: child.position.x, y: busY },
         child.position,
         {
-          label: `child_drop_${String(index)}`,
+          label: `child_drop_${familyId}_${String(index)}`,
         },
       );
       this.segments.set(childDropSegment.id, childDropSegment);
 
-      // Create edge connecting parent to child through bus
-      const edge: RoutedEdge = {
-        id: `parent_child_${parent.id}_${child.id}`,
-        segmentIds: [parentDropSegment.id, busSegment.id, childDropSegment.id],
-        relationshipType: 'parent-child',
-        sourceNodeId: parent.id,
-        targetNodeId: child.id,
-      };
-
-      edges.push(edge);
+      // Create edges for each parent-child relationship
+      parents.forEach((parent) => {
+        const edge: RoutedEdge = {
+          id: `parent_child_${parent.id}_${child.id}`,
+          segmentIds: [busSegment.id, childDropSegment.id],
+          relationshipType: 'parent-child',
+          sourceNodeId: parent.id,
+          targetNodeId: child.id,
+        };
+        edges.push(edge);
+      });
     });
 
     return edges;

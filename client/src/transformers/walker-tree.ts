@@ -85,6 +85,23 @@ export const walkerTreeConfig: VisualTransformerConfig = {
       description: 'Show debugging information (bounding boxes, contours)',
     },
     {
+      name: 'showLabels',
+      type: 'boolean',
+      defaultValue: false,
+      label: 'Show Individual Names',
+      description: 'Display names of individuals on the nodes',
+    },
+    {
+      name: 'minLabelSize',
+      type: 'range',
+      defaultValue: 12,
+      label: 'Minimum Label Size',
+      description: 'Minimum font size for labels (pixels)',
+      min: 8,
+      max: 24,
+      step: 1,
+    },
+    {
       name: 'useOrthogonalRouting',
       type: 'boolean',
       defaultValue: true,
@@ -99,6 +116,8 @@ export const walkerTreeConfig: VisualTransformerConfig = {
     spouseSpacing: 15,
     familySpacing: 80,
     enableDebugging: false,
+    showLabels: false,
+    minLabelSize: 12,
     useOrthogonalRouting: true,
   }),
   createTransformerInstance: (params) =>
@@ -108,6 +127,8 @@ export const walkerTreeConfig: VisualTransformerConfig = {
       { name: 'spouseSpacing', defaultValue: 15 },
       { name: 'familySpacing', defaultValue: 80 },
       { name: 'enableDebugging', defaultValue: false },
+      { name: 'showLabels', defaultValue: false },
+      { name: 'minLabelSize', defaultValue: 12 },
       { name: 'useOrthogonalRouting', defaultValue: true },
     ]),
 };
@@ -164,6 +185,8 @@ interface LayoutConfig {
   spouseSpacing: number;
   familySpacing: number;
   enableDebugging: boolean;
+  showLabels: boolean;
+  minLabelSize: number;
   useOrthogonalRouting: boolean;
   canvasWidth: number;
   canvasHeight: number;
@@ -177,8 +200,15 @@ export async function walkerTreeTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   console.log('🌳 WALKER TREE TRANSFORMER STARTING (Updated Version)');
   console.log('Context keys:', Object.keys(context));
-
+  
   const { gedcomData, visualMetadata, visual } = context;
+  
+  // Debug log the visual parameters
+  console.log('📊 Visual parameters received:', {
+    showLabels: visual.showLabels,
+    enableDebugging: visual.enableDebugging,
+    allVisualParams: visual,
+  });
 
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual) => individual !== null && individual !== undefined,
@@ -197,6 +227,8 @@ export async function walkerTreeTransform(
     spouseSpacing: (visual.spouseSpacing as number) ?? 15,
     familySpacing: (visual.familySpacing as number) ?? 80,
     enableDebugging: (visual.enableDebugging as boolean) ?? false,
+    showLabels: (visual.showLabels as boolean) ?? false,
+    minLabelSize: (visual.minLabelSize as number) ?? 12,
     useOrthogonalRouting: (visual.useOrthogonalRouting as boolean) ?? true,
     canvasWidth: visualMetadata.global.canvasWidth ?? 800,
     canvasHeight: visualMetadata.global.canvasHeight ?? 600,
@@ -235,31 +267,83 @@ export async function walkerTreeTransform(
     sampleNodeChildren: walkerTree.nodes[0]?.children.length,
   });
 
-  if (!walkerTree.root) {
-    console.warn('Walker tree layout: No root node found');
+  // Handle multiple disconnected trees (forest)
+  const processedNodes = new Set<string>();
+  const treesToProcess: WalkerNode[] = [];
+  
+  // Start with the main root if found
+  if (walkerTree.root) {
+    treesToProcess.push(walkerTree.root);
+  }
+  
+  // Find all other roots (nodes without parents that haven't been processed)
+  walkerTree.nodes.forEach(node => {
+    if (!node.parent && !processedNodes.has(node.id) && node !== walkerTree.root) {
+      treesToProcess.push(node);
+    }
+  });
+  
+  if (treesToProcess.length === 0) {
+    console.warn('Walker tree layout: No root nodes found');
     return { visualMetadata: {} };
   }
-
-  // Apply Walker's algorithm
-  console.log(
-    '🚀 About to execute Walker algorithm on root:',
-    walkerTree.root.id,
-  );
-  try {
-    executeWalkerAlgorithm(walkerTree.root, layoutConfig);
-
+  
+  console.log(`🌳 Processing ${String(treesToProcess.length)} separate family tree(s)`);
+  
+  // Process each tree separately
+  let treeOffset = 0;
+  const treeSpacing = 200; // Horizontal spacing between separate trees
+  
+  treesToProcess.forEach((root, treeIndex) => {
     console.log(
-      '🧮 Walker algorithm completed. Sample positions:',
-      walkerTree.nodes.slice(0, 3).map((n) => ({ id: n.id, x: n.x, y: n.y })),
+      `🚀 Processing tree ${String(treeIndex + 1)}/${String(treesToProcess.length)}, root:`,
+      root.id,
     );
-  } catch (error) {
-    console.error('❌ Error in Walker algorithm:', error);
-    console.error(
-      'Stack trace:',
-      error instanceof Error ? error.stack : 'No stack trace',
-    );
-    return { visualMetadata: {} };
-  }
+    
+    try {
+      // Apply Walker's algorithm to this tree
+      executeWalkerAlgorithm(root, layoutConfig);
+      
+      // Mark all nodes in this tree as processed
+      const markProcessed = (node: WalkerNode) => {
+        if (processedNodes.has(node.id)) return;
+        processedNodes.add(node.id);
+        node.children.forEach(child => markProcessed(child));
+      };
+      markProcessed(root);
+      
+      // Adjust positions for this tree (offset horizontally if multiple trees)
+      if (treeIndex > 0) {
+        const adjustPositions = (node: WalkerNode) => {
+          node.x += treeOffset;
+          node.children.forEach(child => adjustPositions(child));
+        };
+        adjustPositions(root);
+        
+        // Calculate width of this tree for next offset
+        const treeNodes: WalkerNode[] = [];
+        const collectNodes = (node: WalkerNode) => {
+          treeNodes.push(node);
+          node.children.forEach(child => collectNodes(child));
+        };
+        collectNodes(root);
+        
+        const maxX = Math.max(...treeNodes.map(n => n.x));
+        treeOffset = maxX + treeSpacing;
+      }
+      
+      console.log(
+        `✅ Tree ${String(treeIndex + 1)} processed successfully`,
+      );
+    } catch (error) {
+      console.error(`❌ Error processing tree ${String(treeIndex + 1)}:`, error);
+    }
+  });
+  
+  console.log(
+    '🧮 All trees processed. Sample positions:',
+    walkerTree.nodes.slice(0, 3).map((n) => ({ id: n.id, x: n.x, y: n.y })),
+  );
 
   // Convert Walker nodes to visual metadata
   let positions: Record<
@@ -284,6 +368,19 @@ export async function walkerTreeTransform(
   const nodeMetadata: Record<string, VisualMetadata> = {};
 
   Object.entries(positions).forEach(([individualId, position]) => {
+    const individual = individuals.find((i) => i.id === individualId);
+    const shouldAddLabel = layoutConfig.showLabels && individual;
+    
+    // Debug logging for first few individuals
+    if (Object.keys(nodeMetadata).length < 3) {
+      console.log(`🏷️ Creating metadata for ${individualId}:`, {
+        showLabels: layoutConfig.showLabels,
+        hasIndividual: !!individual,
+        individualName: individual?.name,
+        willAddLabel: shouldAddLabel,
+      });
+    }
+    
     nodeMetadata[individualId] = {
       x: position.x,
       y: position.y,
@@ -291,13 +388,26 @@ export async function walkerTreeTransform(
       height: 1.0, // Multiplier, not absolute height
       size: Math.min(position.width, position.height), // Base size from position
       shape: 'square' as const,
-      color: getNodeColor(
-        individuals.find((i) => i.id === individualId)?.gender,
-      ),
+      color: getNodeColor(individual?.gender),
       strokeColor: '#000000',
       strokeWeight: 1,
       opacity: 1.0,
+      // Add label information when showLabels is enabled
+      ...(shouldAddLabel
+        ? {
+            custom: {
+              label: individual.name || individual.id,
+              labelOffsetY: Math.max(20, position.height * 0.7), // Minimum 20px offset
+              labelSize: Math.max(layoutConfig.minLabelSize, Math.min(position.width, position.height) * 0.3), // Use configurable minimum
+            },
+          }
+        : {}),
     };
+    
+    // Debug log the result for first individual
+    if (Object.keys(nodeMetadata).length === 1) {
+      console.log('🏷️ First node metadata created:', nodeMetadata[individualId]);
+    }
   });
 
   // Generate routing output based on configuration
@@ -447,6 +557,7 @@ function buildWalkerTree(
 
   let totalChildren = 0;
 
+  // First pass: establish parent-child relationships
   nodes.forEach((node, index) => {
     const children = traversalUtils.getChildren(node.id);
     node.children = children
@@ -462,10 +573,16 @@ function buildWalkerTree(
         node.children.map((c) => c.id),
       );
     }
+  });
 
-    // Set parent references and node numbers
+  // Second pass: set parent references and node numbers
+  // This needs to be done after all children arrays are populated
+  nodes.forEach((node) => {
     node.children.forEach((child, index) => {
-      child.parent = node;
+      // Only set parent if not already set (handles multiple parents)
+      if (!child.parent) {
+        child.parent = node;
+      }
       child.number = index + 1; // 1-based indexing for Walker's algorithm
     });
   });
@@ -495,28 +612,74 @@ function buildWalkerTree(
   // Handle spouse relationships and family clustering
   buildFamilyClusters(nodes, traversalUtils, config);
 
-  // Find root nodes (nodes with no parents)
-  const rootNodes = nodes.filter((node) => !node.parent);
+  // Find root nodes - these should be the oldest ancestors (no parents)
+  // In genealogy, we want to start from the oldest known ancestors
+  let rootNodes = nodes.filter((node) => !node.parent);
+  
+  // If everyone has parents (circular reference issue), find the earliest generation
+  if (rootNodes.length === 0) {
+    const generationNumbers = Array.from(generationCounts.keys()).sort((a, b) => a - b);
+    if (generationNumbers.length > 0) {
+      const earliestGen = generationNumbers[0];
+      rootNodes = nodes.filter(n => n.generation === earliestGen);
+    }
+  }
+  
+  // Further filter to only include roots that have descendants
+  // This avoids isolated individuals being roots
+  const rootsWithDescendants = rootNodes.filter(n => n.children.length > 0);
+  if (rootsWithDescendants.length > 0) {
+    rootNodes = rootsWithDescendants;
+  }
 
   console.log('🔍 Root node selection:', {
     totalRoots: rootNodes.length,
-    rootIds: rootNodes.slice(0, 5).map((n) => ({
+    rootIds: rootNodes.slice(0, 10).map((n) => ({
       id: n.id,
       name: n.individual.name,
       children: n.children.length,
       generation: n.generation,
+      hasParent: !!n.parent,
     })),
   });
+  
+  // Log a warning if we have too many roots (indicates disconnected trees)
+  if (rootNodes.length > 5) {
+    console.warn('⚠️ Multiple root nodes detected - this indicates multiple family branches:', {
+      rootCount: rootNodes.length,
+      message: 'Consider focusing on a single family branch or using a different layout',
+    });
+  }
 
   // Find the root with the most descendants for better tree layout
-  const rootWithMostChildren = rootNodes.reduce<WalkerNode | null>(
-    (best, current) =>
-      current.children.length > (best?.children.length ?? -1) ? current : best,
+  // Count all descendants, not just immediate children
+  const countDescendants = (node: WalkerNode): number => {
+    const visited = new Set<string>();
+    const queue = [node];
+    let count = 0;
+    
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (!current || visited.has(current.id)) continue;
+      visited.add(current.id);
+      count++;
+      queue.push(...current.children);
+    }
+    
+    return count - 1; // Don't count the node itself
+  };
+  
+  const rootWithMostDescendants = rootNodes.reduce<WalkerNode | null>(
+    (best, current) => {
+      const currentCount = countDescendants(current);
+      const bestCount = best ? countDescendants(best) : -1;
+      return currentCount > bestCount ? current : best;
+    },
     null,
   );
 
   const root =
-    rootWithMostChildren ?? (rootNodes.length > 0 ? rootNodes[0] : null);
+    rootWithMostDescendants ?? (rootNodes.length > 0 ? rootNodes[0] : null);
 
   console.log(
     '📍 Selected root:',
@@ -541,10 +704,13 @@ function buildFamilyClusters(
   traversalUtils: GraphTraversalUtils,
   _config: LayoutConfig,
 ): void {
+  // Create a map for quick node lookup
+  const nodeMap = new Map(nodes.map(n => [n.id, n]));
+  
   nodes.forEach((node) => {
     const spouses = traversalUtils.getSpouses(node.id);
     node.spouses = spouses
-      .map((spouse) => nodes.find((n) => n.id === spouse.id))
+      .map((spouse) => nodeMap.get(spouse.id))
       .filter(Boolean) as WalkerNode[];
   });
 
@@ -598,21 +764,32 @@ function buildFamilyClusters(
       // For spouse pairs, ensure they're positioned optimally
       const [spouse1, spouse2] = cluster;
 
-      // Prefer positioning based on gender or alphabetical order
+      // Position based on traditional convention: male on left, female on right
+      // If same gender, use alphabetical order
       const shouldSwap =
         (spouse1.individual.gender === 'F' &&
           spouse2.individual.gender === 'M') ||
         (spouse1.individual.gender === spouse2.individual.gender &&
           spouse1.individual.name > spouse2.individual.name);
 
-      if (shouldSwap && spouse1.leftSibling === spouse2) {
-        // Swap sibling relationships
-        spouse1.leftSibling = undefined;
-        spouse1.rightSibling = spouse2;
-        spouse2.leftSibling = spouse1;
-        spouse2.rightSibling = undefined;
+      if (shouldSwap) {
+        // Swap their positions in the cluster
+        cluster[0] = spouse2;
+        cluster[1] = spouse1;
       }
     }
+    
+    // Ensure spouses share children
+    cluster.forEach((member, idx) => {
+      if (idx > 0) {
+        // Merge children lists for spouses
+        const allChildren = new Set<WalkerNode>();
+        cluster.forEach(spouse => {
+          spouse.children.forEach(child => allChildren.add(child));
+        });
+        member.children = Array.from(allChildren);
+      }
+    });
   });
 }
 
@@ -1649,6 +1826,16 @@ async function fallbackLayout(
               strokeColor: '#000000',
               strokeWeight: 1,
               opacity: 1.0,
+              // Add label information when showLabels is enabled
+              ...(config.showLabels
+                ? {
+                    custom: {
+                      label: individual.name || individual.id,
+                      labelOffsetY: Math.max(20, nodeSize * 0.7), // Minimum 20px offset
+                      labelSize: Math.max(config.minLabelSize, nodeSize * 0.3), // Use configurable minimum
+                    },
+                  }
+                : {}),
             };
           });
 
@@ -1700,6 +1887,16 @@ async function fallbackLayout(
             strokeColor: '#000000',
             strokeWeight: 1,
             opacity: 1.0,
+            // Add label information when showLabels is enabled
+            ...(config.showLabels
+              ? {
+                  custom: {
+                    label: individual.name || individual.id,
+                    labelOffsetY: Math.max(20, nodeSize * 0.7), // Minimum 20px offset
+                    labelSize: Math.max(config.minLabelSize, nodeSize * 0.3), // Use configurable minimum
+                  },
+                }
+              : {}),
           };
         });
 

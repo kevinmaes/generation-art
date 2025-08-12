@@ -426,11 +426,78 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
           p.pop();
 
-          if (showNames) {
+          // Check for labels in custom metadata (from transformers like walker-tree)
+          const customMetadata = individualMetadata?.custom as {
+            label?: string;
+            labelOffsetY?: number;
+            labelSize?: number;
+          } | undefined;
+          const customLabel = customMetadata?.label;
+          const labelOffsetY = customMetadata?.labelOffsetY ?? size * 0.7;
+          const labelSize = customMetadata?.labelSize ?? size * 0.3;
+          
+          // Debug logging for first few individuals
+          if (Math.random() < 0.05) { // Log 5% of individuals
+            console.log(`🏷️ Label check for ${ind.id}:`, {
+              hasCustom: !!individualMetadata?.custom,
+              customLabel: customLabel ?? 'none',
+              labelOffsetY: labelOffsetY,
+              labelSize: labelSize,
+              showNames,
+              indName: ind.name,
+            });
+          }
+          
+          if (customLabel) {
+            // Render label from transformer metadata with background for visibility
+            console.log(`✍️ Drawing label for ${ind.id}: "${customLabel}" at (${String(x)}, ${String(y + labelOffsetY)})`);
+            
+            // Set up text properties
+            p.textSize(labelSize);
+            p.textAlign(p.CENTER, p.CENTER);
+            
+            // Measure text for background
+            const textWidth = p.textWidth(customLabel);
+            const textHeight = labelSize;
+            const padding = 4;
+            
+            // Draw semi-transparent white background
+            p.push();
+            p.noStroke();
+            p.fill(255, 255, 255, 230); // White with high opacity
+            p.rectMode(p.CENTER);
+            p.rect(x, y + labelOffsetY, textWidth + padding * 2, textHeight + padding, 2);
+            p.pop();
+            
+            // Draw text in black
             p.fill(0);
-            p.textSize(size * 0.3); // Text size based on node size from visual metadata
-            p.textAlign(p.CENTER);
-            p.text('', x, y + size + size * 0.3); // Names disabled in visual-only mode
+            p.text(customLabel, x, y + labelOffsetY);
+          } else if (showNames && ind.name) {
+            // Fallback to showNames config option
+            const fallbackSize = Math.max(12, size * 0.3);
+            const fallbackOffsetY = Math.max(20, size * 0.7);
+            
+            console.log(`✍️ Drawing name for ${ind.id}: "${ind.name}" at (${String(x)}, ${String(y + fallbackOffsetY)})`);
+            
+            p.textSize(fallbackSize);
+            p.textAlign(p.CENTER, p.CENTER);
+            
+            // Measure text for background
+            const textWidth = p.textWidth(ind.name);
+            const textHeight = fallbackSize;
+            const padding = 4;
+            
+            // Draw semi-transparent white background  
+            p.push();
+            p.noStroke();
+            p.fill(255, 255, 255, 230); // White with high opacity
+            p.rectMode(p.CENTER);
+            p.rect(x, y + fallbackOffsetY, textWidth + padding * 2, textHeight + padding, 2);
+            p.pop();
+            
+            // Draw text
+            p.fill(0);
+            p.text(ind.name, x, y + fallbackOffsetY);
           }
         }
       }

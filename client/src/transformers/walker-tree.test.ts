@@ -160,7 +160,7 @@ describe('Walker Tree Layout Transformer', () => {
 
     it('should have proper visual parameters', () => {
       const params = walkerTreeConfig.visualParameters;
-      expect(params).toHaveLength(5);
+      expect(params).toHaveLength(8);
 
       const nodeSpacing = params.find((p) => p.name === 'nodeSpacing');
       expect(nodeSpacing).toBeDefined();
@@ -185,6 +185,9 @@ describe('Walker Tree Layout Transformer', () => {
         spouseSpacing: 15,
         familySpacing: 80,
         enableDebugging: false,
+        showLabels: false,
+        minLabelSize: 12,
+        useOrthogonalRouting: true,
       });
     });
   });
