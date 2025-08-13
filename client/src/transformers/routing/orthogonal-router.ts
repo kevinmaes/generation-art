@@ -457,8 +457,8 @@ export class OrthogonalRouter {
    * Route sibling relationships
    */
   private routeSiblingRelationships(
-    relationships: FamilyRelationship[],
-    nodeMap: Map<string, FamilyNode>,
+    _relationships: FamilyRelationship[],
+    _nodeMap: Map<string, FamilyNode>,
   ): RoutedEdge[] {
     // Sibling relationships are already visually represented by the horizontal bus line
     // in the T-junction created for parent-child relationships.

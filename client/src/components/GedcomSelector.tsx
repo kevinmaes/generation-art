@@ -40,7 +40,7 @@ export function GedcomSelector({
         if (!response.ok) {
           throw new Error('Failed to fetch manifest');
         }
-        const manifest: GedcomManifest = await response.json();
+        const manifest = (await response.json()) as GedcomManifest;
 
         // Sort datasets by name for consistent ordering
         const sortedDatasets = manifest.datasets.sort((a, b) =>
@@ -59,7 +59,7 @@ export function GedcomSelector({
       }
     };
 
-    fetchManifest();
+    void fetchManifest();
   }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -113,7 +113,7 @@ export function GedcomSelector({
       ) : (
         <>
           <select
-            value={currentDataset || ''}
+            value={currentDataset ?? ''}
             onChange={handleChange}
             disabled={disabled}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -122,7 +122,7 @@ export function GedcomSelector({
             {availableFiles.map((file) => (
               <option key={file.id} value={file.id}>
                 {file.name}
-                {file.individualCount && ` (${file.individualCount} people)`}
+                {file.individualCount && ` (${String(file.individualCount)} people)`}
               </option>
             ))}
           </select>

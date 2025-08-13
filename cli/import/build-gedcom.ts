@@ -325,10 +325,14 @@ async function buildGedcomFiles(
     let generationCount = 0;
     try {
       const statsContent = await readFile(statsPath, 'utf-8');
-      const stats = JSON.parse(statsContent);
-      individualCount = stats.individualCount || 0;
-      familyCount = stats.familyCount || 0;
-      generationCount = stats.generationCount || 0;
+      const stats = JSON.parse(statsContent) as {
+        individualCount?: number;
+        familyCount?: number;
+        generationCount?: number;
+      };
+      individualCount = stats.individualCount ?? 0;
+      familyCount = stats.familyCount ?? 0;
+      generationCount = stats.generationCount ?? 0;
     } catch {
       // Stats file might not exist, use defaults
     }
@@ -358,7 +362,7 @@ async function buildGedcomFiles(
   const manifestPath = join(outputDir, 'manifest.json');
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   console.log(
-    `  ✓ Generated manifest.json (${manifest.datasets.length} datasets)`,
+    `  ✓ Generated manifest.json (${String(manifest.datasets.length)} datasets)`,
   );
 
   console.log('\nGEDCOM build complete!');

@@ -845,7 +845,8 @@ function centerParentCouples(node: WalkerNode, config: LayoutConfig): void {
   const processedFamilies = new Set<string>();
 
   while (queue.length > 0) {
-    const current = queue.shift()!;
+    const current = queue.shift();
+    if (!current) continue;
 
     // Add children to queue for processing
     queue.push(...current.children);
