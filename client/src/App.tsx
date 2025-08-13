@@ -3,6 +3,7 @@ import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { FocusedTreeViewer } from './components/FocusedTreeViewer';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
@@ -30,7 +31,7 @@ function App(): React.ReactElement {
   const [dualData, setDualData] = useState<DualGedcomData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
+  const [currentView, setCurrentView] = useState<'file-select' | 'artwork' | 'focused-tree'>(
     'file-select',
   );
   const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(
@@ -144,6 +145,13 @@ function App(): React.ReactElement {
     // The hook will automatically load the data
   };
 
+  const handleLoadFocusedView = () => {
+    setCurrentDataset('kennedy');
+    setCurrentView('focused-tree');
+    setError(null);
+    setPipelineResult(null);
+  };
+
   const handleTransformerSelect = (transformerId: string) => {
     // This is now just for selection, not for adding/removing
     console.log('Selected transformer:', transformerId);
@@ -249,7 +257,7 @@ function App(): React.ReactElement {
             <p className="text-lg text-gray-500 mb-4">
               Visualizing family trees through generative art
             </p>
-            {currentView === 'artwork' && (
+            {(currentView === 'artwork' || currentView === 'focused-tree') && (
               <button
                 onClick={() => {
                   setCurrentView('file-select');
@@ -260,7 +268,12 @@ function App(): React.ReactElement {
               </button>
             )}
           </div>
-          {currentView === 'artwork' && dualData ? (
+          {currentView === 'focused-tree' && dualData ? (
+            <FocusedTreeViewer
+              gedcomData={dualData.full}
+              llmData={dualData.llm}
+            />
+          ) : currentView === 'artwork' && dualData ? (
             <>
               <FramedArtwork
                 title="Family Tree Visualization"
@@ -341,17 +354,28 @@ function App(): React.ReactElement {
                   {/* Quick Load Kennedy Button */}
                   <div className="text-center">
                     <div className="text-gray-500 mb-2">or</div>
-                    <button
-                      onClick={() => {
-                        handleLoadKennedy();
-                      }}
-                      disabled={isLoading}
-                      className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoading
-                        ? 'Loading...'
-                        : 'Load Kennedy Family Tree (Development)'}
-                    </button>
+                    <div className="flex gap-4 justify-center">
+                      <button
+                        onClick={() => {
+                          handleLoadKennedy();
+                        }}
+                        disabled={isLoading}
+                        className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoading
+                          ? 'Loading...'
+                          : 'Full Tree View'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleLoadFocusedView();
+                        }}
+                        disabled={isLoading}
+                        className="px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Focused Tree View
+                      </button>
+                    </div>
                     <p className="text-sm text-gray-500 mt-2">
                       Quick development option - loads the Kennedy family data
                     </p>

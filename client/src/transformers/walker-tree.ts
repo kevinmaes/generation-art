@@ -190,6 +190,9 @@ interface LayoutConfig {
   useOrthogonalRouting: boolean;
   canvasWidth: number;
   canvasHeight: number;
+  focusIndividualId?: string;
+  generationsBefore: number;
+  generationsAfter: number;
 }
 
 /**
@@ -210,7 +213,7 @@ export async function walkerTreeTransform(
     allVisualParams: visual,
   });
 
-  const individuals = Object.values(gedcomData.individuals).filter(
+  let individuals = Object.values(gedcomData.individuals).filter(
     (individual) => individual !== null && individual !== undefined,
   );
 
@@ -232,7 +235,42 @@ export async function walkerTreeTransform(
     useOrthogonalRouting: (visual.useOrthogonalRouting as boolean) ?? true,
     canvasWidth: visualMetadata.global.canvasWidth ?? 800,
     canvasHeight: visualMetadata.global.canvasHeight ?? 600,
+    focusIndividualId: undefined,
+    generationsBefore: 10,
+    generationsAfter: 10,
   };
+
+  // For now, focus settings are not passed through context
+  // The FocusedTreeViewer component filters the data before it reaches this transformer
+
+  // Filter individuals based on focus settings
+  if (layoutConfig.focusIndividualId) {
+    const focusIndividual = gedcomData.individuals[layoutConfig.focusIndividualId];
+    if (focusIndividual) {
+      const focusGeneration = focusIndividual.metadata?.generation ?? 0;
+      const minGeneration = focusGeneration - layoutConfig.generationsBefore;
+      const maxGeneration = focusGeneration + layoutConfig.generationsAfter;
+      
+      console.log('🎯 Filtering tree around individual:', {
+        focusId: layoutConfig.focusIndividualId,
+        focusName: focusIndividual.name,
+        focusGeneration,
+        minGeneration,
+        maxGeneration,
+        beforeFiltering: individuals.length,
+      });
+      
+      // Filter to only include individuals within the generation range
+      individuals = individuals.filter(ind => {
+        const gen = ind.metadata?.generation ?? 0;
+        return gen >= minGeneration && gen <= maxGeneration;
+      });
+      
+      console.log('After filtering:', individuals.length, 'individuals');
+    } else {
+      console.warn('Focus individual not found:', layoutConfig.focusIndividualId);
+    }
+  }
 
   // Check if we have enhanced graph data
   const graphData = gedcomData.graph;
