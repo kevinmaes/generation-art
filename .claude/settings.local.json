@@ -28,7 +28,9 @@
       "Bash(find:*)",
       "Bash(pnpm build:*)",
       "Bash(./scripts/build-kennedy-small.sh:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(pnpm gedcom:clean:*)",
+      "Bash(pnpm gedcom:build:all:*)"
     ],
     "deny": []
   }

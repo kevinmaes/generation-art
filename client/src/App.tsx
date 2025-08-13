@@ -27,6 +27,22 @@ interface DualGedcomData {
   llm: LLMReadyData;
 }
 
+// Type for manifest structure
+interface GedcomManifest {
+  version: string;
+  generated: string;
+  datasets: {
+    id: string;
+    name: string;
+    fileName?: string;
+    description?: string;
+    individualCount?: number;
+    familyCount?: number;
+    generationCount?: number;
+    sourcePath?: string;
+  }[];
+}
+
 function App(): React.ReactElement {
   const [dualData, setDualData] = useState<DualGedcomData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +83,7 @@ function App(): React.ReactElement {
   } | null>(null);
 
   const [currentDataset, setCurrentDataset] = useState<string>('');
+  const [availableDatasets, setAvailableDatasets] = useState<string[]>([]);
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -82,13 +99,29 @@ function App(): React.ReactElement {
     },
   });
 
-  // Auto-load nuclear family by default
+  // Load manifest to get available datasets
   useEffect(() => {
-    if (currentView === 'file-select' && !dualData && !currentDataset) {
-      console.log('🔄 Auto-loading Nuclear family tree data...');
-      setCurrentDataset('nuclear-family');
-      setCurrentView('artwork');
-    }
+    const loadManifest = async () => {
+      try {
+        const response = await fetch('/generated/parsed/manifest.json');
+        if (response.ok) {
+          const manifest = await response.json() as GedcomManifest;
+          const datasetIds = manifest.datasets.map((d) => d.id);
+          setAvailableDatasets(datasetIds);
+          
+          // Auto-load first dataset if none selected
+          if (currentView === 'file-select' && !dualData && !currentDataset && datasetIds.length > 0) {
+            console.log(`🔄 Auto-loading first available dataset: ${datasetIds[0]}`);
+            setCurrentDataset(datasetIds[0]);
+            setCurrentView('artwork');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load manifest:', err);
+      }
+    };
+    
+    void loadManifest();
   }, [currentView, dualData, currentDataset]);
 
   // Handle keyboard shortcut for pipeline modal
@@ -265,12 +298,14 @@ function App(): React.ReactElement {
                   </button>
                   <button
                     onClick={() => {
-                      const datasets = ['nuclear-family', 'kennedy-small', 'kennedy', 'shakespeare', 'bronte'];
-                      const currentIndex = datasets.indexOf(currentDataset);
-                      const nextIndex = (currentIndex + 1) % datasets.length;
-                      handleLoadDataset(datasets[nextIndex]);
+                      if (availableDatasets.length > 0) {
+                        const currentIndex = availableDatasets.indexOf(currentDataset);
+                        const nextIndex = (currentIndex + 1) % availableDatasets.length;
+                        handleLoadDataset(availableDatasets[nextIndex]);
+                      }
                     }}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                    disabled={availableDatasets.length === 0}
                   >
                     Switch dataset
                   </button>

@@ -1,0 +1,264 @@
+0 HEAD
+1 SOUR PAF
+2 NAME Personal Ancestral File
+2 VERS 5.0
+1 DATE 13 AUG 2025
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+1 LANG English
+1 SUBM @SUB1@
+0 @SUB1@ SUBM
+1 NAME Test User
+0 @I1@ INDI
+1 NAME William Henry /Anderson/
+1 SEX M
+1 BIRT
+2 DATE 15 MAR 1945
+2 PLAC Chicago, Illinois, USA
+1 DEAT
+2 DATE 22 NOV 2020
+2 PLAC Springfield, Illinois, USA
+1 OCCU Engineer
+1 FAMS @F1@
+1 FAMC @F3@
+0 @I2@ INDI
+1 NAME Margaret Rose /Thompson/
+1 SEX F
+1 BIRT
+2 DATE 8 JUN 1948
+2 PLAC Boston, Massachusetts, USA
+1 OCCU Teacher
+1 FAMS @F1@
+1 FAMC @F4@
+0 @I3@ INDI
+1 NAME David William /Anderson/
+1 SEX M
+1 BIRT
+2 DATE 12 FEB 1972
+2 PLAC Denver, Colorado, USA
+1 OCCU Software Developer
+1 FAMS @F2@
+1 FAMC @F1@
+0 @I4@ INDI
+1 NAME Sarah Elizabeth /Anderson/
+1 SEX F
+1 BIRT
+2 DATE 3 SEP 1974
+2 PLAC Denver, Colorado, USA
+1 OCCU Doctor
+1 FAMS @F5@
+1 FAMC @F1@
+0 @I5@ INDI
+1 NAME Michael James /Anderson/
+1 SEX M
+1 BIRT
+2 DATE 21 JUL 1977
+2 PLAC Seattle, Washington, USA
+1 OCCU Architect
+1 FAMS @F6@
+1 FAMC @F1@
+0 @I6@ INDI
+1 NAME Jennifer Lynn /Roberts/
+1 SEX F
+1 BIRT
+2 DATE 5 APR 1975
+2 PLAC Portland, Oregon, USA
+1 OCCU Marketing Manager
+1 FAMS @F2@
+0 @I7@ INDI
+1 NAME Emma Grace /Anderson/
+1 SEX F
+1 BIRT
+2 DATE 14 AUG 2005
+2 PLAC San Francisco, California, USA
+1 FAMC @F2@
+0 @I8@ INDI
+1 NAME Noah Alexander /Anderson/
+1 SEX M
+1 BIRT
+2 DATE 29 DEC 2007
+2 PLAC San Francisco, California, USA
+1 FAMC @F2@
+0 @I9@ INDI
+1 NAME Olivia Marie /Anderson/
+1 SEX F
+1 BIRT
+2 DATE 18 MAY 2010
+2 PLAC San Jose, California, USA
+1 FAMC @F2@
+0 @I10@ INDI
+1 NAME Robert Charles /Anderson/
+1 SEX M
+1 BIRT
+2 DATE 7 JAN 1920
+2 PLAC New York, New York, USA
+1 DEAT
+2 DATE 15 SEP 1995
+2 PLAC Chicago, Illinois, USA
+1 OCCU Businessman
+1 FAMS @F3@
+0 @I11@ INDI
+1 NAME Dorothy Mae /Wilson/
+1 SEX F
+1 BIRT
+2 DATE 22 OCT 1922
+2 PLAC Philadelphia, Pennsylvania, USA
+1 DEAT
+2 DATE 3 APR 2001
+2 PLAC Chicago, Illinois, USA
+1 OCCU Homemaker
+1 FAMS @F3@
+0 @I12@ INDI
+1 NAME George Edward /Thompson/
+1 SEX M
+1 BIRT
+2 DATE 11 NOV 1918
+2 PLAC Boston, Massachusetts, USA
+1 DEAT
+2 DATE 28 FEB 1998
+2 PLAC Boston, Massachusetts, USA
+1 OCCU Professor
+1 FAMS @F4@
+0 @I13@ INDI
+1 NAME Helen Ruth /Davis/
+1 SEX F
+1 BIRT
+2 DATE 30 MAY 1925
+2 PLAC Hartford, Connecticut, USA
+1 DEAT
+2 DATE 12 JAN 2010
+2 PLAC Boston, Massachusetts, USA
+1 OCCU Nurse
+1 FAMS @F4@
+0 @I14@ INDI
+1 NAME Thomas Richard /Miller/
+1 SEX M
+1 BIRT
+2 DATE 16 JUN 1973
+2 PLAC Austin, Texas, USA
+1 OCCU Lawyer
+1 FAMS @F5@
+0 @I15@ INDI
+1 NAME Lucas Thomas /Miller/
+1 SEX M
+1 BIRT
+2 DATE 9 MAR 2002
+2 PLAC Houston, Texas, USA
+1 FAMC @F5@
+0 @I16@ INDI
+1 NAME Sophie Anne /Miller/
+1 SEX F
+1 BIRT
+2 DATE 25 NOV 2004
+2 PLAC Houston, Texas, USA
+1 FAMC @F5@
+0 @I17@ INDI
+1 NAME Rachel Marie /Chen/
+1 SEX F
+1 BIRT
+2 DATE 2 OCT 1980
+2 PLAC Los Angeles, California, USA
+1 OCCU Designer
+1 FAMS @F6@
+0 @I18@ INDI
+1 NAME Benjamin Michael /Anderson/
+1 SEX M
+1 BIRT
+2 DATE 15 JAN 2012
+2 PLAC Seattle, Washington, USA
+1 FAMC @F6@
+0 @I19@ INDI
+1 NAME James Robert /Anderson/
+1 SEX M
+1 BIRT
+2 DATE 4 DEC 1947
+2 PLAC Chicago, Illinois, USA
+1 DEAT
+2 DATE 19 JUL 2015
+2 PLAC Miami, Florida, USA
+1 OCCU Military Officer
+1 FAMS @F7@
+1 FAMC @F3@
+0 @I20@ INDI
+1 NAME Patricia Ann /Johnson/
+1 SEX F
+1 BIRT
+2 DATE 28 AUG 1950
+2 PLAC Atlanta, Georgia, USA
+1 OCCU Accountant
+1 FAMS @F7@
+0 @I21@ INDI
+1 NAME Christopher James /Anderson/
+1 SEX M
+1 BIRT
+2 DATE 17 MAY 1975
+2 PLAC Tampa, Florida, USA
+1 OCCU Pilot
+1 FAMC @F7@
+0 @I22@ INDI
+1 NAME Lisa Marie /Anderson/
+1 SEX F
+1 BIRT
+2 DATE 9 SEP 1978
+2 PLAC Tampa, Florida, USA
+1 OCCU Journalist
+1 FAMC @F7@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 MARR
+2 DATE 14 JUN 1970
+2 PLAC Chicago, Illinois, USA
+1 CHIL @I3@
+1 CHIL @I4@
+1 CHIL @I5@
+0 @F2@ FAM
+1 HUSB @I3@
+1 WIFE @I6@
+1 MARR
+2 DATE 22 SEP 2001
+2 PLAC San Francisco, California, USA
+1 CHIL @I7@
+1 CHIL @I8@
+1 CHIL @I9@
+0 @F3@ FAM
+1 HUSB @I10@
+1 WIFE @I11@
+1 MARR
+2 DATE 5 AUG 1943
+2 PLAC Chicago, Illinois, USA
+1 CHIL @I1@
+1 CHIL @I19@
+0 @F4@ FAM
+1 HUSB @I12@
+1 WIFE @I13@
+1 MARR
+2 DATE 12 MAY 1945
+2 PLAC Boston, Massachusetts, USA
+1 CHIL @I2@
+0 @F5@ FAM
+1 HUSB @I14@
+1 WIFE @I4@
+1 MARR
+2 DATE 18 OCT 1999
+2 PLAC Austin, Texas, USA
+1 CHIL @I15@
+1 CHIL @I16@
+0 @F6@ FAM
+1 HUSB @I5@
+1 WIFE @I17@
+1 MARR
+2 DATE 7 JUN 2008
+2 PLAC Seattle, Washington, USA
+1 CHIL @I18@
+0 @F7@ FAM
+1 HUSB @I19@
+1 WIFE @I20@
+1 MARR
+2 DATE 3 APR 1973
+2 PLAC Atlanta, Georgia, USA
+1 CHIL @I21@
+1 CHIL @I22@
+0 TRLR
