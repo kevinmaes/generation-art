@@ -122,7 +122,8 @@ export function GedcomSelector({
             {availableFiles.map((file) => (
               <option key={file.id} value={file.id}>
                 {file.name}
-                {file.individualCount && ` (${String(file.individualCount)} people)`}
+                {file.individualCount &&
+                  ` (${String(file.individualCount)} people)`}
               </option>
             ))}
           </select>
