@@ -41,12 +41,12 @@ export function GedcomSelector({
           throw new Error('Failed to fetch manifest');
         }
         const manifest: GedcomManifest = await response.json();
-        
+
         // Sort datasets by name for consistent ordering
-        const sortedDatasets = manifest.datasets.sort((a, b) => 
-          a.name.localeCompare(b.name)
+        const sortedDatasets = manifest.datasets.sort((a, b) =>
+          a.name.localeCompare(b.name),
         );
-        
+
         setAvailableFiles(sortedDatasets);
         setError(null);
       } catch (err) {
@@ -69,12 +69,14 @@ export function GedcomSelector({
     }
   };
 
-  const selectedFile = availableFiles.find(f => f.id === currentDataset);
+  const selectedFile = availableFiles.find((f) => f.id === currentDataset);
 
   if (loading) {
     return (
       <div className="w-full max-w-md">
-        <div className="text-sm text-gray-500">Loading available datasets...</div>
+        <div className="text-sm text-gray-500">
+          Loading available datasets...
+        </div>
       </div>
     );
   }
@@ -100,11 +102,12 @@ export function GedcomSelector({
           </span>
         )}
       </label>
-      
+
       {availableFiles.length === 0 ? (
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <div className="text-sm text-yellow-800">
-            No datasets available. Run `pnpm gedcom:build:all` to generate datasets.
+            No datasets available. Run `pnpm gedcom:build:all` to generate
+            datasets.
           </div>
         </div>
       ) : (
@@ -118,24 +121,29 @@ export function GedcomSelector({
             <option value="">-- Select a dataset --</option>
             {availableFiles.map((file) => (
               <option key={file.id} value={file.id}>
-                {file.name} 
+                {file.name}
                 {file.individualCount && ` (${file.individualCount} people)`}
               </option>
             ))}
           </select>
-          
+
           {selectedFile && (
             <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
               <div className="text-sm">
-                <div className="font-medium text-blue-900">{selectedFile.name}</div>
+                <div className="font-medium text-blue-900">
+                  {selectedFile.name}
+                </div>
                 <div className="text-blue-700 mt-1">
                   {selectedFile.individualCount && selectedFile.familyCount && (
                     <div className="mt-1">
-                      • {selectedFile.individualCount} individuals<br/>
-                      • {selectedFile.familyCount} families
-                      {selectedFile.generationCount && selectedFile.generationCount > 0 && (
-                        <><br/>• {selectedFile.generationCount} generations</>
-                      )}
+                      • {selectedFile.individualCount} individuals
+                      <br />• {selectedFile.familyCount} families
+                      {selectedFile.generationCount &&
+                        selectedFile.generationCount > 0 && (
+                          <>
+                            <br />• {selectedFile.generationCount} generations
+                          </>
+                        )}
                     </div>
                   )}
                   {selectedFile.sourcePath && (
@@ -149,9 +157,10 @@ export function GedcomSelector({
           )}
         </>
       )}
-      
+
       <div className="mt-3 text-xs text-gray-500">
-        Datasets are dynamically loaded from /public/generated/parsed/manifest.json
+        Datasets are dynamically loaded from
+        /public/generated/parsed/manifest.json
       </div>
     </div>
   );

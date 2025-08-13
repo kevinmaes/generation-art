@@ -113,7 +113,7 @@ export class OrthogonalRouter {
         name: 'marriages',
         edges: spouseEdges,
         style: {
-          strokeColor: '#333333',  // Same color as parent-child for consistency
+          strokeColor: '#333333', // Same color as parent-child for consistency
           strokeWeight: 2,
         },
       },
@@ -249,10 +249,10 @@ export class OrthogonalRouter {
 
     // Calculate bus position (horizontal line connecting to all children)
     // Position the bus midway between parents and children
-    const childrenY = Math.min(...children.map(c => c.position.y));
-    const parentY = Math.max(...parents.map(p => p.position.y));
+    const childrenY = Math.min(...children.map((c) => c.position.y));
+    const parentY = Math.max(...parents.map((p) => p.position.y));
     const busY = parentY + (childrenY - parentY) / 2;
-    
+
     const childrenX = children.map((c) => c.position.x);
     const busStartX = Math.min(...childrenX);
     const busEndX = Math.max(...childrenX);
@@ -304,7 +304,11 @@ export class OrthogonalRouter {
         parents.forEach((parent) => {
           const edge: RoutedEdge = {
             id: `parent_child_${parent.id}_${child.id}`,
-            segmentIds: [parentDropSegment.id, busSegment.id, childDropSegment.id],
+            segmentIds: [
+              parentDropSegment.id,
+              busSegment.id,
+              childDropSegment.id,
+            ],
             relationshipType: 'parent-child',
             sourceNodeId: parent.id,
             targetNodeId: child.id,
@@ -411,7 +415,7 @@ export class OrthogonalRouter {
       const seg1 = createStraightSegment(
         spouse1.position,
         { x: spouse1.position.x, y: midY },
-        { 
+        {
           label: 'marriage_connector_1',
           style: {
             strokeWeight: 2,
@@ -423,7 +427,7 @@ export class OrthogonalRouter {
       const seg2 = createStraightSegment(
         { x: spouse1.position.x, y: midY },
         { x: spouse2.position.x, y: midY },
-        { 
+        {
           label: 'marriage_line',
           style: {
             strokeWeight: 2,
@@ -435,7 +439,7 @@ export class OrthogonalRouter {
       const seg3 = createStraightSegment(
         { x: spouse2.position.x, y: midY },
         spouse2.position,
-        { 
+        {
           label: 'marriage_connector_2',
           style: {
             strokeWeight: 2,

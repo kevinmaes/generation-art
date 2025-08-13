@@ -164,10 +164,10 @@ async function buildGedcomFiles(
   async function scanDirectory(dir: string): Promise<void> {
     try {
       const entries = await readdir(dir, { withFileTypes: true });
-      
+
       for (const entry of entries) {
         const fullPath = join(dir, entry.name);
-        
+
         if (entry.isDirectory()) {
           // Recursively scan subdirectories
           await scanDirectory(fullPath);
@@ -318,10 +318,10 @@ async function buildGedcomFiles(
   for (const { file, inputDir } of allGedcomFiles) {
     const baseName = basename(file, '.ged');
     const statsPath = join(outputDir, `${baseName}-stats.json`);
-    
+
     // Try to read stats for metadata
     let individualCount = 0;
-    let familyCount = 0; 
+    let familyCount = 0;
     let generationCount = 0;
     try {
       const statsContent = await readFile(statsPath, 'utf-8');
@@ -332,12 +332,12 @@ async function buildGedcomFiles(
     } catch {
       // Stats file might not exist, use defaults
     }
-    
+
     datasets.push({
       id: baseName,
       name: baseName
         .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' '),
       fileName: baseName,
       sourcePath: `${inputDir}/${file}`,
@@ -348,17 +348,19 @@ async function buildGedcomFiles(
       hasStats: true,
     });
   }
-  
+
   const manifest = {
     version: '1.0',
     generated: new Date().toISOString(),
     datasets,
   };
-  
+
   const manifestPath = join(outputDir, 'manifest.json');
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
-  console.log(`  ✓ Generated manifest.json (${manifest.datasets.length} datasets)`);
-  
+  console.log(
+    `  ✓ Generated manifest.json (${manifest.datasets.length} datasets)`,
+  );
+
   console.log('\nGEDCOM build complete!');
   console.log(`Generated files are in: ${outputDir}`);
 }

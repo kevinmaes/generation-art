@@ -826,7 +826,7 @@ function executeWalkerAlgorithm(root: WalkerNode, config: LayoutConfig): void {
     // Second pass: Assign final positions
     secondWalk(root, 0, 0, config);
     console.log('✅ Second walk completed');
-    
+
     // Third pass: Center parent couples over their children
     centerParentCouples(root, config);
     console.log('✅ Parent centering completed');
@@ -843,53 +843,55 @@ function centerParentCouples(node: WalkerNode, config: LayoutConfig): void {
   // Process all nodes in the tree
   const queue: WalkerNode[] = [node];
   const processedFamilies = new Set<string>();
-  
+
   while (queue.length > 0) {
     const current = queue.shift()!;
-    
+
     // Add children to queue for processing
     queue.push(...current.children);
-    
+
     // If this node has children and a spouse, center them as a couple
     if (current.children.length > 0 && current.spouses.length > 0) {
       const familyId = current.familyId || `${current.id}_family`;
-      
+
       // Skip if we've already processed this family
       if (processedFamilies.has(familyId)) continue;
       processedFamilies.add(familyId);
-      
+
       // Find all parents (current node and spouses)
       const parents = [current, ...current.spouses];
-      
+
       // First, ensure proper spacing between spouses
       parents.sort((a, b) => a.x - b.x); // Sort by x position
-      
+
       // Calculate desired spouse positions with proper spacing
       const totalSpouseWidth = parents.reduce((sum, p) => sum + p.width, 0);
       const totalSpacing = (parents.length - 1) * config.spouseSpacing;
       const totalWidth = totalSpouseWidth + totalSpacing;
-      
+
       // Get all children positions
-      const childrenXPositions = current.children.map(child => child.x);
+      const childrenXPositions = current.children.map((child) => child.x);
       const leftmostChildX = Math.min(...childrenXPositions);
       const rightmostChildX = Math.max(...childrenXPositions);
       const childrenCenterX = (leftmostChildX + rightmostChildX) / 2;
-      
+
       // Position parents centered over children with proper spacing
       let currentX = childrenCenterX - totalWidth / 2;
-      
+
       parents.forEach((parent, index) => {
         // Position this parent
         parent.x = currentX + parent.width / 2;
-        
+
         // Move to next position
         currentX += parent.width;
         if (index < parents.length - 1) {
           currentX += config.spouseSpacing;
         }
       });
-      
-      console.log(`👥 Positioned family ${familyId}: parents=${parents.map(p => `${p.id}(x=${p.x.toFixed(1)})`).join(', ')}, childrenCenter=${childrenCenterX.toFixed(1)}`);
+
+      console.log(
+        `👥 Positioned family ${familyId}: parents=${parents.map((p) => `${p.id}(x=${p.x.toFixed(1)})`).join(', ')}, childrenCenter=${childrenCenterX.toFixed(1)}`,
+      );
     }
   }
 }
@@ -955,7 +957,7 @@ function secondWalk(
 ): void {
   node.x = node.prelim + modSum;
   // Add extra padding at the top and increase spacing
-  node.y = 100 + (level * config.generationSpacing);
+  node.y = 100 + level * config.generationSpacing;
 
   node.children.forEach((child) => {
     secondWalk(child, modSum + node.mod, level + 1, config);
@@ -1427,13 +1429,14 @@ function getNodeDistance(
   config: LayoutConfig,
 ): number {
   // Check if nodes are spouses
-  const areSpouses = left.spouses.includes(right) || right.spouses.includes(left);
-  
+  const areSpouses =
+    left.spouses.includes(right) || right.spouses.includes(left);
+
   if (areSpouses) {
     // Use spouse spacing for married couples
     return config.spouseSpacing + (left.width + right.width) / 2;
   }
-  
+
   // Base spacing for siblings or unrelated nodes
   let distance = config.nodeSpacing;
 

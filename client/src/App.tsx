@@ -105,13 +105,20 @@ function App(): React.ReactElement {
       try {
         const response = await fetch('/generated/parsed/manifest.json');
         if (response.ok) {
-          const manifest = await response.json() as GedcomManifest;
+          const manifest = (await response.json()) as GedcomManifest;
           const datasetIds = manifest.datasets.map((d) => d.id);
           setAvailableDatasets(datasetIds);
-          
+
           // Auto-load first dataset if none selected
-          if (currentView === 'file-select' && !dualData && !currentDataset && datasetIds.length > 0) {
-            console.log(`🔄 Auto-loading first available dataset: ${datasetIds[0]}`);
+          if (
+            currentView === 'file-select' &&
+            !dualData &&
+            !currentDataset &&
+            datasetIds.length > 0
+          ) {
+            console.log(
+              `🔄 Auto-loading first available dataset: ${datasetIds[0]}`,
+            );
             setCurrentDataset(datasetIds[0]);
             setCurrentView('artwork');
           }
@@ -120,7 +127,7 @@ function App(): React.ReactElement {
         console.error('Failed to load manifest:', err);
       }
     };
-    
+
     void loadManifest();
   }, [currentView, dualData, currentDataset]);
 
@@ -284,7 +291,8 @@ function App(): React.ReactElement {
               <div className="flex flex-col items-center gap-3">
                 {currentDataset && (
                   <div className="text-sm text-gray-600">
-                    Current dataset: <span className="font-semibold">{currentDataset}</span>
+                    Current dataset:{' '}
+                    <span className="font-semibold">{currentDataset}</span>
                   </div>
                 )}
                 <div className="flex gap-2">
@@ -299,8 +307,10 @@ function App(): React.ReactElement {
                   <button
                     onClick={() => {
                       if (availableDatasets.length > 0) {
-                        const currentIndex = availableDatasets.indexOf(currentDataset);
-                        const nextIndex = (currentIndex + 1) % availableDatasets.length;
+                        const currentIndex =
+                          availableDatasets.indexOf(currentDataset);
+                        const nextIndex =
+                          (currentIndex + 1) % availableDatasets.length;
                         handleLoadDataset(availableDatasets[nextIndex]);
                       }
                     }}
@@ -393,7 +403,9 @@ function App(): React.ReactElement {
                   </div>
                   {/* GEDCOM Dataset Selector */}
                   <div className="flex flex-col items-center">
-                    <div className="text-gray-500 mb-4">or load a pre-processed dataset</div>
+                    <div className="text-gray-500 mb-4">
+                      or load a pre-processed dataset
+                    </div>
                     <GedcomSelector
                       onSelect={handleLoadDataset}
                       currentDataset={currentDataset}
