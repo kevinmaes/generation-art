@@ -254,65 +254,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
         sampleIndividual: Object.values(visualMetadata.individuals)[0],
       });
 
-      // Draw edges using visual metadata
-      if (currentShowRelations) {
-        // Check if we have routing output (orthogonal edges)
-        console.log('🎨 Edge rendering check:', {
-          hasRouting: !!visualMetadata.routing,
-          routingSegments: visualMetadata.routing
-            ? Object.keys(visualMetadata.routing.segments).length
-            : 0,
-          routingLayers: visualMetadata.routing?.layers.length,
-          debugMode: debugEdgeRouting,
-        });
-
-        if (visualMetadata.routing) {
-          // Use the functional edge renderer for advanced routing
-          console.log('📐 Rendering orthogonal edges');
-          renderEdgeRouting(visualMetadata.routing, p, {
-            debugMode: debugEdgeRouting,
-          });
-        } else {
-          console.log('📉 Rendering legacy straight edges');
-          // Fall back to legacy edge drawing
-          for (const edge of gedcomData.metadata.edges) {
-            const coord1 = getIndividualCoord(
-              edge.sourceId,
-              width,
-              height,
-              visualMetadata,
-            );
-            const coord2 = getIndividualCoord(
-              edge.targetId,
-              width,
-              height,
-              visualMetadata,
-            );
-
-            // Use edge visual metadata (if available)
-            const edgeMetadata = visualMetadata.edges[edge.id];
-            const strokeColor = p.color(
-              edgeMetadata?.strokeColor ??
-                edgeMetadata?.color ??
-                visualMetadata.global.defaultEdgeColor ??
-                '#ccc',
-            );
-            const opacity = edgeMetadata?.opacity ?? 0.8;
-            const weight =
-              edgeMetadata?.strokeWeight ??
-              visualMetadata.global.defaultEdgeWeight ??
-              strokeWeight;
-
-            strokeColor.setAlpha(opacity * 255);
-            p.stroke(strokeColor);
-            p.strokeWeight(weight);
-
-            // Draw edge with appropriate curve type
-            drawEdge(p, coord1, coord2, edgeMetadata ?? {});
-          }
-        }
-      }
-
+      // IMPORTANT: Draw nodes FIRST (they will be in the background)
       // Draw nodes (individuals) using per-entity visual metadata
       if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
@@ -521,6 +463,68 @@ function createSketch(props: SketchProps): (p: p5) => void {
         }
       }
 
+      // Draw edges AFTER nodes (they will appear on top)
+      if (currentShowRelations) {
+        // Check if we have routing output (orthogonal edges)
+        console.log('🎨 Edge rendering check:', {
+          hasRouting: !!visualMetadata.routing,
+          routingSegments: visualMetadata.routing
+            ? Object.keys(visualMetadata.routing.segments).length
+            : 0,
+          routingLayers: visualMetadata.routing?.layers.length,
+          debugMode: debugEdgeRouting,
+        });
+
+        if (visualMetadata.routing) {
+          // Use the functional edge renderer for advanced routing
+          console.log('📐 Rendering orthogonal edges');
+          renderEdgeRouting(visualMetadata.routing, p, {
+            debugMode: debugEdgeRouting,
+          });
+        } else {
+          console.log('📉 Rendering legacy straight edges');
+          // Fall back to legacy edge drawing
+          for (const edge of gedcomData.metadata.edges) {
+            const coord1 = getIndividualCoord(
+              edge.sourceId,
+              width,
+              height,
+              visualMetadata,
+            );
+            const coord2 = getIndividualCoord(
+              edge.targetId,
+              width,
+              height,
+              visualMetadata,
+            );
+
+            // Skip edges where coordinates couldn't be found
+            if (!coord1 || !coord2) {
+              continue;
+            }
+
+            const edgeMetadata = visualMetadata.edges[edge.id];
+            const strokeColor = p.color(
+              edgeMetadata?.strokeColor ??
+                visualMetadata.global.defaultEdgeColor ??
+                '#ccc',
+            );
+            const opacity = edgeMetadata?.opacity ?? 0.8;
+            const weight =
+              edgeMetadata?.strokeWeight ??
+              visualMetadata.global.defaultEdgeWeight ??
+              strokeWeight;
+
+            strokeColor.setAlpha(opacity * 255);
+            p.stroke(strokeColor);
+            p.strokeWeight(weight);
+
+            // Draw edge with appropriate curve type
+            drawEdge(p, coord1, coord2, edgeMetadata ?? {});
+          }
+        }
+      }
+
       p.fill(100);
       p.textSize(10);
       p.textAlign(p.LEFT);
@@ -677,25 +681,14 @@ export function createPrintSketch(
  * Get individual coordinates from visual metadata
  */
 function getIndividualCoord(
-  id: string,
-  width: number,
-  height: number,
+  individualId: string,
+  canvasWidth: number,
+  canvasHeight: number,
   visualMetadata: CompleteVisualMetadata,
-): { x: number; y: number } {
-  const individualMetadata = visualMetadata.individuals[id];
-  if (
-    individualMetadata?.x !== undefined &&
-    individualMetadata?.y !== undefined
-  ) {
-    return { x: individualMetadata.x, y: individualMetadata.y };
+): Point | undefined {
+  const metadata = visualMetadata.individuals[individualId];
+  if (metadata?.x !== undefined && metadata?.y !== undefined) {
+    return { x: metadata.x, y: metadata.y };
   }
-
-  // Fallback to hash-based positioning if no position data
-  let hash = 5381;
-  for (let i = 0; i < id.length; i++) {
-    hash = (hash << 5) + hash + id.charCodeAt(i);
-  }
-  const x = (((hash >>> 0) % 1000) / 1000) * width * 0.8 + width * 0.1;
-  const y = ((((hash * 31) >>> 0) % 1000) / 1000) * height * 0.8 + height * 0.1;
-  return { x, y };
+  return undefined;
 }

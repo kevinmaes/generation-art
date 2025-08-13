@@ -312,7 +312,7 @@ export function buildWalkerTreeData(
   // Group by generations
   const generationLevels = new Map<number, string[]>();
   Object.entries(individuals).forEach(([id, individual]) => {
-    const generation = individual.metadata.generation ?? 0;
+    const generation = individual.metadata?.generation ?? 0;
     const currentLevel = generationLevels.get(generation) ?? [];
     generationLevels.set(generation, [...currentLevel, id]);
   });
@@ -336,7 +336,7 @@ export function buildWalkerTreeData(
     // Determine generation (use first parent's generation if available)
     const firstParent = family.husband ?? family.wife;
     const generation =
-      (firstParent as AugmentedIndividual | undefined)?.metadata.generation ??
+      (firstParent as AugmentedIndividual | undefined)?.metadata?.generation ??
       0;
 
     return {

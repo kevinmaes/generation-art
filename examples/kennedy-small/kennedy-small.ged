@@ -1,0 +1,148 @@
+0 HEAD
+1 SOUR Generation Art Example
+2 NAME Kennedy Family Small Example
+2 VERS 1.0
+1 DATE 13 JAN 2025
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+1 LANG English
+0 @I1@ INDI
+1 NAME Joseph Patrick /Kennedy/ Sr.
+2 GIVN Joseph Patrick
+2 SURN Kennedy
+1 SEX M
+1 BIRT
+2 DATE 6 SEP 1888
+2 PLAC Boston, Massachusetts, USA
+1 DEAT
+2 DATE 18 NOV 1969
+2 PLAC Hyannis Port, Massachusetts, USA
+1 FAMS @F1@
+0 @I2@ INDI
+1 NAME Rose Elizabeth /Fitzgerald/
+2 GIVN Rose Elizabeth
+2 SURN Fitzgerald
+1 SEX F
+1 BIRT
+2 DATE 22 JUL 1890
+2 PLAC Boston, Massachusetts, USA
+1 DEAT
+2 DATE 22 JAN 1995
+2 PLAC Hyannis Port, Massachusetts, USA
+1 FAMS @F1@
+0 @I3@ INDI
+1 NAME John Fitzgerald /Kennedy/
+2 GIVN John Fitzgerald
+2 SURN Kennedy
+1 SEX M
+1 BIRT
+2 DATE 29 MAY 1917
+2 PLAC Brookline, Massachusetts, USA
+1 DEAT
+2 DATE 22 NOV 1963
+2 PLAC Dallas, Texas, USA
+1 FAMC @F1@
+1 FAMS @F2@
+0 @I4@ INDI
+1 NAME Robert Francis /Kennedy/
+2 GIVN Robert Francis
+2 SURN Kennedy
+1 SEX M
+1 BIRT
+2 DATE 20 NOV 1925
+2 PLAC Brookline, Massachusetts, USA
+1 DEAT
+2 DATE 6 JUN 1968
+2 PLAC Los Angeles, California, USA
+1 FAMC @F1@
+1 FAMS @F3@
+0 @I5@ INDI
+1 NAME Edward Moore /Kennedy/
+2 GIVN Edward Moore
+2 SURN Kennedy
+1 SEX M
+1 BIRT
+2 DATE 22 FEB 1932
+2 PLAC Boston, Massachusetts, USA
+1 DEAT
+2 DATE 25 AUG 2009
+2 PLAC Hyannis Port, Massachusetts, USA
+1 FAMC @F1@
+0 @I6@ INDI
+1 NAME Jacqueline Lee /Bouvier/
+2 GIVN Jacqueline Lee
+2 SURN Bouvier
+1 SEX F
+1 BIRT
+2 DATE 28 JUL 1929
+2 PLAC Southampton, New York, USA
+1 DEAT
+2 DATE 19 MAY 1994
+2 PLAC New York City, New York, USA
+1 FAMS @F2@
+0 @I7@ INDI
+1 NAME Caroline Bouvier /Kennedy/
+2 GIVN Caroline Bouvier
+2 SURN Kennedy
+1 SEX F
+1 BIRT
+2 DATE 27 NOV 1957
+2 PLAC New York City, New York, USA
+1 FAMC @F2@
+0 @I8@ INDI
+1 NAME John Fitzgerald /Kennedy/ Jr.
+2 GIVN John Fitzgerald
+2 SURN Kennedy
+1 SEX M
+1 BIRT
+2 DATE 25 NOV 1960
+2 PLAC Washington, D.C., USA
+1 DEAT
+2 DATE 16 JUL 1999
+2 PLAC Atlantic Ocean, Martha's Vineyard, Massachusetts, USA
+1 FAMC @F2@
+0 @I9@ INDI
+1 NAME Ethel /Skakel/
+2 GIVN Ethel
+2 SURN Skakel
+1 SEX F
+1 BIRT
+2 DATE 11 APR 1928
+2 PLAC Chicago, Illinois, USA
+1 FAMS @F3@
+0 @I10@ INDI
+1 NAME Robert Francis /Kennedy/ Jr.
+2 GIVN Robert Francis
+2 SURN Kennedy
+1 SEX M
+1 BIRT
+2 DATE 17 JAN 1954
+2 PLAC Washington, D.C., USA
+1 FAMC @F3@
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 CHIL @I3@
+1 CHIL @I4@
+1 CHIL @I5@
+1 MARR
+2 DATE 7 OCT 1914
+2 PLAC Boston, Massachusetts, USA
+0 @F2@ FAM
+1 HUSB @I3@
+1 WIFE @I6@
+1 CHIL @I7@
+1 CHIL @I8@
+1 MARR
+2 DATE 12 SEP 1953
+2 PLAC Newport, Rhode Island, USA
+0 @F3@ FAM
+1 HUSB @I4@
+1 WIFE @I9@
+1 CHIL @I10@
+1 MARR
+2 DATE 17 JUN 1950
+2 PLAC Greenwich, Connecticut, USA
+0 TRLR

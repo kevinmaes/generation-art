@@ -3,6 +3,7 @@ import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { GedcomSelector } from './components/GedcomSelector';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
@@ -65,7 +66,7 @@ function App(): React.ReactElement {
     transformerName: string;
   } | null>(null);
 
-  const [currentDataset, setCurrentDataset] = useState<string>('kennedy');
+  const [currentDataset, setCurrentDataset] = useState<string>('');
 
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -81,17 +82,14 @@ function App(): React.ReactElement {
     },
   });
 
-  // Check for autoLoad parameter and load Kennedy data automatically
+  // Auto-load nuclear family by default
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const autoLoad = urlParams.get('autoLoad');
-
-    if (autoLoad === 'true' && currentView === 'file-select' && !dualData) {
-      console.log('🔄 Auto-loading Kennedy family tree data...');
-      setCurrentDataset('kennedy');
+    if (currentView === 'file-select' && !dualData && !currentDataset) {
+      console.log('🔄 Auto-loading Nuclear family tree data...');
+      setCurrentDataset('nuclear-family');
       setCurrentView('artwork');
     }
-  }, [currentView, dualData]);
+  }, [currentView, dualData, currentDataset]);
 
   // Handle keyboard shortcut for pipeline modal
   useEventListener('keydown', (event) => {
@@ -136,8 +134,8 @@ function App(): React.ReactElement {
     }
   };
 
-  const handleLoadKennedy = () => {
-    setCurrentDataset('kennedy');
+  const handleLoadDataset = (datasetId: string) => {
+    setCurrentDataset(datasetId);
     setCurrentView('artwork');
     setError(null);
     setPipelineResult(null);
@@ -250,14 +248,34 @@ function App(): React.ReactElement {
               Visualizing family trees through generative art
             </p>
             {currentView === 'artwork' && (
-              <button
-                onClick={() => {
-                  setCurrentView('file-select');
-                }}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mt-2"
-              >
-                Load Different File
-              </button>
+              <div className="flex flex-col items-center gap-3">
+                {currentDataset && (
+                  <div className="text-sm text-gray-600">
+                    Current dataset: <span className="font-semibold">{currentDataset}</span>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setCurrentView('file-select');
+                    }}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  >
+                    Load from file
+                  </button>
+                  <button
+                    onClick={() => {
+                      const datasets = ['nuclear-family', 'kennedy-small', 'kennedy', 'shakespeare', 'bronte'];
+                      const currentIndex = datasets.indexOf(currentDataset);
+                      const nextIndex = (currentIndex + 1) % datasets.length;
+                      handleLoadDataset(datasets[nextIndex]);
+                    }}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                  >
+                    Switch dataset
+                  </button>
+                </div>
+              </div>
             )}
           </div>
           {currentView === 'artwork' && dualData ? (
@@ -338,23 +356,14 @@ function App(): React.ReactElement {
                       Select a CLI-processed JSON file from the generated folder
                     </p>
                   </div>
-                  {/* Quick Load Kennedy Button */}
-                  <div className="text-center">
-                    <div className="text-gray-500 mb-2">or</div>
-                    <button
-                      onClick={() => {
-                        handleLoadKennedy();
-                      }}
+                  {/* GEDCOM Dataset Selector */}
+                  <div className="flex flex-col items-center">
+                    <div className="text-gray-500 mb-4">or load a pre-processed dataset</div>
+                    <GedcomSelector
+                      onSelect={handleLoadDataset}
+                      currentDataset={currentDataset}
                       disabled={isLoading}
-                      className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoading
-                        ? 'Loading...'
-                        : 'Load Kennedy Family Tree (Development)'}
-                    </button>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Quick development option - loads the Kennedy family data
-                    </p>
+                    />
                   </div>
                   {/* Loading Indicator */}
                   {isLoading && (
