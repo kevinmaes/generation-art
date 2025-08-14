@@ -630,12 +630,19 @@ export const enhanceIndividualMetadata = (
 };
 
 /**
+ * Intermediate type for families with metadata but plain Individual references
+ */
+interface FamilyWithMetadataPlain extends Family {
+  metadata: FamilyMetadata;
+}
+
+/**
  * Enhance family metadata with graph analysis data
  */
 export const enhanceFamilyMetadata = (
   families: Family[],
   _treeMetadata: TreeMetadata,
-): FamilyWithMetadata[] => {
+): FamilyWithMetadataPlain[] => {
   return families.map((family) => {
     // Get existing metadata
     const existingMetadata = extractFamilyMetadata(family, {

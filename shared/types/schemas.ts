@@ -317,7 +317,11 @@ export const AugmentedIndividualSchema = IndividualSchema.extend({
   metadata: IndividualMetadataSchema,
 });
 
-export const FamilyWithMetadataSchema = FamilySchema.extend({
+export const FamilyWithMetadataSchema = z.object({
+  id: z.string(),
+  husband: AugmentedIndividualSchema.optional(),
+  wife: AugmentedIndividualSchema.optional(),
+  children: z.array(AugmentedIndividualSchema),
   metadata: FamilyMetadataSchema,
 });
 

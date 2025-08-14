@@ -89,6 +89,12 @@ const mockGedcomData = {
         spouses: [],
         children: ['I2'],
         siblings: [],
+        metadata: {
+          generation: 1,
+          relativeGenerationValue: 0.0,
+          lifespan: 80,
+          birthYear: 1920,
+        },
       },
       wife: {
         id: 'I2',
@@ -100,6 +106,12 @@ const mockGedcomData = {
         spouses: [],
         children: ['I3'],
         siblings: [],
+        metadata: {
+          generation: 2,
+          relativeGenerationValue: 0.5,
+          lifespan: 75,
+          birthYear: 1950,
+        },
       },
     },
   },

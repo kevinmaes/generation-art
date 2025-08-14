@@ -4,7 +4,7 @@
  * Individual metadata is now part of the AugmentedIndividual type
  */
 
-import type { Family, AugmentedIndividual } from './gedcom';
+import type { AugmentedIndividual } from './gedcom';
 
 /**
  * Edge representation for graph analysis
@@ -341,9 +341,13 @@ export interface TreeMetadata {
 }
 
 /**
- * Family with metadata attached
+ * Family with metadata attached and augmented individuals
  */
-export interface FamilyWithMetadata extends Family {
+export interface FamilyWithMetadata {
+  id: string;
+  husband?: AugmentedIndividual;
+  wife?: AugmentedIndividual;
+  children: AugmentedIndividual[];
   metadata: FamilyMetadata;
 }
 

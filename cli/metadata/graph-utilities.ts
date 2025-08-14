@@ -335,9 +335,7 @@ export function buildWalkerTreeData(
 
     // Determine generation (use first parent's generation if available)
     const firstParent = family.husband ?? family.wife;
-    const generation = firstParent
-      ? ((firstParent as AugmentedIndividual).metadata.generation ?? 0)
-      : 0;
+    const generation = firstParent?.metadata.generation ?? 0;
 
     return {
       id: family.id,
