@@ -313,9 +313,7 @@ function mergeVisualMetadata(
 }
 
 // Build a compact change set from a transformer's partial visualMetadata
-function buildChangeSet(
-  updates: Partial<CompleteVisualMetadata>,
-): {
+function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
   changeSet: {
     individuals?: Record<string, (keyof VisualMetadata)[]>;
     families?: Record<string, (keyof VisualMetadata)[]>;
@@ -439,9 +437,11 @@ export async function* runPipelineGenerator({
       };
 
       // Get last change set if available (set by previous iteration)
-      const lastChangeSet = (runPipelineGenerator as unknown as {
-        _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'];
-      })._lastChangeSet;
+      const lastChangeSet = (
+        runPipelineGenerator as unknown as {
+          _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'];
+        }
+      )._lastChangeSet;
 
       // Create context for this transformer instance
       const context: TransformerContext = {
@@ -493,7 +493,11 @@ export async function* runPipelineGenerator({
       const { changeSet } = buildChangeSet(result.visualMetadata);
 
       // Store change set for next iteration
-      (runPipelineGenerator as unknown as { _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'] })._lastChangeSet = changeSet;
+      (
+        runPipelineGenerator as unknown as {
+          _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'];
+        }
+      )._lastChangeSet = changeSet;
 
       // Yield transformer result
       yield {

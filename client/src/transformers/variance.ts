@@ -86,7 +86,7 @@ export const varianceConfig: VisualTransformerConfig = {
       name: 'limitToPreviousChanges',
       type: 'boolean',
       defaultValue: true,
-      label: 'Only affect previous transformer\'s changes',
+      label: "Only affect previous transformer's changes",
       description:
         'When enabled, variance is applied only to properties modified by the immediately previous transformer',
     },
@@ -188,9 +188,7 @@ export async function varianceTransform(
   // Determine whether we should limit to previous transformer's changes
   const hasPrevious = Boolean(context.previousChangeSet);
   const limitToPrevious = ((): boolean => {
-    const provided = visual?.limitToPreviousChanges as
-      | boolean
-      | undefined;
+    const provided = visual?.limitToPreviousChanges as boolean | undefined;
     if (provided !== undefined) return Boolean(provided);
     // Default to true only when running in a pipeline and we have a previous change set
     return hasPrevious;
@@ -221,7 +219,8 @@ export async function varianceTransform(
   }
 
   // Helpers to check whether a property is allowed by previous change set
-  const wasChanged = (entityType: 'individuals' | 'edges' | 'families' | 'tree',
+  const wasChanged = (
+    entityType: 'individuals' | 'edges' | 'families' | 'tree',
     id: string | undefined,
     prop: keyof VisualMetadata,
   ): boolean => {
