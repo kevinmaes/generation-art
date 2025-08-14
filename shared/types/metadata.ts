@@ -374,13 +374,14 @@ export interface GraphTraversalUtils {
 
 /**
  * Pre-computed adjacency maps for O(1) graph lookups
+ * Supports both Map (runtime) and Record (JSON-serialized) formats
  */
 export interface GraphAdjacencyMaps {
-  parentToChildren: Map<string, string[]>;
-  childToParents: Map<string, string[]>;
-  spouseToSpouse: Map<string, string[]>;
-  siblingGroups: Map<string, string[]>;
-  familyMembership: Map<string, string[]>; // Individual ID -> Family IDs they belong to
+  parentToChildren: Map<string, string[]> | Record<string, string[]>;
+  childToParents: Map<string, string[]> | Record<string, string[]>;
+  spouseToSpouse: Map<string, string[]> | Record<string, string[]>;
+  siblingGroups: Map<string, string[]> | Record<string, string[]>;
+  familyMembership: Map<string, string[]> | Record<string, string[]>; // Individual ID -> Family IDs they belong to
 }
 
 /**
@@ -388,16 +389,28 @@ export interface GraphAdjacencyMaps {
  */
 export interface WalkerTreeData {
   // Pre-computed tree structure for Walker's algorithm
-  nodeHierarchy: Map<
-    string,
-    {
-      parent?: string;
-      children: string[];
-      leftSibling?: string;
-      rightSibling?: string;
-      depth: number;
-    }
-  >;
+  // Supports both Map (runtime) and Record (JSON-serialized) formats
+  nodeHierarchy:
+    | Map<
+        string,
+        {
+          parent?: string;
+          children: string[];
+          leftSibling?: string;
+          rightSibling?: string;
+          depth: number;
+        }
+      >
+    | Record<
+        string,
+        {
+          parent?: string;
+          children: string[];
+          leftSibling?: string;
+          rightSibling?: string;
+          depth: number;
+        }
+      >;
 
   // Family clustering information
   familyClusters: {
@@ -412,7 +425,8 @@ export interface WalkerTreeData {
   rootNodes: string[];
 
   // Pre-computed generation levels
-  generationLevels: Map<number, string[]>;
+  // Supports both Map (runtime) and Record (JSON-serialized) formats
+  generationLevels: Map<number, string[]> | Record<string, string[]>;
 }
 
 /**

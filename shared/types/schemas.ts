@@ -80,7 +80,7 @@ export const GraphStructureMetadataSchema = z.object({
   familySizeDistribution: z.record(z.string(), z.number()),
   childlessFamilies: z.number(),
   largeFamilies: z.number(),
-  treeComplexity: z.number().min(0).max(1),
+  treeComplexity: z.number().min(0).max(1).nullable(),
   branchingFactor: z.number(),
   depthToBreadthRatio: z.number(),
 });
@@ -326,25 +326,53 @@ export const FamilyWithMetadataSchema = z.object({
 });
 
 // Graph data schemas
+// Use z.record for JSON-serialized objects (Maps don't serialize to JSON)
 export const GraphAdjacencyMapsSchema = z.object({
-  parentToChildren: z.map(z.string(), z.array(z.string())),
-  childToParents: z.map(z.string(), z.array(z.string())),
-  spouseToSpouse: z.map(z.string(), z.array(z.string())),
-  siblingGroups: z.map(z.string(), z.array(z.string())),
-  familyMembership: z.map(z.string(), z.array(z.string())),
+  parentToChildren: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+  childToParents: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+  spouseToSpouse: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+  siblingGroups: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+  familyMembership: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
 });
 
 export const WalkerTreeDataSchema = z.object({
-  nodeHierarchy: z.map(
-    z.string(),
-    z.object({
-      parent: z.string().optional(),
-      children: z.array(z.string()),
-      leftSibling: z.string().optional(),
-      rightSibling: z.string().optional(),
-      depth: z.number(),
-    }),
-  ),
+  nodeHierarchy: z.union([
+    z.map(
+      z.string(),
+      z.object({
+        parent: z.string().optional(),
+        children: z.array(z.string()),
+        leftSibling: z.string().optional(),
+        rightSibling: z.string().optional(),
+        depth: z.number(),
+      }),
+    ),
+    z.record(
+      z.string(),
+      z.object({
+        parent: z.string().optional(),
+        children: z.array(z.string()),
+        leftSibling: z.string().optional(),
+        rightSibling: z.string().optional(),
+        depth: z.number(),
+      }),
+    ),
+  ]),
   familyClusters: z.array(
     z.object({
       id: z.string(),
@@ -355,7 +383,10 @@ export const WalkerTreeDataSchema = z.object({
     }),
   ),
   rootNodes: z.array(z.string()),
-  generationLevels: z.map(z.number(), z.array(z.string())),
+  generationLevels: z.union([
+    z.map(z.number(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
 });
 
 export const GraphDataSchema = z.object({
@@ -393,7 +424,7 @@ const createDefaultMetadata = (
     familySizeDistribution: {},
     childlessFamilies: 0,
     largeFamilies: 0,
-    treeComplexity: 0,
+    treeComplexity: null,
     branchingFactor: 0,
     depthToBreadthRatio: 0,
   },
@@ -510,11 +541,13 @@ const createDefaultMetadata = (
 export const EnhancedIndividualArraySchema = z.array(AugmentedIndividualSchema);
 
 // Union schema for flexible input validation
-export const FlexibleGedcomDataSchema = z.union([
+// First try to parse as full schema with metadata
+const FlexibleGedcomDataSchemaBase = z.union([
   GedcomDataWithMetadataSchema,
   z.object({
     individuals: z.record(z.string(), AugmentedIndividualSchema),
     families: z.record(z.string(), FamilyWithMetadataSchema),
+    metadata: TreeMetadataSchema.optional(),
   }),
   z.object({
     individuals: z.array(AugmentedIndividualSchema),
@@ -522,6 +555,8 @@ export const FlexibleGedcomDataSchema = z.union([
   }),
   EnhancedIndividualArraySchema,
 ]);
+
+export const FlexibleGedcomDataSchema = FlexibleGedcomDataSchemaBase;
 
 // Type exports derived from schemas
 export type Individual = z.infer<typeof IndividualSchema>;
@@ -608,8 +643,8 @@ export const validateFlexibleGedcomData = (
     };
   } else if ('individuals' in result && 'families' in result) {
     // Already in correct format, but might be missing metadata
-    if ('metadata' in result) {
-      validatedData = result;
+    if ('metadata' in result && result.metadata) {
+      validatedData = result as GedcomDataWithMetadata;
     } else {
       // Add default metadata
       validatedData = {

@@ -211,7 +211,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
     width,
     height,
     showNames = false,
-    strokeWeight = 0.2,
+    strokeWeight: _strokeWeight = 0.2,
     transformerIds = PIPELINE_DEFAULTS.TRANSFORMER_IDS,
     temperature = 0.5,
     seed,
@@ -466,14 +466,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
       // Draw edges AFTER nodes (they will appear on top)
       if (currentShowRelations) {
         // Check if we have routing output (orthogonal edges)
-        console.log('🎨 Edge rendering check:', {
-          hasRouting: !!visualMetadata.routing,
-          routingSegments: visualMetadata.routing
-            ? Object.keys(visualMetadata.routing.segments).length
-            : 0,
-          routingLayers: visualMetadata.routing?.layers.length,
-          debugMode: debugEdgeRouting,
-        });
 
         if (visualMetadata.routing) {
           // Use the functional edge renderer for advanced routing
@@ -482,7 +474,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
             debugMode: debugEdgeRouting,
           });
         } else {
-          console.log('📉 Rendering legacy straight edges');
           // Fall back to legacy edge drawing
           for (const edge of gedcomData.metadata.edges) {
             const coord1 = getIndividualCoord(
@@ -513,7 +504,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
             const weight =
               edgeMetadata?.strokeWeight ??
               visualMetadata.global.defaultEdgeWeight ??
-              strokeWeight;
+              1;
 
             strokeColor.setAlpha(opacity * 255);
             p.stroke(strokeColor);

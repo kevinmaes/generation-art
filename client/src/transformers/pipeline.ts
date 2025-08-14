@@ -50,7 +50,11 @@ import {
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [TRANSFORMERS.WALKER_TREE.ID],
+  TRANSFORMER_IDS: [
+    // TRANSFORMERS.WALKER_TREE.ID
+    TRANSFORMERS.HORIZONTAL_SPREAD.ID,
+    TRANSFORMERS.VERTICAL_SPREAD.ID,
+  ],
 };
 
 /**
@@ -182,7 +186,10 @@ export function createInitialCompleteVisualMetadata(
   });
 
   // Initialize visual metadata for each edge
-  gedcomData.metadata.edges.forEach((edge) => {
+  // Check if edges exist in metadata (they might be missing in some data formats)
+  const metadataEdges = gedcomData.metadata?.edges ?? [];
+
+  metadataEdges.forEach((edge) => {
     edges[edge.id] = {
       // Edge-specific defaults
       strokeColor: DEFAULT_STROKE_COLOR,
