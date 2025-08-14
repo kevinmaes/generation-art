@@ -219,8 +219,8 @@ export interface VisualTransformerConfig {
   // Whether this transformer requires LLM delegation
   requiresLLM?: boolean;
 
-  // Optional UI hint: whether this transformer supports multiple instances
-  multiInstance?: boolean;
+  // Whether this transformer supports multiple instances (UI hint)
+  multiInstance: boolean;
 
   // Optional factory to create a short, unique instance ID
   createInstanceId?: () => string;

@@ -20,24 +20,16 @@ import { createTransformerInstance } from './utils';
 export const nodeShapeConfig: VisualTransformerConfig = {
   id: 'node-shape',
   name: 'Node Shape',
-  description:
-    'Uses sophisticated algorithms to map genealogical patterns to geometric forms, creating meaningful visual distinctions across family structures.',
-  shortDescription: 'Changes node shapes based on generation or metadata',
+  description: 'Assigns shapes to nodes based on a selected dimension.',
+  shortDescription: 'Shapes by dimension',
   transform: nodeShapeTransform,
-  categories: ['visual', 'shape'],
-  availableDimensions: [
-    'generation',
-    'childrenCount',
-    'lifespan',
-    'marriageCount',
-    'birthYear',
-    'nameLength',
-  ],
+  categories: ['visual'],
+  availableDimensions: ['generation', 'childrenCount', 'lifespan'],
   defaultPrimaryDimension: 'generation',
-  defaultSecondaryDimension: 'childrenCount',
   visualParameters: [],
   createTransformerInstance: (params) =>
-    createTransformerInstance(params, nodeShapeTransform),
+    createTransformerInstance(params, nodeShapeTransform, []),
+  multiInstance: false,
 };
 
 /**

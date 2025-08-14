@@ -101,6 +101,7 @@ export const varianceConfig: VisualTransformerConfig = {
       { name: 'varyOpacity', defaultValue: false },
       { name: 'limitToPreviousChanges', defaultValue: true },
     ]),
+  multiInstance: true,
 };
 
 /**
