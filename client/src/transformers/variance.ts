@@ -55,34 +55,6 @@ export const varianceConfig: VisualTransformerConfig = {
       ],
     },
     {
-      name: 'varySize',
-      type: 'boolean',
-      defaultValue: true,
-      label: 'Vary Size',
-      description: 'Apply variance to node sizes',
-    },
-    {
-      name: 'varyPosition',
-      type: 'boolean',
-      defaultValue: true,
-      label: 'Vary Position',
-      description: 'Apply variance to node positions',
-    },
-    {
-      name: 'varyRotation',
-      type: 'boolean',
-      defaultValue: false,
-      label: 'Vary Rotation',
-      description: 'Apply variance to node rotation',
-    },
-    {
-      name: 'varyOpacity',
-      type: 'boolean',
-      defaultValue: false,
-      label: 'Vary Opacity',
-      description: 'Apply variance to node opacity',
-    },
-    {
       name: 'limitToPreviousChanges',
       type: 'boolean',
       defaultValue: true,
@@ -95,10 +67,6 @@ export const varianceConfig: VisualTransformerConfig = {
     createTransformerInstance(params, varianceTransform, [
       { name: 'varianceAmount', defaultValue: 25 },
       { name: 'varianceMode', defaultValue: 'uniform' },
-      { name: 'varySize', defaultValue: true },
-      { name: 'varyPosition', defaultValue: true },
-      { name: 'varyRotation', defaultValue: false },
-      { name: 'varyOpacity', defaultValue: false },
       { name: 'limitToPreviousChanges', defaultValue: true },
     ]),
   multiInstance: true,
@@ -202,10 +170,11 @@ export async function varianceTransform(
   // Get visual parameters
   const varianceAmount = Number(visual?.varianceAmount ?? 25);
   const varianceMode = String(visual?.varianceMode ?? 'uniform');
-  const varySize = Boolean(visual?.varySize ?? true);
-  const varyPosition = Boolean(visual?.varyPosition ?? true);
-  const varyRotation = Boolean(visual?.varyRotation ?? false);
-  const varyOpacity = Boolean(visual?.varyOpacity ?? false);
+  // Internal gating flags (not exposed in config): default to true
+  const varySize = visual?.varySize === false ? false : true;
+  const varyPosition = visual?.varyPosition === false ? false : true;
+  const varyRotation = visual?.varyRotation === false ? false : true;
+  const varyOpacity = visual?.varyOpacity === false ? false : true;
 
   // If variance is 0, no transformation needed
   if (varianceAmount === 0) {
@@ -283,32 +252,32 @@ export async function varianceTransform(
     }
 
     // Apply variance to position
-    if (varyPosition) {
-      if (
-        currentMetadata.x !== undefined &&
-        wasChanged('individuals', individual.id, 'x')
-      ) {
-        // Position variance is limited to prevent overlaps
-        const positionVariance = varianceFactor * 0.3; // 30% of normal variance
-        newMetadata.x = applyVariance(
-          currentMetadata.x,
-          positionVariance,
-          seed,
-          individual.id.charCodeAt(0) + 2,
-        );
-      }
-      if (
-        currentMetadata.y !== undefined &&
-        wasChanged('individuals', individual.id, 'y')
-      ) {
-        const positionVariance = varianceFactor * 0.3;
-        newMetadata.y = applyVariance(
-          currentMetadata.y,
-          positionVariance,
-          seed,
-          individual.id.charCodeAt(0) + 3,
-        );
-      }
+    if (
+      varyPosition &&
+      currentMetadata.x !== undefined &&
+      wasChanged('individuals', individual.id, 'x')
+    ) {
+      // Position variance is limited to prevent overlaps
+      const positionVariance = varianceFactor * 0.3; // 30% of normal variance
+      newMetadata.x = applyVariance(
+        currentMetadata.x,
+        positionVariance,
+        seed,
+        individual.id.charCodeAt(0) + 2,
+      );
+    }
+    if (
+      varyPosition &&
+      currentMetadata.y !== undefined &&
+      wasChanged('individuals', individual.id, 'y')
+    ) {
+      const positionVariance = varianceFactor * 0.3;
+      newMetadata.y = applyVariance(
+        currentMetadata.y,
+        positionVariance,
+        seed,
+        individual.id.charCodeAt(0) + 3,
+      );
     }
 
     // Apply variance to rotation
