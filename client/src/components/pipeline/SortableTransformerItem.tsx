@@ -1,10 +1,12 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2 } from 'lucide-react';
+import { GripVertical } from 'lucide-react';
 import type { VisualTransformerConfig } from '../../transformers/types';
 import type { TransformerId } from '../../transformers/transformers';
 import type { VisualParameterValues } from '../../transformers/visual-parameters';
 import { TransformerItem } from './TransformerItem';
+import { usePipelineContext } from '../../hooks/usePipelineContext';
+import React from 'react';
 
 // Drag handle configuration
 const DRAG_HANDLE_ROWS = 2;
@@ -36,8 +38,36 @@ interface SortableTransformerItemProps {
   };
 }
 
-export function SortableTransformerItem(props: SortableTransformerItemProps) {
-  const { transformer, onRemoveTransformer, isVisualizing, index } = props;
+export function SortableTransformerItem({
+  transformer,
+  isSelected,
+  handleTransformerSelect,
+  index,
+  onAddTransformer,
+  onRemoveTransformer,
+  onParameterChange,
+  onParameterReset,
+  currentParameters,
+  isVisualizing = false,
+  lastRunParameters,
+}: SortableTransformerItemProps): React.ReactElement {
+  const { activeTransformerIds, onReorderTransformers } = usePipelineContext();
+
+  const isVarianceFollowing = React.useMemo(() => {
+    return activeTransformerIds[index + 1] === 'variance';
+  }, [activeTransformerIds, index]);
+
+  const toggleVarianceAfter = () => {
+    const newOrder = [...activeTransformerIds];
+    if (isVarianceFollowing) {
+      // Remove the next item (assumed to be variance)
+      newOrder.splice(index + 1, 1);
+    } else {
+      // Insert variance after current index
+      newOrder.splice(index + 1, 0, 'variance');
+    }
+    onReorderTransformers?.(newOrder as TransformerId[]);
+  };
 
   const {
     attributes,
@@ -60,22 +90,6 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
     transform: CSS.Transform.toString(transform),
     transition,
   };
-
-  // Custom remove button with trash icon
-  const customRemoveButton = (
-    <button
-      className="text-gray-400 hover:text-red-500 text-sm flex-shrink-0 flex items-center"
-      onClick={(e) => {
-        e.stopPropagation();
-        if (!isVisualizing) {
-          onRemoveTransformer?.(transformer.id);
-        }
-      }}
-      disabled={isVisualizing}
-    >
-      <Trash2 size={14} />
-    </button>
-  );
 
   // Custom multi-row drag handle
   const dragHandle = (
@@ -101,10 +115,45 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
         {dragHandle}
         <div className="flex-1">
           <TransformerItem
-            {...props}
+            transformer={transformer}
+            isSelected={isSelected}
+            handleTransformerSelect={handleTransformerSelect}
+            index={index}
             isInPipeline={true}
+            onAddTransformer={onAddTransformer}
+            onRemoveTransformer={onRemoveTransformer}
+            onParameterChange={onParameterChange}
+            onParameterReset={onParameterReset}
+            currentParameters={currentParameters}
+            isVisualizing={isVisualizing}
+            lastRunParameters={lastRunParameters}
             customActions={{
-              removeButton: customRemoveButton,
+              removeButton: (
+                <div className="flex items-center gap-2">
+                  {/* Variance toggle */}
+                  <label className="flex items-center gap-1 text-xs text-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={isVarianceFollowing}
+                      onChange={toggleVarianceAfter}
+                      disabled={isVisualizing}
+                    />
+                    <span>Add variance after</span>
+                  </label>
+                  <button
+                    className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isVisualizing) {
+                        onRemoveTransformer?.(transformer.id);
+                      }
+                    }}
+                    disabled={isVisualizing}
+                  >
+                    ×
+                  </button>
+                </div>
+              ),
             }}
           />
         </div>

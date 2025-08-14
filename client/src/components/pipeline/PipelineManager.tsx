@@ -466,6 +466,10 @@ export function PipelineManager({
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
+  const visiblePipelineCount = React.useMemo(() => {
+    return activeTransformerIds.filter((id) => id !== 'variance').length;
+  }, [activeTransformerIds]);
+
   // Calculate responsive layout breakpoint
   const containerRef = React.useRef<HTMLDivElement>(null);
   const columnRef = React.useRef<HTMLDivElement>(null);
@@ -758,7 +762,7 @@ export function PipelineManager({
             {/* Active Pipeline in single column layout */}
             {!showTwoColumns && (
               <CollapsiblePanel
-                title={`Active Pipeline (${String(activeTransformerIds.length)})`}
+                title={`Active Pipeline (${String(visiblePipelineCount)})`}
                 subtitle={
                   pipelineResult
                     ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
@@ -822,7 +826,7 @@ export function PipelineManager({
               }}
             >
               <CollapsiblePanel
-                title={`Active Pipeline (${String(activeTransformerIds.length)})`}
+                title={`Active Pipeline (${String(visiblePipelineCount)})`}
                 subtitle={
                   pipelineResult
                     ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`

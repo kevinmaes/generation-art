@@ -130,6 +130,10 @@ export interface TransformerContext {
 
   // User-selected visual parameters (injected by createTransformerInstance)
   visual: VisualParameterValues;
+
+  // Optional: describes which visual metadata properties were modified by the
+  // immediately previous transformer in the pipeline
+  previousChangeSet?: ChangeSet;
 }
 
 /**
@@ -214,6 +218,12 @@ export interface VisualTransformerConfig {
 
   // Whether this transformer requires LLM delegation
   requiresLLM?: boolean;
+
+  // Optional UI hint: whether this transformer supports multiple instances
+  multiInstance?: boolean;
+
+  // Optional factory to create a short, unique instance ID
+  createInstanceId?: () => string;
 }
 
 /**
@@ -275,4 +285,12 @@ export interface PipelineResult {
     }[];
     totalExecutionTime: number;
   };
+}
+
+// Records which properties were changed by a transformer, scoped by entity
+export interface ChangeSet {
+  individuals?: Record<string, (keyof VisualMetadata)[]>;
+  families?: Record<string, (keyof VisualMetadata)[]>;
+  edges?: Record<string, (keyof VisualMetadata)[]>;
+  tree?: (keyof VisualMetadata)[];
 }

@@ -312,6 +312,70 @@ function mergeVisualMetadata(
   return result;
 }
 
+// Build a compact change set from a transformer's partial visualMetadata
+function buildChangeSet(
+  updates: Partial<CompleteVisualMetadata>,
+): {
+  changeSet: {
+    individuals?: Record<string, (keyof VisualMetadata)[]>;
+    families?: Record<string, (keyof VisualMetadata)[]>;
+    edges?: Record<string, (keyof VisualMetadata)[]>;
+    tree?: (keyof VisualMetadata)[];
+  };
+} {
+  const changeSet: {
+    individuals?: Record<string, (keyof VisualMetadata)[]>;
+    families?: Record<string, (keyof VisualMetadata)[]>;
+    edges?: Record<string, (keyof VisualMetadata)[]>;
+    tree?: (keyof VisualMetadata)[];
+  } = {};
+
+  if (updates.individuals) {
+    changeSet.individuals = {};
+    Object.entries(updates.individuals).forEach(([id, vm]) => {
+      if (vm) {
+        const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+        if (keys.length > 0) {
+          changeSet.individuals![id] = keys;
+        }
+      }
+    });
+  }
+
+  if (updates.families) {
+    changeSet.families = {};
+    Object.entries(updates.families).forEach(([id, vm]) => {
+      if (vm) {
+        const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+        if (keys.length > 0) {
+          changeSet.families![id] = keys;
+        }
+      }
+    });
+  }
+
+  if (updates.edges) {
+    changeSet.edges = {};
+    Object.entries(updates.edges).forEach(([id, vm]) => {
+      if (vm) {
+        const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+        if (keys.length > 0) {
+          changeSet.edges![id] = keys;
+        }
+      }
+    });
+  }
+
+  if (updates.tree) {
+    const keys = Object.keys(updates.tree) as (keyof VisualMetadata)[];
+    if (keys.length > 0) {
+      changeSet.tree = keys;
+    }
+  }
+
+  return { changeSet };
+}
+
 /**
  * Generator-based pipeline execution for non-blocking UI
  * Yields control back to the browser between each transformer
@@ -374,6 +438,11 @@ export async function* runPipelineGenerator({
         transformerName: transformer.name,
       };
 
+      // Get last change set if available (set by previous iteration)
+      const lastChangeSet = (runPipelineGenerator as unknown as {
+        _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'];
+      })._lastChangeSet;
+
       // Create context for this transformer instance
       const context: TransformerContext = {
         gedcomData: fullData,
@@ -392,6 +461,8 @@ export async function* runPipelineGenerator({
             transformer.defaultSecondaryDimension,
         },
         visual: transformerInstance.visual,
+        // Provide previous change set if available
+        previousChangeSet: lastChangeSet,
       };
 
       // Execute transformer using factory function to inject parameters
@@ -406,13 +477,23 @@ export async function* runPipelineGenerator({
         },
         visual: transformerInstance.visual,
       });
+
+      // If there is a previously computed change set, attach it now
+      // (We compute it after each transform and store it in a local variable)
+      // We will maintain lastChangeSet within the loop scope
       const result = await runtimeTransformer(context);
 
-      // Update visual metadata with transformer output using deep merge
+      // Update visual metadata
       visualMetadata = mergeVisualMetadata(
         visualMetadata,
         result.visualMetadata,
       );
+
+      // Compute change set for the next transformer
+      const { changeSet } = buildChangeSet(result.visualMetadata);
+
+      // Store change set for next iteration
+      (runPipelineGenerator as unknown as { _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'] })._lastChangeSet = changeSet;
 
       // Yield transformer result
       yield {
@@ -431,6 +512,11 @@ export async function* runPipelineGenerator({
         executionTime: performance.now() - transformerStartTime,
         success: true,
       });
+
+      // Prepare previousChangeSet for the next iteration by redefining context creator
+      // We cannot mutate the already used context, so we adjust at loop top by caching
+      // Store on a variable outside the loop via function-scoped var
+      // (runPipelineGenerator as unknown as { _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'] })._lastChangeSet = changeSet;
     } catch (error) {
       // Get transformer config for error reporting, handle case where transformer doesn't exist
       let transformerName: string = transformerInstance.type; // fallback name

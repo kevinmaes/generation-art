@@ -10,6 +10,7 @@ import {
 } from '../transformers/pipeline';
 import { type TransformerId } from '../transformers/transformers';
 import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
+import type { VisualParameterValues } from '../transformers/visual-parameters';
 
 interface UsePipelineOptions {
   temperature?: number;
@@ -26,6 +27,13 @@ interface UsePipelineReturn {
     width: number,
     height: number,
     transformerIds?: TransformerId[],
+    transformerParameters?: Record<
+      string,
+      {
+        dimensions: { primary?: string; secondary?: string };
+        visual: VisualParameterValues;
+      }
+    >,
   ) => Promise<PipelineResult>;
 }
 
@@ -43,6 +51,13 @@ export function usePipeline(
       width: number,
       height: number,
       transformerIds: TransformerId[] = PIPELINE_DEFAULTS.TRANSFORMER_IDS,
+      transformerParameters?: Record<
+        string,
+        {
+          dimensions: { primary?: string; secondary?: string };
+          visual: VisualParameterValues;
+        }
+      >,
     ): Promise<PipelineResult> => {
       setResult(null);
       setError(null);
@@ -54,6 +69,7 @@ export function usePipeline(
           canvasHeight: height,
           temperature: options.temperature ?? 0.5,
           seed: options.seed,
+          transformerParameters,
         });
 
         const pipelineResult = await runPipeline({
