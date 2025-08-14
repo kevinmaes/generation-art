@@ -24,7 +24,7 @@ export const horizontalSpreadConfig: VisualTransformerConfig = {
     'Distributes individuals horizontally based on generation to create a balanced layout.',
   shortDescription: 'Spread nodes horizontally by generation',
   transform: horizontalSpreadTransform,
-  categories: ['layout'],
+  categories: ['layout', 'positioning'],
   availableDimensions: ['generation'],
   defaultPrimaryDimension: 'generation',
   visualParameters: [],

@@ -24,7 +24,7 @@ export const verticalSpreadConfig: VisualTransformerConfig = {
     'Distributes individuals vertically based on generation to create a balanced layout.',
   shortDescription: 'Spread nodes vertically by generation',
   transform: verticalSpreadTransform,
-  categories: ['layout'],
+  categories: ['layout', 'positioning'],
   availableDimensions: ['generation'],
   defaultPrimaryDimension: 'generation',
   visualParameters: [],
