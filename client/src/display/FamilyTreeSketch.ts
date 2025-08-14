@@ -682,8 +682,8 @@ export function createPrintSketch(
  */
 function getIndividualCoord(
   individualId: string,
-  canvasWidth: number,
-  canvasHeight: number,
+  _canvasWidth: number,
+  _canvasHeight: number,
   visualMetadata: CompleteVisualMetadata,
 ): Point | undefined {
   const metadata = visualMetadata.individuals[individualId];

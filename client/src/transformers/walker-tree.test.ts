@@ -164,25 +164,25 @@ describe('Walker Tree Layout Transformer', () => {
 
       const nodeSpacing = params.find((p) => p.name === 'nodeSpacing');
       expect(nodeSpacing).toBeDefined();
-      expect(nodeSpacing?.defaultValue).toBe(40);
+      expect(nodeSpacing?.defaultValue).toBe(60);
 
       const generationSpacing = params.find(
         (p) => p.name === 'generationSpacing',
       );
       expect(generationSpacing).toBeDefined();
-      expect(generationSpacing?.defaultValue).toBe(100);
+      expect(generationSpacing?.defaultValue).toBe(150);
 
       const spouseSpacing = params.find((p) => p.name === 'spouseSpacing');
       expect(spouseSpacing).toBeDefined();
-      expect(spouseSpacing?.defaultValue).toBe(15);
+      expect(spouseSpacing?.defaultValue).toBe(30);
     });
 
     it('should return correct defaults', () => {
       const defaults = walkerTreeConfig.getDefaults?.();
       expect(defaults).toEqual({
-        nodeSpacing: 40,
-        generationSpacing: 100,
-        spouseSpacing: 15,
+        nodeSpacing: 60,
+        generationSpacing: 150,
+        spouseSpacing: 30,
         familySpacing: 80,
         enableDebugging: false,
         showLabels: false,

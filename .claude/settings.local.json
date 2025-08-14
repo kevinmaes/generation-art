@@ -30,7 +30,8 @@
       "Bash(./scripts/build-kennedy-small.sh:*)",
       "Bash(cp:*)",
       "Bash(pnpm gedcom:clean:*)",
-      "Bash(pnpm gedcom:build:all:*)"
+      "Bash(pnpm gedcom:build:all:*)",
+      "Bash(pnpm checks:*)"
     ],
     "deny": []
   }

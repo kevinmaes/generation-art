@@ -523,9 +523,17 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     individualsById[individual.id] = individual;
   });
 
+  // Update families to reference the enhanced individuals
   const familiesById = {} as Record<string, FamilyWithMetadata>;
   enhancedFamilies.forEach((family) => {
-    familiesById[family.id] = family;
+    // Update husband and wife references to point to enhanced individuals
+    const updatedFamily: FamilyWithMetadata = {
+      ...family,
+      husband: family.husband ? individualsById[family.husband.id] : undefined,
+      wife: family.wife ? individualsById[family.wife.id] : undefined,
+      children: family.children.map((child) => individualsById[child.id]),
+    };
+    familiesById[updatedFamily.id] = updatedFamily;
   });
 
   // 6. Build enhanced graph data for efficient traversals
