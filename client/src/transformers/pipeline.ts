@@ -334,7 +334,8 @@ function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
       if (vm) {
         const keys = Object.keys(vm) as (keyof VisualMetadata)[];
         if (keys.length > 0) {
-          changeSet.individuals![id] = keys;
+          if (!changeSet.individuals) changeSet.individuals = {};
+          changeSet.individuals[id] = keys;
         }
       }
     });
@@ -346,7 +347,8 @@ function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
       if (vm) {
         const keys = Object.keys(vm) as (keyof VisualMetadata)[];
         if (keys.length > 0) {
-          changeSet.families![id] = keys;
+          if (!changeSet.families) changeSet.families = {};
+          changeSet.families[id] = keys;
         }
       }
     });
@@ -358,7 +360,8 @@ function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
       if (vm) {
         const keys = Object.keys(vm) as (keyof VisualMetadata)[];
         if (keys.length > 0) {
-          changeSet.edges![id] = keys;
+          if (!changeSet.edges) changeSet.edges = {};
+          changeSet.edges[id] = keys;
         }
       }
     });

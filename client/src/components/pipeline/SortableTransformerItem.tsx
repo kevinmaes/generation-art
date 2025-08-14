@@ -66,7 +66,7 @@ export function SortableTransformerItem({
       // Insert variance after current index
       newOrder.splice(index + 1, 0, 'variance');
     }
-    onReorderTransformers?.(newOrder as TransformerId[]);
+    onReorderTransformers(newOrder);
   };
 
   const {
