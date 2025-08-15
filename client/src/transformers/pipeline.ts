@@ -51,9 +51,9 @@ export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
   TRANSFORMER_IDS: [
-    TRANSFORMERS.HORIZONTAL_SPREAD.ID,
-    TRANSFORMERS.VERTICAL_SPREAD.ID,
-    TRANSFORMERS.VARIANCE.ID,
+    TRANSFORMERS.WALKER_TREE.ID,
+    // TRANSFORMERS.HORIZONTAL_SPREAD.ID,
+    // TRANSFORMERS.VERTICAL_SPREAD.ID,
   ],
 };
 
@@ -186,7 +186,10 @@ export function createInitialCompleteVisualMetadata(
   });
 
   // Initialize visual metadata for each edge
-  gedcomData.metadata.edges.forEach((edge) => {
+  // Check if edges exist in metadata (they might be missing in some data formats)
+  const metadataEdges = gedcomData.metadata?.edges ?? [];
+
+  metadataEdges.forEach((edge) => {
     edges[edge.id] = {
       // Edge-specific defaults
       strokeColor: DEFAULT_STROKE_COLOR,
@@ -302,6 +305,11 @@ function mergeVisualMetadata(
   // Merge tree metadata
   if (updates.tree) {
     result.tree = { ...result.tree, ...updates.tree };
+  }
+
+  // Merge routing output (for orthogonal edge routing)
+  if (updates.routing) {
+    result.routing = updates.routing;
   }
 
   // Merge global settings
@@ -431,6 +439,10 @@ export async function* runPipelineGenerator({
       // Get transformer configuration from registry
       const transformer = getTransformer(transformerInstance.type);
 
+      console.log(
+        `🔄 Executing transformer ${String(i + 1)}/${String(config.transformers.length)}: ${transformer.name} (${transformerInstance.type})`,
+      );
+
       // Yield progress update
       yield {
         type: 'progress',
@@ -501,6 +513,26 @@ export async function* runPipelineGenerator({
           _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'];
         }
       )._lastChangeSet = changeSet;
+
+      // Debug what positions this transformer created
+      const positionedIndividuals = Object.entries(
+        result.visualMetadata.individuals || {},
+      )
+        .filter(([, meta]) => meta.x !== undefined && meta.y !== undefined)
+        .slice(0, 3); // First 3 individuals
+
+      const individualCount =
+        positionedIndividuals.length > 0
+          ? Object.keys(result.visualMetadata.individuals || {}).length
+          : 0;
+      console.log(
+        `✅ Transformer ${transformer.name} positioned ${String(individualCount)} individuals. Sample:`,
+        positionedIndividuals.map(([id, meta]) => ({
+          id,
+          x: meta.x,
+          y: meta.y,
+        })),
+      );
 
       // Yield transformer result
       yield {

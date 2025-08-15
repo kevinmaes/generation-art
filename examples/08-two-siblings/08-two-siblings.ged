@@ -1,0 +1,34 @@
+0 HEAD
+1 CHAR UTF-8
+1 SOUR Example GEDCOM Creator
+2 NAME Example 08: Two Siblings (No Parents)
+2 VERS 1.0
+1 DATE 13 AUG 2025
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 SUBM @SUB1@
+0 @SUB1@ SUBM
+1 NAME Example Submitter
+0 @I1@ INDI
+1 NAME Robert /Smith/
+2 GIVN Robert
+2 SURN Smith
+1 SEX M
+1 BIRT
+2 DATE 10 JAN 1975
+2 PLAC Springfield, Illinois, USA
+1 FAMC @F1@
+0 @I2@ INDI
+1 NAME Susan /Smith/
+2 GIVN Susan
+2 SURN Smith
+1 SEX F
+1 BIRT
+2 DATE 5 APR 1977
+2 PLAC Springfield, Illinois, USA
+1 FAMC @F1@
+0 @F1@ FAM
+1 CHIL @I1@
+1 CHIL @I2@
+0 TRLR

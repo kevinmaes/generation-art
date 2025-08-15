@@ -23,9 +23,17 @@
       "Bash(pnpm test:*)",
       "Bash(pnpm typecheck:*)",
       "Bash(rm:*)",
+      "Bash(ls:*)",
       "Bash(mkdir:*)",
       "Bash(find:*)",
-      "Bash(pnpm build:*)"
+      "Bash(pnpm build:*)",
+      "Bash(./scripts/build-kennedy-small.sh:*)",
+      "Bash(cp:*)",
+      "Bash(pnpm gedcom:clean:*)",
+      "Bash(pnpm gedcom:build:all:*)",
+      "Bash(pnpm checks:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(pnpm gedcom:build:*)"
     ],
     "deny": []
   }

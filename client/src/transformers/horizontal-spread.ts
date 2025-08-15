@@ -227,14 +227,38 @@ export async function horizontalSpreadTransform(
   const updatedIndividuals: Record<string, VisualMetadata> = {};
 
   // Position each individual based on their generation
+  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
     const x = calculateHorizontalPosition(context, individual.id);
-    // Don't calculate y - preserve existing y position from previous transformers
+    // Provide a default y if not set by previous transformers
+    const y = currentMetadata.y ?? canvasHeight / 2;
 
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      x, // Only set x position (horizontal spread responsibility)
+      x, // Set x position (horizontal spread responsibility)
+      y, // Keep existing y or use default
+    };
+  });
+
+  // Create edge visual metadata
+  const updatedEdges: Record<string, VisualMetadata> = {};
+
+  gedcomData.metadata.edges.forEach((edge) => {
+    const currentEdgeMetadata = visualMetadata.edges[edge.id] ?? {};
+
+    // Set basic edge visual properties
+    const strokeWeight = edge.relationshipType === 'spouse' ? 3 : 1.5;
+    const strokeColor =
+      edge.relationshipType === 'spouse' ? '#4A5568' : '#718096';
+
+    updatedEdges[edge.id] = {
+      ...currentEdgeMetadata,
+      strokeWeight,
+      strokeColor,
+      opacity: 0.6,
+      // Note: We don't set x/y for edges as those aren't used for rendering
+      // The actual edge positions are determined by the node positions
     };
   });
 
@@ -244,6 +268,7 @@ export async function horizontalSpreadTransform(
   return {
     visualMetadata: {
       individuals: updatedIndividuals,
+      edges: updatedEdges,
     },
   };
 }

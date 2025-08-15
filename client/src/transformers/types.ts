@@ -6,6 +6,7 @@
  */
 
 import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { RoutingOutput } from '../display/types/edge-routing';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
 import type { DimensionId } from './dimensions';
 import type { VisualParameterValues } from './visual-parameters';
@@ -83,6 +84,9 @@ export interface CompleteVisualMetadata {
 
   // Visual metadata for the overall tree/canvas
   tree: VisualMetadata;
+
+  // Edge routing output for advanced edge rendering (orthogonal, curved, etc.)
+  routing?: RoutingOutput;
 
   // Global visual settings
   global: {

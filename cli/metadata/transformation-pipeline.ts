@@ -29,6 +29,7 @@ import {
   generateTreeSummary,
   calculateGeneration,
 } from './graph-analysis';
+import { buildGraphData } from './graph-utilities';
 
 /**
  * PII Masking utilities - pure functions
@@ -512,6 +513,7 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
   const enhancedIndividuals = enhanceIndividualMetadata(
     individuals,
     enhancedMetadata,
+    families,
   );
   const enhancedFamilies = enhanceFamilyMetadata(families, enhancedMetadata);
 
@@ -521,16 +523,28 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     individualsById[individual.id] = individual;
   });
 
+  // Update families to reference the enhanced individuals
   const familiesById = {} as Record<string, FamilyWithMetadata>;
   enhancedFamilies.forEach((family) => {
-    familiesById[family.id] = family;
+    // Update husband and wife references to point to enhanced individuals
+    const updatedFamily: FamilyWithMetadata = {
+      ...family,
+      husband: family.husband ? individualsById[family.husband.id] : undefined,
+      wife: family.wife ? individualsById[family.wife.id] : undefined,
+      children: family.children.map((child) => individualsById[child.id]),
+    };
+    familiesById[updatedFamily.id] = updatedFamily;
   });
 
-  // 6. Return enhanced data structure with ID-keyed objects
+  // 6. Build enhanced graph data for efficient traversals
+  const graphData = buildGraphData(individualsById, familiesById);
+
+  // 7. Return enhanced data structure with ID-keyed objects and graph data
   return {
     individuals: individualsById,
     families: familiesById,
     metadata: enhancedMetadata,
+    graph: graphData,
   } as GedcomDataWithMetadata;
 };
 
@@ -540,16 +554,17 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
 export const enhanceIndividualMetadata = (
   individuals: Individual[],
   treeMetadata: TreeMetadata,
+  families: Family[] = [],
 ): AugmentedIndividual[] => {
   return individuals.map((individual) => {
     // Get existing metadata
     const existingMetadata = extractIndividualMetadata(individual, {
       allIndividuals: individuals,
-      allFamilies: [], // Will be populated later
+      allFamilies: families,
     });
 
     // Calculate graph-based metadata
-    const generation = calculateGeneration(individual, individuals, []);
+    const generation = calculateGeneration(individual, individuals, families);
 
     // Calculate centrality (simplified - count of relationships)
     const centrality = treeMetadata.edges.filter(
@@ -615,12 +630,19 @@ export const enhanceIndividualMetadata = (
 };
 
 /**
+ * Intermediate type for families with metadata but plain Individual references
+ */
+interface FamilyWithMetadataPlain extends Family {
+  metadata: FamilyMetadata;
+}
+
+/**
  * Enhance family metadata with graph analysis data
  */
 export const enhanceFamilyMetadata = (
   families: Family[],
   _treeMetadata: TreeMetadata,
-): FamilyWithMetadata[] => {
+): FamilyWithMetadataPlain[] => {
   return families.map((family) => {
     // Get existing metadata
     const existingMetadata = extractFamilyMetadata(family, {
