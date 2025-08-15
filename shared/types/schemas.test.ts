@@ -93,10 +93,7 @@ describe('Zod Schemas', () => {
             },
           },
         },
-        metadata: {
-          totalIndividuals: 1,
-          depthOfTree: 1,
-        },
+        // metadata is optional and will be filled with defaults
       };
 
       const result = FlexibleGedcomDataSchema.safeParse(validData);
@@ -233,9 +230,7 @@ describe('Zod Schemas', () => {
           },
         },
         families: {},
-        metadata: {
-          totalIndividuals: 1,
-        },
+        // metadata is optional and will be filled with defaults
       };
 
       const result = validateFlexibleGedcomData(validData);
