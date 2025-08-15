@@ -60,6 +60,12 @@ function calculateHorizontalPosition(
   switch (primaryDimension) {
     case 'generation':
       primaryValue = individual.metadata?.relativeGenerationValue ?? 0.5;
+      // Debug logging for missing metadata
+      if (individual.metadata?.relativeGenerationValue === undefined) {
+        console.warn(
+          `Missing relativeGenerationValue for ${String(individual.id)}, using default 0.5`,
+        );
+      }
       break;
     case 'birthYear': {
       // Normalize birth year to 0-1 range
@@ -181,8 +187,13 @@ function calculateHorizontalPosition(
     }
   }
 
-  // Get visual parameters directly from context
-  const { horizontalPadding, spacing } = visual;
+  // Get visual parameters directly from context with defaults
+  const horizontalPadding =
+    typeof visual?.horizontalPadding === 'number'
+      ? visual.horizontalPadding
+      : 50;
+  const spacing =
+    typeof visual?.spacing === 'string' ? visual.spacing : 'normal';
 
   // Calculate spacing multiplier based on spacing setting
   const spacingMultipliers = {
@@ -196,11 +207,26 @@ function calculateHorizontalPosition(
     spacingMultipliers[spacing as keyof typeof spacingMultipliers] || 1.0;
 
   // Calculate available width
-  const availableWidth = canvasWidth - (horizontalPadding as number) * 2;
-  const generationStart = horizontalPadding as number;
+  const availableWidth = canvasWidth - horizontalPadding * 2;
+  const generationStart = horizontalPadding;
 
   // Combine primary and secondary dimensions (deterministic)
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
+
+  // Debug check for NaN values
+  if (isNaN(primaryValue) || isNaN(secondaryValue) || isNaN(combinedValue)) {
+    console.error(`NaN detected for ${individualId}:`, {
+      primaryValue,
+      secondaryValue,
+      combinedValue,
+      primaryDimension,
+      secondaryDimension,
+      horizontalPadding,
+      spacing,
+      canvasWidth,
+    });
+    return canvasWidth / 2; // Return center as fallback
+  }
 
   // Position within generation based on combined dimension value (no randomness)
   const positionInGeneration =
@@ -228,16 +254,35 @@ export async function horizontalSpreadTransform(
 
   // Position each individual based on their generation
   const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
+
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
-    const x = calculateHorizontalPosition(context, individual.id);
-    // Provide a default y if not set by previous transformers
-    const y = currentMetadata.y ?? canvasHeight / 2;
+    let x = calculateHorizontalPosition(context, individual.id);
+
+    // Ensure x is always a valid number
+    if (x === undefined || x === null || isNaN(x)) {
+      console.warn(`Invalid x position for ${individual.id}, using center`);
+      x = canvasWidth / 2;
+    }
+
+    // Always provide both x and y coordinates
+    // Use existing y if available, otherwise position based on generation
+    let y = currentMetadata.y;
+    if (y === undefined || y === null || isNaN(y)) {
+      // Calculate y based on generation with some vertical spacing
+      const generation = individual.metadata?.generation ?? 0;
+      const maxGeneration = Math.max(
+        ...individuals.map((ind) => ind.metadata?.generation ?? 0),
+      );
+      const verticalSpacing = canvasHeight / (maxGeneration + 2);
+      y = verticalSpacing * (generation + 1);
+    }
 
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      x, // Set x position (horizontal spread responsibility)
-      y, // Keep existing y or use default
+      x, // Always provide a valid x coordinate
+      y, // Always provide a valid y coordinate
     };
   });
 
