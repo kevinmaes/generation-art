@@ -58,15 +58,20 @@ export function SortableTransformerItem({
   }, [activeTransformerIds, index]);
 
   const toggleVarianceAfter = () => {
-    const newOrder = [...activeTransformerIds];
     if (isVarianceFollowing) {
-      // Remove the next item (assumed to be variance)
-      newOrder.splice(index + 1, 1);
+      // Find all variance transformers and remove only the one after this transformer
+      const varianceIndexToRemove = index + 1;
+      if (activeTransformerIds[varianceIndexToRemove] === 'variance') {
+        // Create a new array without this specific variance transformer
+        const newOrder = activeTransformerIds.filter((_, i) => i !== varianceIndexToRemove);
+        onReorderTransformers(newOrder);
+      }
     } else {
-      // Insert variance after current index
+      // Insert variance after current transformer
+      const newOrder = [...activeTransformerIds];
       newOrder.splice(index + 1, 0, 'variance');
+      onReorderTransformers(newOrder);
     }
-    onReorderTransformers(newOrder);
   };
 
   const {

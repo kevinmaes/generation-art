@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useState, useCallback, useMemo } from 'react';
 import type { PipelineResult } from '../transformers/types';
 import type { TransformerId } from '../transformers/transformers';
 import type {
@@ -148,6 +148,11 @@ export function PipelineProvider({
   const [dualData, setDualData] = useState<DualGedcomData | null>(null);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(initialActiveTransformerIds[0] ?? null);
+  
+  // Sync activeTransformerIds with external prop changes
+  React.useEffect(() => {
+    setActiveTransformerIdsState(initialActiveTransformerIds);
+  }, [initialActiveTransformerIds]);
 
   // UI states
   const [isVisualizing, setIsVisualizing] = useState(false);
