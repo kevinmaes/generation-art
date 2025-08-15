@@ -403,10 +403,9 @@ export function rebuildGraphData(
   data: GedcomDataWithMetadata,
 ): GedcomDataWithMetadata {
   try {
-    // Skip if graph data already exists (shouldn't happen but safety check)
-    if (data.graph?.traversalUtils) {
-      return data;
-    }
+    // Always rebuild graph data when loading from JSON
+    // The traversalUtils contain functions that can't be serialized
+    // So even if graph exists, we need to rebuild it with proper Maps and functions
 
     // Validate input data
     if (typeof data.individuals !== 'object') {
@@ -425,6 +424,18 @@ export function rebuildGraphData(
 
     // Build graph data from the existing individuals and families
     const graphData = buildGraphData(data.individuals, data.families);
+
+    console.log('🔧 Graph data rebuilt:', {
+      hasAdjacencyMaps: !!graphData.adjacencyMaps,
+      hasTraversalUtils: !!graphData.traversalUtils,
+      hasWalkerData: !!graphData.walkerData,
+      parentToChildrenType:
+        graphData.adjacencyMaps.parentToChildren instanceof Map
+          ? 'Map'
+          : 'Object',
+      individualCount: Object.keys(data.individuals).length,
+      familyCount: Object.keys(data.families).length,
+    });
 
     // Return new object with graph data
     return {
