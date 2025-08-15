@@ -8,6 +8,7 @@ import type {
 import { TRANSFORMERS, type TransformerId } from '../transformers/transformers';
 import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
 import { DEFAULT_COLOR } from '../transformers/constants';
+import { renderEdgeRouting } from './edge-renderer';
 
 export interface SketchConfig {
   width: number;
@@ -24,6 +25,8 @@ export interface SketchConfig {
   // Visibility controls
   showIndividuals?: boolean;
   showRelations?: boolean;
+  // Edge rendering
+  debugEdgeRouting?: boolean;
 }
 
 export interface SketchProps {
@@ -208,12 +211,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
     width,
     height,
     showNames = false,
-    strokeWeight = 0.2,
+    strokeWeight: _strokeWeight = 0.2,
     transformerIds = PIPELINE_DEFAULTS.TRANSFORMER_IDS,
     temperature = 0.5,
     seed,
     showIndividuals = true,
     showRelations = true,
+    debugEdgeRouting = false,
   } = config;
 
   return (p: p5) => {
@@ -243,55 +247,31 @@ function createSketch(props: SketchProps): (p: p5) => void {
     p.draw = () => {
       p.background(255);
 
-      // Draw edges using visual metadata
-      if (currentShowRelations) {
-        for (const edge of gedcomData.metadata.edges) {
-          const coord1 = getIndividualCoord(
-            edge.sourceId,
-            width,
-            height,
-            visualMetadata,
-          );
-          const coord2 = getIndividualCoord(
-            edge.targetId,
-            width,
-            height,
-            visualMetadata,
-          );
+      // Debug logging
+      console.log('Drawing with visual metadata:', {
+        individualCount: Object.keys(visualMetadata.individuals).length,
+        edgeCount: Object.keys(visualMetadata.edges).length,
+        sampleIndividual: Object.values(visualMetadata.individuals)[0],
+      });
 
-          // Use edge visual metadata (if available)
-          const edgeMetadata = visualMetadata.edges[edge.id];
-          const strokeColor = p.color(
-            edgeMetadata?.strokeColor ??
-              edgeMetadata?.color ??
-              visualMetadata.global.defaultEdgeColor ??
-              '#ccc',
-          );
-          const opacity = edgeMetadata?.opacity ?? 0.8;
-          const weight =
-            edgeMetadata?.strokeWeight ??
-            visualMetadata.global.defaultEdgeWeight ??
-            strokeWeight;
-
-          strokeColor.setAlpha(opacity * 255);
-          p.stroke(strokeColor);
-          p.strokeWeight(weight);
-
-          // Draw edge with appropriate curve type
-          drawEdge(p, coord1, coord2, edgeMetadata ?? {});
-        }
-      }
-
+      // IMPORTANT: Draw nodes FIRST (they will be in the background)
       // Draw nodes (individuals) using per-entity visual metadata
       if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
-
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
+          // Skip individuals that don't have visual metadata from transformers
+          if (
+            individualMetadata?.x === undefined ||
+            individualMetadata?.y === undefined
+          ) {
+            continue;
+          }
+
           // Only use visual metadata - no config fallbacks
-          const x = individualMetadata?.x ?? 0;
-          const y = individualMetadata?.y ?? 0;
+          const x = individualMetadata.x;
+          const y = individualMetadata.y;
           const size =
             individualMetadata?.size ??
             visualMetadata.global.defaultNodeSize ??
@@ -309,29 +289,46 @@ function createSketch(props: SketchProps): (p: p5) => void {
             visualMetadata.global.defaultNodeShape ??
             'circle';
           const opacity = individualMetadata?.opacity ?? 0.8;
+          const strokeColor = individualMetadata?.strokeColor;
+          const strokeWeight = individualMetadata?.strokeWeight ?? 0;
 
-          // Skip rendering if no position data from transformers
-          if (
-            individualMetadata?.x === undefined ||
-            individualMetadata?.y === undefined
-          ) {
-            continue;
-          }
+          // Calculate final dimensions
+          const finalWidth = size * width;
+          const finalHeight = size * height;
 
           const pColor = p.color(color);
           pColor.setAlpha(opacity * 255);
           p.fill(pColor);
-          p.noStroke();
+
+          // Debug first few individuals only
+          if (Math.random() < 0.01) {
+            // Only log ~1% of individuals
+            console.log('Sample individual rendering:', {
+              id: ind.id,
+              x,
+              y,
+              size: finalWidth,
+              finalHeight: finalHeight,
+              color,
+              opacity,
+              shape,
+            });
+          }
+
+          // Apply stroke if specified
+          if (strokeColor && strokeWeight > 0) {
+            const pStrokeColor = p.color(strokeColor);
+            p.stroke(pStrokeColor);
+            p.strokeWeight(strokeWeight);
+          } else {
+            p.noStroke();
+          }
 
           // Apply transformations
           p.push();
           p.translate(x, y);
           p.rotate(rotation);
           p.scale(scale);
-
-          // Calculate final dimensions
-          const finalWidth = size * width;
-          const finalHeight = size * height;
 
           // Render based on shape
           if (shape === 'circle') {
@@ -371,11 +368,150 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
           p.pop();
 
-          if (showNames) {
+          // Check for labels in custom metadata (from transformers like walker-tree)
+          const customMetadata = individualMetadata?.custom as
+            | {
+                label?: string;
+                labelOffsetY?: number;
+                labelSize?: number;
+              }
+            | undefined;
+          const customLabel = customMetadata?.label;
+          const labelOffsetY = customMetadata?.labelOffsetY ?? size * 0.7;
+          const labelSize = customMetadata?.labelSize ?? size * 0.3;
+
+          // Debug logging for first few individuals
+          if (Math.random() < 0.05) {
+            // Log 5% of individuals
+            console.log(`🏷️ Label check for ${ind.id}:`, {
+              hasCustom: !!individualMetadata?.custom,
+              customLabel: customLabel ?? 'none',
+              labelOffsetY: labelOffsetY,
+              labelSize: labelSize,
+              showNames,
+              indName: ind.name,
+            });
+          }
+
+          if (customLabel) {
+            // Render label from transformer metadata with background for visibility
+            console.log(
+              `✍️ Drawing label for ${ind.id}: "${customLabel}" at (${String(x)}, ${String(y + labelOffsetY)})`,
+            );
+
+            // Set up text properties
+            p.textSize(labelSize);
+            p.textAlign(p.CENTER, p.CENTER);
+
+            // Measure text for background
+            const textWidth = p.textWidth(customLabel);
+            const textHeight = labelSize;
+            const padding = 4;
+
+            // Draw semi-transparent white background
+            p.push();
+            p.noStroke();
+            p.fill(255, 255, 255, 230); // White with high opacity
+            p.rectMode(p.CENTER);
+            p.rect(
+              x,
+              y + labelOffsetY,
+              textWidth + padding * 2,
+              textHeight + padding,
+              2,
+            );
+            p.pop();
+
+            // Draw text in black
             p.fill(0);
-            p.textSize(size * 0.3); // Text size based on node size from visual metadata
-            p.textAlign(p.CENTER);
-            p.text('', x, y + size + size * 0.3); // Names disabled in visual-only mode
+            p.text(customLabel, x, y + labelOffsetY);
+          } else if (showNames && ind.name) {
+            // Fallback to showNames config option
+            const fallbackSize = Math.max(12, size * 0.3);
+            const fallbackOffsetY = Math.max(20, size * 0.7);
+
+            console.log(
+              `✍️ Drawing name for ${ind.id}: "${ind.name}" at (${String(x)}, ${String(y + fallbackOffsetY)})`,
+            );
+
+            p.textSize(fallbackSize);
+            p.textAlign(p.CENTER, p.CENTER);
+
+            // Measure text for background
+            const textWidth = p.textWidth(ind.name);
+            const textHeight = fallbackSize;
+            const padding = 4;
+
+            // Draw semi-transparent white background
+            p.push();
+            p.noStroke();
+            p.fill(255, 255, 255, 230); // White with high opacity
+            p.rectMode(p.CENTER);
+            p.rect(
+              x,
+              y + fallbackOffsetY,
+              textWidth + padding * 2,
+              textHeight + padding,
+              2,
+            );
+            p.pop();
+
+            // Draw text
+            p.fill(0);
+            p.text(ind.name, x, y + fallbackOffsetY);
+          }
+        }
+      }
+
+      // Draw edges AFTER nodes (they will appear on top)
+      if (currentShowRelations) {
+        // Check if we have routing output (orthogonal edges)
+
+        if (visualMetadata.routing) {
+          // Use the functional edge renderer for advanced routing
+          console.log('📐 Rendering orthogonal edges');
+          renderEdgeRouting(visualMetadata.routing, p, {
+            debugMode: debugEdgeRouting,
+          });
+        } else {
+          // Fall back to legacy edge drawing
+          for (const edge of gedcomData.metadata.edges) {
+            const coord1 = getIndividualCoord(
+              edge.sourceId,
+              width,
+              height,
+              visualMetadata,
+            );
+            const coord2 = getIndividualCoord(
+              edge.targetId,
+              width,
+              height,
+              visualMetadata,
+            );
+
+            // Skip edges where coordinates couldn't be found
+            if (!coord1 || !coord2) {
+              continue;
+            }
+
+            const edgeMetadata = visualMetadata.edges[edge.id];
+            const strokeColor = p.color(
+              edgeMetadata?.strokeColor ??
+                visualMetadata.global.defaultEdgeColor ??
+                '#ccc',
+            );
+            const opacity = edgeMetadata?.opacity ?? 0.8;
+            const weight =
+              edgeMetadata?.strokeWeight ??
+              visualMetadata.global.defaultEdgeWeight ??
+              1;
+
+            strokeColor.setAlpha(opacity * 255);
+            p.stroke(strokeColor);
+            p.strokeWeight(weight);
+
+            // Draw edge with appropriate curve type
+            drawEdge(p, coord1, coord2, edgeMetadata ?? {});
           }
         }
       }
@@ -388,6 +524,18 @@ function createSketch(props: SketchProps): (p: p5) => void {
       if (seed) {
         p.text(`Seed: ${seed}`, 10, 50);
       }
+
+      // Debug info
+      p.text(
+        `Individuals: ${String(Object.keys(visualMetadata.individuals).length)}`,
+        10,
+        65,
+      );
+      p.text(
+        `With positions: ${String(Object.values(visualMetadata.individuals).filter((i) => i.x !== undefined && i.y !== undefined).length)}`,
+        10,
+        80,
+      );
     };
   };
 }
@@ -524,25 +672,14 @@ export function createPrintSketch(
  * Get individual coordinates from visual metadata
  */
 function getIndividualCoord(
-  id: string,
-  width: number,
-  height: number,
+  individualId: string,
+  _canvasWidth: number,
+  _canvasHeight: number,
   visualMetadata: CompleteVisualMetadata,
-): { x: number; y: number } {
-  const individualMetadata = visualMetadata.individuals[id];
-  if (
-    individualMetadata?.x !== undefined &&
-    individualMetadata?.y !== undefined
-  ) {
-    return { x: individualMetadata.x, y: individualMetadata.y };
+): Point | undefined {
+  const metadata = visualMetadata.individuals[individualId];
+  if (metadata?.x !== undefined && metadata?.y !== undefined) {
+    return { x: metadata.x, y: metadata.y };
   }
-
-  // Fallback to hash-based positioning if no position data
-  let hash = 5381;
-  for (let i = 0; i < id.length; i++) {
-    hash = (hash << 5) + hash + id.charCodeAt(i);
-  }
-  const x = (((hash >>> 0) % 1000) / 1000) * width * 0.8 + width * 0.1;
-  const y = ((((hash * 31) >>> 0) % 1000) / 1000) * height * 0.8 + height * 0.1;
-  return { x, y };
+  return undefined;
 }

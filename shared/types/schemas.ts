@@ -80,7 +80,7 @@ export const GraphStructureMetadataSchema = z.object({
   familySizeDistribution: z.record(z.string(), z.number()),
   childlessFamilies: z.number(),
   largeFamilies: z.number(),
-  treeComplexity: z.number().min(0).max(1),
+  treeComplexity: z.number().min(0).max(1).nullable(),
   branchingFactor: z.number(),
   depthToBreadthRatio: z.number(),
 });
@@ -317,14 +317,89 @@ export const AugmentedIndividualSchema = IndividualSchema.extend({
   metadata: IndividualMetadataSchema,
 });
 
-export const FamilyWithMetadataSchema = FamilySchema.extend({
+export const FamilyWithMetadataSchema = z.object({
+  id: z.string(),
+  husband: AugmentedIndividualSchema.optional(),
+  wife: AugmentedIndividualSchema.optional(),
+  children: z.array(AugmentedIndividualSchema),
   metadata: FamilyMetadataSchema,
+});
+
+// Graph data schemas
+// Use z.record for JSON-serialized objects (Maps don't serialize to JSON)
+export const GraphAdjacencyMapsSchema = z.object({
+  parentToChildren: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+  childToParents: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+  spouseToSpouse: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+  siblingGroups: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+  familyMembership: z.union([
+    z.map(z.string(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+});
+
+export const WalkerTreeDataSchema = z.object({
+  nodeHierarchy: z.union([
+    z.map(
+      z.string(),
+      z.object({
+        parent: z.string().optional(),
+        children: z.array(z.string()),
+        leftSibling: z.string().optional(),
+        rightSibling: z.string().optional(),
+        depth: z.number(),
+      }),
+    ),
+    z.record(
+      z.string(),
+      z.object({
+        parent: z.string().optional(),
+        children: z.array(z.string()),
+        leftSibling: z.string().optional(),
+        rightSibling: z.string().optional(),
+        depth: z.number(),
+      }),
+    ),
+  ]),
+  familyClusters: z.array(
+    z.object({
+      id: z.string(),
+      parents: z.array(z.string()),
+      children: z.array(z.string()),
+      spouseOrder: z.array(z.string()),
+      generation: z.number(),
+    }),
+  ),
+  rootNodes: z.array(z.string()),
+  generationLevels: z.union([
+    z.map(z.number(), z.array(z.string())),
+    z.record(z.string(), z.array(z.string())),
+  ]),
+});
+
+export const GraphDataSchema = z.object({
+  adjacencyMaps: GraphAdjacencyMapsSchema,
+  traversalUtils: z.any(), // Functions can't be properly validated with Zod
+  walkerData: WalkerTreeDataSchema,
 });
 
 export const GedcomDataWithMetadataSchema = z.object({
   individuals: z.record(z.string(), AugmentedIndividualSchema),
   families: z.record(z.string(), FamilyWithMetadataSchema),
   metadata: TreeMetadataSchema,
+  graph: GraphDataSchema.optional(), // Optional for backward compatibility
 });
 
 // Helper function to create default metadata
@@ -349,7 +424,7 @@ const createDefaultMetadata = (
     familySizeDistribution: {},
     childlessFamilies: 0,
     largeFamilies: 0,
-    treeComplexity: 0,
+    treeComplexity: null,
     branchingFactor: 0,
     depthToBreadthRatio: 0,
   },
@@ -466,11 +541,13 @@ const createDefaultMetadata = (
 export const EnhancedIndividualArraySchema = z.array(AugmentedIndividualSchema);
 
 // Union schema for flexible input validation
-export const FlexibleGedcomDataSchema = z.union([
+// First try to parse as full schema with metadata
+const FlexibleGedcomDataSchemaBase = z.union([
   GedcomDataWithMetadataSchema,
   z.object({
     individuals: z.record(z.string(), AugmentedIndividualSchema),
     families: z.record(z.string(), FamilyWithMetadataSchema),
+    metadata: TreeMetadataSchema.optional(),
   }),
   z.object({
     individuals: z.array(AugmentedIndividualSchema),
@@ -478,6 +555,8 @@ export const FlexibleGedcomDataSchema = z.union([
   }),
   EnhancedIndividualArraySchema,
 ]);
+
+export const FlexibleGedcomDataSchema = FlexibleGedcomDataSchemaBase;
 
 // Type exports derived from schemas
 export type Individual = z.infer<typeof IndividualSchema>;
@@ -521,6 +600,8 @@ export const validateFlexibleGedcomData = (
 ): GedcomDataWithMetadata => {
   const result = FlexibleGedcomDataSchema.parse(data);
 
+  let validatedData: GedcomDataWithMetadata;
+
   // If it's just an array of individuals, convert to full structure
   if (Array.isArray(result)) {
     // Convert array to ID-keyed object
@@ -529,7 +610,7 @@ export const validateFlexibleGedcomData = (
       individualsById[individual.id] = individual;
     });
 
-    return {
+    validatedData = {
       individuals: individualsById,
       families: {},
       metadata: createDefaultMetadata(result.length, 0),
@@ -548,7 +629,7 @@ export const validateFlexibleGedcomData = (
       });
     }
 
-    return {
+    validatedData = {
       individuals: individualsById,
       families: familiesById,
       metadata:
@@ -562,11 +643,11 @@ export const validateFlexibleGedcomData = (
     };
   } else if ('individuals' in result && 'families' in result) {
     // Already in correct format, but might be missing metadata
-    if ('metadata' in result) {
-      return result;
+    if ('metadata' in result && result.metadata) {
+      validatedData = result as GedcomDataWithMetadata;
     } else {
       // Add default metadata
-      return {
+      validatedData = {
         ...result,
         metadata: createDefaultMetadata(
           Object.keys(result.individuals).length,
@@ -576,8 +657,12 @@ export const validateFlexibleGedcomData = (
     }
   } else {
     // Fallback - should not happen with proper schema validation
-    return result;
+    validatedData = result;
   }
+
+  // Always rebuild graph data on the client-side since functions can't be serialized
+  // This is done in a separate function to avoid circular dependencies
+  return validatedData;
 };
 
 // Safe validation functions that don't throw

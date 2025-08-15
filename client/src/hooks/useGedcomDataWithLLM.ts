@@ -4,6 +4,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
+import { rebuildGraphData } from '../graph-rebuilder';
 
 interface UseGedcomDataWithLLMOptions {
   baseFileName: string; // e.g., "kennedy" (without extension)
@@ -75,14 +76,17 @@ export function useGedcomDataWithLLM({
       // Validate full data
       const validatedFullData = validateFlexibleGedcomData(fullJsonData);
 
+      // Rebuild graph data since functions can't be serialized to JSON
+      const fullDataWithGraph = rebuildGraphData(validatedFullData);
+
       // Validate LLM data (should match LLMReadyData structure)
       const validatedLlmData = llmJsonData as LLMReadyData;
 
-      setFullData(validatedFullData);
+      setFullData(fullDataWithGraph);
       setLlmData(validatedLlmData);
 
       onDataLoadedRef.current?.({
-        full: validatedFullData,
+        full: fullDataWithGraph,
         llm: validatedLlmData,
       });
     } catch (err) {
