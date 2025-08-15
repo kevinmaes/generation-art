@@ -148,7 +148,7 @@ export function PipelineProvider({
   const [dualData, setDualData] = useState<DualGedcomData | null>(null);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(initialActiveTransformerIds[0] ?? null);
-  
+
   // Sync activeTransformerIds with external prop changes
   React.useEffect(() => {
     setActiveTransformerIdsState(initialActiveTransformerIds);

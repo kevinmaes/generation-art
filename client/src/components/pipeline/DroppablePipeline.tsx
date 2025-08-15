@@ -40,15 +40,28 @@ export function DroppablePipeline({
             : 'border-gray-300 bg-transparent'
         }`}
       >
-        {childrenArray.map((child, index) => (
-          <React.Fragment key={index}>
-            {/* Show insertion indicator before this item if dragging and this is the target position */}
-            {isDraggingFromAvailable && draggedOverIndex === index && (
-              <div className="h-1 bg-blue-500 rounded-full my-2 animate-pulse" />
-            )}
-            <div className="my-2">{child}</div>
-          </React.Fragment>
-        ))}
+        {childrenArray.map((child, index) => {
+          // Check if the next transformer is a variance transformer
+          const isFollowedByVariance =
+            activeTransformerIds[index + 1] === 'variance';
+          const isVariance = activeTransformerIds[index] === 'variance';
+
+          return (
+            <React.Fragment key={index}>
+              {/* Show insertion indicator before this item if dragging and this is the target position */}
+              {isDraggingFromAvailable && draggedOverIndex === index && (
+                <div className="h-1 bg-blue-500 rounded-full my-2 animate-pulse" />
+              )}
+              <div
+                className={
+                  isVariance ? '' : isFollowedByVariance ? 'mt-2' : 'my-2'
+                }
+              >
+                {child}
+              </div>
+            </React.Fragment>
+          );
+        })}
         {/* Show insertion indicator at the end if dragging to the end */}
         {isDraggingFromAvailable &&
           draggedOverIndex === childrenArray.length && (
