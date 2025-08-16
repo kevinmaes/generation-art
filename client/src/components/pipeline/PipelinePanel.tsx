@@ -34,7 +34,7 @@ interface PipelinePanelProps {
   onRemoveTransformer?: (transformerId: TransformerId) => void;
   onReorderTransformers?: (newOrder: TransformerId[]) => void;
   onParameterChange?: (
-    transformerId: TransformerId,
+    parameterKey: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
       visual: VisualParameterValues;

@@ -46,6 +46,7 @@ import {
   DEFAULT_PRIORITY,
   DEFAULT_CUSTOM,
 } from './constants';
+import { getTransformerParameterKey } from '../utils/pipeline-index';
 
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
@@ -709,7 +710,9 @@ export function createSimplePipeline(
   const transformers: TransformerInstance[] = transformerIds.map(
     (transformerId, index) => {
       const transformer = getTransformer(transformerId);
-      const params = options?.transformerParameters?.[transformerId] ?? {
+      // Use compound ID for variance transformers
+      const parameterKey = getTransformerParameterKey(transformerIds, index);
+      const params = options?.transformerParameters?.[parameterKey] ?? {
         dimensions: {},
         visual: {},
       };

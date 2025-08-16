@@ -18,6 +18,7 @@ import {
   type TransformerId,
 } from './transformers/transformers';
 import type { VisualParameterValues } from './transformers/visual-parameters';
+import { getTransformerParameterKey } from './utils/pipeline-index';
 import { useGedcomDataWithLLM } from './hooks/useGedcomDataWithLLM';
 import './App.css';
 
@@ -251,10 +252,15 @@ function App(): React.ReactElement {
           visual: VisualParameterValues;
         }
       > = {};
-      activeTransformerIds.forEach((transformerId) => {
+      activeTransformerIds.forEach((transformerId, index) => {
         const transformer = transformerConfigs[transformerId];
-        actualParametersUsed[transformerId] = transformerParameters[
-          transformerId
+        // Use compound ID for variance transformers
+        const parameterKey = getTransformerParameterKey(
+          activeTransformerIds,
+          index,
+        );
+        actualParametersUsed[parameterKey] = transformerParameters[
+          parameterKey
         ] ?? {
           dimensions: {
             primary: transformer.defaultPrimaryDimension,

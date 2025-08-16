@@ -56,6 +56,7 @@ type DragData = PipelineTransformerDragData | TransformerDragData;
 import {
   reorderWithCompoundUnits,
   hasVarianceAttached,
+  getTransformerParameterKey,
 } from '../../utils/pipeline-index';
 
 // Drag handle configuration (matching SortableTransformerItem)
@@ -97,7 +98,7 @@ interface PipelineManagerProps {
   onRemoveTransformer?: (transformerId: TransformerId) => void;
   onReorderTransformers?: (newOrder: TransformerId[]) => void;
   onParameterChange?: (
-    transformerId: TransformerId,
+    parameterKey: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
       visual: VisualParameterValues;
@@ -215,15 +216,22 @@ export function PipelineManager({
 
   // Handle parameter changes (immediately apply to pipeline)
   const handleParameterChange = (
-    transformerId: string,
+    parameterKey: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
       visual: VisualParameterValues;
     },
   ) => {
+    // Extract the actual transformer ID from compound keys (e.g., 'variance-node-size' -> 'variance')
+    const transformerId = parameterKey.startsWith('variance-')
+      ? ('variance' as TransformerId)
+      : (parameterKey as TransformerId);
+
     // Use type guard to ensure valid transformer ID
     if (!isTransformerId(transformerId)) {
-      console.warn(`Invalid transformer ID: ${transformerId}`);
+      console.warn(
+        `Invalid transformer ID: ${transformerId} (from key: ${parameterKey})`,
+      );
       return;
     }
 
@@ -240,16 +248,24 @@ export function PipelineManager({
       visual: parameters.visual,
     };
 
+    // Store using the parameter key (which may be a compound ID)
     setTransformerParameters((prev) => ({
       ...prev,
-      [transformerId]: validParameters,
+      [parameterKey]: validParameters,
     }));
-    onParameterChange?.(transformerId, validParameters);
+    onParameterChange?.(parameterKey, validParameters);
   };
 
-  const handleParameterReset = (transformerId: string) => {
+  const handleParameterReset = (parameterKey: string) => {
+    // Extract the actual transformer ID from compound keys (e.g., 'variance-node-size' -> 'variance')
+    const transformerId = parameterKey.startsWith('variance-')
+      ? ('variance' as TransformerId)
+      : (parameterKey as TransformerId);
+
     if (!isTransformerId(transformerId)) {
-      console.warn(`Invalid transformer ID: ${transformerId}`);
+      console.warn(
+        `Invalid transformer ID: ${transformerId} (from key: ${parameterKey})`,
+      );
       return;
     }
 
@@ -263,9 +279,9 @@ export function PipelineManager({
     };
     setTransformerParameters((prev) => ({
       ...prev,
-      [transformerId]: defaultParameters,
+      [parameterKey]: defaultParameters,
     }));
-    handleParameterChange(transformerId, defaultParameters);
+    handleParameterChange(parameterKey, defaultParameters);
   };
 
   const handleTransformerSelect = (transformerId: TransformerId) => {
@@ -789,10 +805,14 @@ export function PipelineManager({
                   {activeTransformerIds.map((transformerId, index) => {
                     const transformer = getTransformer(transformerId);
                     const isSelected = selectedTransformerId === transformerId;
+                    const parameterKey = getTransformerParameterKey(
+                      activeTransformerIds,
+                      index,
+                    );
 
                     return (
                       <SortableTransformerItem
-                        key={transformerId}
+                        key={`${transformerId}-${String(index)}`}
                         transformer={transformer}
                         isSelected={isSelected}
                         handleTransformerSelect={handleTransformerSelect}
@@ -802,7 +822,7 @@ export function PipelineManager({
                         onParameterChange={handleParameterChange}
                         onParameterReset={handleParameterReset}
                         currentParameters={
-                          transformerParameters[transformerId] ?? {
+                          transformerParameters[parameterKey] ?? {
                             dimensions: {
                               primary: transformer.defaultPrimaryDimension,
                               secondary: transformer.defaultSecondaryDimension,
@@ -811,7 +831,8 @@ export function PipelineManager({
                           }
                         }
                         isVisualizing={isVisualizing}
-                        lastRunParameters={lastRunParameters?.[transformerId]}
+                        lastRunParameters={lastRunParameters?.[parameterKey]}
+                        parameterKey={parameterKey}
                       />
                     );
                   })}
@@ -853,10 +874,14 @@ export function PipelineManager({
                   {activeTransformerIds.map((transformerId, index) => {
                     const transformer = getTransformer(transformerId);
                     const isSelected = selectedTransformerId === transformerId;
+                    const parameterKey = getTransformerParameterKey(
+                      activeTransformerIds,
+                      index,
+                    );
 
                     return (
                       <SortableTransformerItem
-                        key={transformerId}
+                        key={`${transformerId}-${String(index)}`}
                         transformer={transformer}
                         isSelected={isSelected}
                         handleTransformerSelect={handleTransformerSelect}
@@ -866,7 +891,7 @@ export function PipelineManager({
                         onParameterChange={handleParameterChange}
                         onParameterReset={handleParameterReset}
                         currentParameters={
-                          transformerParameters[transformerId] ?? {
+                          transformerParameters[parameterKey] ?? {
                             dimensions: {
                               primary: transformer.defaultPrimaryDimension,
                               secondary: transformer.defaultSecondaryDimension,
@@ -875,7 +900,8 @@ export function PipelineManager({
                           }
                         }
                         isVisualizing={isVisualizing}
-                        lastRunParameters={lastRunParameters?.[transformerId]}
+                        lastRunParameters={lastRunParameters?.[parameterKey]}
+                        parameterKey={parameterKey}
                       />
                     );
                   })}

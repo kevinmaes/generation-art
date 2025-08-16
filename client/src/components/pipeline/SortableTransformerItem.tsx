@@ -37,6 +37,7 @@ interface SortableTransformerItemProps {
     dimensions: { primary?: string; secondary?: string };
     visual: VisualParameterValues;
   };
+  parameterKey?: string; // Add parameter key for unique parameter storage
 }
 
 export function SortableTransformerItem({
@@ -51,6 +52,7 @@ export function SortableTransformerItem({
   currentParameters,
   isVisualizing = false,
   lastRunParameters,
+  parameterKey,
 }: SortableTransformerItemProps): React.ReactElement {
   const { activeTransformerIds, onReorderTransformers } = usePipelineContext();
 
@@ -152,6 +154,7 @@ export function SortableTransformerItem({
             isVisualizing={isVisualizing}
             lastRunParameters={lastRunParameters}
             isVarianceTransformer={isVarianceTransformer}
+            parameterKey={parameterKey}
             customActions={{
               removeButton: !isVarianceTransformer ? (
                 <button

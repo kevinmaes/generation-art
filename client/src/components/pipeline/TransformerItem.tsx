@@ -49,6 +49,7 @@ interface TransformerItemProps {
   hasVarianceToggle?: boolean;
   isVarianceFollowing?: boolean;
   onToggleVariance?: () => void;
+  parameterKey?: string; // Add parameter key for unique parameter storage
 }
 
 export function TransformerItem({
@@ -72,6 +73,7 @@ export function TransformerItem({
   hasVarianceToggle = false,
   isVarianceFollowing = false,
   onToggleVariance,
+  parameterKey,
 }: TransformerItemProps) {
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -140,7 +142,9 @@ export function TransformerItem({
       },
     };
     setParameters(newParameters);
-    onParameterChange?.(transformer.id, newParameters);
+    // Use parameterKey if provided (for variance transformers), otherwise use transformer.id
+    const storageKey = parameterKey ?? transformer.id;
+    onParameterChange?.(storageKey as TransformerId, newParameters);
   };
 
   // Handle visual parameter changes (non-sliders)
@@ -156,7 +160,9 @@ export function TransformerItem({
       },
     };
     setParameters(newParameters);
-    onParameterChange?.(transformer.id, newParameters);
+    // Use parameterKey if provided (for variance transformers), otherwise use transformer.id
+    const storageKey = parameterKey ?? transformer.id;
+    onParameterChange?.(storageKey as TransformerId, newParameters);
   };
 
   // Handle slider input during dragging
@@ -187,7 +193,9 @@ export function TransformerItem({
       const { [key]: _, ...newValues } = prev; // Clear the slider value
       return newValues;
     });
-    onParameterChange?.(transformer.id, newParameters);
+    // Use parameterKey if provided (for variance transformers), otherwise use transformer.id
+    const storageKey = parameterKey ?? transformer.id;
+    onParameterChange?.(storageKey as TransformerId, newParameters);
   };
 
   // Handle parameter reset
@@ -202,7 +210,9 @@ export function TransformerItem({
     setParameters(defaultParameters);
     setSliderValues({});
     onParameterChange?.(transformer.id, defaultParameters);
-    onParameterReset?.(transformer.id);
+    // Use parameterKey if provided (for variance transformers), otherwise use transformer.id
+    const storageKey = parameterKey ?? transformer.id;
+    onParameterReset?.(storageKey as TransformerId);
   };
 
   // Disable controls during visualization

@@ -1,6 +1,39 @@
 import type { TransformerId } from '../transformers/transformers';
 
 /**
+ * Generate a compound ID for a variance transformer based on its parent transformer.
+ * This ensures each variance instance has unique parameter storage.
+ * @param parentTransformerId The ID of the transformer this variance is attached to
+ * @returns A compound ID like 'variance-nodeSize' or 'variance-edgeOpacity'
+ */
+export function getVarianceCompoundId(
+  parentTransformerId: TransformerId,
+): string {
+  return `variance-${parentTransformerId}`;
+}
+
+/**
+ * Get the parameter storage key for a transformer.
+ * For variance transformers, returns a compound ID based on the parent.
+ * For regular transformers, returns the transformer ID itself.
+ */
+export function getTransformerParameterKey(
+  transformerIds: TransformerId[],
+  index: number,
+): string {
+  const transformerId = transformerIds[index];
+
+  if (transformerId === 'variance' && index > 0) {
+    // Variance transformer: use compound ID based on previous transformer
+    const parentTransformerId = transformerIds[index - 1];
+    return getVarianceCompoundId(parentTransformerId);
+  }
+
+  // Regular transformer: use its own ID
+  return transformerId;
+}
+
+/**
  * Calculate the display index for a transformer in the pipeline.
  * Regular transformers get numeric indices (1, 2, 3...)
  * Variance transformers get alphabetic sub-indices (1a, 2a, 3a...)
