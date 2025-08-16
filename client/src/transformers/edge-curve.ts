@@ -184,6 +184,7 @@ export const edgeCurveConfig: VisualTransformerConfig = {
   ],
   createTransformerInstance: (params) =>
     createTransformerInstance(params, edgeCurveTransform),
+  multiInstance: false,
 };
 
 /**

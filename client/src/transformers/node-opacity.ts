@@ -23,33 +23,16 @@ import { createTransformerInstance } from './utils';
 export const nodeOpacityConfig: VisualTransformerConfig = {
   id: 'node-opacity',
   name: 'Node Opacity',
-  description:
-    'Creates sophisticated transparency effects by analyzing family relationships, generational depth, and genealogical significance patterns.',
-  shortDescription: 'Controls node transparency by generation or children',
+  description: 'Sets node opacity based on a selected dimension.',
+  shortDescription: 'Opacity by dimension',
   transform: nodeOpacityTransform,
-  categories: ['visual', 'opacity'],
-  availableDimensions: [
-    'generation',
-    'childrenCount',
-    'lifespan',
-    'distanceFromRoot',
-  ],
+  categories: ['visual'],
+  availableDimensions: ['generation', 'lifespan', 'childrenCount'],
   defaultPrimaryDimension: 'generation',
-  defaultSecondaryDimension: 'childrenCount',
-  visualParameters: [
-    {
-      name: 'nodeOpacity',
-      type: 'range',
-      defaultValue: 0.9,
-      label: 'Node Opacity',
-      description: 'Opacity of individual nodes',
-      min: 0.1,
-      max: 1.0,
-      step: 0.1,
-    },
-  ],
+  visualParameters: [],
   createTransformerInstance: (params) =>
-    createTransformerInstance(params, nodeOpacityTransform),
+    createTransformerInstance(params, nodeOpacityTransform, []),
+  multiInstance: false,
 };
 
 /**

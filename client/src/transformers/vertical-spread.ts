@@ -21,78 +21,16 @@ export const verticalSpreadConfig: VisualTransformerConfig = {
   id: 'vertical-spread',
   name: 'Vertical Spread',
   description:
-    'Employs sophisticated vertical positioning algorithms to create meaningful visual separations and hierarchies within family structures.',
-  shortDescription: 'Spreads nodes vertically by birth year or children',
+    'Distributes individuals vertically based on generation to create a balanced layout.',
+  shortDescription: 'Spread nodes vertically by generation',
   transform: verticalSpreadTransform,
   categories: ['layout', 'positioning'],
-  availableDimensions: [
-    'birthYear',
-    'childrenCount',
-    'lifespan',
-    'generation',
-    'nameLength',
-  ],
-  defaultPrimaryDimension: 'birthYear',
-  defaultSecondaryDimension: 'childrenCount',
-  visualParameters: [
-    {
-      name: 'verticalPadding',
-      type: 'range',
-      defaultValue: 60,
-      label: 'Vertical Padding',
-      description: 'Padding from top and bottom of canvas',
-      min: 10,
-      max: 200,
-      step: 5,
-    },
-    {
-      name: 'nodeSize',
-      type: 'select',
-      defaultValue: 'medium',
-      label: 'Node Size',
-      description: 'Size of individual nodes',
-      options: [
-        { value: 'small', label: 'Small' },
-        { value: 'medium', label: 'Medium' },
-        { value: 'large', label: 'Large' },
-        { value: 'extra-large', label: 'Extra Large' },
-      ],
-    },
-    {
-      name: 'primaryColor',
-      type: 'color',
-      defaultValue: '#7B68EE',
-      label: 'Primary Color',
-      description: 'Main color for nodes',
-    },
-    {
-      name: 'spacing',
-      type: 'select',
-      defaultValue: 'normal',
-      label: 'Spacing',
-      description: 'General spacing between elements',
-      options: [
-        { value: 'tight', label: 'Tight' },
-        { value: 'compact', label: 'Compact' },
-        { value: 'normal', label: 'Normal' },
-        { value: 'loose', label: 'Loose' },
-        { value: 'sparse', label: 'Sparse' },
-      ],
-    },
-  ],
-  getDefaults: () => ({
-    verticalPadding: 60,
-    nodeSize: 'medium',
-    primaryColor: '#7B68EE',
-    spacing: 'normal',
-  }),
+  availableDimensions: ['generation'],
+  defaultPrimaryDimension: 'generation',
+  visualParameters: [],
   createTransformerInstance: (params) =>
-    createTransformerInstance(params, verticalSpreadTransform, [
-      { name: 'verticalPadding', defaultValue: 60 },
-      { name: 'nodeSize', defaultValue: 'medium' },
-      { name: 'primaryColor', defaultValue: '#7B68EE' },
-      { name: 'spacing', defaultValue: 'normal' },
-    ]),
+    createTransformerInstance(params, verticalSpreadTransform, []),
+  multiInstance: false,
 };
 
 /**
@@ -243,8 +181,11 @@ function calculateVerticalPosition(
     }
   }
 
-  // Get visual parameters directly from context
-  const { verticalPadding, spacing } = visual;
+  // Get visual parameters directly from context with defaults
+  const verticalPadding =
+    typeof visual?.verticalPadding === 'number' ? visual.verticalPadding : 50;
+  const spacing =
+    typeof visual?.spacing === 'string' ? visual.spacing : 'normal';
 
   // Calculate spacing multiplier based on spacing setting
   const spacingMultipliers = {
@@ -258,11 +199,26 @@ function calculateVerticalPosition(
     spacingMultipliers[spacing as keyof typeof spacingMultipliers] || 1.0;
 
   // Calculate available height
-  const availableHeight = canvasHeight - (verticalPadding as number) * 2;
-  const generationStart = verticalPadding as number;
+  const availableHeight = canvasHeight - verticalPadding * 2;
+  const generationStart = verticalPadding;
 
   // Combine primary and secondary dimensions (deterministic)
   const combinedValue = primaryValue * 0.7 + secondaryValue * 0.3;
+
+  // Debug check for NaN values
+  if (isNaN(primaryValue) || isNaN(secondaryValue) || isNaN(combinedValue)) {
+    console.error(`NaN detected for ${individualId}:`, {
+      primaryValue,
+      secondaryValue,
+      combinedValue,
+      primaryDimension,
+      secondaryDimension,
+      verticalPadding,
+      spacing,
+      canvasHeight,
+    });
+    return canvasHeight / 2; // Return center as fallback
+  }
 
   // Position within generation based on combined dimension value (no randomness)
   const positionInGeneration =
@@ -290,16 +246,36 @@ export async function verticalSpreadTransform(
 
   // Position each individual based on their generation
   const canvasWidth = visualMetadata.global.canvasWidth ?? 1200;
+  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
-    // Provide a default x if not set by previous transformers
-    const x = currentMetadata.x ?? canvasWidth / 2;
-    const y = calculateVerticalPosition(context, individual.id);
+
+    // Always provide both x and y coordinates
+    // Use existing x if available, otherwise position based on generation
+    let x = currentMetadata.x;
+    if (x === undefined || x === null || isNaN(x)) {
+      // Calculate x based on generation with some horizontal spacing
+      const generation = individual.metadata?.generation ?? 0;
+      const maxGeneration = Math.max(
+        ...individuals.map((ind) => ind.metadata?.generation ?? 0),
+      );
+      const horizontalSpacing = canvasWidth / (maxGeneration + 2);
+      x = horizontalSpacing * (generation + 1);
+    }
+
+    let y = calculateVerticalPosition(context, individual.id);
+
+    // Ensure y is always a valid number
+    if (y === undefined || y === null || isNaN(y)) {
+      console.warn(`Invalid y position for ${individual.id}, using center`);
+      y = canvasHeight / 2;
+    }
 
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      x, // Keep existing x or use default
-      y, // Set y position (vertical spread responsibility)
+      x, // Always provide a valid x coordinate
+      y, // Always provide a valid y coordinate
     };
   });
 

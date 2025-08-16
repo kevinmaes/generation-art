@@ -199,7 +199,12 @@ export function PipelinePanel({
           {/* Panel Body - PipelineManager with responsive layout hint */}
           <div className="flex-1 overflow-hidden flex flex-col">
             <div className={`h-full ${isNarrow ? 'narrow-layout' : ''}`}>
-              <PipelineProvider>
+              <PipelineProvider
+                initialActiveTransformerIds={activeTransformerIds}
+                onTransformerIdsChange={onReorderTransformers}
+                onParameterChange={onParameterChange}
+                onVisualize={onVisualize}
+              >
                 <PipelineManager
                   pipelineResult={pipelineResult}
                   activeTransformerIds={activeTransformerIds}

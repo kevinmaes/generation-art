@@ -40,6 +40,7 @@ export const walkerTreeConfig: VisualTransformerConfig = {
   categories: ['layout', 'positioning', 'advanced'],
   availableDimensions: ['generation'],
   defaultPrimaryDimension: 'generation',
+  multiInstance: true,
   visualParameters: [
     {
       name: 'nodeSpacing',

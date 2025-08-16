@@ -20,38 +20,16 @@ import { createTransformerInstance } from './utils';
 export const nodeSizeConfig: VisualTransformerConfig = {
   id: 'node-size',
   name: 'Node Size',
-  description:
-    'Intelligently scales visual elements using sophisticated algorithms that consider multiple family metrics and importance indicators.',
-  shortDescription: 'Adjusts node sizes by children or lifespan',
+  description: 'Adjusts node sizes based on selected dimension.',
+  shortDescription: 'Size nodes by dimension',
   transform: nodeSizeTransform,
-  categories: ['visual', 'size'],
-  availableDimensions: [
-    'childrenCount',
-    'lifespan',
-    'generation',
-    'marriageCount',
-  ],
-  defaultPrimaryDimension: 'childrenCount',
-  defaultSecondaryDimension: 'lifespan',
-  visualParameters: [
-    {
-      name: 'nodeSize',
-      type: 'select',
-      defaultValue: 'medium',
-      label: 'Node Size',
-      description: 'Size of individual nodes',
-      options: [
-        { value: 'small', label: 'Small' },
-        { value: 'medium', label: 'Medium' },
-        { value: 'large', label: 'Large' },
-        { value: 'extra-large', label: 'Extra Large' },
-      ],
-    },
-  ],
+  categories: ['visual'],
+  availableDimensions: ['generation', 'childrenCount', 'lifespan'],
+  defaultPrimaryDimension: 'generation',
+  visualParameters: [],
   createTransformerInstance: (params) =>
-    createTransformerInstance(params, nodeSizeTransform, [
-      { name: 'nodeSize', defaultValue: 'medium' },
-    ]),
+    createTransformerInstance(params, nodeSizeTransform, []),
+  multiInstance: false,
 };
 
 /**

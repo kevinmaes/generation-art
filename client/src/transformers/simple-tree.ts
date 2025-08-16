@@ -36,6 +36,7 @@ export const simpleTreeConfig: VisualTransformerConfig = {
   getDefaults: () => ({}),
   createTransformerInstance: (params) =>
     createTransformerInstance(params, simpleTreeTransform, []),
+  multiInstance: true,
 };
 
 /**

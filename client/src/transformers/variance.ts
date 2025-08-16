@@ -32,14 +32,18 @@ export const varianceConfig: VisualTransformerConfig = {
   visualParameters: [
     {
       name: 'varianceAmount',
-      type: 'range',
-      defaultValue: 25,
+      type: 'select',
+      defaultValue: 10,
       label: 'Variance Amount',
       description:
-        'Amount of variation (0% = uniform, 100% = maximum variation)',
-      min: 0,
-      max: 100,
-      step: 5,
+        'Controls randomness in size, position, rotation, and opacity. Higher values create more organic variation.',
+      options: [
+        { value: 0, label: 'None (0%)' },
+        { value: 5, label: 'Subtle (5%)' },
+        { value: 10, label: 'Light (10%)' },
+        { value: 15, label: 'Moderate (15%)' },
+        { value: 25, label: 'Strong (25%)' },
+      ],
     },
     {
       name: 'varianceMode',
@@ -55,43 +59,21 @@ export const varianceConfig: VisualTransformerConfig = {
       ],
     },
     {
-      name: 'varySize',
+      name: 'limitToPreviousChanges',
       type: 'boolean',
       defaultValue: true,
-      label: 'Vary Size',
-      description: 'Apply variance to node sizes',
-    },
-    {
-      name: 'varyPosition',
-      type: 'boolean',
-      defaultValue: true,
-      label: 'Vary Position',
-      description: 'Apply variance to node positions',
-    },
-    {
-      name: 'varyRotation',
-      type: 'boolean',
-      defaultValue: false,
-      label: 'Vary Rotation',
-      description: 'Apply variance to node rotation',
-    },
-    {
-      name: 'varyOpacity',
-      type: 'boolean',
-      defaultValue: false,
-      label: 'Vary Opacity',
-      description: 'Apply variance to node opacity',
+      label: "Only affect previous transformer's changes",
+      description:
+        'When enabled, variance is applied only to properties modified by the immediately previous transformer',
     },
   ],
   createTransformerInstance: (params) =>
     createTransformerInstance(params, varianceTransform, [
-      { name: 'varianceAmount', defaultValue: 25 },
+      { name: 'varianceAmount', defaultValue: 10 },
       { name: 'varianceMode', defaultValue: 'uniform' },
-      { name: 'varySize', defaultValue: true },
-      { name: 'varyPosition', defaultValue: true },
-      { name: 'varyRotation', defaultValue: false },
-      { name: 'varyOpacity', defaultValue: false },
+      { name: 'limitToPreviousChanges', defaultValue: true },
     ]),
+  multiInstance: true,
 };
 
 /**
@@ -176,6 +158,15 @@ export async function varianceTransform(
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata, visual } = context;
 
+  // Determine whether we should limit to previous transformer's changes
+  const hasPrevious = Boolean(context.previousChangeSet);
+  const limitToPrevious = ((): boolean => {
+    const provided = visual?.limitToPreviousChanges as boolean | undefined;
+    if (provided !== undefined) return Boolean(provided);
+    // Default to true only when running in a pipeline and we have a previous change set
+    return hasPrevious;
+  })();
+
   // Generate a unique seed for each run using timestamp and random value
   const seed =
     context.seed || `${Date.now().toString()}-${Math.random().toString()}`;
@@ -183,10 +174,11 @@ export async function varianceTransform(
   // Get visual parameters
   const varianceAmount = Number(visual?.varianceAmount ?? 25);
   const varianceMode = String(visual?.varianceMode ?? 'uniform');
-  const varySize = Boolean(visual?.varySize ?? true);
-  const varyPosition = Boolean(visual?.varyPosition ?? true);
-  const varyRotation = Boolean(visual?.varyRotation ?? false);
-  const varyOpacity = Boolean(visual?.varyOpacity ?? false);
+  // Internal gating flags (not exposed in config): default to true
+  const varySize = visual?.varySize === false ? false : true;
+  const varyPosition = visual?.varyPosition === false ? false : true;
+  const varyRotation = visual?.varyRotation === false ? false : true;
+  const varyOpacity = visual?.varyOpacity === false ? false : true;
 
   // If variance is 0, no transformation needed
   if (varianceAmount === 0) {
@@ -199,6 +191,25 @@ export async function varianceTransform(
   if (individuals.length === 0) {
     return { visualMetadata: {} };
   }
+
+  // Helpers to check whether a property is allowed by previous change set
+  const wasChanged = (
+    entityType: 'individuals' | 'edges' | 'families' | 'tree',
+    id: string | undefined,
+    prop: keyof VisualMetadata,
+  ): boolean => {
+    if (!limitToPrevious || !context.previousChangeSet) return true;
+    const cs = context.previousChangeSet;
+    if (entityType === 'tree') {
+      return cs.tree ? cs.tree.includes(prop) : false;
+    }
+    const map = (cs as Record<string, unknown>)[entityType] as
+      | Record<string, (keyof VisualMetadata)[]>
+      | undefined;
+    if (!map || !id) return false;
+    const props = map[id];
+    return Array.isArray(props) ? props.includes(prop) : false;
+  };
 
   // Create updated visual metadata
   const updatedIndividuals: Record<string, VisualMetadata> = {};
@@ -229,7 +240,11 @@ export async function varianceTransform(
     const newMetadata: VisualMetadata = { ...currentMetadata };
 
     // Apply variance to size
-    if (varySize && currentMetadata.size !== undefined) {
+    if (
+      varySize &&
+      currentMetadata.size !== undefined &&
+      wasChanged('individuals', individual.id, 'size')
+    ) {
       newMetadata.size = applyVariance(
         currentMetadata.size,
         varianceFactor,
@@ -241,30 +256,36 @@ export async function varianceTransform(
     }
 
     // Apply variance to position
-    if (varyPosition) {
-      if (currentMetadata.x !== undefined) {
-        // Position variance is limited to prevent overlaps
-        const positionVariance = varianceFactor * 0.3; // 30% of normal variance
-        newMetadata.x = applyVariance(
-          currentMetadata.x,
-          positionVariance,
-          seed,
-          individual.id.charCodeAt(0) + 2,
-        );
-      }
-      if (currentMetadata.y !== undefined) {
-        const positionVariance = varianceFactor * 0.3;
-        newMetadata.y = applyVariance(
-          currentMetadata.y,
-          positionVariance,
-          seed,
-          individual.id.charCodeAt(0) + 3,
-        );
-      }
+    if (
+      varyPosition &&
+      currentMetadata.x !== undefined &&
+      wasChanged('individuals', individual.id, 'x')
+    ) {
+      // Position variance is limited to prevent overlaps
+      const positionVariance = varianceFactor * 0.3; // 30% of normal variance
+      newMetadata.x = applyVariance(
+        currentMetadata.x,
+        positionVariance,
+        seed,
+        individual.id.charCodeAt(0) + 2,
+      );
+    }
+    if (
+      varyPosition &&
+      currentMetadata.y !== undefined &&
+      wasChanged('individuals', individual.id, 'y')
+    ) {
+      const positionVariance = varianceFactor * 0.3;
+      newMetadata.y = applyVariance(
+        currentMetadata.y,
+        positionVariance,
+        seed,
+        individual.id.charCodeAt(0) + 3,
+      );
     }
 
     // Apply variance to rotation
-    if (varyRotation) {
+    if (varyRotation && wasChanged('individuals', individual.id, 'rotation')) {
       const baseRotation = currentMetadata.rotation ?? 0;
       // Rotation variance is applied as absolute degrees, not relative
       const maxRotationVariance = varianceFactor * 45; // Max 45 degrees at 100% variance
@@ -275,7 +296,11 @@ export async function varianceTransform(
     }
 
     // Apply variance to opacity
-    if (varyOpacity && currentMetadata.opacity !== undefined) {
+    if (
+      varyOpacity &&
+      currentMetadata.opacity !== undefined &&
+      wasChanged('individuals', individual.id, 'opacity')
+    ) {
       newMetadata.opacity = applyVariance(
         currentMetadata.opacity,
         varianceFactor * 0.5, // Limit opacity variance
@@ -292,7 +317,10 @@ export async function varianceTransform(
   // Apply subtle variance to edge curves if position is varied
   if (varyPosition && visualMetadata.edges) {
     Object.entries(visualMetadata.edges).forEach(([edgeId, edgeMetadata]) => {
-      if (edgeMetadata.curveIntensity !== undefined) {
+      if (
+        edgeMetadata.curveIntensity !== undefined &&
+        wasChanged('edges', edgeId, 'curveIntensity')
+      ) {
         const edgeVarianceFactor = (varianceAmount / 100) * 0.2; // Subtle edge variance
         const newIntensity = applyVariance(
           edgeMetadata.curveIntensity,

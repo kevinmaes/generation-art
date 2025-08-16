@@ -179,10 +179,9 @@ describe('Variance Transformer', () => {
       const varianceAmountParam = params.find(
         (p) => p.name === 'varianceAmount',
       );
-      expect(varianceAmountParam?.type).toBe('range');
-      expect(varianceAmountParam?.min).toBe(0);
-      expect(varianceAmountParam?.max).toBe(100);
-      expect(varianceAmountParam?.step).toBe(5);
+      expect(varianceAmountParam?.type).toBe('select');
+      expect(varianceAmountParam?.options).toBeDefined();
+      expect(varianceAmountParam?.options).toHaveLength(5); // None, Small, Medium, Large, Extreme
 
       const modeParam = params.find((p) => p.name === 'varianceMode');
       expect(modeParam?.type).toBe('select');
