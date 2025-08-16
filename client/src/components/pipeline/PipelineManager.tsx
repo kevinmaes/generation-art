@@ -230,7 +230,7 @@ export function PipelineManager({
     // Use type guard to ensure valid transformer ID
     if (!isTransformerId(transformerId)) {
       console.warn(
-        `Invalid transformer ID: ${transformerId} (from key: ${parameterKey})`,
+        `Invalid transformer ID: ${String(transformerId)} (from key: ${parameterKey})`,
       );
       return;
     }
@@ -264,7 +264,7 @@ export function PipelineManager({
 
     if (!isTransformerId(transformerId)) {
       console.warn(
-        `Invalid transformer ID: ${transformerId} (from key: ${parameterKey})`,
+        `Invalid transformer ID: ${String(transformerId)} (from key: ${parameterKey})`,
       );
       return;
     }
