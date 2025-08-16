@@ -125,7 +125,7 @@ export function SortableTransformerItem({
   return (
     <div ref={setNodeRef} style={style} className={containerClassName}>
       <div
-        className={`flex items-center ${isVarianceTransformer ? 'px-2 py-1 pl-8' : 'px-2 py-2'}`}
+        className={`flex items-center ${isVarianceTransformer ? 'px-2 py-2 pl-8' : 'px-2 py-2'}`}
       >
         {dragHandle}
         <div className="flex-1">

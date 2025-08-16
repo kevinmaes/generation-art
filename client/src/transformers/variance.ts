@@ -32,14 +32,18 @@ export const varianceConfig: VisualTransformerConfig = {
   visualParameters: [
     {
       name: 'varianceAmount',
-      type: 'range',
-      defaultValue: 25,
+      type: 'select',
+      defaultValue: 10,
       label: 'Variance Amount',
       description:
-        'Amount of variation (0% = uniform, 100% = maximum variation)',
-      min: 0,
-      max: 100,
-      step: 5,
+        'Controls randomness in size, position, rotation, and opacity. Higher values create more organic variation.',
+      options: [
+        { value: 0, label: 'None (0%)' },
+        { value: 5, label: 'Subtle (5%)' },
+        { value: 10, label: 'Light (10%)' },
+        { value: 15, label: 'Moderate (15%)' },
+        { value: 25, label: 'Strong (25%)' },
+      ],
     },
     {
       name: 'varianceMode',
@@ -65,7 +69,7 @@ export const varianceConfig: VisualTransformerConfig = {
   ],
   createTransformerInstance: (params) =>
     createTransformerInstance(params, varianceTransform, [
-      { name: 'varianceAmount', defaultValue: 25 },
+      { name: 'varianceAmount', defaultValue: 10 },
       { name: 'varianceMode', defaultValue: 'uniform' },
       { name: 'limitToPreviousChanges', defaultValue: true },
     ]),

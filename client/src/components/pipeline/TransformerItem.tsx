@@ -481,7 +481,8 @@ export function TransformerItem({
                     </h4>
 
                     {/* Two-column layout: Sliders+Colors on left, Dropdowns+Numbers on right */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* Single column for variance transformer */}
+                    <div className={isVarianceTransformer ? "" : "grid grid-cols-2 gap-4"}>
                       {/* Left column: Sliders first, then Color pickers */}
                       <div>
                         {(() => {
@@ -512,7 +513,13 @@ export function TransformerItem({
                             },
                           );
 
+                          // Add varianceAmount and varianceMode to left column if they exist
+                          const varianceAmountParam = filteredParams.find(p => p.name === 'varianceAmount');
+                          const varianceModeParam = filteredParams.find(p => p.name === 'varianceMode');
+                          
                           const leftColumnParams = [
+                            ...(varianceAmountParam ? [varianceAmountParam] : []),
+                            ...(varianceModeParam ? [varianceModeParam] : []),
                             ...sliderParams,
                             ...colorParams,
                             ...booleanParams,
@@ -529,7 +536,72 @@ export function TransformerItem({
                                           {param.label}
                                         </label>
                                       )}
-                                      {param.type === 'range' ? (
+                                      {param.name === 'varianceAmount' && param.type === 'select' && param.options ? (
+                                        // Segmented button group for variance amount in left column
+                                        <div className="inline-flex shadow-sm w-full" role="group">
+                                          {param.options.map((option, index) => {
+                                            const isSelected = 
+                                              (parameters.visual[param.name] ?? param.defaultValue) === option.value;
+                                            const isFirst = index === 0;
+                                            return (
+                                              <button
+                                                key={option.value}
+                                                type="button"
+                                                onClick={() => {
+                                                  handleVisualParameterChange(
+                                                    param.name,
+                                                    option.value,
+                                                  );
+                                                }}
+                                                disabled={isDisabled}
+                                                className={`
+                                                  flex-1 px-1 py-1 text-xs font-medium transition-colors
+                                                  ${!isFirst ? 'border-l-0' : ''}
+                                                  ${isSelected 
+                                                    ? 'bg-blue-600 text-white border-blue-600 z-10' 
+                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                  }
+                                                  ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                                                `}
+                                              >
+                                                <div className="flex flex-col items-center">
+                                                  <span className="text-[11px] leading-tight">
+                                                    {option.label.split(' ')[0]}
+                                                  </span>
+                                                  <span className="text-[9px] opacity-75">
+                                                    {/\d+%/.exec(option.label)?.[0] ?? ''}
+                                                  </span>
+                                                </div>
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      ) : param.name === 'varianceMode' && param.type === 'select' && param.options ? (
+                                        // Variance mode dropdown - full width below variance amount
+                                        <select
+                                          value={
+                                            (parameters.visual[param.name] as string) ||
+                                            (param.defaultValue as string)
+                                          }
+                                          onChange={(e) => {
+                                            handleVisualParameterChange(
+                                              param.name,
+                                              e.target.value,
+                                            );
+                                          }}
+                                          className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                                          disabled={isDisabled}
+                                        >
+                                          {param.options.map((option) => (
+                                            <option
+                                              key={option.value}
+                                              value={option.value}
+                                            >
+                                              {option.label}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      ) : param.type === 'range' ? (
                                         <>
                                           <input
                                             type="range"
@@ -566,8 +638,8 @@ export function TransformerItem({
                                             disabled={isDisabled}
                                           />
                                           <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                            <span>{param.min}</span>
-                                            <span>{param.max}</span>
+                                            <span>{String(param.min ?? '')}</span>
+                                            <span>{String(param.max ?? '')}</span>
                                           </div>
                                         </>
                                       ) : param.type === 'color' ? (
@@ -637,6 +709,8 @@ export function TransformerItem({
 
                           const rightColumnParams = filteredParams.filter(
                             (param) => {
+                              // Move varianceAmount and varianceMode to left column for better visual grouping
+                              if (param.name === 'varianceAmount' || param.name === 'varianceMode') return false;
                               return (
                                 param.type === 'select' ||
                                 param.type === 'number'
@@ -655,30 +729,30 @@ export function TransformerItem({
                                       {param.type === 'select' &&
                                       param.options ? (
                                         <select
-                                          value={
-                                            (parameters.visual[
-                                              param.name
-                                            ] as string) ||
-                                            (param.defaultValue as string)
-                                          }
-                                          onChange={(e) => {
-                                            handleVisualParameterChange(
-                                              param.name,
-                                              e.target.value,
-                                            );
-                                          }}
-                                          className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
-                                          disabled={isDisabled}
-                                        >
-                                          {param.options.map((option) => (
-                                            <option
-                                              key={option.value}
-                                              value={option.value}
-                                            >
-                                              {option.label}
-                                            </option>
-                                          ))}
-                                        </select>
+                                            value={
+                                              (parameters.visual[
+                                                param.name
+                                              ] as string) ||
+                                              (param.defaultValue as string)
+                                            }
+                                            onChange={(e) => {
+                                              handleVisualParameterChange(
+                                                param.name,
+                                                e.target.value,
+                                              );
+                                            }}
+                                            className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                                            disabled={isDisabled}
+                                          >
+                                            {param.options.map((option) => (
+                                              <option
+                                                key={option.value}
+                                                value={option.value}
+                                              >
+                                                {option.label}
+                                              </option>
+                                            ))}
+                                          </select>
                                       ) : param.type === 'number' ? (
                                         <input
                                           type="number"

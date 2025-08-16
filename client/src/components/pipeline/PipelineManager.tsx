@@ -440,7 +440,7 @@ export function PipelineManager({
   // Note: selectedTransformer is no longer used since we show complete pipeline data
 
   const availableTransformerIds: TransformerId[] = getTransformerIds().filter(
-    (id) => !activeTransformerIds.includes(id),
+    (id) => !activeTransformerIds.includes(id) && id !== 'variance',
   );
 
   // Memoize the pipeline input to avoid expensive recalculations

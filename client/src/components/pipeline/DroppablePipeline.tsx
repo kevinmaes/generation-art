@@ -54,7 +54,7 @@ export function DroppablePipeline({
               )}
               <div
                 className={
-                  isVariance ? '' : isFollowedByVariance ? 'mt-2' : 'my-2'
+                  isVariance ? 'mb-2' : isFollowedByVariance ? 'mt-2' : 'my-2'
                 }
               >
                 {child}
