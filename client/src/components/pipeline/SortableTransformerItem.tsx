@@ -6,6 +6,7 @@ import type { TransformerId } from '../../transformers/transformers';
 import type { VisualParameterValues } from '../../transformers/visual-parameters';
 import { TransformerItem } from './TransformerItem';
 import { usePipelineContext } from '../../hooks/usePipelineContext';
+import { calculatePipelineIndices } from '../../utils/pipeline-index';
 import React from 'react';
 
 // Drag handle configuration
@@ -60,6 +61,13 @@ export function SortableTransformerItem({
   const isVarianceFollowing = React.useMemo(() => {
     return activeTransformerIds[index + 1] === 'variance';
   }, [activeTransformerIds, index]);
+
+  // Calculate display indices for all transformers
+  const displayIndices = React.useMemo(() => {
+    return calculatePipelineIndices(activeTransformerIds);
+  }, [activeTransformerIds]);
+
+  const displayIndex = displayIndices[index];
 
   const toggleVarianceAfter = () => {
     if (isVarianceFollowing) {
@@ -120,7 +128,7 @@ export function SortableTransformerItem({
   // Determine styling based on whether this is a variance transformer
   const containerClassName = isVarianceTransformer
     ? `bg-gray-50/70 border-x border-b border-gray-200 rounded-b hover:bg-gray-100/70 transition-colors ${isDragging ? 'opacity-50' : ''} -mt-[1px]`
-    : `bg-gray-50 border border-gray-200 ${isVarianceFollowing ? 'rounded-t border-b-gray-300' : 'rounded'} hover:bg-gray-100 transition-colors ${isDragging ? 'opacity-50' : ''}`;
+    : `bg-gray-50 border border-gray-200 ${isVarianceFollowing ? 'rounded-t border-b-0' : 'rounded'} hover:bg-gray-100 transition-colors ${isDragging ? 'opacity-50' : ''}`;
 
   return (
     <div ref={setNodeRef} style={style} className={containerClassName}>
@@ -134,6 +142,7 @@ export function SortableTransformerItem({
             isSelected={isSelected}
             handleTransformerSelect={handleTransformerSelect}
             index={index}
+            displayIndex={displayIndex}
             isInPipeline={true}
             onAddTransformer={onAddTransformer}
             onRemoveTransformer={onRemoveTransformer}
