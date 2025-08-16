@@ -1,10 +1,13 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2 } from 'lucide-react';
+import { GripVertical } from 'lucide-react';
 import type { VisualTransformerConfig } from '../../transformers/types';
 import type { TransformerId } from '../../transformers/transformers';
 import type { VisualParameterValues } from '../../transformers/visual-parameters';
 import { TransformerItem } from './TransformerItem';
+import { usePipelineContext } from '../../hooks/usePipelineContext';
+import { calculatePipelineIndices } from '../../utils/pipeline-index';
+import React from 'react';
 
 // Drag handle configuration
 const DRAG_HANDLE_ROWS = 2;
@@ -34,10 +37,58 @@ interface SortableTransformerItemProps {
     dimensions: { primary?: string; secondary?: string };
     visual: VisualParameterValues;
   };
+  parameterKey?: string; // Add parameter key for unique parameter storage
 }
 
-export function SortableTransformerItem(props: SortableTransformerItemProps) {
-  const { transformer, onRemoveTransformer, isVisualizing, index } = props;
+export function SortableTransformerItem({
+  transformer,
+  isSelected,
+  handleTransformerSelect,
+  index,
+  onAddTransformer,
+  onRemoveTransformer,
+  onParameterChange,
+  onParameterReset,
+  currentParameters,
+  isVisualizing = false,
+  lastRunParameters,
+  parameterKey,
+}: SortableTransformerItemProps): React.ReactElement {
+  const { activeTransformerIds, onReorderTransformers } = usePipelineContext();
+
+  // Check if this is a variance transformer
+  const isVarianceTransformer = transformer.id === 'variance';
+
+  // Check if there's a variance transformer following this one
+  const isVarianceFollowing = React.useMemo(() => {
+    return activeTransformerIds[index + 1] === 'variance';
+  }, [activeTransformerIds, index]);
+
+  // Calculate display indices for all transformers
+  const displayIndices = React.useMemo(() => {
+    return calculatePipelineIndices(activeTransformerIds);
+  }, [activeTransformerIds]);
+
+  const displayIndex = displayIndices[index];
+
+  const toggleVarianceAfter = () => {
+    if (isVarianceFollowing) {
+      // Find all variance transformers and remove only the one after this transformer
+      const varianceIndexToRemove = index + 1;
+      if (activeTransformerIds[varianceIndexToRemove] === 'variance') {
+        // Create a new array without this specific variance transformer
+        const newOrder = activeTransformerIds.filter(
+          (_, i) => i !== varianceIndexToRemove,
+        );
+        onReorderTransformers(newOrder);
+      }
+    } else {
+      // Insert variance after current transformer
+      const newOrder = [...activeTransformerIds];
+      newOrder.splice(index + 1, 0, 'variance');
+      onReorderTransformers(newOrder);
+    }
+  };
 
   const {
     attributes,
@@ -54,6 +105,7 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
       index,
       transformerId: transformer.id, // Store the actual transformer ID
     },
+    disabled: isVarianceTransformer, // Disable sorting for variance transformers
   });
 
   const style = {
@@ -61,24 +113,8 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
     transition,
   };
 
-  // Custom remove button with trash icon
-  const customRemoveButton = (
-    <button
-      className="text-gray-400 hover:text-red-500 text-sm flex-shrink-0 flex items-center"
-      onClick={(e) => {
-        e.stopPropagation();
-        if (!isVisualizing) {
-          onRemoveTransformer?.(transformer.id);
-        }
-      }}
-      disabled={isVisualizing}
-    >
-      <Trash2 size={14} />
-    </button>
-  );
-
-  // Custom multi-row drag handle
-  const dragHandle = (
+  // Custom multi-row drag handle (only show for non-variance transformers)
+  const dragHandle = !isVarianceTransformer ? (
     <div
       className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing flex flex-col items-center justify-center min-w-6 mr-2"
       style={{ height: `${String(DRAG_HANDLE_HEIGHT)}px` }}
@@ -89,23 +125,55 @@ export function SortableTransformerItem(props: SortableTransformerItemProps) {
         <GripVertical key={i} size={12} className="leading-none" />
       ))}
     </div>
-  );
+  ) : null;
+
+  // Determine styling based on whether this is a variance transformer
+  const containerClassName = isVarianceTransformer
+    ? `bg-gray-50/70 border-x border-b border-gray-200 rounded-b hover:bg-gray-100/70 transition-colors ${isDragging ? 'opacity-50' : ''} -mt-[1px]`
+    : `bg-gray-50 border border-gray-200 ${isVarianceFollowing ? 'rounded-t border-b-0' : 'rounded'} hover:bg-gray-100 transition-colors ${isDragging ? 'opacity-50' : ''}`;
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`bg-gray-50 border border-gray-200 rounded hover:bg-gray-100 transition-colors ${isDragging ? 'opacity-50' : ''}`}
-    >
-      <div className="flex items-center px-2 py-2">
+    <div ref={setNodeRef} style={style} className={containerClassName}>
+      <div
+        className={`flex items-center ${isVarianceTransformer ? 'px-2 py-2 pl-8' : 'px-2 py-2'}`}
+      >
         {dragHandle}
         <div className="flex-1">
           <TransformerItem
-            {...props}
+            transformer={transformer}
+            isSelected={isSelected}
+            handleTransformerSelect={handleTransformerSelect}
+            index={index}
+            displayIndex={displayIndex}
             isInPipeline={true}
+            onAddTransformer={onAddTransformer}
+            onRemoveTransformer={onRemoveTransformer}
+            onParameterChange={onParameterChange}
+            onParameterReset={onParameterReset}
+            currentParameters={currentParameters}
+            isVisualizing={isVisualizing}
+            lastRunParameters={lastRunParameters}
+            isVarianceTransformer={isVarianceTransformer}
+            parameterKey={parameterKey}
             customActions={{
-              removeButton: customRemoveButton,
+              removeButton: !isVarianceTransformer ? (
+                <button
+                  className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isVisualizing) {
+                      onRemoveTransformer?.(transformer.id);
+                    }
+                  }}
+                  disabled={isVisualizing}
+                >
+                  ×
+                </button>
+              ) : null,
             }}
+            hasVarianceToggle={!isVarianceTransformer}
+            isVarianceFollowing={isVarianceFollowing}
+            onToggleVariance={toggleVarianceAfter}
           />
         </div>
       </div>

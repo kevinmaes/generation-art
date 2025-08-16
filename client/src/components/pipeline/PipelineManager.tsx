@@ -53,7 +53,11 @@ interface TransformerDragData {
 }
 
 type DragData = PipelineTransformerDragData | TransformerDragData;
-import { arrayMove } from '@dnd-kit/sortable';
+import {
+  reorderWithCompoundUnits,
+  hasVarianceAttached,
+  getTransformerParameterKey,
+} from '../../utils/pipeline-index';
 
 // Drag handle configuration (matching SortableTransformerItem)
 const DRAG_HANDLE_ROWS = 2;
@@ -94,7 +98,7 @@ interface PipelineManagerProps {
   onRemoveTransformer?: (transformerId: TransformerId) => void;
   onReorderTransformers?: (newOrder: TransformerId[]) => void;
   onParameterChange?: (
-    transformerId: TransformerId,
+    parameterKey: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
       visual: VisualParameterValues;
@@ -212,15 +216,22 @@ export function PipelineManager({
 
   // Handle parameter changes (immediately apply to pipeline)
   const handleParameterChange = (
-    transformerId: string,
+    parameterKey: string,
     parameters: {
       dimensions: { primary?: string; secondary?: string };
       visual: VisualParameterValues;
     },
   ) => {
+    // Extract the actual transformer ID from compound keys (e.g., 'variance-node-size' -> 'variance')
+    const transformerId = parameterKey.startsWith('variance-')
+      ? ('variance' as TransformerId)
+      : (parameterKey as TransformerId);
+
     // Use type guard to ensure valid transformer ID
     if (!isTransformerId(transformerId)) {
-      console.warn(`Invalid transformer ID: ${transformerId}`);
+      console.warn(
+        `Invalid transformer ID: ${String(transformerId)} (from key: ${parameterKey})`,
+      );
       return;
     }
 
@@ -237,16 +248,24 @@ export function PipelineManager({
       visual: parameters.visual,
     };
 
+    // Store using the parameter key (which may be a compound ID)
     setTransformerParameters((prev) => ({
       ...prev,
-      [transformerId]: validParameters,
+      [parameterKey]: validParameters,
     }));
-    onParameterChange?.(transformerId, validParameters);
+    onParameterChange?.(parameterKey, validParameters);
   };
 
-  const handleParameterReset = (transformerId: string) => {
+  const handleParameterReset = (parameterKey: string) => {
+    // Extract the actual transformer ID from compound keys (e.g., 'variance-node-size' -> 'variance')
+    const transformerId = parameterKey.startsWith('variance-')
+      ? ('variance' as TransformerId)
+      : (parameterKey as TransformerId);
+
     if (!isTransformerId(transformerId)) {
-      console.warn(`Invalid transformer ID: ${transformerId}`);
+      console.warn(
+        `Invalid transformer ID: ${String(transformerId)} (from key: ${parameterKey})`,
+      );
       return;
     }
 
@@ -260,9 +279,9 @@ export function PipelineManager({
     };
     setTransformerParameters((prev) => ({
       ...prev,
-      [transformerId]: defaultParameters,
+      [parameterKey]: defaultParameters,
     }));
-    handleParameterChange(transformerId, defaultParameters);
+    handleParameterChange(parameterKey, defaultParameters);
   };
 
   const handleTransformerSelect = (transformerId: TransformerId) => {
@@ -425,7 +444,8 @@ export function PipelineManager({
         const activeIndex = activeTransformerIds.indexOf(activeId);
 
         if (activeIndex !== -1 && activeIndex !== overIndex) {
-          const newOrder = arrayMove(
+          // Use compound drag logic to move transformer with its variance if attached
+          const newOrder = reorderWithCompoundUnits(
             activeTransformerIds,
             activeIndex,
             overIndex,
@@ -440,7 +460,7 @@ export function PipelineManager({
   // Note: selectedTransformer is no longer used since we show complete pipeline data
 
   const availableTransformerIds: TransformerId[] = getTransformerIds().filter(
-    (id) => !activeTransformerIds.includes(id),
+    (id) => !activeTransformerIds.includes(id) && id !== 'variance',
   );
 
   // Memoize the pipeline input to avoid expensive recalculations
@@ -465,6 +485,10 @@ export function PipelineManager({
       },
     };
   }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
+
+  const visiblePipelineCount = React.useMemo(() => {
+    return activeTransformerIds.filter((id) => id !== 'variance').length;
+  }, [activeTransformerIds]);
 
   // Calculate responsive layout breakpoint
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -758,7 +782,7 @@ export function PipelineManager({
             {/* Active Pipeline in single column layout */}
             {!showTwoColumns && (
               <CollapsiblePanel
-                title={`Active Pipeline (${String(activeTransformerIds.length)})`}
+                title={`Active Pipeline (${String(visiblePipelineCount)})`}
                 subtitle={
                   pipelineResult
                     ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
@@ -781,10 +805,14 @@ export function PipelineManager({
                   {activeTransformerIds.map((transformerId, index) => {
                     const transformer = getTransformer(transformerId);
                     const isSelected = selectedTransformerId === transformerId;
+                    const parameterKey = getTransformerParameterKey(
+                      activeTransformerIds,
+                      index,
+                    );
 
                     return (
                       <SortableTransformerItem
-                        key={transformerId}
+                        key={`${transformerId}-${String(index)}`}
                         transformer={transformer}
                         isSelected={isSelected}
                         handleTransformerSelect={handleTransformerSelect}
@@ -794,7 +822,7 @@ export function PipelineManager({
                         onParameterChange={handleParameterChange}
                         onParameterReset={handleParameterReset}
                         currentParameters={
-                          transformerParameters[transformerId] ?? {
+                          transformerParameters[parameterKey] ?? {
                             dimensions: {
                               primary: transformer.defaultPrimaryDimension,
                               secondary: transformer.defaultSecondaryDimension,
@@ -803,7 +831,8 @@ export function PipelineManager({
                           }
                         }
                         isVisualizing={isVisualizing}
-                        lastRunParameters={lastRunParameters?.[transformerId]}
+                        lastRunParameters={lastRunParameters?.[parameterKey]}
+                        parameterKey={parameterKey}
                       />
                     );
                   })}
@@ -822,7 +851,7 @@ export function PipelineManager({
               }}
             >
               <CollapsiblePanel
-                title={`Active Pipeline (${String(activeTransformerIds.length)})`}
+                title={`Active Pipeline (${String(visiblePipelineCount)})`}
                 subtitle={
                   pipelineResult
                     ? `✓ Completed - ${pipelineResult.debug.totalExecutionTime.toFixed(2)}ms`
@@ -845,10 +874,14 @@ export function PipelineManager({
                   {activeTransformerIds.map((transformerId, index) => {
                     const transformer = getTransformer(transformerId);
                     const isSelected = selectedTransformerId === transformerId;
+                    const parameterKey = getTransformerParameterKey(
+                      activeTransformerIds,
+                      index,
+                    );
 
                     return (
                       <SortableTransformerItem
-                        key={transformerId}
+                        key={`${transformerId}-${String(index)}`}
                         transformer={transformer}
                         isSelected={isSelected}
                         handleTransformerSelect={handleTransformerSelect}
@@ -858,7 +891,7 @@ export function PipelineManager({
                         onParameterChange={handleParameterChange}
                         onParameterReset={handleParameterReset}
                         currentParameters={
-                          transformerParameters[transformerId] ?? {
+                          transformerParameters[parameterKey] ?? {
                             dimensions: {
                               primary: transformer.defaultPrimaryDimension,
                               secondary: transformer.defaultSecondaryDimension,
@@ -867,7 +900,8 @@ export function PipelineManager({
                           }
                         }
                         isVisualizing={isVisualizing}
-                        lastRunParameters={lastRunParameters?.[transformerId]}
+                        lastRunParameters={lastRunParameters?.[parameterKey]}
+                        parameterKey={parameterKey}
                       />
                     );
                   })}
@@ -952,58 +986,107 @@ export function PipelineManager({
         </div>
 
         <DragOverlay dropAnimation={null}>
-          {draggedItem && isTransformerId(draggedItem.id) ? (
-            <div
-              className="bg-gray-50 border border-gray-200 rounded shadow-lg"
-              style={{ width: '100%' }}
-            >
-              <div className="flex items-center px-2 pt-3 pb-2">
-                {/* Drag handle preview */}
-                <div
-                  className="text-gray-400 flex flex-col items-center justify-center min-w-6 mr-2"
-                  style={{ height: `${String(DRAG_HANDLE_ROWS * 16)}px` }}
-                >
-                  {Array.from({ length: DRAG_HANDLE_ROWS }, (_, i) => (
-                    <GripVertical key={i} size={12} className="leading-none" />
-                  ))}
-                </div>
-                {/* Transformer content - matching TransformerItem structure */}
-                <div className="flex-1">
-                  <div className="flex items-center space-x-1.5">
-                    <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
-                      {previewIndex ?? (draggedItem.fromAvailable ? 'A' : 'P')}
-                    </span>
-                    <span className="font-medium text-sm truncate">
-                      {transformerConfigs[draggedItem.id].name ||
-                        draggedItem.id}
-                    </span>
-                  </div>
-                  {transformerConfigs[draggedItem.id].shortDescription && (
-                    <p className="text-xs text-gray-800 font-medium mt-0.5 text-left">
-                      {transformerConfigs[draggedItem.id].shortDescription}
-                    </p>
-                  )}
+          {draggedItem && isTransformerId(draggedItem.id)
+            ? (() => {
+                // Check if this transformer has variance attached (only if dragging from pipeline)
+                const showVariance =
+                  !draggedItem.fromAvailable &&
+                  draggedItem.originalIndex !== undefined &&
+                  hasVarianceAttached(
+                    activeTransformerIds,
+                    draggedItem.originalIndex,
+                  );
 
-                  {/* Parameters section placeholder to match height */}
-                  {!draggedItem.fromAvailable && (
-                    <div className="mt-2">
-                      <div className="px-4 py-2 bg-gray-50 border border-gray-200 shadow-sm flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xs">▶</span>
-                          <span className="text-xs font-medium text-gray-700">
-                            Parameters
-                          </span>
+                return (
+                  <div style={{ width: '100%' }}>
+                    {/* Main transformer */}
+                    <div
+                      className={`bg-gray-50 border border-gray-200 ${showVariance ? 'rounded-t border-b-0' : 'rounded'} shadow-lg`}
+                    >
+                      <div className="flex items-center px-2 pt-3 pb-2">
+                        {/* Drag handle preview */}
+                        <div
+                          className="text-gray-400 flex flex-col items-center justify-center min-w-6 mr-2"
+                          style={{
+                            height: `${String(DRAG_HANDLE_ROWS * 16)}px`,
+                          }}
+                        >
+                          {Array.from({ length: DRAG_HANDLE_ROWS }, (_, i) => (
+                            <GripVertical
+                              key={i}
+                              size={12}
+                              className="leading-none"
+                            />
+                          ))}
                         </div>
-                        <button className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
-                          Reset
-                        </button>
+                        {/* Transformer content - matching TransformerItem structure */}
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-1.5">
+                            <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
+                              {previewIndex ??
+                                (draggedItem.fromAvailable ? 'A' : 'P')}
+                            </span>
+                            <span className="font-medium text-sm truncate">
+                              {transformerConfigs[draggedItem.id].name ||
+                                draggedItem.id}
+                            </span>
+                          </div>
+                          {transformerConfigs[draggedItem.id]
+                            .shortDescription && (
+                            <p className="text-xs text-gray-800 font-medium mt-0.5 text-left">
+                              {
+                                transformerConfigs[draggedItem.id]
+                                  .shortDescription
+                              }
+                            </p>
+                          )}
+
+                          {/* Parameters section placeholder to match height */}
+                          {!draggedItem.fromAvailable && (
+                            <div className="mt-2">
+                              <div className="px-4 py-2 bg-gray-50 border border-gray-200 shadow-sm flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-xs">▶</span>
+                                  <span className="text-xs font-medium text-gray-700">
+                                    Parameters
+                                  </span>
+                                </div>
+                                <button className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                                  Reset
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : null}
+
+                    {/* Variance transformer if attached */}
+                    {showVariance && (
+                      <div className="bg-gray-50/70 border-x border-b border-gray-200 rounded-b shadow-lg -mt-[1px]">
+                        <div className="flex items-center px-2 py-2 pl-8">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-1.5">
+                              <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
+                                {previewIndex
+                                  ? `${String(previewIndex)}a`
+                                  : 'Va'}
+                              </span>
+                              <span className="font-medium text-sm truncate">
+                                Variance
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-800 font-medium mt-0.5 text-left">
+                              Add random variation to previous transformer
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()
+            : null}
         </DragOverlay>
       </div>
     </DndContext>

@@ -14,6 +14,7 @@ interface TransformerItemProps {
   handleTransformerSelect: (transformerId: TransformerId) => void;
   index: number;
   isInPipeline: boolean;
+  displayIndex?: string; // Optional display index (e.g., "1", "1a")
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
   onParameterChange?: (
@@ -42,6 +43,13 @@ interface TransformerItemProps {
   customActions?: {
     removeButton?: React.ReactNode;
   };
+  // NEW: Flag to indicate this is a variance transformer
+  isVarianceTransformer?: boolean;
+  // NEW: Props for variance toggle
+  hasVarianceToggle?: boolean;
+  isVarianceFollowing?: boolean;
+  onToggleVariance?: () => void;
+  parameterKey?: string; // Add parameter key for unique parameter storage
 }
 
 export function TransformerItem({
@@ -50,6 +58,7 @@ export function TransformerItem({
   handleTransformerSelect,
   index,
   isInPipeline,
+  displayIndex,
   onAddTransformer,
   onRemoveTransformer,
   onParameterChange,
@@ -60,6 +69,11 @@ export function TransformerItem({
   isExpanded = false,
   onToggleExpanded,
   customActions,
+  isVarianceTransformer = false,
+  hasVarianceToggle = false,
+  isVarianceFollowing = false,
+  onToggleVariance,
+  parameterKey,
 }: TransformerItemProps) {
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -128,7 +142,9 @@ export function TransformerItem({
       },
     };
     setParameters(newParameters);
-    onParameterChange?.(transformer.id, newParameters);
+    // Use parameterKey if provided (for variance transformers), otherwise use transformer.id
+    const storageKey = parameterKey ?? transformer.id;
+    onParameterChange?.(storageKey as TransformerId, newParameters);
   };
 
   // Handle visual parameter changes (non-sliders)
@@ -144,7 +160,9 @@ export function TransformerItem({
       },
     };
     setParameters(newParameters);
-    onParameterChange?.(transformer.id, newParameters);
+    // Use parameterKey if provided (for variance transformers), otherwise use transformer.id
+    const storageKey = parameterKey ?? transformer.id;
+    onParameterChange?.(storageKey as TransformerId, newParameters);
   };
 
   // Handle slider input during dragging
@@ -175,7 +193,9 @@ export function TransformerItem({
       const { [key]: _, ...newValues } = prev; // Clear the slider value
       return newValues;
     });
-    onParameterChange?.(transformer.id, newParameters);
+    // Use parameterKey if provided (for variance transformers), otherwise use transformer.id
+    const storageKey = parameterKey ?? transformer.id;
+    onParameterChange?.(storageKey as TransformerId, newParameters);
   };
 
   // Handle parameter reset
@@ -190,7 +210,9 @@ export function TransformerItem({
     setParameters(defaultParameters);
     setSliderValues({});
     onParameterChange?.(transformer.id, defaultParameters);
-    onParameterReset?.(transformer.id);
+    // Use parameterKey if provided (for variance transformers), otherwise use transformer.id
+    const storageKey = parameterKey ?? transformer.id;
+    onParameterReset?.(storageKey as TransformerId);
   };
 
   // Disable controls during visualization
@@ -228,7 +250,7 @@ export function TransformerItem({
           )}
           {isInPipeline && (
             <span className="text-xs bg-gray-300 text-gray-700 px-1.5 py-0.5 rounded">
-              {index + 1}
+              {displayIndex ?? index + 1}
             </span>
           )}
           <span className="font-medium text-sm truncate">
@@ -246,7 +268,9 @@ export function TransformerItem({
           )}
         </div>
         {isInPipeline ? (
-          (customActions?.removeButton ?? (
+          customActions && 'removeButton' in customActions ? (
+            customActions.removeButton
+          ) : (
             <button
               className="text-gray-400 hover:text-red-500 text-xs flex-shrink-0"
               onClick={(e) => {
@@ -259,7 +283,7 @@ export function TransformerItem({
             >
               ×
             </button>
-          ))
+          )
         ) : (
           <button
             className="text-gray-400 hover:text-green-500 text-xs flex-shrink-0"
@@ -350,115 +374,116 @@ export function TransformerItem({
 
             <div className="bg-white border-l border-r border-b border-gray-200 shadow-sm overflow-hidden">
               <div className="p-4 space-y-4">
-                {/* Dimensions Section */}
-                {transformer.availableDimensions.length > 0 && (
-                  <div>
-                    <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
-                      {transformer.requiresLLM
-                        ? 'Dimensions + Temperature'
-                        : 'Dimensions'}
-                    </h4>
+                {/* Dimensions Section - Hide for variance transformers */}
+                {transformer.availableDimensions.length > 0 &&
+                  !isVarianceTransformer && (
+                    <div>
+                      <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
+                        {transformer.requiresLLM
+                          ? 'Dimensions + Temperature'
+                          : 'Dimensions'}
+                      </h4>
 
-                    {/* Dimensions Row */}
-                    <div
-                      className={`grid gap-2 ${transformer.requiresLLM ? 'grid-cols-3' : 'grid-cols-2'}`}
-                    >
-                      {/* Primary Dimension */}
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1 text-left">
-                          Primary
-                        </label>
-                        <select
-                          value={
-                            parameters.dimensions.primary ??
-                            transformer.defaultPrimaryDimension
-                          }
-                          onChange={(e) => {
-                            handleDimensionChange('primary', e.target.value);
-                          }}
-                          className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
-                          disabled={isDisabled}
-                        >
-                          {transformer.availableDimensions.map((dimId) => (
-                            <option key={dimId} value={dimId}>
-                              {DIMENSIONS[dimId].label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Secondary Dimensions */}
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1 text-left">
-                          Secondary
-                        </label>
-                        <select
-                          value={parameters.dimensions.secondary ?? ''}
-                          onChange={(e) => {
-                            handleDimensionChange(
-                              'secondary',
-                              e.target.value || undefined,
-                            );
-                          }}
-                          className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
-                          disabled={isDisabled}
-                        >
-                          <option value="">No secondary dimension</option>
-                          {transformer.availableDimensions
-                            .filter(
-                              (dimId) =>
-                                dimId !== parameters.dimensions.primary,
-                            )
-                            .map((dimId) => (
+                      {/* Dimensions Row */}
+                      <div
+                        className={`grid gap-2 ${transformer.requiresLLM ? 'grid-cols-3' : 'grid-cols-2'}`}
+                      >
+                        {/* Primary Dimension */}
+                        <div>
+                          <label className="block text-xs text-gray-600 mb-1 text-left">
+                            Primary
+                          </label>
+                          <select
+                            value={
+                              parameters.dimensions.primary ??
+                              transformer.defaultPrimaryDimension
+                            }
+                            onChange={(e) => {
+                              handleDimensionChange('primary', e.target.value);
+                            }}
+                            className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                            disabled={isDisabled}
+                          >
+                            {transformer.availableDimensions.map((dimId) => (
                               <option key={dimId} value={dimId}>
                                 {DIMENSIONS[dimId].label}
                               </option>
                             ))}
-                        </select>
-                      </div>
+                          </select>
+                        </div>
 
-                      {/* Temperature - only show for LLM transformers */}
-                      {transformer.requiresLLM && (
+                        {/* Secondary Dimensions */}
                         <div>
                           <label className="block text-xs text-gray-600 mb-1 text-left">
-                            Temperature
+                            Secondary
                           </label>
-                          <input
-                            type="range"
-                            min={0}
-                            max={1}
-                            step={0.1}
-                            value={
-                              sliderValues.temperature !== undefined
-                                ? (sliderValues.temperature as number)
-                                : (parameters.visual.temperature as number) ||
-                                  (VISUAL_PARAMETERS.temperature
-                                    .defaultValue as number)
-                            }
-                            onInput={(e) => {
-                              handleSliderInput(
-                                'temperature',
-                                Number((e.target as HTMLInputElement).value),
-                              );
-                            }}
+                          <select
+                            value={parameters.dimensions.secondary ?? ''}
                             onChange={(e) => {
-                              handleSliderChangeComplete(
-                                'temperature',
-                                Number(e.target.value),
+                              handleDimensionChange(
+                                'secondary',
+                                e.target.value || undefined,
                               );
                             }}
-                            className="w-full"
+                            className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
                             disabled={isDisabled}
-                          />
-                          <div className="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>0</span>
-                            <span>1</span>
-                          </div>
+                          >
+                            <option value="">No secondary dimension</option>
+                            {transformer.availableDimensions
+                              .filter(
+                                (dimId) =>
+                                  dimId !== parameters.dimensions.primary,
+                              )
+                              .map((dimId) => (
+                                <option key={dimId} value={dimId}>
+                                  {DIMENSIONS[dimId].label}
+                                </option>
+                              ))}
+                          </select>
                         </div>
-                      )}
+
+                        {/* Temperature - only show for LLM transformers */}
+                        {transformer.requiresLLM && (
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1 text-left">
+                              Temperature
+                            </label>
+                            <input
+                              type="range"
+                              min={0}
+                              max={1}
+                              step={0.1}
+                              value={
+                                sliderValues.temperature !== undefined
+                                  ? (sliderValues.temperature as number)
+                                  : (parameters.visual.temperature as number) ||
+                                    (VISUAL_PARAMETERS.temperature
+                                      .defaultValue as number)
+                              }
+                              onInput={(e) => {
+                                handleSliderInput(
+                                  'temperature',
+                                  Number((e.target as HTMLInputElement).value),
+                                );
+                              }}
+                              onChange={(e) => {
+                                handleSliderChangeComplete(
+                                  'temperature',
+                                  Number(e.target.value),
+                                );
+                              }}
+                              className="w-full"
+                              disabled={isDisabled}
+                            />
+                            <div className="flex justify-between text-xs text-gray-500 mt-1">
+                              <span>0</span>
+                              <span>1</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Visual Parameters Section */}
                 {transformer.visualParameters.length > 0 && (
@@ -468,30 +493,55 @@ export function TransformerItem({
                     </h4>
 
                     {/* Two-column layout: Sliders+Colors on left, Dropdowns+Numbers on right */}
-                    <div className="grid grid-cols-2 gap-4">
+                    {/* Single column for variance transformer */}
+                    <div
+                      className={
+                        isVarianceTransformer ? '' : 'grid grid-cols-2 gap-4'
+                      }
+                    >
                       {/* Left column: Sliders first, then Color pickers */}
                       <div>
                         {(() => {
+                          // Filter parameters based on whether this is a variance transformer
+                          const filteredParams = isVarianceTransformer
+                            ? transformer.visualParameters.filter(
+                                (p) => p.name !== 'limitToPreviousChanges',
+                              )
+                            : transformer.visualParameters;
+
                           // Separate sliders and color pickers, prioritizing sliders first
-                          const sliderParams =
-                            transformer.visualParameters.filter((param) => {
+                          const sliderParams = filteredParams.filter(
+                            (param) => {
                               return (
                                 param.type === 'range' &&
                                 param.name !== 'temperature'
                               );
-                            });
+                            },
+                          );
 
-                          const colorParams =
-                            transformer.visualParameters.filter((param) => {
-                              return param.type === 'color';
-                            });
+                          const colorParams = filteredParams.filter((param) => {
+                            return param.type === 'color';
+                          });
 
-                          const booleanParams =
-                            transformer.visualParameters.filter((param) => {
+                          const booleanParams = filteredParams.filter(
+                            (param) => {
                               return param.type === 'boolean';
-                            });
+                            },
+                          );
+
+                          // Add varianceAmount and varianceMode to left column if they exist
+                          const varianceAmountParam = filteredParams.find(
+                            (p) => p.name === 'varianceAmount',
+                          );
+                          const varianceModeParam = filteredParams.find(
+                            (p) => p.name === 'varianceMode',
+                          );
 
                           const leftColumnParams = [
+                            ...(varianceAmountParam
+                              ? [varianceAmountParam]
+                              : []),
+                            ...(varianceModeParam ? [varianceModeParam] : []),
                             ...sliderParams,
                             ...colorParams,
                             ...booleanParams,
@@ -508,7 +558,93 @@ export function TransformerItem({
                                           {param.label}
                                         </label>
                                       )}
-                                      {param.type === 'range' ? (
+                                      {param.name === 'varianceAmount' &&
+                                      param.type === 'select' &&
+                                      param.options ? (
+                                        // Segmented button group for variance amount in left column
+                                        <div
+                                          className="inline-flex shadow-sm w-full"
+                                          role="group"
+                                        >
+                                          {param.options.map(
+                                            (option, index) => {
+                                              const isSelected =
+                                                (parameters.visual[
+                                                  param.name
+                                                ] ?? param.defaultValue) ===
+                                                option.value;
+                                              const isFirst = index === 0;
+                                              return (
+                                                <button
+                                                  key={option.value}
+                                                  type="button"
+                                                  onClick={() => {
+                                                    handleVisualParameterChange(
+                                                      param.name,
+                                                      option.value,
+                                                    );
+                                                  }}
+                                                  disabled={isDisabled}
+                                                  className={`
+                                                  flex-1 px-1 py-1 text-xs font-medium transition-colors
+                                                  ${!isFirst ? 'border-l-0' : ''}
+                                                  ${
+                                                    isSelected
+                                                      ? 'bg-blue-600 text-white border-blue-600 z-10'
+                                                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                  }
+                                                  ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                                                `}
+                                                >
+                                                  <div className="flex flex-col items-center">
+                                                    <span className="text-[11px] leading-tight">
+                                                      {
+                                                        option.label.split(
+                                                          ' ',
+                                                        )[0]
+                                                      }
+                                                    </span>
+                                                    <span className="text-[9px] opacity-75">
+                                                      {/\d+%/.exec(
+                                                        option.label,
+                                                      )?.[0] ?? ''}
+                                                    </span>
+                                                  </div>
+                                                </button>
+                                              );
+                                            },
+                                          )}
+                                        </div>
+                                      ) : param.name === 'varianceMode' &&
+                                        param.type === 'select' &&
+                                        param.options ? (
+                                        // Variance mode dropdown - full width below variance amount
+                                        <select
+                                          value={
+                                            (parameters.visual[
+                                              param.name
+                                            ] as string) ||
+                                            (param.defaultValue as string)
+                                          }
+                                          onChange={(e) => {
+                                            handleVisualParameterChange(
+                                              param.name,
+                                              e.target.value,
+                                            );
+                                          }}
+                                          className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                                          disabled={isDisabled}
+                                        >
+                                          {param.options.map((option) => (
+                                            <option
+                                              key={option.value}
+                                              value={option.value}
+                                            >
+                                              {option.label}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      ) : param.type === 'range' ? (
                                         <>
                                           <input
                                             type="range"
@@ -545,8 +681,12 @@ export function TransformerItem({
                                             disabled={isDisabled}
                                           />
                                           <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                            <span>{param.min}</span>
-                                            <span>{param.max}</span>
+                                            <span>
+                                              {String(param.min ?? '')}
+                                            </span>
+                                            <span>
+                                              {String(param.max ?? '')}
+                                            </span>
                                           </div>
                                         </>
                                       ) : param.type === 'color' ? (
@@ -607,13 +747,27 @@ export function TransformerItem({
                       {/* Right column: Dropdowns and Numerical inputs */}
                       <div>
                         {(() => {
-                          const rightColumnParams =
-                            transformer.visualParameters.filter((param) => {
+                          // Use the same filtered params for consistency
+                          const filteredParams = isVarianceTransformer
+                            ? transformer.visualParameters.filter(
+                                (p) => p.name !== 'limitToPreviousChanges',
+                              )
+                            : transformer.visualParameters;
+
+                          const rightColumnParams = filteredParams.filter(
+                            (param) => {
+                              // Move varianceAmount and varianceMode to left column for better visual grouping
+                              if (
+                                param.name === 'varianceAmount' ||
+                                param.name === 'varianceMode'
+                              )
+                                return false;
                               return (
                                 param.type === 'select' ||
                                 param.type === 'number'
                               );
-                            });
+                            },
+                          );
                           if (rightColumnParams.length > 0) {
                             return (
                               <div className="space-y-3">
@@ -688,6 +842,59 @@ export function TransformerItem({
             </div>
           </details>
         )}
+
+      {/* Variance toggle switch - shown for non-variance transformers, outside collapsible */}
+      {isInPipeline && hasVarianceToggle && (
+        <div
+          className={`px-4 py-2 bg-gray-50 border border-gray-200 ${
+            transformer.availableDimensions.length > 0 ||
+            transformer.visualParameters.length > 0
+              ? 'border-t-0 rounded-b mt-0'
+              : 'rounded mt-2'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-gray-700">
+              Add variance after
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isVarianceFollowing}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleVariance?.();
+              }}
+              disabled={isVisualizing}
+              style={{
+                position: 'relative',
+                display: 'inline-flex',
+                height: '20px',
+                width: '36px',
+                alignItems: 'center',
+                borderRadius: '9999px',
+                backgroundColor: isVarianceFollowing ? '#2563eb' : '#d1d5db',
+                transition: 'background-color 200ms',
+                cursor: isVisualizing ? 'not-allowed' : 'pointer',
+                opacity: isVisualizing ? 0.5 : 1,
+              }}
+            >
+              <span
+                style={{
+                  position: 'absolute',
+                  left: isVarianceFollowing ? '20px' : '4px',
+                  height: '12px',
+                  width: '12px',
+                  borderRadius: '9999px',
+                  backgroundColor: 'white',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                  transition: 'left 200ms',
+                }}
+              />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

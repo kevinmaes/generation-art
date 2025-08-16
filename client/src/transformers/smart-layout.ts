@@ -85,6 +85,7 @@ export const smartLayoutTransformerConfig: VisualTransformerConfig = {
       { name: 'spacing', defaultValue: 'normal' },
       { name: 'temperature', defaultValue: 0.5 },
     ]),
+  multiInstance: false,
 };
 
 // Layout-specific response schema

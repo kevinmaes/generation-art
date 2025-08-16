@@ -21,24 +21,16 @@ import { createTransformerInstance } from './utils';
 export const nodeScaleConfig: VisualTransformerConfig = {
   id: 'node-scale',
   name: 'Node Scale',
-  description:
-    'Applies independent width and height transformations that create compelling oval and rectangular forms reflecting individual significance.',
-  shortDescription: 'Scales node dimensions for oval or rectangular shapes',
+  description: 'Scales nodes uniformly based on a factor from a dimension.',
+  shortDescription: 'Scale by dimension',
   transform: nodeScaleTransform,
-  categories: ['visual', 'scale'],
-  availableDimensions: [
-    'lifespan',
-    'childrenCount',
-    'generation',
-    'marriageCount',
-    'birthYear',
-    'nameLength',
-  ],
-  defaultPrimaryDimension: 'lifespan',
-  defaultSecondaryDimension: 'childrenCount',
+  categories: ['visual'],
+  availableDimensions: ['generation', 'lifespan'],
+  defaultPrimaryDimension: 'generation',
   visualParameters: [],
   createTransformerInstance: (params) =>
-    createTransformerInstance(params, nodeScaleTransform),
+    createTransformerInstance(params, nodeScaleTransform, []),
+  multiInstance: false,
 };
 
 /**

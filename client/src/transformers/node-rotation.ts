@@ -21,24 +21,16 @@ import { createTransformerInstance } from './utils';
 export const nodeRotationConfig: VisualTransformerConfig = {
   id: 'node-rotation',
   name: 'Node Rotation',
-  description:
-    'Applies precise angular calculations that reflect temporal and genealogical relationships, adding dynamic visual interest to family trees.',
-  shortDescription: 'Rotates nodes based on birth year or lifespan',
+  description: 'Rotates nodes based on a selected dimension.',
+  shortDescription: 'Rotation by dimension',
   transform: nodeRotationTransform,
-  categories: ['visual', 'rotation'],
-  availableDimensions: [
-    'birthYear',
-    'generation',
-    'lifespan',
-    'childrenCount',
-    'marriageCount',
-    'nameLength',
-  ],
-  defaultPrimaryDimension: 'birthYear',
-  defaultSecondaryDimension: 'generation',
+  categories: ['visual'],
+  availableDimensions: ['generation', 'lifespan'],
+  defaultPrimaryDimension: 'generation',
   visualParameters: [],
   createTransformerInstance: (params) =>
-    createTransformerInstance(params, nodeRotationTransform),
+    createTransformerInstance(params, nodeRotationTransform, []),
+  multiInstance: false,
 };
 
 /**

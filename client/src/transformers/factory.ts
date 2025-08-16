@@ -59,6 +59,7 @@ export function createTransformer(
     createTransformerInstance,
     categories: options?.categories,
     requiresLLM: options?.requiresLLM ?? false,
+    multiInstance: false,
   };
 }
 
