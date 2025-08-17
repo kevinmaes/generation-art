@@ -294,15 +294,23 @@ export async function nodeShapeTransform(
       );
     }
 
-    // Map calculated shape choice to a geometry profile (v0: circle or blob)
+    // Map calculated shape choice to a geometry profile (v0: circle or supershape)
     const nodeSize =
       (currentMetadata.size ?? 20) * (currentMetadata.width ?? 1.0);
     const nodeHeight =
       (currentMetadata.size ?? 20) * (currentMetadata.height ?? 1.0);
 
     const isCircle = calculatedShape === 'circle';
+    // Rough presets: triangle (m=3), square-ish (m=4, n1 small), hexagon (m=6), star (m=5 with sharper n values)
+    const supershapeParams: Record<string, Record<string, number>> = {
+      triangle: { m: 3, n1: 0.2, n2: 1.7, n3: 1.7, a: 1, b: 1 },
+      square: { m: 4, n1: 0.2, n2: 1.0, n3: 1.0, a: 1, b: 1 },
+      hexagon: { m: 6, n1: 0.2, n2: 1.7, n3: 1.7, a: 1, b: 1 },
+      star: { m: 5, n1: 0.1, n2: 0.6, n3: 0.6, a: 1, b: 1 },
+    };
+
     const baseProfile: ShapeProfile = {
-      kind: isCircle ? 'circle' : 'blob',
+      kind: isCircle ? 'circle' : 'supershape',
       size: { width: nodeSize, height: nodeHeight },
       seed: hashStringToInt(
         `${String(context.seed ?? 'default')}::${individual.id}`,
@@ -310,12 +318,14 @@ export async function nodeShapeTransform(
       detail: { maxVertices: 192 },
       params: isCircle
         ? undefined
-        : {
-            noiseAmp: 0.18,
-            noiseFreq: 2.0,
-            octaves: 3,
-            smooth: 0.5,
-          },
+        : (supershapeParams[calculatedShape] ?? {
+            m: 4,
+            n1: 0.2,
+            n2: 1.7,
+            n3: 1.7,
+            a: 1,
+            b: 1,
+          }),
     };
 
     // Preserve existing visual metadata and update shape

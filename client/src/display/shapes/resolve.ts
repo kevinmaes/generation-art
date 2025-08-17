@@ -2,6 +2,7 @@ import type { ShapeGeometry, ShapeProfile } from '../../../../shared/types';
 import { registerShapeGenerator, ensureShapeGenerator } from './registry';
 import { circleGenerator } from './circle';
 import { blobGenerator } from './blob';
+import { supershapeGenerator } from './supershape';
 
 /**
  * Built-in registrations. Additional generators can be registered elsewhere
@@ -10,6 +11,7 @@ import { blobGenerator } from './blob';
 // Register built-in generators
 registerShapeGenerator('circle', circleGenerator);
 registerShapeGenerator('blob', blobGenerator);
+registerShapeGenerator('supershape', supershapeGenerator);
 
 /**
  * Cache of resolved geometries keyed by a serialized profile.
