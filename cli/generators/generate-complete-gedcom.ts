@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Configuration
-const MAX_GENERATIONS = 6; // Reduced for practical processing and visual debugging
+const MAX_GENERATIONS = 8; // 8 generations = 255 individuals for complete testing
 const OUTPUT_FILE = path.join(
   process.cwd(),
   'examples/01-fan-chart-complete/01-fan-chart-complete.ged'
