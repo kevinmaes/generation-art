@@ -20,6 +20,7 @@ import { edgeCurveConfig } from './edge-curve';
 import { varianceConfig } from './variance';
 import { simpleTreeConfig } from './simple-tree';
 import { walkerTreeConfig } from './walker-tree';
+import { fanChartConfig } from './fan-chart';
 
 // Transformer constants for type safety
 export const TRANSFORMERS = {
@@ -75,6 +76,10 @@ export const TRANSFORMERS = {
     ID: 'walker-tree',
     NAME: 'Walker Tree Layout',
   },
+  FAN_CHART: {
+    ID: 'fan-chart',
+    NAME: 'Fan Chart Layout',
+  },
 } as const;
 
 export type TransformerId =
@@ -104,6 +109,7 @@ export const transformerConfigs: Record<
   variance: varianceConfig,
   'simple-tree': simpleTreeConfig,
   'walker-tree': walkerTreeConfig,
+  'fan-chart': fanChartConfig,
 };
 
 /**

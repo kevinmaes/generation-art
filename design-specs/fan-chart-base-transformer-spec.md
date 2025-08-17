@@ -42,10 +42,12 @@ Fan chart as **pure positioning system** - outputs x,y coordinates, not visual s
 ### Essential Controls
 
 **Generation Display:**
+
 - `maxGenerations`: 1-12 (default: 6)
 - `centerPersonId`: Individual at center
 
 **Spacing:**
+
 ```typescript
 generationSpacing: {
   mode: 'auto-fit' | 'manual',
@@ -59,6 +61,7 @@ generationSpacing: {
 ```
 
 **Angular Coverage:**
+
 ```typescript
 spread: {
   degrees: 180,     // 360=full, 180=semi, 90=quarter
@@ -67,6 +70,7 @@ spread: {
 ```
 
 **Creative Distortion:**
+
 ```typescript
 distortion: {
   spiral: 0,          // Twist per generation (0-30°)
@@ -78,6 +82,7 @@ distortion: {
 ### Auto-Fit Logic
 
 When `mode: 'auto-fit'`:
+
 - Calculate available radius: `min(width, height) / 2 - padding`
 - **Uniform**: `spacing = radius / generations`
 - **Compressed**: `initial = radius / Σ(factor^i)`
@@ -85,7 +90,7 @@ When `mode: 'auto-fit'`:
 
 ### Presets
 
-```typescript
+````typescript
 spacingPresets: {
   'comfortable': { initial: 150, factor: 1.0 },
   'compact': { initial: 100, factor: 0.85 },
@@ -127,17 +132,17 @@ spacingPresets: {
       // Core position
       x: 512,
       y: 300,
-      
+
       // Metadata for downstream transformers
       generation: 2,
       angle: 1.67,              // Radians from center
       distance: 175,            // Pixels from center
       angleNormalized: 0.25,    // 0-1 within generation
-      
+
       // Lineage info
       lineage: 'maternal' | 'paternal' | 'mixed',
       completeness: 0.75,       // % ancestors known at this level
-      
+
       // Optional bounds (for collision detection)
       bounds: {
         innerRadius: 150,
@@ -147,7 +152,7 @@ spacingPresets: {
       }
     }
   },
-  
+
   metadata: {
     centerPerson: "I1",
     totalGenerations: 6,
@@ -155,7 +160,7 @@ spacingPresets: {
     parameters: { /* echo of inputs */ }
   }
 }
-```
+````
 
 **Note:** No shapes, wedges, or visual elements - just positions and metadata
 
@@ -165,7 +170,7 @@ spacingPresets: {
 interface FanChartParams {
   centerPersonId: string;
   maxGenerations: number;
-  
+
   generationSpacing: {
     mode: 'auto-fit' | 'manual';
     padding?: number;
@@ -173,14 +178,14 @@ interface FanChartParams {
     initial?: number;
     factor?: number;
   };
-  
+
   spread: {
-    degrees: number;      // 360, 180, 90, etc
-    rotation: number;     // Start angle
+    degrees: number; // 360, 180, 90, etc
+    rotation: number; // Start angle
   };
-  
+
   distortion?: {
-    spiral?: number;      // Twist per generation
+    spiral?: number; // Twist per generation
     maternalBias?: number;
     paternalBias?: number;
   };
@@ -217,11 +222,13 @@ interface FanChartOutput {
 ## Pipeline Integration
 
 **As Base Layout:**
+
 ```
 GEDCOM → Fan Chart → Positions → Visual Transformers → Renderer
 ```
 
 **Example Downstream Transformers:**
+
 - Circle size by lifespan
 - Color by generation/lineage
 - Particle effects from positions

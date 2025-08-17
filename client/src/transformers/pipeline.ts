@@ -51,11 +51,7 @@ import { getTransformerParameterKey } from '../utils/pipeline-index';
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [
-    TRANSFORMERS.WALKER_TREE.ID,
-    // TRANSFORMERS.HORIZONTAL_SPREAD.ID,
-    // TRANSFORMERS.VERTICAL_SPREAD.ID,
-  ],
+  TRANSFORMER_IDS: [TRANSFORMERS.FAN_CHART.ID],
 };
 
 /**
