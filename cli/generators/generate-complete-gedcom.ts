@@ -7,6 +7,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { PerformanceTimer } from '../utils/performance-timer';
 
 // Configuration
 const MAX_GENERATIONS = 8; // 8 generations = 255 individuals for complete testing
@@ -126,32 +127,41 @@ function generateFamily(familyId: number, husbandId: number, wifeId: number, chi
 // Main generation function
 function generateCompleteGedcom(): void {
   console.log(`Generating complete GEDCOM with ${String(MAX_GENERATIONS)} generations...`);
+  const timer = new PerformanceTimer();
+  timer.start('Total Generation');
   
+  timer.start('Header Generation');
   let gedcom = generateHeader();
+  timer.endAndLog('Header Generation');
   
   // Calculate total individuals: 2^n - 1 for n generations
   const totalIndividuals = Math.pow(2, MAX_GENERATIONS) - 1;
-  console.log(`Total individuals to generate: ${String(totalIndividuals)}`);
+  console.log(`Total individuals to generate: ${String(totalIndividuals)}`);  console.log(`Total families to generate: ${String(totalIndividuals - 1)}`);
+  console.log('─'.repeat(50));
   
   // Generate individuals by generation
+  timer.start('Individuals Generation');
   let individualId = 1;
   
   for (let generation = 0; generation < MAX_GENERATIONS; generation++) {
     const individualsInGeneration = Math.pow(2, generation);
-    console.log(`Generating generation ${String(generation)}: ${String(individualsInGeneration)} individuals`);
+    timer.start(`Generation ${generation}`);
     
     for (let position = 0; position < individualsInGeneration; position++) {
       gedcom += '\n' + generateIndividual(individualId, generation, position);
       individualId++;
     }
+    
+    timer.endAndLog(`Generation ${generation}`, '    ');
   }
+  timer.endAndLog('Individuals Generation');
   
   // Generate families (all except the last generation)
-  console.log('\nGenerating family records...');
+  timer.start('Families Generation');
   let familyId = 1;
   
   for (let childId = 1; childId <= totalIndividuals; childId++) {
-    const generation = Math.floor(Math.log2(childId + 1));
+    const generation = Math.floor(Math.log2(childId));
     
     if (generation < MAX_GENERATIONS - 1) {
       // This individual has parents
@@ -163,11 +173,13 @@ function generateCompleteGedcom(): void {
       familyId++;
     }
   }
+  timer.endAndLog('Families Generation');
   
   // Add trailer
   gedcom += '\n0 TRLR\n';
   
   // Ensure directory exists
+  timer.start('File Writing');
   const dir = path.dirname(OUTPUT_FILE);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -175,10 +187,19 @@ function generateCompleteGedcom(): void {
   
   // Write file
   fs.writeFileSync(OUTPUT_FILE, gedcom);
-  console.log(`\n✅ Generated ${OUTPUT_FILE}`);
+  timer.endAndLog('File Writing');
+  
+  timer.endAndLog('Total Generation');
+  
+  // Log summary
+  console.log('\n✅ Generated ' + OUTPUT_FILE);
   console.log(`   - Generations: ${String(MAX_GENERATIONS)}`);
   console.log(`   - Individuals: ${String(totalIndividuals)}`);
   console.log(`   - Families: ${String(familyId - 1)}`);
+  console.log(`   - File size: ${(gedcom.length / 1024).toFixed(1)}KB`);
+  
+  // Performance summary
+  timer.logSummary('Generation Performance');
 }
 
 // Run the generator
