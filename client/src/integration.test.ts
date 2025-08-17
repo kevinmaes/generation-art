@@ -22,7 +22,7 @@ describe('Integration: Constants + Helpers', () => {
       CANVAS_DIMENSIONS.PRINT.WIDTH / CANVAS_DIMENSIONS.PRINT.HEIGHT;
 
     expect(webRatio).toBe(printRatio);
-    expect(webRatio).toBe(1.25);
+    expect(webRatio).toBe(1.0); // Square aspect ratio for radial designs
   });
 
   it('should calculate correct scale factor', () => {
