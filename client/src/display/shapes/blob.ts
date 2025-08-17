@@ -17,7 +17,10 @@ export const blobGenerator: ShapeGenerator = (profile) => {
   const params = profile.params ?? {};
   const amp = Math.max(0, Math.min(1, Number(params['noiseAmp'] ?? 0.15)));
   const freq = Number(params['noiseFreq'] ?? 2.0);
-  const octaves = Math.max(1, Math.min(6, Math.floor(Number(params['octaves'] ?? 3))));
+  const octaves = Math.max(
+    1,
+    Math.min(6, Math.floor(Number(params['octaves'] ?? 3))),
+  );
   const smooth = Math.max(0, Math.min(1, Number(params['smooth'] ?? 0.5)));
 
   const baseSeed = (profile.seed ?? 1) >>> 0;
