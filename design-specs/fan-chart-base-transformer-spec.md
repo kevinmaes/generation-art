@@ -33,203 +33,200 @@ Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM d
 - **Segment**: Wedge for one ancestor
 - **Ring**: Band containing all segments of a generation
 
-## Inputs
+## Core Concept
 
-**Required:**
+Fan chart as **pure positioning system** - outputs x,y coordinates, not visual shapes. Downstream transformers handle visual representation.
 
-- GEDCOM graph with parent lookups
-- `centerPersonId`
+## Parameters
 
-**Config (defaults):**
+### Essential Controls
 
-- `maxGenerations` (6)
-- `mode`: full/semi/quadrant (semi)
-- `startAngleDeg` (90, up)
-- `labelDensity`: none/low/medium/high (medium)
-- `showUnknownPlaceholders` (true)
-- `highlightDuplicates` (true)
-- `radialPaddingPx` (8)
-- `angularPaddingDeg` (1)
-- `outerRadiusPx` (auto-fit)
-- `centerRadiusPx` (48)
+**Generation Display:**
+- `maxGenerations`: 1-12 (default: 6)
+- `centerPersonId`: Individual at center
 
-## Coordinates
+**Spacing:**
+```typescript
+generationSpacing: {
+  mode: 'auto-fit' | 'manual',
+  // Auto-fit options:
+  padding: 50,  // Canvas edge buffer
+  distribution: 'uniform' | 'compressed' | 'logarithmic',
+  // Manual options:
+  initial: 120,  // First ring distance
+  factor: 0.9,   // Scaling per generation
+}
+```
 
-- Polar → Cartesian conversion
-- Clockwise angles from `startAngleDeg`
-- Sweep: full=360°, semi=180°, quadrant=90°
-- Ego at center, Gen 1 starts at `centerRadiusPx`
+**Angular Coverage:**
+```typescript
+spread: {
+  degrees: 180,     // 360=full, 180=semi, 90=quarter
+  rotation: -90,    // Start angle (-90=top)
+}
+```
 
-## Ring Sizing
+**Creative Distortion:**
+```typescript
+distortion: {
+  spiral: 0,          // Twist per generation (0-30°)
+  maternalBias: 1.0,  // Scale maternal side (0.5-1.5)
+  paternalBias: 1.0,  // Scale paternal side (0.5-1.5)
+}
+```
 
-- Base: `R0 = centerRadiusPx`
-- Ring thickness: `baseRingPx` (48) + optional growth
-- Total: `R0 + Σ(ringThickness) + padding`
-- Auto-solve `baseRingPx` if `outerRadiusPx` specified
+### Auto-Fit Logic
 
-## Angular Allocation
+When `mode: 'auto-fit'`:
+- Calculate available radius: `min(width, height) / 2 - padding`
+- **Uniform**: `spacing = radius / generations`
+- **Compressed**: `initial = radius / Σ(factor^i)`
+- **Logarithmic**: `spacing(i) = radius * log(i+1) / log(n+1)`
 
-- Generation `g` has `2^g` theoretical slots
-- Slot angle: `(sweep - gaps) / 2^g`
-- Fill slots with ancestors or placeholders
-- Apply `angularPaddingDeg` gaps
+### Presets
 
-## Pedigree Collapse
+```typescript
+spacingPresets: {
+  'comfortable': { initial: 150, factor: 1.0 },
+  'compact': { initial: 100, factor: 0.85 },
+  'dramatic': { initial: 200, factor: 0.7 },
+  'auto': 'calculate from canvas'
+}
 
-- Same person in multiple slots
-- If `highlightDuplicates`:
-  - Mark with `duplicateOf` and `duplicateGroupId`
-- Future: merge adjacent duplicates visually
+## Positioning Algorithm
 
-## Missing Parents
+### Coordinate Calculation
+- Center person at canvas center (or specified point)
+- Each generation at calculated distance from center
+- Angular position based on binary tree position
+- Polar → Cartesian: `x = cx + r * cos(θ)`, `y = cy + r * sin(θ)`
 
-- Unknown → placeholder segment (`isPlaceholder = true`)
-- Labels: none/low → empty, medium/high → "Unknown"
+### Generation Distances
+- **Auto-fit**: Calculate from canvas size and generation count
+- **Manual**: Use specified initial + scaling factor
+- **Presets**: Comfortable, Compact, Dramatic
 
-## Labels
+### Angular Distribution
+- Generation 1: 2 positions (left/right or custom)
+- Generation 2: 4 positions (grandparents)
+- Generation n: 2^n positions
+- Apply spread constraints (180°, 360°, etc)
+- Add spiral twist if specified
 
-**Position:** Mid-angle, mid-radius
+### Missing Ancestors
+- Calculate position anyway (maintain structure)
+- Mark with `isPlaceholder: true`
+- Downstream transformers decide visibility
 
-**Density levels:**
+## Output (Positioning Only)
 
-- high: Name + years
-- medium: Name only
-- low: Surname/initials
-- none: hidden
-
-**Auto-degrade if segment too narrow**
-
-## Geometry
-
-- Polar: start/end angles, inner/outer radii
-- Optional: pre-computed SVG path
-- Renderers can use either format
-
-## Output JSON
-
-```json
+```typescript
 {
-  "kind": "fanChartLayout",
-  "version": 1,
-  "metadata": {
-    "centerPersonId": "P123",
-    "generatedAt": "2025-01-01T00:00:00Z",
-    "config": {
-      /* echo of inputs */
-    },
-    "canvas": { "width": 2048, "height": 2048, "cx": 1024, "cy": 1024 }
-  },
-  "rings": [
-    { "generation": 0, "innerRadiusPx": 0, "outerRadiusPx": 48 },
-    { "generation": 1, "innerRadiusPx": 56, "outerRadiusPx": 104 }
-  ],
-  "segments": [
-    {
-      "segmentId": "seg-g2-17",
-      "personId": "P789",
-      "generation": 2,
-      "startAngleRad": 1.57,
-      "endAngleRad": 1.77,
-      "innerRadiusPx": 112,
-      "outerRadiusPx": 160,
-      "isPlaceholder": false,
-      "duplicateOf": null,
-      "duplicateGroupId": null,
-      "label": {
-        "text": "Jane Doe (1901–1975)",
-        "anchorAngleRad": 1.67,
-        "radiusPx": 136,
-        "wrapWidthPx": 120,
-        "density": "medium"
-      },
-      "style": {
-        "tokens": ["generation-2", "female", "maternal-lineage"]
-      },
-      "path": "M ... Z"
+  individuals: {
+    "I1": {
+      // Core position
+      x: 512,
+      y: 300,
+      
+      // Metadata for downstream transformers
+      generation: 2,
+      angle: 1.67,              // Radians from center
+      distance: 175,            // Pixels from center
+      angleNormalized: 0.25,    // 0-1 within generation
+      
+      // Lineage info
+      lineage: 'maternal' | 'paternal' | 'mixed',
+      completeness: 0.75,       // % ancestors known at this level
+      
+      // Optional bounds (for collision detection)
+      bounds: {
+        innerRadius: 150,
+        outerRadius: 200,
+        startAngle: 1.57,
+        endAngle: 1.77
+      }
     }
-  ],
-  "indexes": {
-    "byPersonId": { "P789": ["seg-g2-17", "seg-g3-35"] },
-    "byGeneration": { "2": ["seg-g2-0", "seg-g2-1"], "3": ["seg-g3-0"] }
+  },
+  
+  metadata: {
+    centerPerson: "I1",
+    totalGenerations: 6,
+    canvasCenter: { x: 512, y: 512 },
+    parameters: { /* echo of inputs */ }
   }
 }
 ```
 
+**Note:** No shapes, wedges, or visual elements - just positions and metadata
+
 ## TypeScript Types
 
 ```ts
-export type FanChartMode = 'full' | 'semi' | 'quadrant';
-export type LabelDensity = 'none' | 'low' | 'medium' | 'high';
-
-export interface FanChartConfig {
+interface FanChartParams {
   centerPersonId: string;
   maxGenerations: number;
-  mode: FanChartMode;
-  startAngleDeg: number;
-  labelDensity: LabelDensity;
-  showUnknownPlaceholders: boolean;
-  highlightDuplicates: boolean;
-  radialPaddingPx: number;
-  angularPaddingDeg: number;
-  outerRadiusPx?: number;
-  centerRadiusPx: number;
-}
-
-export interface FanChartRing {
-  generation: number;
-  innerRadiusPx: number;
-  outerRadiusPx: number;
-}
-
-export interface FanChartLabelSpec {
-  text: string;
-  anchorAngleRad: number;
-  radiusPx: number;
-  wrapWidthPx: number;
-  density: LabelDensity;
-}
-
-export interface FanChartSegment {
-  segmentId: string;
-  personId: string | null;
-  generation: number;
-  startAngleRad: number;
-  endAngleRad: number;
-  innerRadiusPx: number;
-  outerRadiusPx: number;
-  isPlaceholder: boolean;
-  duplicateOf: string | null;
-  duplicateGroupId: string | null;
-  label: FanChartLabelSpec | null;
-  style: { tokens: string[] };
-  path?: string;
-}
-
-export interface FanChartLayout {
-  kind: 'fanChartLayout';
-  version: 1;
-  metadata: {
-    centerPersonId: string;
-    generatedAt: string;
-    config: FanChartConfig;
-    canvas: { width: number; height: number; cx: number; cy: number };
+  
+  generationSpacing: {
+    mode: 'auto-fit' | 'manual';
+    padding?: number;
+    distribution?: 'uniform' | 'compressed' | 'logarithmic';
+    initial?: number;
+    factor?: number;
   };
-  rings: FanChartRing[];
-  segments: FanChartSegment[];
-  indexes: {
-    byPersonId: Record<string, string[]>;
-    byGeneration: Record<string, string[]>;
+  
+  spread: {
+    degrees: number;      // 360, 180, 90, etc
+    rotation: number;     // Start angle
+  };
+  
+  distortion?: {
+    spiral?: number;      // Twist per generation
+    maternalBias?: number;
+    paternalBias?: number;
+  };
+}
+
+interface FanChartPosition {
+  x: number;
+  y: number;
+  generation: number;
+  angle: number;
+  distance: number;
+  angleNormalized: number;
+  lineage: 'ego' | 'maternal' | 'paternal' | 'mixed';
+  completeness: number;
+  bounds?: {
+    innerRadius: number;
+    outerRadius: number;
+    startAngle: number;
+    endAngle: number;
+  };
+}
+
+interface FanChartOutput {
+  individuals: Record<string, FanChartPosition>;
+  metadata: {
+    centerPerson: string;
+    totalGenerations: number;
+    canvasCenter: { x: number; y: number };
+    parameters: FanChartParams;
   };
 }
 ```
 
 ## Pipeline Integration
 
-- First transformer when "Fan Chart" selected
-- Input: GEDCOM + config
-- Output: `FanChartLayout` JSON
-- Downstream: theming, rendering, export
-- Walker Tree remains available via toggle
+**As Base Layout:**
+```
+GEDCOM → Fan Chart → Positions → Visual Transformers → Renderer
+```
+
+**Example Downstream Transformers:**
+- Circle size by lifespan
+- Color by generation/lineage
+- Particle effects from positions
+- Force physics using positions as anchors
+- Traditional wedges (optional visualizer)
 
 ## UI/UX
 
