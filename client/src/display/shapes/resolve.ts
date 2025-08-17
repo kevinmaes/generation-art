@@ -6,6 +6,8 @@ import { supershapeGenerator } from './supershape';
 import { teardropGenerator } from './teardrop';
 import { capsuleGenerator } from './capsule';
 import { squircleGenerator } from './squircle';
+import { polygonGenerator } from './polygon';
+import { starburstGenerator } from './starburst';
 
 /**
  * Built-in registrations. Additional generators can be registered elsewhere
@@ -18,6 +20,8 @@ registerShapeGenerator('supershape', supershapeGenerator);
 registerShapeGenerator('teardrop', teardropGenerator);
 registerShapeGenerator('capsule', capsuleGenerator);
 registerShapeGenerator('squircle', squircleGenerator);
+registerShapeGenerator('polygon', polygonGenerator);
+registerShapeGenerator('starburst', starburstGenerator);
 
 /**
  * Cache of resolved geometries keyed by a serialized profile.
