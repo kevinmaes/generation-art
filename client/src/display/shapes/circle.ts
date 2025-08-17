@@ -1,5 +1,12 @@
 import type { ShapeGenerator } from '../../../../shared/types';
 
+/**
+ * Circle/Ellipse generator
+ *
+ * - Deterministic: output depends only on `profile.size` and `detail`.
+ * - Respects `detail.maxVertices` to control outline resolution.
+ * - Returns a centered polygon suitable for direct drawing (local coords).
+ */
 export const circleGenerator: ShapeGenerator = (profile) => {
   const { width, height } = profile.size;
   const rx = width / 2;

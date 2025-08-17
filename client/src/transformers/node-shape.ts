@@ -3,6 +3,14 @@
  *
  * This transformer controls the shape of nodes based on metadata like
  * generation, gender, marriage status, or number of children.
+ *
+ * Determinism & reproducibility:
+ * - Uses `context.seed` combined with `individual.id` to derive a stable numeric seed.
+ * - Emits a `shapeProfile` so the renderer can generate geometry deterministically.
+ *
+ * Why `shapeProfile`:
+ * - More flexible than legacy shape strings; supports complex, organic silhouettes.
+ * - Cacheable by profile; same inputs produce the same geometry for performance.
  */
 
 import type {
