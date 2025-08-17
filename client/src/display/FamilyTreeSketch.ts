@@ -292,7 +292,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
           // Shape geometry: prefer shapeProfile if present
           const shapeProfile: ShapeProfile | undefined =
-            individualMetadata?.shapeProfile as unknown as ShapeProfile | undefined;
+            individualMetadata?.shapeProfile as unknown as
+              | ShapeProfile
+              | undefined;
           const opacity = individualMetadata?.opacity ?? 0.8;
           const strokeColor = individualMetadata?.strokeColor;
           const strokeWeight = individualMetadata?.strokeWeight ?? 0;
@@ -343,15 +345,15 @@ function createSketch(props: SketchProps): (p: p5) => void {
                 !shapeProfile.size ||
                 (shapeProfile.size.width ?? 0) <= 0 ||
                 (shapeProfile.size.height ?? 0) <= 0;
-                             const profile: ShapeProfile = {
-                 kind: shapeProfile.kind ?? 'circle',
-                 size: needsSize
-                   ? { width: finalWidth, height: finalHeight }
-                   : shapeProfile.size,
-                 seed: shapeProfile.seed,
-                 params: shapeProfile.params,
-                 detail: shapeProfile.detail ?? { maxVertices: 128 },
-               };
+              const profile: ShapeProfile = {
+                kind: shapeProfile.kind ?? 'circle',
+                size: needsSize
+                  ? { width: finalWidth, height: finalHeight }
+                  : shapeProfile.size,
+                seed: shapeProfile.seed,
+                params: shapeProfile.params,
+                detail: shapeProfile.detail ?? { maxVertices: 128 },
+              };
               const geometry = resolveShapeGeometry(profile);
               p.beginShape();
               const poly = geometry.polygon as unknown as number[];
@@ -359,7 +361,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
                 p.vertex(poly[i], poly[i + 1]);
               }
               p.endShape(p.CLOSE);
-                        } catch {
+            } catch {
               // Fallback to circle if geometry fails
               p.ellipse(0, 0, finalWidth, finalHeight);
             }
