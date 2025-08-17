@@ -254,54 +254,112 @@ GEDCOM → Fan Chart → Positions → Visual Transformers → Renderer
 
 ## Performance
 
-### Phase 1: Current Approach
+### Current Implementation Issues
 
-- Leverage existing `getAncestors(individualId, maxLevels)` traversal utility for initial implementation
-- Compute maternal/paternal lineage flags on-the-fly using gender information
-- Calculate angular positions during transformation
-- Use existing graph adjacency maps for O(1) parent lookups
+- **Repeated traversal**: Each center person change traverses entire lineage from scratch
+- **O(n) family lookups**: Fallback code iterates ALL families to find relationships
+- **Complex gender detection**: Runtime logic for M/F/Male/Female variations
+- **No caching**: Ancestor/descendant chains recalculated every render
 
-### Phase 2: Future Optimizations
+### Phase 1: CLI Pre-computation (High Priority)
 
-Pre-compute in augmentation phase:
+Move relationship metadata to CLI for ALL transformers that need it:
 
 ```typescript
-ancestorMetadata: {
-  // Direct path from root to this ancestor
-  pathFromRoot: string[],  // ['root_id', 'parent_id', 'grandparent_id']
+// CLI provides enhanced individuals with direct relationships
+enhancedIndividuals: {
+  'I1': {
+    ...existingData,
+    
+    // Direct relationship arrays (no family lookups needed)
+    parents: ['I2', 'I3'],      // Direct parent IDs
+    children: ['I4', 'I5'],     // Direct child IDs
+    spouses: ['I6'],            // Direct spouse IDs
+    
+    // Normalized fields
+    gender: 'M' | 'F' | 'U',    // Standardized across GEDCOM formats
+    
+    // Generation metadata
+    generation: 7,               // Absolute generation number
+    ancestorCount: {            // Known ancestors per generation
+      1: 2,  // parents
+      2: 4,  // grandparents
+      3: 6   // 6 of 8 great-grandparents known
+    },
+    descendantCount: {          // Known descendants per generation
+      1: 3,  // children
+      2: 8,  // grandchildren
+      3: 15  // great-grandchildren
+    },
+    
+    // Lineage paths (for ancestor mode)
+    lineageType: 'paternal' | 'maternal' | 'mixed',
+    maternalLine: ['I1', 'I3', 'I7', 'I15'],  // Direct maternal ancestors
+    paternalLine: ['I1', 'I2', 'I6', 'I14'],  // Direct paternal ancestors
+  }
+}
 
-  // Lineage classification for color coding
-  lineType: 'paternal' | 'maternal' | 'mixed',
-
-  // Completeness at this generation level (e.g., 0.75 = 3 of 4 grandparents known)
-  generationCompleteness: number,
-
-  // Pre-computed angular hints (optional)
-  suggestedAngularPosition?: number,  // Normalized 0-1 within generation
+// Optional: Generation-relative distance matrix for instant lookups
+generationMatrix: {
+  'I1->I2': -1,   // I2 is 1 generation above I1
+  'I1->I4': 1,    // I4 is 1 generation below I1
+  'I1->I10': -3   // I10 is 3 generations above I1
 }
 ```
 
 **Benefits:**
+- Eliminates ALL family iteration at runtime
+- O(1) parent/child lookups via direct arrays
+- No gender detection logic needed
+- Works for any center person without recalculation
+- Enables instant lineage filtering
 
-- Eliminate redundant ancestor path traversals
-- Enable instant maternal/paternal line filtering
-- Support efficient duplicate ancestor detection
-- Allow for pre-optimized angular distribution
+### Phase 2: Smart Positioning Strategy
 
-### Strategy
+Instead of recalculating all positions when center changes:
 
-- **Phase 1**: Use existing utilities (`getAncestors`, `getParents`) to build functional fan chart
-- **Phase 2**: Profile performance with large trees (8+ generations)
-- **Phase 3**: If needed, implement ancestor metadata pre-computation in CLI augmentation phase
-- **Phase 4**: Cache computed layouts for instant re-rendering with different styles
+1. **Transformation matrices**: Apply rotation/translation to existing positions
+2. **Incremental updates**: Only calculate new individuals entering view
+3. **Position caching**: Store last layout, reuse for parameter tweaks
+4. **Viewport culling**: Only position individuals within max generations
 
-### Additional
+### Phase 3: Graph Tool Integration
 
-- Precompute parent chains and memoize person lookups
-- Use typed arrays for geometry if needed
-- Clamp label rendering when segment angle below threshold
-- For high depths, optionally skip `path` precomputation and let renderer derive
-- Implement virtual rendering for segments outside viewport (for zoomable implementations)
+Leverage existing graph utilities more effectively:
+
+```typescript
+// Use graph's efficient path-finding
+const ancestors = graph.traversalUtils.getAncestorsToDepth(centerPerson, maxGen);
+const descendants = graph.traversalUtils.getDescendantsToDepth(centerPerson, maxGen);
+
+// Use breadth-first search with early termination
+const relatives = graph.bfs(centerPerson, {
+  maxDepth: maxGenerations,
+  direction: viewMode === 'ancestors' ? 'up' : 'down'
+});
+```
+
+### Phase 4: Advanced Optimizations
+
+- **Web Workers**: Offload position calculations for large trees
+- **Typed arrays**: Use Float32Array for positions (better memory/cache)
+- **Virtual rendering**: Only render visible segments in viewport
+- **Progressive loading**: Start with 3-4 generations, expand on demand
+- **Layout diffing**: Calculate minimal position updates between states
+
+### Implementation Priority
+
+1. **Immediate (CLI)**: Add direct relationship arrays and normalized gender
+2. **Next (Client)**: Switch to direct arrays, remove family iteration
+3. **Later**: Add caching and transformation matrices
+4. **Future**: Web Workers and virtual rendering for massive trees
+
+### Performance Targets
+
+- Center person change: <50ms for 8 generations
+- Parameter adjustment: <16ms (60fps) for visual tweaks
+- Initial render: <100ms for standard 6-generation view
+- Memory usage: <10MB for 10-generation tree (~1024 individuals)
 
 ## Edge Cases
 
