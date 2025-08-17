@@ -3,6 +3,7 @@ import { registerShapeGenerator, ensureShapeGenerator } from './registry';
 import { circleGenerator } from './circle';
 import { blobGenerator } from './blob';
 import { supershapeGenerator } from './supershape';
+import { teardropGenerator } from './teardrop';
 
 /**
  * Built-in registrations. Additional generators can be registered elsewhere
@@ -12,6 +13,7 @@ import { supershapeGenerator } from './supershape';
 registerShapeGenerator('circle', circleGenerator);
 registerShapeGenerator('blob', blobGenerator);
 registerShapeGenerator('supershape', supershapeGenerator);
+registerShapeGenerator('teardrop', teardropGenerator);
 
 /**
  * Cache of resolved geometries keyed by a serialized profile.
