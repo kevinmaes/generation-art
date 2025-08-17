@@ -5,24 +5,28 @@ This document defines how nodes get their visual “shape” using a flexible, g
 ---
 
 ## Goals
+
 - Provide expressive, artful node silhouettes beyond basic primitives.
 - Keep rendering straightforward by normalizing all shapes into geometry.
 - Deterministic uniqueness via seeds; consistent results across zoom via LOD.
 - Be renderer-agnostic (Canvas2D, SVG, WebGL/WebGPU) and data-driven.
 
 ## Non-goals (v0)
+
 - Layered textures, blend modes, masks. These will be specified separately.
 - Complex edge styling. This spec focuses on node shapes only.
 
 ---
 
 ## Core concepts
+
 - Shape Profile: a compact, serializable description of a shape family and its parameters.
 - Shape Generator: a pure function that maps a `ShapeProfile` to a `ShapeGeometry`.
 - Shape Geometry: the ready-to-draw outline and metadata (bounds, optional path) in local coords.
 - Registry: a pluggable lookup from `kind` → shape generator.
 
 Conventions:
+
 - Local coordinates are centered at the origin (0, 0).
 - `size.width` × `size.height` denotes the intended bounding box of the silhouette before rotation.
 - Rotation is applied at render time unless a generator bakes it in intentionally.
@@ -63,10 +67,13 @@ export interface ShapeGeometry {
     // Intersection of a ray AB with the outline; null if no hit
     intersection?: (
       a: { x: number; y: number },
-      b: { x: number; y: number }
+      b: { x: number; y: number },
     ) => { x: number; y: number } | null;
     // Point slightly outside along the normal at angle theta (radians)
-    outwardAtAngle?: (theta: number, distance?: number) => { x: number; y: number };
+    outwardAtAngle?: (
+      theta: number,
+      distance?: number,
+    ) => { x: number; y: number };
   };
 }
 
@@ -79,20 +86,23 @@ export interface ShapeRegistry {
 ```
 
 Notes:
+
 - `detail.maxVertices` caps polygon vertices. `detail.tolerance` (in px at current zoom) guides simplification.
 - `triangles` is optional: generators may output only the outline; the renderer can triangulate and cache on demand.
 
 ---
 
 ## Default behavior
+
 - If no shape is specified for a node, render a circle with diameter = `min(width, height)` and use the node’s size for its bounds.
 - The circle is implemented as a normal shape kind (`'circle'`) so it fits the same pipeline.
 
 Example default resolution:
+
 ```ts
 const defaultShape: ShapeProfile = {
   kind: 'circle',
-  size: { width: node.width, height: node.height }
+  size: { width: node.width, height: node.height },
 };
 ```
 
@@ -103,30 +113,37 @@ const defaultShape: ShapeProfile = {
 Each generator should accept the parameters below (through `profile.params`) and honor `size`, `seed`, and `detail`.
 
 - Blob (organic/amoeba)
+
   - Base: sample an ellipse radially; displace radius by multi-octave noise.
   - Params: `noiseAmp` (0..1), `noiseFreq` (cycles around), `octaves` (1..4), `smooth` (0..1), `anisotropy` (0..1).
 
 - Teardrop / Leaf / Plectrum
+
   - Base: superellipse blended to a tapered pole; or cubic Bézier skeleton.
   - Params: `tipSharpness` (0..1), `asymmetry` (-1..1), `curvatureBias` (0..1), `tipOffset` (px).
 
 - Starburst / Flower
+
   - Base: sinusoidal radial function r(θ) = R × [1 + A × sin(kθ + φ)] with tip rounding.
   - Params: `lobes` (int ≥ 3), `lobeAmp` (0..1), `tipRoundness` (0..1), `irregularity` (0..1), `phase` (rad).
 
 - Supershape (superformula)
+
   - Base: superformula with parameters spanning circles, stars, squarish forms.
   - Params: `m`, `n1`, `n2`, `n3`, `a`, `b` (numbers), optional `phase`.
 
 - Particle Cluster (aggregate silhouette)
+
   - Base: Poisson-disk sample points, compute a concave hull/alpha shape, then smooth (Chaikin or Catmull-Rom).
   - Params: `pointCount`, `radius` (min distance), `alpha` (0..1 concavity), `smoothing` (0..1).
 
 - Capsule
+
   - Base: rounded rectangle with max corner radius (stadium) or segment with circular caps.
   - Params: `cornerRadius` (px) or implicit from `min(width, height)/2`, optional `capBias`.
 
 - Squircle (superellipse)
+
   - Base: |x/a|^p + |y/b|^p = 1.
   - Params: `exponent` p (≥ 2), optionally `cornerBias`.
 
@@ -150,15 +167,21 @@ Each generator should accept the parameters below (through `profile.params`) and
 
 ## Renderer integration (React/Canvas2D example)
 
-1) Resolve geometry from profile
+1. Resolve geometry from profile
+
 ```ts
 const geometry = useMemo(
-  () => resolveShapeGeometry(node.shape ?? { kind: 'circle', size: { width: node.w, height: node.h } }, zoom),
-  [node.shape, node.w, node.h, zoom]
+  () =>
+    resolveShapeGeometry(
+      node.shape ?? { kind: 'circle', size: { width: node.w, height: node.h } },
+      zoom,
+    ),
+  [node.shape, node.w, node.h, zoom],
 );
 ```
 
-2) Draw the outline
+2. Draw the outline
+
 ```ts
 ctx.save();
 ctx.translate(node.x, node.y);
@@ -170,16 +193,22 @@ for (let i = 2; i < p.length; i += 2) path.lineTo(p[i], p[i + 1]);
 path.closePath();
 ctx.fillStyle = fill;
 ctx.fill(path);
-if (strokeWidth > 0) { ctx.lineWidth = strokeWidth; ctx.strokeStyle = stroke; ctx.stroke(path); }
+if (strokeWidth > 0) {
+  ctx.lineWidth = strokeWidth;
+  ctx.strokeStyle = stroke;
+  ctx.stroke(path);
+}
 ctx.restore();
 ```
 
-3) Cache and LOD
+3. Cache and LOD
+
 - Cache `ShapeGeometry` by hash of `profile + zoomBucket + detail`.
 - Invalidate on changes to `kind`, `size`, `params`, `seed`, or `detail`.
 - Heavy shapes (particle cluster) can be generated in a worker; geometry is serializable.
 
 WebGL/SVG notes
+
 - WebGL: triangulate (earcut) once, upload VBO/IBO; draw filled mesh and optional stroke as polyline.
 - SVG: emit a single `path` from either `pathCommands` or the polygon.
 
@@ -198,6 +227,7 @@ WebGL/SVG notes
 - Nodes may specify a `shape` field in their visual metadata. If omitted, the renderer uses a circle with the node’s width/height.
 
 Example JSON
+
 ```json
 {
   "id": "n1",
@@ -222,17 +252,45 @@ Example JSON
 ```json
 { "kind": "circle", "size": { "width": 64, "height": 64 } }
 ```
+
 ```json
-{ "kind": "teardrop", "seed": 21, "size": { "width": 70, "height": 90 }, "params": { "tipSharpness": 0.75, "asymmetry": 0.2, "curvatureBias": 0.6 } }
+{
+  "kind": "teardrop",
+  "seed": 21,
+  "size": { "width": 70, "height": 90 },
+  "params": { "tipSharpness": 0.75, "asymmetry": 0.2, "curvatureBias": 0.6 }
+}
 ```
+
 ```json
-{ "kind": "starburst", "size": { "width": 80, "height": 80 }, "params": { "lobes": 9, "lobeAmp": 0.35, "tipRoundness": 0.4, "irregularity": 0.1 } }
+{
+  "kind": "starburst",
+  "size": { "width": 80, "height": 80 },
+  "params": {
+    "lobes": 9,
+    "lobeAmp": 0.35,
+    "tipRoundness": 0.4,
+    "irregularity": 0.1
+  }
+}
 ```
+
 ```json
-{ "kind": "supershape", "size": { "width": 90, "height": 90 }, "params": { "m": 6, "n1": 0.4, "n2": 1.0, "n3": 1.0, "a": 1, "b": 1 } }
+{
+  "kind": "supershape",
+  "size": { "width": 90, "height": 90 },
+  "params": { "m": 6, "n1": 0.4, "n2": 1.0, "n3": 1.0, "a": 1, "b": 1 }
+}
 ```
+
 ```json
-{ "kind": "particleCluster", "seed": 12, "size": { "width": 80, "height": 70 }, "params": { "pointCount": 140, "radius": 4, "alpha": 0.4, "smoothing": 0.65 }, "detail": { "maxVertices": 512 } }
+{
+  "kind": "particleCluster",
+  "seed": 12,
+  "size": { "width": 80, "height": 70 },
+  "params": { "pointCount": 140, "radius": 4, "alpha": 0.4, "smoothing": 0.65 },
+  "detail": { "maxVertices": 512 }
+}
 ```
 
 ---
