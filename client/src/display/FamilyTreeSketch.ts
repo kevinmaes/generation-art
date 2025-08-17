@@ -9,6 +9,7 @@ import { TRANSFORMERS, type TransformerId } from '../transformers/transformers';
 import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
 import { DEFAULT_COLOR } from '../transformers/constants';
 import { renderEdgeRouting } from './edge-renderer';
+import type { ShapeProfile } from '../../../shared/types';
 
 export interface SketchConfig {
   width: number;
@@ -290,15 +291,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
             'circle';
 
           // Shape geometry: prefer shapeProfile if present
-          const shapeProfile = (individualMetadata as any)?.shapeProfile as
-            | {
-                kind: string;
-                size: { width: number; height: number };
-                seed?: number;
-                params?: Record<string, unknown>;
-                detail?: { maxVertices?: number; tolerance?: number };
-              }
-            | undefined;
+          const shapeProfile: ShapeProfile | undefined =
+            individualMetadata?.shapeProfile as unknown as ShapeProfile | undefined;
           const opacity = individualMetadata?.opacity ?? 0.8;
           const strokeColor = individualMetadata?.strokeColor;
           const strokeWeight = individualMetadata?.strokeWeight ?? 0;
@@ -349,23 +343,23 @@ function createSketch(props: SketchProps): (p: p5) => void {
                 !shapeProfile.size ||
                 (shapeProfile.size.width ?? 0) <= 0 ||
                 (shapeProfile.size.height ?? 0) <= 0;
-              const profile = {
-                kind: (shapeProfile.kind as any) ?? 'circle',
-                size: needsSize
-                  ? { width: finalWidth, height: finalHeight }
-                  : shapeProfile.size,
-                seed: shapeProfile.seed,
-                params: shapeProfile.params as any,
-                detail: shapeProfile.detail ?? { maxVertices: 128 },
-              };
-              const geometry = resolveShapeGeometry(profile as any);
+                             const profile: ShapeProfile = {
+                 kind: shapeProfile.kind ?? 'circle',
+                 size: needsSize
+                   ? { width: finalWidth, height: finalHeight }
+                   : shapeProfile.size,
+                 seed: shapeProfile.seed,
+                 params: shapeProfile.params,
+                 detail: shapeProfile.detail ?? { maxVertices: 128 },
+               };
+              const geometry = resolveShapeGeometry(profile);
               p.beginShape();
               const poly = geometry.polygon as unknown as number[];
               for (let i = 0; i < poly.length; i += 2) {
                 p.vertex(poly[i], poly[i + 1]);
               }
               p.endShape(p.CLOSE);
-            } catch (err) {
+                        } catch {
               // Fallback to circle if geometry fails
               p.ellipse(0, 0, finalWidth, finalHeight);
             }
