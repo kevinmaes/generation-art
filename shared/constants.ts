@@ -1,20 +1,20 @@
 // Canvas dimensions and print settings
 export const CANVAS_DIMENSIONS = {
-  // Web display dimensions
+  // Web display dimensions (square for radial designs)
   WEB: {
     WIDTH: 1000,
-    HEIGHT: 800,
+    HEIGHT: 1000,
   },
-  // Print dimensions (high resolution for printing)
+  // Print dimensions (high resolution for printing, also square)
   PRINT: {
     WIDTH: 2400,
-    HEIGHT: 1920,
+    HEIGHT: 2400,
   },
 } as const;
 
 // Aspect ratio (should be consistent between web and print)
 export const ASPECT_RATIO =
-  CANVAS_DIMENSIONS.WEB.WIDTH / CANVAS_DIMENSIONS.WEB.HEIGHT; // 1.25
+  CANVAS_DIMENSIONS.WEB.WIDTH / CANVAS_DIMENSIONS.WEB.HEIGHT; // 1.0 (square)
 
 // Print settings
 export const PRINT_SETTINGS = {
