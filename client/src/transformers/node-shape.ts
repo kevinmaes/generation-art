@@ -294,18 +294,28 @@ export async function nodeShapeTransform(
       );
     }
 
-    // Map calculated shape choice to a geometry profile (v0: circle for all; hook for future kinds)
+    // Map calculated shape choice to a geometry profile (v0: circle or blob)
     const nodeSize =
       (currentMetadata.size ?? 20) * (currentMetadata.width ?? 1.0);
     const nodeHeight =
       (currentMetadata.size ?? 20) * (currentMetadata.height ?? 1.0);
+
+    const isCircle = calculatedShape === 'circle';
     const baseProfile: ShapeProfile = {
-      kind: calculatedShape === 'circle' ? 'circle' : 'circle',
+      kind: isCircle ? 'circle' : 'blob',
       size: { width: nodeSize, height: nodeHeight },
       seed: hashStringToInt(
         `${String(context.seed ?? 'default')}::${individual.id}`,
       ),
-      detail: { maxVertices: 128 },
+      detail: { maxVertices: 192 },
+      params: isCircle
+        ? undefined
+        : {
+            noiseAmp: 0.18,
+            noiseFreq: 2.0,
+            octaves: 3,
+            smooth: 0.5,
+          },
     };
 
     // Preserve existing visual metadata and update shape
