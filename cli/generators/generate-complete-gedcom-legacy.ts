@@ -183,14 +183,14 @@ function generateCompleteGedcom(): void {
 
   for (let generation = 0; generation < MAX_GENERATIONS; generation++) {
     const individualsInGeneration = Math.pow(2, generation);
-    timer.start(`Generation ${generation}`);
+    timer.start(`Generation ${String(generation)}`);
 
     for (let position = 0; position < individualsInGeneration; position++) {
       gedcom += '\n' + generateIndividual(individualId, generation, position);
       individualId++;
     }
 
-    timer.endAndLog(`Generation ${generation}`, '    ');
+    timer.endAndLog(`Generation ${String(generation)}`, '    ');
   }
   timer.endAndLog('Individuals Generation');
 

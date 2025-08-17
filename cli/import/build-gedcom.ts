@@ -402,7 +402,7 @@ async function buildGedcomFiles(
   console.log(`Generated files are in: ${outputDir}`);
 
   // Warning for slow operations
-  const totalTime = overallTimer.getDurations().get('Total Processing') || 0;
+  const totalTime = overallTimer.getDurations().get('Total Processing') ?? 0;
   if (totalTime > 30000) {
     console.log('\n⚠️  Warning: Build took more than 30 seconds!');
     console.log(

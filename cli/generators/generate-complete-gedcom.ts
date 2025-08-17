@@ -167,7 +167,7 @@ function createIndividualsStream(timer: PerformanceTimer): Readable {
         while (currentGeneration < MAX_GENERATIONS) {
           // Start timing for new generation
           if (positionInGeneration === 0) {
-            timer.start(`Generation ${currentGeneration}`);
+            timer.start(`Generation ${String(currentGeneration)}`);
           }
 
           // Generate individual
@@ -184,7 +184,7 @@ function createIndividualsStream(timer: PerformanceTimer): Readable {
 
           // Check if we've finished this generation
           if (positionInGeneration >= individualsInCurrentGen) {
-            timer.endAndLog(`Generation ${currentGeneration}`, '    ');
+            timer.endAndLog(`Generation ${String(currentGeneration)}`, '    ');
 
             // Move to next generation
             currentGeneration++;
@@ -279,7 +279,7 @@ function createFamiliesStream(): Readable {
 class ByteCounterTransform extends Transform {
   private bytesWritten = 0;
 
-  _transform(chunk: Buffer, encoding: string, callback: Function): void {
+  _transform(chunk: Buffer, _encoding: string, callback: () => void): void {
     this.bytesWritten += chunk.length;
     this.push(chunk);
     callback();
@@ -319,7 +319,7 @@ async function generateCompleteGedcomStream(): Promise<void> {
     // Write header
     timer.start('Header Generation');
     for (const chunk of generateHeader()) {
-      await new Promise<void>((resolve, reject) => {
+      await new Promise<void>((resolve) => {
         if (!writeStream.write(chunk)) {
           writeStream.once('drain', resolve);
         } else {
