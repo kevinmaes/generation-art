@@ -1,0 +1,482 @@
+0 HEAD
+1 CHAR UTF-8
+1 SOUR Generation Art Fan Chart Test
+2 NAME Fan Chart Test - 6 Generations with Realistic Missing Ancestors
+2 VERS 1.0
+1 DATE 17 JAN 2025
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 SUBM @SUB1@
+0 @SUB1@ SUBM
+1 NAME Test Submitter
+0 @I1@ INDI
+1 NAME Current /Person/
+2 GIVN Current
+2 SURN Person
+1 SEX F
+1 BIRT
+2 DATE 15 MAR 1990
+2 PLAC San Francisco, California, USA
+1 FAMC @F1@
+1 NOTE Center person for fan chart testing
+0 @I2@ INDI
+1 NAME Father /Person/
+2 GIVN Father
+2 SURN Person
+1 SEX M
+1 BIRT
+2 DATE 10 JUN 1960
+2 PLAC New York, New York, USA
+1 FAMS @F1@
+1 FAMC @F2@
+0 @I3@ INDI
+1 NAME Mother /Maiden/
+2 GIVN Mother
+2 SURN Maiden
+1 SEX F
+1 BIRT
+2 DATE 22 NOV 1962
+2 PLAC Boston, Massachusetts, USA
+1 FAMS @F1@
+1 FAMC @F3@
+0 @I4@ INDI
+1 NAME Paternal /Grandfather/
+2 GIVN Paternal
+2 SURN Grandfather
+1 SEX M
+1 BIRT
+2 DATE 5 FEB 1935
+2 PLAC Chicago, Illinois, USA
+1 DEAT
+2 DATE 10 MAR 2010
+2 PLAC Chicago, Illinois, USA
+1 FAMS @F2@
+1 FAMC @F4@
+0 @I5@ INDI
+1 NAME Paternal /Grandmother/
+2 GIVN Paternal
+2 SURN Grandmother
+1 SEX F
+1 BIRT
+2 DATE 18 AUG 1937
+2 PLAC Detroit, Michigan, USA
+1 DEAT
+2 DATE 25 DEC 2015
+2 PLAC Detroit, Michigan, USA
+1 FAMS @F2@
+1 FAMC @F5@
+0 @I6@ INDI
+1 NAME Maternal /Grandfather/
+2 GIVN Maternal
+2 SURN Grandfather
+1 SEX M
+1 BIRT
+2 DATE 12 APR 1938
+2 PLAC Philadelphia, Pennsylvania, USA
+1 FAMS @F3@
+1 FAMC @F6@
+0 @I7@ INDI
+1 NAME Maternal /Grandmother/
+2 GIVN Maternal
+2 SURN Grandmother
+1 SEX F
+1 BIRT
+2 DATE 30 SEP 1940
+2 PLAC Baltimore, Maryland, USA
+1 FAMS @F3@
+1 FAMC @F7@
+0 @I8@ INDI
+1 NAME Great /GrandfatherPP/
+2 GIVN Great
+2 SURN GrandfatherPP
+1 SEX M
+1 BIRT
+2 DATE 10 JAN 1910
+2 PLAC London, England
+1 DEAT
+2 DATE 15 JUN 1985
+2 PLAC London, England
+1 FAMS @F4@
+1 FAMC @F8@
+1 NOTE Paternal-Paternal line
+0 @I9@ INDI
+1 NAME Great /GrandmotherPP/
+2 GIVN Great
+2 SURN GrandmotherPP
+1 SEX F
+1 BIRT
+2 DATE 22 MAY 1912
+2 PLAC Dublin, Ireland
+1 DEAT
+2 DATE 8 NOV 1990
+2 PLAC Dublin, Ireland
+1 FAMS @F4@
+1 FAMC @F9@
+1 NOTE Paternal-Paternal line
+0 @I10@ INDI
+1 NAME Great /GrandfatherPM/
+2 GIVN Great
+2 SURN GrandfatherPM
+1 SEX M
+1 BIRT
+2 DATE 14 FEB 1913
+2 PLAC Berlin, Germany
+1 DEAT
+2 DATE 20 SEP 1988
+2 PLAC Berlin, Germany
+1 FAMS @F5@
+1 FAMC @F10@
+1 NOTE Paternal-Maternal line
+0 @I11@ INDI
+1 NAME Great /GrandmotherPM/
+2 GIVN Great
+2 SURN GrandmotherPM
+1 SEX F
+1 BIRT
+2 DATE 7 JUL 1915
+2 PLAC Paris, France
+1 DEAT
+2 DATE 12 MAY 1995
+2 PLAC Paris, France
+1 FAMS @F5@
+1 NOTE Paternal-Maternal line - No parents known (line ends here)
+0 @I12@ INDI
+1 NAME Great /GrandfatherMP/
+2 GIVN Great
+2 SURN GrandfatherMP
+1 SEX M
+1 BIRT
+2 DATE 18 MAR 1914
+2 PLAC Toronto, Canada
+1 DEAT
+2 DATE 25 NOV 1992
+2 PLAC Toronto, Canada
+1 FAMS @F6@
+1 FAMC @F11@
+1 NOTE Maternal-Paternal line
+0 @I13@ INDI
+1 NAME Great /GrandmotherMP/
+2 GIVN Great
+2 SURN GrandmotherMP
+1 SEX F
+1 BIRT
+2 DATE 9 SEP 1916
+2 PLAC Mexico City, Mexico
+1 DEAT
+2 DATE 30 JAN 2000
+2 PLAC Mexico City, Mexico
+1 FAMS @F6@
+1 NOTE Maternal-Paternal line - No parents known (line ends here)
+0 @I14@ INDI
+1 NAME Great /GrandfatherMM/
+2 GIVN Great
+2 SURN GrandfatherMM
+1 SEX M
+1 BIRT
+2 DATE 21 JUN 1917
+2 PLAC Rome, Italy
+1 DEAT
+2 DATE 14 OCT 1996
+2 PLAC Rome, Italy
+1 FAMS @F7@
+1 NOTE Maternal-Maternal line - No father known
+1 FAMC @F12@
+0 @I15@ INDI
+1 NAME Great /GrandmotherMM/
+2 GIVN Great
+2 SURN GrandmotherMM
+1 SEX F
+1 BIRT
+2 DATE 3 DEC 1919
+2 PLAC Madrid, Spain
+1 DEAT
+2 DATE 18 APR 2002
+2 PLAC Madrid, Spain
+1 FAMS @F7@
+1 FAMC @F13@
+1 NOTE Maternal-Maternal line
+0 @I16@ INDI
+1 NAME GG /GrandfatherPPP/
+2 GIVN GG
+2 SURN GrandfatherPPP
+1 SEX M
+1 BIRT
+2 DATE 15 AUG 1885
+2 PLAC Edinburgh, Scotland
+1 DEAT
+2 DATE 10 FEB 1960
+2 PLAC Edinburgh, Scotland
+1 FAMS @F8@
+1 FAMC @F14@
+1 NOTE Great-Great Paternal-Paternal-Paternal
+0 @I17@ INDI
+1 NAME GG /GrandmotherPPP/
+2 GIVN GG
+2 SURN GrandmotherPPP
+1 SEX F
+1 BIRT
+2 DATE 28 MAR 1887
+2 PLAC Cardiff, Wales
+1 DEAT
+2 DATE 5 SEP 1965
+2 PLAC Cardiff, Wales
+1 FAMS @F8@
+1 NOTE Great-Great Paternal-Paternal-Paternal - No parents known
+0 @I18@ INDI
+1 NAME GG /GrandfatherPPM/
+2 GIVN GG
+2 SURN GrandfatherPPM
+1 SEX M
+1 BIRT
+2 DATE 12 NOV 1888
+2 PLAC Cork, Ireland
+1 DEAT
+2 DATE 20 JUN 1968
+2 PLAC Cork, Ireland
+1 FAMS @F9@
+1 NOTE Great-Great Paternal-Paternal-Maternal - No parents known
+0 @I19@ INDI
+1 NAME GG /GrandmotherPPM/
+2 GIVN GG
+2 SURN GrandmotherPPM
+1 SEX F
+1 BIRT
+2 DATE 7 JAN 1890
+2 PLAC Belfast, Northern Ireland
+1 DEAT
+2 DATE 14 MAY 1970
+2 PLAC Belfast, Northern Ireland
+1 FAMS @F9@
+1 FAMC @F15@
+1 NOTE Great-Great Paternal-Paternal-Maternal
+0 @I20@ INDI
+1 NAME GG /GrandfatherPMP/
+2 GIVN GG
+2 SURN GrandfatherPMP
+1 SEX M
+1 BIRT
+2 DATE 22 APR 1889
+2 PLAC Hamburg, Germany
+1 DEAT
+2 DATE 18 OCT 1967
+2 PLAC Hamburg, Germany
+1 FAMS @F10@
+1 NOTE Great-Great Paternal-Maternal-Paternal - No parents known
+0 @I21@ INDI
+1 NAME GG /GrandmotherPMP/
+2 GIVN GG
+2 SURN GrandmotherPMP
+1 SEX F
+1 BIRT
+2 DATE 3 JUN 1891
+2 PLAC Munich, Germany
+1 DEAT
+2 DATE 25 DEC 1973
+2 PLAC Munich, Germany
+1 FAMS @F10@
+1 NOTE Great-Great Paternal-Maternal-Paternal - No parents known
+0 @I22@ INDI
+1 NAME GG /GrandfatherMPP/
+2 GIVN GG
+2 SURN GrandfatherMPP
+1 SEX M
+1 BIRT
+2 DATE 16 JUN 1890
+2 PLAC Montreal, Canada
+1 DEAT
+2 DATE 30 DEC 1969
+2 PLAC Montreal, Canada
+1 FAMS @F11@
+1 NOTE Great-Great Maternal-Paternal-Paternal - No parents known
+0 @I23@ INDI
+1 NAME GG /GrandmotherMPP/
+2 GIVN GG
+2 SURN GrandmotherMPP
+1 SEX F
+1 BIRT
+2 DATE 9 AUG 1891
+2 PLAC Ottawa, Canada
+1 DEAT
+2 DATE 25 NOV 1972
+2 PLAC Ottawa, Canada
+1 FAMS @F11@
+1 NOTE Great-Great Maternal-Paternal-Paternal - No parents known
+0 @I24@ INDI
+1 NAME GG /GrandmotherMMM/
+2 GIVN GG
+2 SURN GrandmotherMMM
+1 SEX F
+1 BIRT
+2 DATE 19 FEB 1894
+2 PLAC Barcelona, Spain
+1 DEAT
+2 DATE 11 JUL 1975
+2 PLAC Barcelona, Spain
+1 FAMS @F12@
+1 NOTE Great-Great Maternal-Maternal-Maternal (mother only known)
+0 @I25@ INDI
+1 NAME GG /GrandfatherMMM/
+2 GIVN GG
+2 SURN GrandfatherMMM
+1 SEX M
+1 BIRT
+2 DATE 5 OCT 1892
+2 PLAC Valencia, Spain
+1 DEAT
+2 DATE 28 MAR 1973
+2 PLAC Valencia, Spain
+1 FAMS @F13@
+1 NOTE Great-Great Maternal-Maternal-Maternal - No parents known
+0 @I26@ INDI
+1 NAME GG /GrandmotherMMP/
+2 GIVN GG
+2 SURN GrandmotherMMP
+1 SEX F
+1 BIRT
+2 DATE 14 JUL 1893
+2 PLAC Seville, Spain
+1 DEAT
+2 DATE 18 NOV 1976
+2 PLAC Seville, Spain
+1 FAMS @F13@
+1 NOTE Great-Great Maternal-Maternal-Paternal - No parents known
+0 @I27@ INDI
+1 NAME GGG /AncestorPPPP/
+2 GIVN GGG
+2 SURN AncestorPPPP
+1 SEX M
+1 BIRT
+2 DATE 10 MAY 1860
+2 PLAC Glasgow, Scotland
+1 DEAT
+2 DATE 15 NOV 1935
+2 PLAC Glasgow, Scotland
+1 FAMS @F14@
+1 NOTE Great-Great-Great generation (one of few known)
+0 @I28@ INDI
+1 NAME GGG /AncestorPPPM/
+2 GIVN GGG
+2 SURN AncestorPPPM
+1 SEX F
+1 BIRT
+2 DATE 8 SEP 1862
+2 PLAC Aberdeen, Scotland
+1 DEAT
+2 DATE 20 JAN 1940
+2 PLAC Aberdeen, Scotland
+1 FAMS @F14@
+1 NOTE Great-Great-Great generation (one of few known)
+0 @I29@ INDI
+1 NAME GGG /AncestorPPMM/
+2 GIVN GGG
+2 SURN AncestorPPMM
+1 SEX F
+1 BIRT
+2 DATE 14 JUL 1865
+2 PLAC Galway, Ireland
+1 DEAT
+2 DATE 22 DEC 1942
+2 PLAC Galway, Ireland
+1 FAMS @F15@
+1 NOTE Great-Great-Great generation (mother only known)
+0 @F1@ FAM
+1 HUSB @I2@
+1 WIFE @I3@
+1 CHIL @I1@
+1 MARR
+2 DATE 12 JUN 1988
+2 PLAC Los Angeles, California, USA
+0 @F2@ FAM
+1 HUSB @I4@
+1 WIFE @I5@
+1 CHIL @I2@
+1 MARR
+2 DATE 15 SEP 1958
+2 PLAC Chicago, Illinois, USA
+0 @F3@ FAM
+1 HUSB @I6@
+1 WIFE @I7@
+1 CHIL @I3@
+1 MARR
+2 DATE 20 MAY 1960
+2 PLAC Boston, Massachusetts, USA
+0 @F4@ FAM
+1 HUSB @I8@
+1 WIFE @I9@
+1 CHIL @I4@
+1 MARR
+2 DATE 10 JUN 1933
+2 PLAC London, England
+0 @F5@ FAM
+1 HUSB @I10@
+1 WIFE @I11@
+1 CHIL @I5@
+1 MARR
+2 DATE 8 AUG 1935
+2 PLAC Berlin, Germany
+0 @F6@ FAM
+1 HUSB @I12@
+1 WIFE @I13@
+1 CHIL @I6@
+1 MARR
+2 DATE 14 FEB 1936
+2 PLAC Toronto, Canada
+0 @F7@ FAM
+1 HUSB @I14@
+1 WIFE @I15@
+1 CHIL @I7@
+1 MARR
+2 DATE 22 SEP 1938
+2 PLAC Rome, Italy
+0 @F8@ FAM
+1 HUSB @I16@
+1 WIFE @I17@
+1 CHIL @I8@
+1 MARR
+2 DATE 5 MAR 1908
+2 PLAC Edinburgh, Scotland
+0 @F9@ FAM
+1 HUSB @I18@
+1 WIFE @I19@
+1 CHIL @I9@
+1 MARR
+2 DATE 18 JUN 1910
+2 PLAC Dublin, Ireland
+0 @F10@ FAM
+1 HUSB @I20@
+1 WIFE @I21@
+1 CHIL @I10@
+1 MARR
+2 DATE 12 OCT 1911
+2 PLAC Berlin, Germany
+0 @F11@ FAM
+1 HUSB @I22@
+1 WIFE @I23@
+1 CHIL @I12@
+1 MARR
+2 DATE 7 APR 1912
+2 PLAC Toronto, Canada
+0 @F12@ FAM
+1 WIFE @I24@
+1 CHIL @I14@
+1 NOTE Father unknown for this family
+0 @F13@ FAM
+1 HUSB @I25@
+1 WIFE @I26@
+1 CHIL @I15@
+1 MARR
+2 DATE 30 NOV 1915
+2 PLAC Madrid, Spain
+0 @F14@ FAM
+1 HUSB @I27@
+1 WIFE @I28@
+1 CHIL @I16@
+1 MARR
+2 DATE 15 JUN 1883
+2 PLAC Edinburgh, Scotland
+0 @F15@ FAM
+1 WIFE @I29@
+1 CHIL @I19@
+1 NOTE Father unknown for this family
+0 TRLR
