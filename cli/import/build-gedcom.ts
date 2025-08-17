@@ -232,7 +232,7 @@ async function buildGedcomFiles(
 
   const overallTimer = new PerformanceTimer();
   overallTimer.start('Total Processing');
-  
+
   for (const { file, inputDir } of allGedcomFiles) {
     const baseName = basename(file, '.ged');
     const inputPath = join(inputDir, file);
@@ -251,7 +251,7 @@ async function buildGedcomFiles(
       fileTimer.start('File Reading');
       const gedcomText = await readFile(inputPath, 'utf-8');
       fileTimer.endAndLog('File Reading');
-      
+
       fileTimer.start('GEDCOM Parsing');
       const parser = new SimpleGedcomParser();
       const parsedData = parser.parse(gedcomText);
@@ -270,7 +270,7 @@ async function buildGedcomFiles(
       const { individuals, families } =
         convertAndBuildRelationships(parsedData);
       fileTimer.endAndLog('Relationship Building');
-      
+
       fileTimer.start('LLM Optimization');
       const processingResult = processGedcomWithLLMOptimization(
         individuals,
@@ -332,7 +332,7 @@ async function buildGedcomFiles(
         console.log(`  ℹ No media directory found for ${baseName}`);
       }
       fileTimer.endAndLog('Media Processing');
-      
+
       fileTimer.endAndLog('File Processing');
       fileTimer.logSummary(`${baseName} Performance`);
     } catch (error) {
@@ -397,15 +397,17 @@ async function buildGedcomFiles(
 
   overallTimer.endAndLog('Total Processing');
   overallTimer.logSummary('Overall Build Performance');
-  
+
   console.log('\nGEDCOM build complete!');
   console.log(`Generated files are in: ${outputDir}`);
-  
+
   // Warning for slow operations
   const totalTime = overallTimer.getDurations().get('Total Processing') || 0;
   if (totalTime > 30000) {
     console.log('\n⚠️  Warning: Build took more than 30 seconds!');
-    console.log('    Consider implementing parallel processing for better performance.');
+    console.log(
+      '    Consider implementing parallel processing for better performance.',
+    );
   }
 }
 
