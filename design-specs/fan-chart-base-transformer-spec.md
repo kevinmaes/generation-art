@@ -3,7 +3,6 @@
 ## Overview
 Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM data centered on selected individual. Outputs deterministic JSON for renderers (SVG/Canvas/WebGL).
 
-
 ## Goals
 - Predictable radial layout from selected center
 - Configurable: generations, orientation (360°/180°/90°), label density
@@ -11,12 +10,10 @@ Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM d
 - Renderer-agnostic geometry output
 - Performant up to 10–12 generations
 
-
 ## Non-Goals
 - Descendant trees or complex relationships
 - Auto pan/zoom (self-contained canvas)
 - Styling (delegated to theme transformers)
-
 
 ## User Stories
 - Choose any person as center
@@ -25,13 +22,11 @@ Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM d
 - Toggle: unknown placeholders, duplicate highlighting
 - Export: SVG/PNG/JSON
 
-
 ## Terms
 - **Ego**: Center person (generation 0)
 - **Generation**: Distance from ego (1=parents, 2=grandparents)
 - **Segment**: Wedge for one ancestor
 - **Ring**: Band containing all segments of a generation
-
 
 ## Inputs
 
@@ -51,13 +46,11 @@ Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM d
 - `outerRadiusPx` (auto-fit)
 - `centerRadiusPx` (48)
 
-
 ## Coordinates
 - Polar → Cartesian conversion
 - Clockwise angles from `startAngleDeg`
 - Sweep: full=360°, semi=180°, quadrant=90°
 - Ego at center, Gen 1 starts at `centerRadiusPx`
-
 
 ## Ring Sizing
 - Base: `R0 = centerRadiusPx`
@@ -65,13 +58,11 @@ Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM d
 - Total: `R0 + Σ(ringThickness) + padding`
 - Auto-solve `baseRingPx` if `outerRadiusPx` specified
 
-
 ## Angular Allocation
 - Generation `g` has `2^g` theoretical slots
 - Slot angle: `(sweep - gaps) / 2^g`
 - Fill slots with ancestors or placeholders
 - Apply `angularPaddingDeg` gaps
-
 
 ## Pedigree Collapse
 - Same person in multiple slots
@@ -79,11 +70,9 @@ Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM d
   - Mark with `duplicateOf` and `duplicateGroupId`
 - Future: merge adjacent duplicates visually
 
-
 ## Missing Parents
 - Unknown → placeholder segment (`isPlaceholder = true`)
 - Labels: none/low → empty, medium/high → "Unknown"
-
 
 ## Labels
 **Position:** Mid-angle, mid-radius
@@ -96,12 +85,10 @@ Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM d
 
 **Auto-degrade if segment too narrow**
 
-
 ## Geometry
 - Polar: start/end angles, inner/outer radii
 - Optional: pre-computed SVG path
 - Renderers can use either format
-
 
 ## Output JSON
 ```json
@@ -150,74 +137,72 @@ Replaces Walker Tree as default layout. Generates radial fan chart from GEDCOM d
 }
 ```
 
-
 ## TypeScript Types
 ```ts
-export type FanChartMode = "full" | "semi" | "quadrant";
-export type LabelDensity = "none" | "low" | "medium" | "high";
+export type FanChartMode = 'full' | 'semi' | 'quadrant';
+export type LabelDensity = 'none' | 'low' | 'medium' | 'high';
 
 export interface FanChartConfig {
-	centerPersonId: string;
-	maxGenerations: number;
-	mode: FanChartMode;
-	startAngleDeg: number;
-	labelDensity: LabelDensity;
-	showUnknownPlaceholders: boolean;
-	highlightDuplicates: boolean;
-	radialPaddingPx: number;
-	angularPaddingDeg: number;
-	outerRadiusPx?: number;
-	centerRadiusPx: number;
+  centerPersonId: string;
+  maxGenerations: number;
+  mode: FanChartMode;
+  startAngleDeg: number;
+  labelDensity: LabelDensity;
+  showUnknownPlaceholders: boolean;
+  highlightDuplicates: boolean;
+  radialPaddingPx: number;
+  angularPaddingDeg: number;
+  outerRadiusPx?: number;
+  centerRadiusPx: number;
 }
 
 export interface FanChartRing {
-	generation: number;
-	innerRadiusPx: number;
-	outerRadiusPx: number;
+  generation: number;
+  innerRadiusPx: number;
+  outerRadiusPx: number;
 }
 
 export interface FanChartLabelSpec {
-	text: string;
-	anchorAngleRad: number;
-	radiusPx: number;
-	wrapWidthPx: number;
-	density: LabelDensity;
+  text: string;
+  anchorAngleRad: number;
+  radiusPx: number;
+  wrapWidthPx: number;
+  density: LabelDensity;
 }
 
 export interface FanChartSegment {
-	segmentId: string;
-	personId: string | null;
-	generation: number;
-	startAngleRad: number;
-	endAngleRad: number;
-	innerRadiusPx: number;
-	outerRadiusPx: number;
-	isPlaceholder: boolean;
-	duplicateOf: string | null;
-	duplicateGroupId: string | null;
-	label: FanChartLabelSpec | null;
-	style: { tokens: string[] };
-	path?: string;
+  segmentId: string;
+  personId: string | null;
+  generation: number;
+  startAngleRad: number;
+  endAngleRad: number;
+  innerRadiusPx: number;
+  outerRadiusPx: number;
+  isPlaceholder: boolean;
+  duplicateOf: string | null;
+  duplicateGroupId: string | null;
+  label: FanChartLabelSpec | null;
+  style: { tokens: string[] };
+  path?: string;
 }
 
 export interface FanChartLayout {
-	kind: "fanChartLayout";
-	version: 1;
-	metadata: {
-		centerPersonId: string;
-		generatedAt: string;
-		config: FanChartConfig;
-		canvas: { width: number; height: number; cx: number; cy: number };
-	};
-	rings: FanChartRing[];
-	segments: FanChartSegment[];
-	indexes: {
-		byPersonId: Record<string, string[]>;
-		byGeneration: Record<string, string[]>;
-	};
+  kind: 'fanChartLayout';
+  version: 1;
+  metadata: {
+    centerPersonId: string;
+    generatedAt: string;
+    config: FanChartConfig;
+    canvas: { width: number; height: number; cx: number; cy: number };
+  };
+  rings: FanChartRing[];
+  segments: FanChartSegment[];
+  indexes: {
+    byPersonId: Record<string, string[]>;
+    byGeneration: Record<string, string[]>;
+  };
 }
 ```
-
 
 ## Pipeline Integration
 - First transformer when "Fan Chart" selected
@@ -225,7 +210,6 @@ export interface FanChartLayout {
 - Output: `FanChartLayout` JSON
 - Downstream: theming, rendering, export
 - Walker Tree remains available via toggle
-
 
 ## UI/UX
 
@@ -242,7 +226,6 @@ export interface FanChartLayout {
 **Export:** SVG/PNG/JSON
 
 **Interaction:** Hover tooltip, click to recenter
-
 
 ## Performance
 
@@ -289,19 +272,16 @@ ancestorMetadata: {
 - For high depths, optionally skip `path` precomputation and let renderer derive
 - Implement virtual rendering for segments outside viewport (for zoomable implementations)
 
-
 ## Edge Cases
 - No parents → ego only
 - Single parent → one real, one placeholder
 - Cycles → break, mark as placeholder, log warning
 - Long names → truncate + ellipsis (full in tooltip)
 
-
 ## Testing
 - Unit: ring sizing, angles, duplicates, labels
 - Snapshots: small trees (3–5 generations)
 - Property tests: angle coverage = sweep - gaps
-
 
 ## Milestones
 1. Core layout → JSON
@@ -309,7 +289,6 @@ ancestorMetadata: {
 3. UI controls
 4. Duplicates + placeholders
 5. Export + tests
-
 
 ## Open Questions
 - Descendant overlays (outside-in)?
