@@ -10,6 +10,7 @@ import { join, basename, extname } from 'path';
 import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
 import { processGedcomWithLLMOptimization } from '../metadata/llm-optimized-processing';
 import type { Individual, Family } from '../../shared/types';
+import { PerformanceTimer } from '../utils/performance-timer';
 
 // Local interfaces that match SimpleGedcomParser output
 interface ParsedIndividual {
@@ -229,6 +230,9 @@ async function buildGedcomFiles(
   });
   console.log('');
 
+  const overallTimer = new PerformanceTimer();
+  overallTimer.start('Total Processing');
+  
   for (const { file, inputDir } of allGedcomFiles) {
     const baseName = basename(file, '.ged');
     const inputPath = join(inputDir, file);
@@ -237,54 +241,76 @@ async function buildGedcomFiles(
     const llmOutputPath = join(outputDir, `${baseName}-llm.json`);
     const statsOutputPath = join(outputDir, `${baseName}-stats.json`);
 
-    console.log(`Processing ${inputDir}/${file}...`);
+    console.log(`\nProcessing ${inputDir}/${file}...`);
+    console.log('─'.repeat(50));
+    const fileTimer = new PerformanceTimer();
+    fileTimer.start('File Processing');
 
     try {
       // Read and parse GEDCOM
+      fileTimer.start('File Reading');
       const gedcomText = await readFile(inputPath, 'utf-8');
+      fileTimer.endAndLog('File Reading');
+      
+      fileTimer.start('GEDCOM Parsing');
       const parser = new SimpleGedcomParser();
       const parsedData = parser.parse(gedcomText);
+      fileTimer.endAndLog('GEDCOM Parsing');
 
       // Write raw parsed JSON (intermediate file)
+      fileTimer.start('Raw JSON Writing');
       await writeFile(rawOutputPath, JSON.stringify(parsedData, null, 2));
+      fileTimer.endAndLog('Raw JSON Writing');
       console.log(
         `  ✓ Generated _${baseName}-raw.json (${String(parsedData.individuals.length)} individuals, ${String(parsedData.families.length)} families)`,
       );
 
       // Generate LLM-optimized data
+      fileTimer.start('Relationship Building');
       const { individuals, families } =
         convertAndBuildRelationships(parsedData);
+      fileTimer.endAndLog('Relationship Building');
+      
+      fileTimer.start('LLM Optimization');
       const processingResult = processGedcomWithLLMOptimization(
         individuals,
         families,
       );
+      fileTimer.endAndLog('LLM Optimization');
 
       // Write full data (for local operations)
+      fileTimer.start('Full JSON Writing');
       await writeFile(
         fullOutputPath,
         JSON.stringify(processingResult.full, null, 2),
       );
+      fileTimer.endAndLog('Full JSON Writing');
       console.log(`  ✓ Generated ${baseName}.json (full data with metadata)`);
 
       // Write LLM-ready data (PII stripped)
+      fileTimer.start('LLM JSON Writing');
       await writeFile(
         llmOutputPath,
         JSON.stringify(processingResult.llm, null, 2),
       );
+      fileTimer.endAndLog('LLM JSON Writing');
       console.log(
         `  ✓ Generated ${baseName}-llm.json (LLM-ready, PII stripped)`,
       );
 
       // Write processing statistics
+      fileTimer.start('Stats JSON Writing');
       await writeFile(
         statsOutputPath,
         JSON.stringify(processingResult.stats, null, 2),
       );
+      fileTimer.endAndLog('Stats JSON Writing');
       console.log(
         `  ✓ Generated ${baseName}-stats.json (processing statistics)`,
       );
 
       // Check for media directory with flexible naming
+      fileTimer.start('Media Processing');
       const foundMediaDir = await findMediaDirectory(inputDir, baseName);
       if (foundMediaDir) {
         console.log(`  ℹ Found media directory: ${foundMediaDir}`);
@@ -305,6 +331,10 @@ async function buildGedcomFiles(
       } else {
         console.log(`  ℹ No media directory found for ${baseName}`);
       }
+      fileTimer.endAndLog('Media Processing');
+      
+      fileTimer.endAndLog('File Processing');
+      fileTimer.logSummary(`${baseName} Performance`);
     } catch (error) {
       console.error(
         `  ✗ Error processing ${file}:`,
@@ -362,11 +392,21 @@ async function buildGedcomFiles(
   const manifestPath = join(outputDir, 'manifest.json');
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   console.log(
-    `  ✓ Generated manifest.json (${String(manifest.datasets.length)} datasets)`,
+    `\n  ✓ Generated manifest.json (${String(manifest.datasets.length)} datasets)`,
   );
 
+  overallTimer.endAndLog('Total Processing');
+  overallTimer.logSummary('Overall Build Performance');
+  
   console.log('\nGEDCOM build complete!');
   console.log(`Generated files are in: ${outputDir}`);
+  
+  // Warning for slow operations
+  const totalTime = overallTimer.getDurations().get('Total Processing') || 0;
+  if (totalTime > 30000) {
+    console.log('\n⚠️  Warning: Build took more than 30 seconds!');
+    console.log('    Consider implementing parallel processing for better performance.');
+  }
 }
 
 // Run if called directly
