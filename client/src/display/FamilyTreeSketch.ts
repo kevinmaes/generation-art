@@ -288,6 +288,11 @@ function createSketch(props: SketchProps): (p: p5) => void {
             individualMetadata?.shape ??
             visualMetadata.global.defaultNodeShape ??
             'circle';
+
+          // Shape geometry: prefer shapeProfile if present
+          const shapeProfile = (individualMetadata as any)?.shapeProfile as
+            | { kind: string; size: { width: number; height: number }; seed?: number; params?: Record<string, unknown>; detail?: { maxVertices?: number; tolerance?: number } }
+            | undefined;
           const opacity = individualMetadata?.opacity ?? 0.8;
           const strokeColor = individualMetadata?.strokeColor;
           const strokeWeight = individualMetadata?.strokeWeight ?? 0;
@@ -330,40 +335,69 @@ function createSketch(props: SketchProps): (p: p5) => void {
           p.rotate(rotation);
           p.scale(scale);
 
-          // Render based on shape
-          if (shape === 'circle') {
-            p.ellipse(0, 0, finalWidth, finalHeight);
-          } else if (shape === 'square') {
-            p.rectMode(p.CENTER);
-            p.rect(0, 0, finalWidth, finalHeight);
-          } else if (shape === 'triangle') {
-            p.triangle(
-              0,
-              -finalHeight / 2,
-              -finalWidth / 2,
-              finalHeight / 2,
-              finalWidth / 2,
-              finalHeight / 2,
-            );
-          } else if (shape === 'hexagon') {
-            p.beginShape();
-            for (let i = 0; i < 6; i++) {
-              const angle = (p.TWO_PI / 6) * i;
-              const vx = (finalWidth / 2) * p.cos(angle);
-              const vy = (finalHeight / 2) * p.sin(angle);
-              p.vertex(vx, vy);
+          // Render shape geometry when available, else fallback to legacy shapes
+          if (shapeProfile) {
+            try {
+              const { resolveShapeGeometry } = await import('./shapes/resolve');
+              const needsSize =
+                !shapeProfile.size ||
+                (shapeProfile.size.width ?? 0) <= 0 ||
+                (shapeProfile.size.height ?? 0) <= 0;
+              const profile = {
+                kind: (shapeProfile.kind as any) ?? 'circle',
+                size: needsSize
+                  ? { width: finalWidth, height: finalHeight }
+                  : shapeProfile.size,
+                seed: shapeProfile.seed,
+                params: shapeProfile.params as any,
+                detail: shapeProfile.detail ?? { maxVertices: 128 },
+              };
+              const geometry = resolveShapeGeometry(profile as any);
+              p.beginShape();
+              const poly = geometry.polygon as unknown as number[];
+              for (let i = 0; i < poly.length; i += 2) {
+                p.vertex(poly[i], poly[i + 1]);
+              }
+              p.endShape(p.CLOSE);
+            } catch (err) {
+              // Fallback to circle if geometry fails
+              p.ellipse(0, 0, finalWidth, finalHeight);
             }
-            p.endShape(p.CLOSE);
-          } else if (shape === 'star') {
-            p.beginShape();
-            for (let i = 0; i < 10; i++) {
-              const angle = (p.TWO_PI / 10) * i;
-              const radius = i % 2 === 0 ? finalWidth / 2 : finalWidth / 4;
-              const vx = radius * p.cos(angle);
-              const vy = radius * p.sin(angle);
-              p.vertex(vx, vy);
+          } else {
+            if (shape === 'circle') {
+              p.ellipse(0, 0, finalWidth, finalHeight);
+            } else if (shape === 'square') {
+              p.rectMode(p.CENTER);
+              p.rect(0, 0, finalWidth, finalHeight);
+            } else if (shape === 'triangle') {
+              p.triangle(
+                      0,
+                      -finalHeight / 2,
+                      -finalWidth / 2,
+                      finalHeight / 2,
+                      finalWidth / 2,
+                      finalHeight / 2,
+                  );
+            } else if (shape === 'hexagon') {
+              p.beginShape();
+              for (let i = 0; i < 6; i++) {
+                const angle = (p.TWO_PI / 6) * i;
+                const vx = (finalWidth / 2) * p.cos(angle);
+                const vy = (finalHeight / 2) * p.sin(angle);
+                p.vertex(vx, vy);
+              }
+              p.endShape(p.CLOSE);
+            } else if (shape === 'star') {
+              p.beginShape();
+              for (let i = 0; i < 10; i++) {
+                const angle = (p.TWO_PI / 10) * i;
+                const radius = i % 2 === 0 ? finalWidth / 2 : finalWidth / 4;
+                const vx = radius * p.cos(angle);
+                const vy = radius * p.sin(angle);
+                p.vertex(vx, vy);
+              }
+              p.endShape(p.CLOSE);
             }
-            p.endShape(p.CLOSE);
           }
 
           p.pop();

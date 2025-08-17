@@ -15,8 +15,11 @@ export type * from './llm-data';
 
 // Re-export specific graph types not already exported by schemas
 export type {
-  GraphTraversalUtils,
-  GraphAdjacencyMaps,
-  WalkerTreeData,
-  GraphData,
+	GraphTraversalUtils,
+	GraphAdjacencyMaps,
+	WalkerTreeData,
+	GraphData,
 } from './metadata';
+
+// Shape geometry types
+export type * from './shape';

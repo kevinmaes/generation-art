@@ -11,6 +11,7 @@ import type { LLMReadyData } from '../../../shared/types/llm-data';
 import type { DimensionId } from './dimensions';
 import type { VisualParameterValues } from './visual-parameters';
 import type { TransformerId } from './transformers';
+import type { ShapeProfile } from '../../../shared/types';
 
 /**
  * Visual metadata represents the visual attributes of elements in the art
@@ -37,6 +38,8 @@ export interface VisualMetadata {
 
   // Shape and style attributes
   shape?: 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'custom';
+  // New shape geometry profile; if present, renderer prefers this over legacy shape string
+  shapeProfile?: ShapeProfile;
   strokeWeight?: number;
   strokeStyle?: 'solid' | 'dashed' | 'dotted';
 
