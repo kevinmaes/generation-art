@@ -33,6 +33,21 @@ Conventions:
 
 ---
 
+### Authoring vs. rendering (per-layer)
+
+- Transformer (authoring intent)
+  - Chooses `shapeProfile` (kind/size/params/seed/detail).
+  - Optionally provides per-layer texture/stroke configs as structured profiles (with seeds, ranges, LOD/budgets, color tokens), not explicit micro-placements.
+  - Can bind data to params (e.g., lifespan → lobes, children → density).
+- Renderer (expansion and drawing)
+  - Resolves profiles deterministically into concrete geometry and sub-entities (points, strokes), handling placement/jitter/dash phase.
+  - Applies clipping, triangulation, batching, sorting/blending, LOD, and caching.
+  - Supplies sensible defaults so minimal profiles render well.
+
+This separation keeps transformers expressive and portable while the renderer owns performance-critical, repeatable expansion.
+
+---
+
 ## TypeScript API (reference)
 
 ```ts
