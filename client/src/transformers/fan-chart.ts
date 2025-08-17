@@ -48,9 +48,9 @@ export const fanChartConfig: VisualTransformerConfig = {
     {
       name: 'maxGenerations',
       type: 'range',
-      defaultValue: 6,
+      defaultValue: 8,
       min: 1,
-      max: 12,
+      max: 16,
       label: 'Generations',
       description: 'Number of ancestor generations to display',
     },
