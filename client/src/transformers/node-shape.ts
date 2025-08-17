@@ -287,12 +287,16 @@ export async function nodeShapeTransform(
     }
 
     // Map calculated shape choice to a geometry profile (v0: circle for all; hook for future kinds)
-    const nodeSize = (currentMetadata.size ?? 20) * (currentMetadata.width ?? 1.0);
-    const nodeHeight = (currentMetadata.size ?? 20) * (currentMetadata.height ?? 1.0);
+    const nodeSize =
+      (currentMetadata.size ?? 20) * (currentMetadata.width ?? 1.0);
+    const nodeHeight =
+      (currentMetadata.size ?? 20) * (currentMetadata.height ?? 1.0);
     const baseProfile: ShapeProfile = {
       kind: calculatedShape === 'circle' ? 'circle' : 'circle',
       size: { width: nodeSize, height: nodeHeight },
-      seed: hashStringToInt(`${String(context.seed ?? 'default')}::${individual.id}`),
+      seed: hashStringToInt(
+        `${String(context.seed ?? 'default')}::${individual.id}`,
+      ),
       detail: { maxVertices: 128 },
     };
 

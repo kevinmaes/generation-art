@@ -291,7 +291,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
           // Shape geometry: prefer shapeProfile if present
           const shapeProfile = (individualMetadata as any)?.shapeProfile as
-            | { kind: string; size: { width: number; height: number }; seed?: number; params?: Record<string, unknown>; detail?: { maxVertices?: number; tolerance?: number } }
+            | {
+                kind: string;
+                size: { width: number; height: number };
+                seed?: number;
+                params?: Record<string, unknown>;
+                detail?: { maxVertices?: number; tolerance?: number };
+              }
             | undefined;
           const opacity = individualMetadata?.opacity ?? 0.8;
           const strokeColor = individualMetadata?.strokeColor;
@@ -371,13 +377,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
               p.rect(0, 0, finalWidth, finalHeight);
             } else if (shape === 'triangle') {
               p.triangle(
-                      0,
-                      -finalHeight / 2,
-                      -finalWidth / 2,
-                      finalHeight / 2,
-                      finalWidth / 2,
-                      finalHeight / 2,
-                  );
+                0,
+                -finalHeight / 2,
+                -finalWidth / 2,
+                finalHeight / 2,
+                finalWidth / 2,
+                finalHeight / 2,
+              );
             } else if (shape === 'hexagon') {
               p.beginShape();
               for (let i = 0; i < 6; i++) {
