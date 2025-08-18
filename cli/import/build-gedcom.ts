@@ -170,6 +170,11 @@ async function buildGedcomFiles(
         const fullPath = join(dir, entry.name);
 
         if (entry.isDirectory()) {
+          // Skip directories starting with underscore (archived)
+          if (entry.name.startsWith('_')) {
+            console.log(`  Skipping archived directory: ${fullPath}`);
+            continue;
+          }
           // Recursively scan subdirectories
           await scanDirectory(fullPath);
         } else if (entry.isFile() && extname(entry.name) === '.ged') {

@@ -10,6 +10,7 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualTransformerConfig,
+  VisualMetadata,
 } from './types';
 import { createTransformerInstance } from './utils';
 
@@ -31,8 +32,8 @@ export const fanChartConfig: VisualTransformerConfig = {
   id: 'fan-chart',
   name: 'Fan Chart Layout',
   description:
-    'Positions individuals in a radial ancestor pattern from a selected center person',
-  shortDescription: 'Radial ancestor positioning',
+    'Positions individuals in a radial pattern from a selected center person',
+  shortDescription: 'Radial family positioning',
   transform: fanChartTransformAsync,
   createTransformerInstance: (params) =>
     createTransformerInstance(
@@ -46,13 +47,24 @@ export const fanChartConfig: VisualTransformerConfig = {
   multiInstance: true,
   visualParameters: [
     {
+      name: 'viewMode',
+      type: 'select',
+      defaultValue: 'ancestors',
+      options: [
+        { value: 'ancestors', label: 'Ancestors' },
+        { value: 'descendants', label: 'Descendants' },
+      ],
+      label: 'View Mode',
+      description: 'Show ancestors or descendants from center person',
+    },
+    {
       name: 'maxGenerations',
       type: 'range',
       defaultValue: 8,
       min: 1,
       max: 16,
       label: 'Generations',
-      description: 'Number of ancestor generations to display',
+      description: 'Number of generations to display',
     },
     {
       name: 'spacingMode',
@@ -123,6 +135,8 @@ export function fanChartTransform(
   } = context;
 
   // Get parameters
+  // viewMode is not used directly in layout calculation but will be used for lineage determination
+  const _viewMode = (context.visual.viewMode as string) ?? 'ancestors';
   const maxGenerations = (context.visual.maxGenerations as number) ?? 6;
   const spacingMode = (context.visual.spacingMode as string) ?? 'auto-fit';
   const distribution = (context.visual.distribution as string) ?? 'uniform';
@@ -141,18 +155,28 @@ export function fanChartTransform(
     return visualMetadata;
   }
 
-  // TODO: Add person selector parameter
-  const centerPerson = individuals[0];
-  const centerPersonId = centerPerson.id;
+  // Use primary individual from context, or fall back to first individual
+  let centerPerson;
+  let centerPersonId;
 
-  console.log(`🎯 Fan chart center: ${centerPerson.name} (${centerPersonId})`);
+  if (
+    context.primaryIndividualId &&
+    gedcomData.individuals[context.primaryIndividualId]
+  ) {
+    centerPerson = gedcomData.individuals[context.primaryIndividualId];
+    centerPersonId = context.primaryIndividualId;
+  } else {
+    // Fallback: use first individual
+    centerPerson = individuals[0];
+    centerPersonId = centerPerson.id;
+  }
 
   // Initialize output structure
   const output: CompleteVisualMetadata = {
     ...visualMetadata,
     individuals: {},
     families: visualMetadata.families || {},
-    edges: visualMetadata.edges || {},
+    edges: {}, // Start with empty edges, we'll add filtered ones later
     tree: visualMetadata.tree || {},
     global: visualMetadata.global || {},
   };
@@ -171,20 +195,11 @@ export function fanChartTransform(
     },
   };
 
-  // Get ancestors using graph traversal
-  const ancestors = getAncestorsByGeneration(
-    centerPersonId,
-    gedcomData,
-    maxGenerations,
-  );
-
-  console.log(
-    'Ancestors by generation:',
-    ancestors.map(
-      (gen, i) =>
-        `Gen ${String(i)}: ${String(gen.filter((a) => a).length)}/${String(gen.length)} known`,
-    ),
-  );
+  // Get relatives based on view mode
+  const relatives =
+    _viewMode === 'ancestors'
+      ? getAncestorsByGeneration(centerPersonId, gedcomData, maxGenerations)
+      : getDescendantsByGeneration(centerPersonId, gedcomData, maxGenerations);
 
   // Calculate generation distances
   const distances = calculateGenerationDistances(
@@ -194,55 +209,204 @@ export function fanChartTransform(
     Math.min(canvasWidth, canvasHeight) / 2,
   );
 
-  console.log('Generation distances:', distances);
+  // Position each generation differently based on view mode
+  if (_viewMode === 'ancestors') {
+    // Original ancestor positioning logic
+    relatives.forEach((generationRelatives, generation) => {
+      if (generation === 0) return; // Skip center person
 
-  // Position each generation
-  ancestors.forEach((generationAncestors, generation) => {
-    if (generation === 0) return; // Skip center person
+      const distance = distances[generation - 1];
+      const angleStep =
+        (spreadDegrees * Math.PI) / 180 / Math.pow(2, generation);
+      const startAngle =
+        (rotation * Math.PI) / 180 - (spreadDegrees * Math.PI) / 360;
+      const twist = ((spiralTwist * Math.PI) / 180) * generation;
 
-    const distance = distances[generation - 1];
-    const angleStep = (spreadDegrees * Math.PI) / 180 / Math.pow(2, generation);
-    const startAngle =
-      (rotation * Math.PI) / 180 - (spreadDegrees * Math.PI) / 360;
-    const twist = ((spiralTwist * Math.PI) / 180) * generation;
+      generationRelatives.forEach((relative, index) => {
+        if (!relative) {
+          // Placeholder for missing relative
+          return;
+        }
 
-    console.log(
-      `Gen ${String(generation)}: ${String(generationAncestors.length)} slots, angleStep: ${String((angleStep * 180) / Math.PI)}°`,
-    );
+        const angle = startAngle + (index + 0.5) * angleStep + twist;
+        const x = centerX + distance * Math.cos(angle);
+        const y = centerY + distance * Math.sin(angle);
 
-    generationAncestors.forEach((ancestor, index) => {
-      if (!ancestor) {
-        // Placeholder for missing ancestor
-        console.log(`  Slot ${String(index)}: empty`);
-        return;
-      }
-
-      const angle = startAngle + (index + 0.5) * angleStep + twist;
-      const x = centerX + distance * Math.cos(angle);
-      const y = centerY + distance * Math.sin(angle);
-
-      console.log(
-        `  Slot ${String(index)}: ${String(ancestor.name)} at (${String(x.toFixed(0))}, ${String(y.toFixed(0))})`,
-      );
-
-      output.individuals[ancestor.id] = {
-        x,
-        y,
-        custom: {
-          generation,
-          angle,
-          distance,
-          angleNormalized: index / Math.pow(2, generation),
-          lineage: determineLineage(index, generation),
-          completeness: calculateCompleteness(generationAncestors),
-        },
-      };
+        output.individuals[relative.id] = {
+          x,
+          y,
+          custom: {
+            generation,
+            angle,
+            distance,
+            angleNormalized: index / Math.pow(2, generation),
+            lineage: determineLineage(index, generation),
+            completeness: calculateCompleteness(generationRelatives),
+          },
+        };
+      });
     });
-  });
+  } else {
+    // Descendant positioning - each child only occupies their parent's angular space
+    const individualAngles = new Map<string, { start: number; end: number }>();
 
-  console.log(
-    `📍 Positioned ${String(Object.keys(output.individuals).length)} individuals`,
-  );
+    // Initialize center person's angular range
+    const baseStartAngle =
+      (rotation * Math.PI) / 180 - (spreadDegrees * Math.PI) / 360;
+    const baseEndAngle = baseStartAngle + (spreadDegrees * Math.PI) / 180;
+    individualAngles.set(centerPersonId, {
+      start: baseStartAngle,
+      end: baseEndAngle,
+    });
+
+    // Build a map of parent-to-children relationships from the relatives data
+    const parentToChildren = new Map<string, any[]>();
+
+    // First pass: build the parent-child map
+    for (let gen = 1; gen < relatives.length; gen++) {
+      const previousGen = relatives[gen - 1];
+      const currentGen = relatives[gen];
+
+      // For each person in the previous generation, find their children in current generation
+      previousGen.forEach((parent) => {
+        if (!parent) return;
+
+        const childrenOfParent = currentGen.filter((child) => {
+          if (!child) return false;
+          // Check if this parent is in the child's parent list
+          const parentIds = child.parents as string[] | undefined;
+          return parentIds?.includes(parent.id) ?? false;
+        });
+
+        if (childrenOfParent.length > 0) {
+          parentToChildren.set(parent.id, childrenOfParent);
+        }
+      });
+    }
+
+    // Second pass: position individuals
+    relatives.forEach((generationRelatives, generation) => {
+      if (generation === 0) return; // Skip center person
+
+      const distance = distances[generation - 1];
+      const twist = ((spiralTwist * Math.PI) / 180) * generation;
+
+      // Get previous generation to find parents
+      const previousGeneration =
+        generation > 0 ? relatives[generation - 1] : [];
+
+      // Position each individual based on their parent's angular range
+      previousGeneration.forEach((parent) => {
+        if (!parent) return;
+
+        const parentAngle = individualAngles.get(parent.id);
+        if (!parentAngle) return;
+
+        const children = parentToChildren.get(parent.id) || [];
+        if (children.length === 0) return;
+
+        const angleRange = parentAngle.end - parentAngle.start;
+        const childAngleStep = angleRange / children.length;
+
+        children.forEach((child, index) => {
+          const childStartAngle = parentAngle.start + index * childAngleStep;
+          const childEndAngle = childStartAngle + childAngleStep;
+          const angle = (childStartAngle + childEndAngle) / 2 + twist;
+
+          const x = centerX + distance * Math.cos(angle);
+          const y = centerY + distance * Math.sin(angle);
+
+          output.individuals[child.id] = {
+            x,
+            y,
+            custom: {
+              generation,
+              angle,
+              distance,
+              angleNormalized:
+                (angle - baseStartAngle) / (baseEndAngle - baseStartAngle),
+              lineage: 'descendant',
+              completeness: calculateCompleteness(generationRelatives),
+              parentId: parent.id, // Track parent for debugging
+            },
+          };
+
+          // Store this child's angular range for their potential children
+          individualAngles.set(child.id, {
+            start: childStartAngle,
+            end: childEndAngle,
+          });
+        });
+      });
+    });
+  }
+
+  // Filter edges to only show connections between adjacent generations
+  // We need to explicitly hide edges rather than remove them due to how the pipeline merges
+  const positionedIds = new Set(Object.keys(output.individuals));
+  const filteredEdges: Record<string, VisualMetadata> = {};
+  const largeGenDiffEdges: string[] = [];
+
+  for (const edge of gedcomData.metadata.edges) {
+    // Start with existing metadata or empty object
+    const existingMetadata = visualMetadata.edges?.[edge.id] ?? {};
+
+    // Check if both source and target are positioned
+    if (
+      !positionedIds.has(edge.sourceId) ||
+      !positionedIds.has(edge.targetId)
+    ) {
+      // Hide edges where one or both nodes aren't positioned
+      filteredEdges[edge.id] = {
+        ...existingMetadata,
+        opacity: 0, // Make invisible
+        hidden: true, // Mark as hidden
+      };
+      continue;
+    }
+
+    const sourceGen = output.individuals[edge.sourceId]?.custom?.generation as
+      | number
+      | undefined;
+    const targetGen = output.individuals[edge.targetId]?.custom?.generation as
+      | number
+      | undefined;
+
+    // Only include edges between adjacent generations
+    if (sourceGen !== undefined && targetGen !== undefined) {
+      const genDiff = Math.abs(sourceGen - targetGen);
+
+      // Only show edges between adjacent generations (parent-child)
+      // or same generation (spouses)
+      if (genDiff <= 1) {
+        // Keep edge visible
+        filteredEdges[edge.id] = existingMetadata;
+      } else {
+        // Hide edges with large generation differences
+        filteredEdges[edge.id] = {
+          ...existingMetadata,
+          opacity: 0, // Make invisible
+          hidden: true, // Mark as hidden
+        };
+
+        const sourceInd = gedcomData.individuals[edge.sourceId];
+        const targetInd = gedcomData.individuals[edge.targetId];
+        largeGenDiffEdges.push(
+          `Edge ${edge.id}: ${sourceInd?.name || edge.sourceId} (gen ${String(sourceGen)}) -> ${targetInd?.name || edge.targetId} (gen ${String(targetGen)}), diff=${String(genDiff)}`,
+        );
+      }
+    } else {
+      // Can't determine generation, hide the edge
+      filteredEdges[edge.id] = {
+        ...existingMetadata,
+        opacity: 0,
+        hidden: true,
+      };
+    }
+  }
+
+  // Set all edges with visibility status
+  output.edges = filteredEdges;
 
   return output;
 }
@@ -265,9 +429,6 @@ function getAncestorsByGeneration(
   }
   result.push([centerPerson]);
 
-  console.log('Graph available?', !!gedcomData.graph);
-  console.log('TraversalUtils available?', !!gedcomData.graph?.traversalUtils);
-
   // Use graph traversal if available
   if (gedcomData.graph?.traversalUtils) {
     const { getParents } = gedcomData.graph.traversalUtils;
@@ -283,13 +444,6 @@ function getAncestorsByGeneration(
           nextGeneration.push(null, null);
         } else {
           const parents = (getParents as (id: string) => any[])(personId);
-          console.log(
-            `Parents of ${String(personId)}:`,
-            parents.map(
-              (p: any) =>
-                `${String(p.name)} (gender: ${String(p.gender)}, sex: ${String(p.sex)})`,
-            ),
-          );
 
           // Always add 2 slots (father, mother) even if missing
           // Parents are already individual objects from getParents
@@ -313,18 +467,12 @@ function getAncestorsByGeneration(
 
           // If we couldn't identify by gender but have parents, use them in order
           if (!father && !mother && parents.length > 0) {
-            console.log(
-              '  Warning: Could not identify parent genders, using order',
-            );
             father = parents[0] || null;
             mother = parents[1] || null;
           }
 
           // Important: Push the actual individual objects, not just null
           nextGeneration.push(father, mother);
-          console.log(
-            `  Added father: ${father ? String(father.name) : 'null'}, mother: ${mother ? String(mother.name) : 'null'}`,
-          );
         }
       });
 
@@ -362,6 +510,98 @@ function getAncestorsByGeneration(
           nextGeneration.push(father, mother);
         }
       });
+
+      result.push(nextGeneration);
+      currentGeneration = nextGeneration;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Get descendants organized by generation
+ */
+function getDescendantsByGeneration(
+  centerPersonId: string,
+  gedcomData: any,
+  maxGenerations: number,
+): any[][] {
+  const result: any[][] = [];
+
+  // Generation 0: center person
+  const centerPerson = gedcomData.individuals[centerPersonId];
+  if (!centerPerson) {
+    console.error(`Center person ${centerPersonId} not found`);
+    return result;
+  }
+  result.push([centerPerson]);
+
+  // Use graph traversal if available
+  if (gedcomData.graph?.traversalUtils) {
+    const { getChildren } = gedcomData.graph.traversalUtils;
+
+    let currentGeneration = [centerPersonId];
+
+    for (let gen = 1; gen <= maxGenerations; gen++) {
+      const nextGeneration: any[] = [];
+      const seenIds = new Set<string>();
+
+      currentGeneration.forEach((personId) => {
+        if (!personId) return;
+
+        const children = (getChildren as (id: string) => any[])(personId);
+
+        // Add each child to the next generation (avoiding duplicates)
+        children.forEach((child: any) => {
+          if (child && !seenIds.has(child.id)) {
+            seenIds.add(child.id);
+            nextGeneration.push(child);
+          }
+        });
+      });
+
+      if (nextGeneration.length === 0) {
+        break;
+      }
+
+      result.push(nextGeneration);
+      currentGeneration = nextGeneration.map((p) => p?.id || null);
+    }
+  } else {
+    // Fallback: use family links directly
+    console.warn('No graph traversal utilities available, using fallback');
+
+    let currentGeneration = [centerPerson];
+
+    for (let gen = 1; gen <= maxGenerations; gen++) {
+      const nextGeneration: any[] = [];
+      const seenIds = new Set<string>();
+
+      currentGeneration.forEach((person) => {
+        if (!person) return;
+
+        // Look for families where this person is a parent
+        Object.values(gedcomData.families).forEach((family: any) => {
+          const isParent =
+            (family.husband && family.husband.id === person.id) ||
+            (family.wife && family.wife.id === person.id);
+
+          if (isParent && family.children) {
+            (family.children as any[]).forEach((childRef: any) => {
+              const child = gedcomData.individuals[childRef.id];
+              if (child && !seenIds.has(child.id)) {
+                seenIds.add(child.id);
+                nextGeneration.push(child);
+              }
+            });
+          }
+        });
+      });
+
+      if (nextGeneration.length === 0) {
+        break;
+      }
 
       result.push(nextGeneration);
       currentGeneration = nextGeneration;

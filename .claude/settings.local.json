@@ -36,7 +36,11 @@
       "Bash(pnpm gedcom:build:*)",
       "Bash(npx tsx:*)",
       "Bash(tsx:*)",
-      "Bash(pnpm tsx:*)"
+      "Bash(pnpm tsx:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm run:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(gh project item-add:*)"
     ],
     "deny": []
   }
