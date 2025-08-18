@@ -267,7 +267,17 @@ function createSketch(props: SketchProps): (p: p5) => void {
           });
         } else {
           // Fall back to legacy edge drawing
+          let totalEdges = 0;
+          let drawnEdges = 0;
           for (const edge of gedcomData.metadata.edges) {
+            totalEdges++;
+            // Skip edges that don't have visual metadata (filtered out by transformers)
+            const edgeMetadata = visualMetadata.edges[edge.id];
+            if (!edgeMetadata) {
+              continue;
+            }
+            drawnEdges++;
+
             const coord1 = getIndividualCoord(
               edge.sourceId,
               width,
@@ -286,15 +296,19 @@ function createSketch(props: SketchProps): (p: p5) => void {
               continue;
             }
 
-            const edgeMetadata = visualMetadata.edges[edge.id];
+            // Skip edges marked as hidden or with opacity 0
+            if (edgeMetadata.hidden || edgeMetadata.opacity === 0) {
+              continue;
+            }
+
             const strokeColor = p.color(
-              edgeMetadata?.strokeColor ??
+              edgeMetadata.strokeColor ??
                 visualMetadata.global.defaultEdgeColor ??
                 '#ccc',
             );
-            const opacity = edgeMetadata?.opacity ?? 0.8;
+            const opacity = edgeMetadata.opacity ?? 0.8;
             const weight =
-              edgeMetadata?.strokeWeight ??
+              edgeMetadata.strokeWeight ??
               visualMetadata.global.defaultEdgeWeight ??
               1;
 
@@ -303,7 +317,11 @@ function createSketch(props: SketchProps): (p: p5) => void {
             p.strokeWeight(weight);
 
             // Draw edge with appropriate curve type
-            drawEdge(p, coord1, coord2, edgeMetadata ?? {});
+            drawEdge(p, coord1, coord2, edgeMetadata);
+          }
+          
+          if (p.frameCount === 1) {
+            console.log(`📊 Drawing ${drawnEdges} of ${totalEdges} total edges (${totalEdges - drawnEdges} filtered out)`);
           }
         }
       }

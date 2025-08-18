@@ -50,6 +50,9 @@ export interface VisualMetadata {
   group?: string;
   layer?: number;
   priority?: number;
+  
+  // Visibility
+  hidden?: boolean;
 
   // Edge curve attributes
   curveType?:

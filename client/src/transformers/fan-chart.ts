@@ -10,6 +10,7 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualTransformerConfig,
+  VisualMetadata,
 } from './types';
 import { createTransformerInstance } from './utils';
 
@@ -179,7 +180,7 @@ export function fanChartTransform(
     ...visualMetadata,
     individuals: {},
     families: visualMetadata.families || {},
-    edges: visualMetadata.edges || {},
+    edges: {}, // Start with empty edges, we'll add filtered ones later
     tree: visualMetadata.tree || {},
     global: visualMetadata.global || {},
   };
@@ -243,7 +244,6 @@ export function fanChartTransform(
       generationRelatives.forEach((relative, index) => {
         if (!relative) {
           // Placeholder for missing relative
-          console.log(`  Slot ${String(index)}: empty`);
           return;
         }
 
@@ -382,6 +382,95 @@ export function fanChartTransform(
 
   console.log(
     `📍 Positioned ${String(Object.keys(output.individuals).length)} individuals`,
+  );
+
+  // Filter edges to only show connections between adjacent generations
+  // We need to explicitly hide edges rather than remove them due to how the pipeline merges
+  const positionedIds = new Set(Object.keys(output.individuals));
+  const filteredEdges: Record<string, VisualMetadata> = {};
+  let visibleEdges = 0;
+  let hiddenEdges = 0;
+  let largeGenDiffEdges: string[] = [];
+
+  for (const edge of gedcomData.metadata.edges) {
+    // Start with existing metadata or empty object
+    const existingMetadata = visualMetadata.edges?.[edge.id] ?? {};
+    
+    // Check if both source and target are positioned
+    if (!positionedIds.has(edge.sourceId) || !positionedIds.has(edge.targetId)) {
+      // Hide edges where one or both nodes aren't positioned
+      filteredEdges[edge.id] = {
+        ...existingMetadata,
+        opacity: 0,  // Make invisible
+        hidden: true, // Mark as hidden
+      };
+      hiddenEdges++;
+      continue;
+    }
+
+    const sourceGen = output.individuals[edge.sourceId]?.custom?.generation as number | undefined;
+    const targetGen = output.individuals[edge.targetId]?.custom?.generation as number | undefined;
+
+    // Only include edges between adjacent generations
+    if (sourceGen !== undefined && targetGen !== undefined) {
+      const genDiff = Math.abs(sourceGen - targetGen);
+      
+      // Only show edges between adjacent generations (parent-child)
+      // or same generation (spouses)
+      if (genDiff <= 1) {
+        // Keep edge visible
+        filteredEdges[edge.id] = existingMetadata;
+        visibleEdges++;
+      } else {
+        // Hide edges with large generation differences
+        filteredEdges[edge.id] = {
+          ...existingMetadata,
+          opacity: 0,  // Make invisible
+          hidden: true, // Mark as hidden
+        };
+        hiddenEdges++;
+        
+        const sourceInd = gedcomData.individuals[edge.sourceId];
+        const targetInd = gedcomData.individuals[edge.targetId];
+        largeGenDiffEdges.push(
+          `Edge ${edge.id}: ${sourceInd?.name || edge.sourceId} (gen ${sourceGen}) -> ${targetInd?.name || edge.targetId} (gen ${targetGen}), diff=${genDiff}`
+        );
+        
+        // Log if this is connecting the primary individual to a distant ancestor
+        if ((edge.sourceId === centerPersonId && genDiff > 1) || 
+            (edge.targetId === centerPersonId && genDiff > 1)) {
+          console.log(`⚠️ Found edge from primary individual to distant relative:`, {
+            edge: edge.id,
+            source: `${sourceInd?.name} (${edge.sourceId}, gen ${sourceGen})`,
+            target: `${targetInd?.name} (${edge.targetId}, gen ${targetGen})`,
+            generationDiff: genDiff
+          });
+        }
+      }
+    } else {
+      // Can't determine generation, hide the edge
+      filteredEdges[edge.id] = {
+        ...existingMetadata,
+        opacity: 0,
+        hidden: true,
+      };
+      hiddenEdges++;
+    }
+  }
+
+  if (largeGenDiffEdges.length > 0) {
+    console.log('🚫 Filtered out edges with large generation differences:');
+    largeGenDiffEdges.slice(0, 5).forEach(edge => console.log('  ', edge));
+    if (largeGenDiffEdges.length > 5) {
+      console.log(`  ... and ${largeGenDiffEdges.length - 5} more`);
+    }
+  }
+
+  // Set all edges with visibility status
+  output.edges = filteredEdges;
+
+  console.log(
+    `🔗 Edge visibility: ${String(visibleEdges)} visible, ${String(hiddenEdges)} hidden (total: ${String(gedcomData.metadata.edges.length)})`,
   );
 
   return output;
