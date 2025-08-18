@@ -145,7 +145,9 @@ export function ArtGenerator({
           <GenerationProgress progress={pipelineProgress} />
         ) : !primaryIndividualId ? (
           <div className="text-center">
-            <p className="text-gray-500 mb-3">Please select a primary individual</p>
+            <p className="text-gray-500 mb-3">
+              Please select a primary individual
+            </p>
             <button
               disabled
               className="px-6 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium"
