@@ -10,6 +10,7 @@ import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
 import { DEFAULT_COLOR } from '../transformers/constants';
 import { renderEdgeRouting } from './edge-renderer';
 import type { ShapeProfile } from '../../../shared/types';
+import { resolveShapeGeometry } from './shapes/resolve';
 
 export interface SketchConfig {
   width: number;
@@ -403,7 +404,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
           // Render shape geometry when available, else fallback to legacy shapes
           if (shapeProfile) {
             try {
-              const { resolveShapeGeometry } = await import('./shapes/resolve');
               const needsSize =
                 !shapeProfile.size ||
                 (shapeProfile.size.width ?? 0) <= 0 ||
