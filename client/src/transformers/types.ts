@@ -50,7 +50,7 @@ export interface VisualMetadata {
   group?: string;
   layer?: number;
   priority?: number;
-  
+
   // Visibility
   hidden?: boolean;
 

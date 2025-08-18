@@ -171,10 +171,6 @@ export function fanChartTransform(
     centerPersonId = centerPerson.id;
   }
 
-  console.log(
-    `🎯 Fan chart center: ${centerPerson.name} (${centerPersonId}) - Mode: ${_viewMode}`,
-  );
-
   // Initialize output structure
   const output: CompleteVisualMetadata = {
     ...visualMetadata,
@@ -205,15 +201,6 @@ export function fanChartTransform(
       ? getAncestorsByGeneration(centerPersonId, gedcomData, maxGenerations)
       : getDescendantsByGeneration(centerPersonId, gedcomData, maxGenerations);
 
-  const relativeType = _viewMode === 'ancestors' ? 'Ancestors' : 'Descendants';
-  console.log(
-    `${relativeType} by generation:`,
-    relatives.map(
-      (gen, i) =>
-        `Gen ${String(i)}: ${String(gen.filter((a) => a).length)}/${String(gen.length)} known`,
-    ),
-  );
-
   // Calculate generation distances
   const distances = calculateGenerationDistances(
     spacingMode,
@@ -221,8 +208,6 @@ export function fanChartTransform(
     maxGenerations,
     Math.min(canvasWidth, canvasHeight) / 2,
   );
-
-  console.log('Generation distances:', distances);
 
   // Position each generation differently based on view mode
   if (_viewMode === 'ancestors') {
@@ -237,10 +222,6 @@ export function fanChartTransform(
         (rotation * Math.PI) / 180 - (spreadDegrees * Math.PI) / 360;
       const twist = ((spiralTwist * Math.PI) / 180) * generation;
 
-      console.log(
-        `Gen ${String(generation)}: ${String(generationRelatives.length)} slots, angleStep: ${String((angleStep * 180) / Math.PI)}°`,
-      );
-
       generationRelatives.forEach((relative, index) => {
         if (!relative) {
           // Placeholder for missing relative
@@ -250,10 +231,6 @@ export function fanChartTransform(
         const angle = startAngle + (index + 0.5) * angleStep + twist;
         const x = centerX + distance * Math.cos(angle);
         const y = centerY + distance * Math.sin(angle);
-
-        console.log(
-          `  Slot ${String(index)}: ${String(relative.name)} at (${String(x.toFixed(0))}, ${String(y.toFixed(0))})`,
-        );
 
         output.individuals[relative.id] = {
           x,
@@ -307,24 +284,12 @@ export function fanChartTransform(
       });
     }
 
-    console.log(
-      'Parent to children map:',
-      Array.from(parentToChildren.entries()).map(
-        ([parentId, children]) =>
-          `${parentId}: ${String(children.length)} children`,
-      ),
-    );
-
     // Second pass: position individuals
     relatives.forEach((generationRelatives, generation) => {
       if (generation === 0) return; // Skip center person
 
       const distance = distances[generation - 1];
       const twist = ((spiralTwist * Math.PI) / 180) * generation;
-
-      console.log(
-        `Gen ${String(generation)}: ${String(generationRelatives.length)} individuals`,
-      );
 
       // Get previous generation to find parents
       const previousGeneration =
@@ -351,10 +316,6 @@ export function fanChartTransform(
           const x = centerX + distance * Math.cos(angle);
           const y = centerY + distance * Math.sin(angle);
 
-          console.log(
-            `  ${String(child.name)} (child of ${String(parent.name)}) at (${String(x.toFixed(0))}, ${String(y.toFixed(0))})`,
-          );
-
           output.individuals[child.id] = {
             x,
             y,
@@ -380,72 +341,59 @@ export function fanChartTransform(
     });
   }
 
-  console.log(
-    `📍 Positioned ${String(Object.keys(output.individuals).length)} individuals`,
-  );
-
   // Filter edges to only show connections between adjacent generations
   // We need to explicitly hide edges rather than remove them due to how the pipeline merges
   const positionedIds = new Set(Object.keys(output.individuals));
   const filteredEdges: Record<string, VisualMetadata> = {};
-  let visibleEdges = 0;
-  let hiddenEdges = 0;
-  let largeGenDiffEdges: string[] = [];
+  const largeGenDiffEdges: string[] = [];
 
   for (const edge of gedcomData.metadata.edges) {
     // Start with existing metadata or empty object
     const existingMetadata = visualMetadata.edges?.[edge.id] ?? {};
-    
+
     // Check if both source and target are positioned
-    if (!positionedIds.has(edge.sourceId) || !positionedIds.has(edge.targetId)) {
+    if (
+      !positionedIds.has(edge.sourceId) ||
+      !positionedIds.has(edge.targetId)
+    ) {
       // Hide edges where one or both nodes aren't positioned
       filteredEdges[edge.id] = {
         ...existingMetadata,
-        opacity: 0,  // Make invisible
+        opacity: 0, // Make invisible
         hidden: true, // Mark as hidden
       };
-      hiddenEdges++;
       continue;
     }
 
-    const sourceGen = output.individuals[edge.sourceId]?.custom?.generation as number | undefined;
-    const targetGen = output.individuals[edge.targetId]?.custom?.generation as number | undefined;
+    const sourceGen = output.individuals[edge.sourceId]?.custom?.generation as
+      | number
+      | undefined;
+    const targetGen = output.individuals[edge.targetId]?.custom?.generation as
+      | number
+      | undefined;
 
     // Only include edges between adjacent generations
     if (sourceGen !== undefined && targetGen !== undefined) {
       const genDiff = Math.abs(sourceGen - targetGen);
-      
+
       // Only show edges between adjacent generations (parent-child)
       // or same generation (spouses)
       if (genDiff <= 1) {
         // Keep edge visible
         filteredEdges[edge.id] = existingMetadata;
-        visibleEdges++;
       } else {
         // Hide edges with large generation differences
         filteredEdges[edge.id] = {
           ...existingMetadata,
-          opacity: 0,  // Make invisible
+          opacity: 0, // Make invisible
           hidden: true, // Mark as hidden
         };
-        hiddenEdges++;
-        
+
         const sourceInd = gedcomData.individuals[edge.sourceId];
         const targetInd = gedcomData.individuals[edge.targetId];
         largeGenDiffEdges.push(
-          `Edge ${edge.id}: ${sourceInd?.name || edge.sourceId} (gen ${sourceGen}) -> ${targetInd?.name || edge.targetId} (gen ${targetGen}), diff=${genDiff}`
+          `Edge ${edge.id}: ${sourceInd?.name || edge.sourceId} (gen ${String(sourceGen)}) -> ${targetInd?.name || edge.targetId} (gen ${String(targetGen)}), diff=${String(genDiff)}`,
         );
-        
-        // Log if this is connecting the primary individual to a distant ancestor
-        if ((edge.sourceId === centerPersonId && genDiff > 1) || 
-            (edge.targetId === centerPersonId && genDiff > 1)) {
-          console.log(`⚠️ Found edge from primary individual to distant relative:`, {
-            edge: edge.id,
-            source: `${sourceInd?.name} (${edge.sourceId}, gen ${sourceGen})`,
-            target: `${targetInd?.name} (${edge.targetId}, gen ${targetGen})`,
-            generationDiff: genDiff
-          });
-        }
       }
     } else {
       // Can't determine generation, hide the edge
@@ -454,24 +402,11 @@ export function fanChartTransform(
         opacity: 0,
         hidden: true,
       };
-      hiddenEdges++;
-    }
-  }
-
-  if (largeGenDiffEdges.length > 0) {
-    console.log('🚫 Filtered out edges with large generation differences:');
-    largeGenDiffEdges.slice(0, 5).forEach(edge => console.log('  ', edge));
-    if (largeGenDiffEdges.length > 5) {
-      console.log(`  ... and ${largeGenDiffEdges.length - 5} more`);
     }
   }
 
   // Set all edges with visibility status
   output.edges = filteredEdges;
-
-  console.log(
-    `🔗 Edge visibility: ${String(visibleEdges)} visible, ${String(hiddenEdges)} hidden (total: ${String(gedcomData.metadata.edges.length)})`,
-  );
 
   return output;
 }
@@ -494,9 +429,6 @@ function getAncestorsByGeneration(
   }
   result.push([centerPerson]);
 
-  console.log('Graph available?', !!gedcomData.graph);
-  console.log('TraversalUtils available?', !!gedcomData.graph?.traversalUtils);
-
   // Use graph traversal if available
   if (gedcomData.graph?.traversalUtils) {
     const { getParents } = gedcomData.graph.traversalUtils;
@@ -512,13 +444,6 @@ function getAncestorsByGeneration(
           nextGeneration.push(null, null);
         } else {
           const parents = (getParents as (id: string) => any[])(personId);
-          console.log(
-            `Parents of ${String(personId)}:`,
-            parents.map(
-              (p: any) =>
-                `${String(p.name)} (gender: ${String(p.gender)}, sex: ${String(p.sex)})`,
-            ),
-          );
 
           // Always add 2 slots (father, mother) even if missing
           // Parents are already individual objects from getParents
@@ -542,18 +467,12 @@ function getAncestorsByGeneration(
 
           // If we couldn't identify by gender but have parents, use them in order
           if (!father && !mother && parents.length > 0) {
-            console.log(
-              '  Warning: Could not identify parent genders, using order',
-            );
             father = parents[0] || null;
             mother = parents[1] || null;
           }
 
           // Important: Push the actual individual objects, not just null
           nextGeneration.push(father, mother);
-          console.log(
-            `  Added father: ${father ? String(father.name) : 'null'}, mother: ${mother ? String(mother.name) : 'null'}`,
-          );
         }
       });
 
@@ -618,9 +537,6 @@ function getDescendantsByGeneration(
   }
   result.push([centerPerson]);
 
-  console.log('Graph available?', !!gedcomData.graph);
-  console.log('TraversalUtils available?', !!gedcomData.graph?.traversalUtils);
-
   // Use graph traversal if available
   if (gedcomData.graph?.traversalUtils) {
     const { getChildren } = gedcomData.graph.traversalUtils;
@@ -635,10 +551,6 @@ function getDescendantsByGeneration(
         if (!personId) return;
 
         const children = (getChildren as (id: string) => any[])(personId);
-        console.log(
-          `Children of ${String(personId)}:`,
-          children.map((c: any) => String(c.name)),
-        );
 
         // Add each child to the next generation (avoiding duplicates)
         children.forEach((child: any) => {
@@ -650,7 +562,6 @@ function getDescendantsByGeneration(
       });
 
       if (nextGeneration.length === 0) {
-        console.log(`No more descendants found at generation ${String(gen)}`);
         break;
       }
 
@@ -689,7 +600,6 @@ function getDescendantsByGeneration(
       });
 
       if (nextGeneration.length === 0) {
-        console.log(`No more descendants found at generation ${String(gen)}`);
         break;
       }
 

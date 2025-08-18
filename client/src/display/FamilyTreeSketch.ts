@@ -267,16 +267,12 @@ function createSketch(props: SketchProps): (p: p5) => void {
           });
         } else {
           // Fall back to legacy edge drawing
-          let totalEdges = 0;
-          let drawnEdges = 0;
           for (const edge of gedcomData.metadata.edges) {
-            totalEdges++;
             // Skip edges that don't have visual metadata (filtered out by transformers)
             const edgeMetadata = visualMetadata.edges[edge.id];
             if (!edgeMetadata) {
               continue;
             }
-            drawnEdges++;
 
             const coord1 = getIndividualCoord(
               edge.sourceId,
@@ -318,10 +314,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
             // Draw edge with appropriate curve type
             drawEdge(p, coord1, coord2, edgeMetadata);
-          }
-          
-          if (p.frameCount === 1) {
-            console.log(`📊 Drawing ${drawnEdges} of ${totalEdges} total edges (${totalEdges - drawnEdges} filtered out)`);
           }
         }
       }
@@ -450,19 +442,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const customLabel = customMetadata?.label;
           const labelOffsetY = customMetadata?.labelOffsetY ?? size * 0.7;
           const labelSize = customMetadata?.labelSize ?? size * 0.3;
-
-          // Debug logging for first few individuals
-          if (Math.random() < 0.05) {
-            // Log 5% of individuals
-            console.log(`🏷️ Label check for ${ind.id}:`, {
-              hasCustom: !!individualMetadata?.custom,
-              customLabel: customLabel ?? 'none',
-              labelOffsetY: labelOffsetY,
-              labelSize: labelSize,
-              showNames,
-              indName: ind.name,
-            });
-          }
 
           if (customLabel) {
             // Render label from transformer metadata with background for visibility
