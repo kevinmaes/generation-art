@@ -32,7 +32,6 @@
       "Bash(pnpm dev:*)",
       "Bash(pnpm format:*)",
       "Bash(pnpm gedcom:build:*)",
-      "Bash(pnpm gedcom:build:all:*)",
       "Bash(pnpm gedcom:clean:*)",
       "Bash(pnpm lint:*)",
       "Bash(pnpm run:*)",
@@ -41,10 +40,7 @@
       "Bash(pnpm typecheck:*)",
       "Bash(rm:*)",
       "Bash(tsx:*)",
-      "mcp__ide__getDiagnostics",
-      "Bash(pnpm lint:*)",
-      "Bash(pnpm typecheck:*)",
-      "Bash(pnpm test:*)"
+      "mcp__ide__getDiagnostics"
     ],
     "deny": []
   }
