@@ -23,6 +23,7 @@ interface FramedArtworkProps {
     total: number;
     transformerName: string;
   } | null;
+  primaryIndividualId?: string;
 }
 
 export function FramedArtwork({
@@ -37,6 +38,7 @@ export function FramedArtwork({
   onVisualize,
   isVisualizing = false,
   pipelineProgress = null,
+  primaryIndividualId,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
@@ -157,6 +159,7 @@ export function FramedArtwork({
             onVisualize={onVisualize}
             isVisualizing={isVisualizing}
             pipelineProgress={pipelineProgress}
+            primaryIndividualId={primaryIndividualId}
           />
         </div>
       </div>
