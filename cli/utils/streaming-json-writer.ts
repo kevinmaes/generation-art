@@ -17,6 +17,9 @@ export async function writeJsonStream(
 ): Promise<void> {
   const writeStream = createWriteStream(filePath);
   
+  // Increase max listeners to avoid warnings with large files
+  writeStream.setMaxListeners(50);
+  
   // For pretty printing, we need to use a different approach
   if (prettyPrint) {
     // For smaller objects or when pretty printing is needed, 

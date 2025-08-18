@@ -344,13 +344,31 @@ async function buildGedcomFiles(
         const mediaFiles = await readdir(foundMediaDir, {
           withFileTypes: true,
         });
+        
+        // Track media files by extension for summary
+        const mediaStats: Record<string, number> = {};
+        let totalCopied = 0;
+        
         for (const entry of mediaFiles) {
           if (entry.isFile()) {
             const src = join(foundMediaDir, entry.name);
             const dest = join(destMediaDir, entry.name);
             await copyFile(src, dest);
-            console.log(`    ✓ Copied media: ${entry.name}`);
+            
+            // Track file extension
+            const ext = extname(entry.name).toLowerCase() || '.unknown';
+            mediaStats[ext] = (mediaStats[ext] || 0) + 1;
+            totalCopied++;
           }
+        }
+        
+        // Show summary instead of individual files
+        if (totalCopied > 0) {
+          const summary = Object.entries(mediaStats)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([ext, count]) => `${String(count)} ${ext}`)
+            .join(', ');
+          console.log(`  ✓ Copied ${String(totalCopied)} media files: ${summary}`);
         }
       } else {
         console.log(`  ℹ No media directory found for ${baseName}`);
