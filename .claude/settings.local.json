@@ -33,7 +33,9 @@
       "Bash(pnpm gedcom:build:all:*)",
       "Bash(pnpm checks:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(pnpm gedcom:build:*)"
+      "Bash(pnpm gedcom:build:*)",
+      "Bash(cat:*)",
+      "Bash(pnpm run:*)"
     ],
     "deny": []
   }

@@ -29,6 +29,8 @@ interface PipelinePanelProps {
   pipelineResult: PipelineResult | null;
   activeTransformerIds: TransformerId[];
   dualData?: DualGedcomData | null;
+  primaryIndividualId?: string;
+  onPrimaryIndividualChange?: (individualId: string | undefined) => void;
   onTransformerSelect?: (transformerId: TransformerId) => void;
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
@@ -58,6 +60,8 @@ export function PipelinePanel({
   pipelineResult,
   activeTransformerIds,
   dualData,
+  primaryIndividualId,
+  onPrimaryIndividualChange,
   onTransformerSelect,
   onAddTransformer,
   onRemoveTransformer,
@@ -209,6 +213,8 @@ export function PipelinePanel({
                   pipelineResult={pipelineResult}
                   activeTransformerIds={activeTransformerIds}
                   dualData={dualData}
+                  primaryIndividualId={primaryIndividualId}
+                  onPrimaryIndividualChange={onPrimaryIndividualChange}
                   onTransformerSelect={onTransformerSelect}
                   onAddTransformer={onAddTransformer}
                   onRemoveTransformer={onRemoveTransformer}

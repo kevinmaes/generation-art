@@ -14,6 +14,7 @@ import {
   isTransformerId,
 } from '../../transformers/transformers';
 import { GripVertical } from 'lucide-react';
+import { PrimaryIndividualSelector } from '../PrimaryIndividualSelector';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
@@ -93,6 +94,8 @@ interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;
   activeTransformerIds: TransformerId[];
   dualData?: DualGedcomData | null;
+  primaryIndividualId?: string;
+  onPrimaryIndividualChange?: (individualId: string | undefined) => void;
   onTransformerSelect?: (transformerId: TransformerId) => void;
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
@@ -159,6 +162,8 @@ export function PipelineManager({
   pipelineResult,
   activeTransformerIds,
   dualData,
+  primaryIndividualId,
+  onPrimaryIndividualChange,
   onTransformerSelect,
   onAddTransformer,
   onRemoveTransformer,
@@ -592,6 +597,17 @@ export function PipelineManager({
               scrollbarColor: '#888 #f1f1f1',
             }}
           >
+            {/* Primary Individual Selector */}
+            {dualData && (
+              <div className="mb-4">
+                <PrimaryIndividualSelector
+                  gedcomData={dualData.full}
+                  value={primaryIndividualId}
+                  onChange={onPrimaryIndividualChange ?? (() => undefined)}
+                />
+              </div>
+            )}
+
             {/* Available Transformers Panel */}
             <CollapsiblePanel
               title="Available Transformers"
