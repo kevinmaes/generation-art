@@ -60,7 +60,7 @@ export const fanChartConfig: VisualTransformerConfig = {
     {
       name: 'maxGenerations',
       type: 'range',
-      defaultValue: 8,
+      defaultValue: 16,
       min: 1,
       max: 16,
       label: 'Generations',
