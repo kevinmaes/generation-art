@@ -28,6 +28,7 @@ import {
   analyzeEdges,
   generateTreeSummary,
   calculateGeneration,
+  calculateGenerationsForAll,
 } from './graph-analysis';
 import { buildGraphData } from './graph-utilities';
 
@@ -480,16 +481,40 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
   families: Family[],
   _rootIndividual?: Individual,
 ): GedcomDataWithMetadata => {
+  console.log('    🕰️ Starting comprehensive transformation...');
+  const analysisStart = Date.now();
+  
   // 1. Generate edges
+  console.log('    1/7 Generating edges...');
   const edges = generateEdges(individuals, families);
+  console.log(`       Generated ${edges.length} edges (${Date.now() - analysisStart}ms)`);
 
   // 2. Perform comprehensive analysis
+  console.log('    2/7 Analyzing graph structure...');
   const graphStructure = analyzeGraphStructure(individuals, families);
+  console.log(`       Graph structure complete (${Date.now() - analysisStart}ms)`);
+  
+  console.log('    3/7 Analyzing temporal patterns...');
   const temporalPatterns = analyzeTemporalPatterns(individuals, families);
+  console.log(`       Temporal patterns complete (${Date.now() - analysisStart}ms)`);
+  
+  console.log('    4/7 Analyzing geographic patterns...');
   const geographicPatterns = analyzeGeographicPatterns(individuals);
+  console.log(`       Geographic patterns complete (${Date.now() - analysisStart}ms)`);
+  
+  console.log('    5/7 Analyzing demographics...');
   const demographics = analyzeDemographics(individuals, families);
-  const relationships = analyzeRelationships(individuals, families);
+  console.log(`       Demographics complete (${Date.now() - analysisStart}ms)`);
+  
+  console.log('    6/7 Analyzing relationships...');
+  // Pre-calculate generations for relationships analysis
+  const generationMapForRelationships = calculateGenerationsForAll(individuals, families);
+  const relationships = analyzeRelationships(individuals, families, generationMapForRelationships);
+  console.log(`       Relationships complete (${Date.now() - analysisStart}ms)`);
+  
+  console.log('    7/7 Analyzing edges...');
   const edgeAnalysis = analyzeEdges(edges);
+  console.log(`       Edge analysis complete (${Date.now() - analysisStart}ms)`);
 
   // 3. Create enhanced metadata
   const enhancedMetadata: TreeMetadata = {
@@ -509,15 +534,26 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     ),
   };
 
-  // 4. Enhance individual and family metadata with graph data
-  const enhancedIndividuals = enhanceIndividualMetadata(
+  // 4. Pre-calculate generations for performance
+  console.log('    📊 Pre-calculating generations for all individuals...');
+  const generationMap = calculateGenerationsForAll(individuals, families);
+  console.log(`       Calculated generations for ${generationMap.size} individuals (${Date.now() - analysisStart}ms)`);
+  
+  // 5. Enhance individual and family metadata with graph data
+  console.log('    📊 Enhancing individual metadata...');
+  const enhancedIndividuals = enhanceIndividualMetadataWithCache(
     individuals,
     enhancedMetadata,
     families,
+    generationMap,
   );
-  const enhancedFamilies = enhanceFamilyMetadata(families, enhancedMetadata);
+  console.log(`       Enhanced ${enhancedIndividuals.length} individuals (${Date.now() - analysisStart}ms)`);
+  
+  console.log('    📊 Enhancing family metadata...');
+  const enhancedFamilies = enhanceFamilyMetadataWithCache(families, enhancedMetadata, generationMap);
+  console.log(`       Enhanced ${enhancedFamilies.length} families (${Date.now() - analysisStart}ms)`);
 
-  // 5. Convert arrays to ID-keyed objects for efficient lookups
+  // 6. Convert arrays to ID-keyed objects for efficient lookups
   const individualsById = {} as Record<string, AugmentedIndividual>;
   enhancedIndividuals.forEach((individual) => {
     individualsById[individual.id] = individual;
@@ -536,10 +572,10 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     familiesById[updatedFamily.id] = updatedFamily;
   });
 
-  // 6. Build enhanced graph data for efficient traversals
+  // 7. Build enhanced graph data for efficient traversals
   const graphData = buildGraphData(individualsById, familiesById);
 
-  // 7. Return enhanced data structure with ID-keyed objects and graph data
+  // 8. Return enhanced data structure with ID-keyed objects and graph data
   return {
     individuals: individualsById,
     families: familiesById,
@@ -549,7 +585,98 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
 };
 
 /**
- * Enhance individual metadata with graph analysis data
+ * Enhance individual metadata with graph analysis data (with cached generations)
+ */
+export const enhanceIndividualMetadataWithCache = (
+  individuals: Individual[],
+  treeMetadata: TreeMetadata,
+  families: Family[] = [],
+  generationMap: Map<string, number>,
+): AugmentedIndividual[] => {
+  let processedCount = 0;
+  const total = individuals.length;
+  
+  return individuals.map((individual) => {
+    if (processedCount % 100 === 0) {
+      console.log(`       Processing individual ${processedCount}/${total}...`);
+    }
+    processedCount++;
+    
+    // Get existing metadata
+    // Note: This might be slow if transform functions scan all individuals
+    const existingMetadata = extractIndividualMetadata(individual, {
+      allIndividuals: individuals,
+      allFamilies: families,
+    });
+
+    // Get generation from cached map
+    const generation = generationMap.get(individual.id) ?? 0;
+
+    // Calculate centrality (simplified - count of relationships)
+    const centrality = treeMetadata.edges.filter(
+      (edge) =>
+        edge.sourceId === individual.id || edge.targetId === individual.id,
+    ).length;
+
+    // Calculate relationship counts
+    const relationshipCount = centrality;
+    const ancestorCount = 0; // Would need more sophisticated calculation
+    const descendantCount = 0; // Would need more sophisticated calculation
+    const siblingCount = treeMetadata.edges.filter(
+      (edge) =>
+        edge.relationshipType === 'sibling' &&
+        (edge.sourceId === individual.id || edge.targetId === individual.id),
+    ).length;
+    const cousinCount = 0; // Would need more sophisticated calculation
+
+    // Extract geographic data
+    const birthCountry = individual.birth?.place
+      ? (extractCountry(individual.birth.place) ?? undefined)
+      : undefined;
+    const deathCountry = individual.death?.place
+      ? (extractCountry(individual.death.place) ?? undefined)
+      : undefined;
+    const migrationDistance = 0; // Would need coordinates
+
+    // Extract temporal data
+    const birthYear = individual.birth?.date
+      ? (extractYear(individual.birth.date) ?? undefined)
+      : undefined;
+    const deathYear = individual.death?.date
+      ? (extractYear(individual.death.date) ?? undefined)
+      : undefined;
+    const ageAtDeath =
+      birthYear && deathYear ? deathYear - birthYear : undefined;
+    const generationGap = 25; // Default assumption
+
+    // Combine all metadata
+    const enhancedMetadata: IndividualMetadata = {
+      ...existingMetadata,
+      generation,
+      centrality,
+      relationshipCount,
+      ancestorCount,
+      descendantCount,
+      siblingCount,
+      cousinCount,
+      birthCountry,
+      deathCountry,
+      migrationDistance,
+      birthYear,
+      deathYear,
+      ageAtDeath,
+      generationGap,
+    };
+
+    return {
+      ...individual,
+      metadata: enhancedMetadata,
+    };
+  });
+};
+
+/**
+ * Enhance individual metadata with graph analysis data (legacy - kept for compatibility)
  */
 export const enhanceIndividualMetadata = (
   individuals: Individual[],
@@ -637,7 +764,80 @@ interface FamilyWithMetadataPlain extends Family {
 }
 
 /**
- * Enhance family metadata with graph analysis data
+ * Enhance family metadata with graph analysis data (with cached generations)
+ */
+export const enhanceFamilyMetadataWithCache = (
+  families: Family[],
+  _treeMetadata: TreeMetadata,
+  generationMap: Map<string, number>,
+): FamilyWithMetadataPlain[] => {
+  return families.map((family) => {
+    // Get existing metadata
+    const existingMetadata = extractFamilyMetadata(family, {
+      allIndividuals: [], // Will be populated later
+      allFamilies: families,
+    });
+
+    // Calculate graph-based metadata
+    const familyComplexity = family.children.length > 2 ? 0.8 : 0.3;
+    const blendedFamily = false; // Would need more sophisticated analysis
+    const remarriage = false; // Would need more sophisticated analysis
+    
+    // Get generation from cached map
+    const generation =
+      family.children.length > 0
+        ? (generationMap.get(family.children[0].id) ?? 0) + 1
+        : 0;
+
+    // Geographic analysis
+    const husband = family.husband;
+    const wife = family.wife;
+    const husbandBirthCountry = husband?.birth?.place
+      ? extractCountry(husband.birth.place)
+      : undefined;
+    const wifeBirthCountry = wife?.birth?.place
+      ? extractCountry(wife.birth.place)
+      : undefined;
+    const sameCountryParents =
+      husbandBirthCountry && wifeBirthCountry
+        ? husbandBirthCountry === wifeBirthCountry
+        : false;
+    const crossCountryMarriage =
+      husbandBirthCountry && wifeBirthCountry
+        ? husbandBirthCountry !== wifeBirthCountry
+        : false;
+
+    // Temporal analysis
+    const marriageYear = 0; // Would need marriage date
+    const averageChildAge = 0; // Would need more sophisticated calculation
+    const childSpacing: number[] = []; // Would need more sophisticated calculation
+
+    // Combine all metadata
+    const enhancedMetadata: FamilyMetadata = {
+      ...existingMetadata,
+      familyComplexity,
+      blendedFamily,
+      remarriage,
+      generation,
+      sameCountryParents,
+      crossCountryMarriage,
+      marriageYear,
+      averageChildAge,
+      childSpacing,
+    };
+
+    return {
+      id: family.id,
+      husband: family.husband,
+      wife: family.wife,
+      children: family.children,
+      metadata: enhancedMetadata,
+    };
+  });
+};
+
+/**
+ * Enhance family metadata with graph analysis data (legacy - kept for compatibility)
  */
 export const enhanceFamilyMetadata = (
   families: Family[],

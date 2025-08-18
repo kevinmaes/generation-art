@@ -155,6 +155,8 @@ async function buildGedcomFiles(
   singleFilePath?: string,
 ): Promise<void> {
   const { inputDirs, outputDir, mediaDir } = config;
+  console.log('\n🚀 Starting buildGedcomFiles...');
+  console.log('  Config:', { inputDirs, outputDir, mediaDir, singleFilePath });
 
   // Ensure output directories exist
   await mkdir(outputDir, { recursive: true });
@@ -259,8 +261,11 @@ async function buildGedcomFiles(
       fileTimer.endAndLog('File Reading');
 
       fileTimer.start('GEDCOM Parsing');
+      console.log('  🔍 Creating parser...');
       const parser = new SimpleGedcomParser();
+      console.log('  🔍 Starting parse...');
       const parsedData = parser.parse(gedcomText);
+      console.log(`  🔍 Parse complete: ${parsedData.individuals.length} individuals`);
       fileTimer.endAndLog('GEDCOM Parsing');
 
       // Write raw parsed JSON (intermediate file)
@@ -285,10 +290,12 @@ async function buildGedcomFiles(
       fileTimer.endAndLog('Relationship Building');
 
       fileTimer.start('LLM Optimization');
+      console.log('  🤖 Starting LLM optimization...');
       const processingResult = processGedcomWithLLMOptimization(
         individuals,
         families,
       );
+      console.log('  🤖 LLM optimization complete');
       fileTimer.endAndLog('LLM Optimization');
 
       // Write full data (for local operations)
@@ -442,7 +449,17 @@ async function buildGedcomFiles(
   overallTimer.endAndLog('Total Processing');
   overallTimer.logSummary('Overall Build Performance');
 
+  // Calculate total individuals and families processed
+  let totalIndividuals = 0;
+  let totalFamilies = 0;
+  
+  for (const dataset of manifest.datasets) {
+    totalIndividuals += dataset.individualCount;
+    totalFamilies += dataset.familyCount;
+  }
+  
   console.log('\nGEDCOM build complete!');
+  console.log(`📊 Total processed: ${String(totalIndividuals)} individuals, ${String(totalFamilies)} families`);
   console.log(`Generated files are in: ${outputDir}`);
 
   // Warning for slow operations

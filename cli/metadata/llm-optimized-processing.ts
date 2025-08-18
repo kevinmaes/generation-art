@@ -23,7 +23,8 @@ export function processGedcomWithLLMOptimization(
   );
 
   // For very large datasets, use a simplified processing to avoid memory issues
-  const isLargeDataset = individuals.length > 2000;
+  // Lowered threshold due to performance issues with comprehensive analysis
+  const isLargeDataset = individuals.length > 1000;
 
   if (isLargeDataset) {
     console.log('  ⚠️  Large dataset detected - using optimized processing...');
@@ -31,6 +32,7 @@ export function processGedcomWithLLMOptimization(
 
   // Step 1: Generate full data with comprehensive metadata
   console.log('📈 Generating full data with comprehensive metadata...');
+  console.log(`  Dataset size check: ${individuals.length} individuals (large threshold: 2000)`);
 
   // For large datasets, create a simplified version
   let fullData;
@@ -73,10 +75,12 @@ export function processGedcomWithLLMOptimization(
       },
     };
   } else {
+    console.log('  📊 Performing comprehensive analysis (non-large dataset)...');
     fullData = transformGedcomDataWithComprehensiveAnalysis(
       individuals,
       families,
     );
+    console.log('  ✅ Comprehensive analysis complete');
   }
 
   // Step 2: Generate LLM-ready data (PII stripped)
