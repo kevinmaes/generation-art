@@ -662,18 +662,24 @@ export const validateFlexibleGedcomData = (
           ...child,
           metadata: child.metadata || createDefaultIndividualMetadata(),
         }));
-        
+
         familiesById[family.id] = {
           ...family,
           children: enhancedChildren,
-          husband: family.husband ? {
-            ...family.husband,
-            metadata: family.husband.metadata || createDefaultIndividualMetadata(),
-          } : undefined,
-          wife: family.wife ? {
-            ...family.wife,
-            metadata: family.wife.metadata || createDefaultIndividualMetadata(),
-          } : undefined,
+          husband: family.husband
+            ? {
+                ...family.husband,
+                metadata:
+                  family.husband.metadata || createDefaultIndividualMetadata(),
+              }
+            : undefined,
+          wife: family.wife
+            ? {
+                ...family.wife,
+                metadata:
+                  family.wife.metadata || createDefaultIndividualMetadata(),
+              }
+            : undefined,
           metadata: family.metadata || createDefaultFamilyMetadata(),
         };
       });
@@ -709,18 +715,24 @@ export const validateFlexibleGedcomData = (
         ...child,
         metadata: child.metadata || createDefaultIndividualMetadata(),
       }));
-      
+
       familiesWithMetadata[id] = {
         ...family,
         children: enhancedChildren,
-        husband: family.husband ? {
-          ...family.husband,
-          metadata: family.husband.metadata || createDefaultIndividualMetadata(),
-        } : undefined,
-        wife: family.wife ? {
-          ...family.wife,
-          metadata: family.wife.metadata || createDefaultIndividualMetadata(),
-        } : undefined,
+        husband: family.husband
+          ? {
+              ...family.husband,
+              metadata:
+                family.husband.metadata || createDefaultIndividualMetadata(),
+            }
+          : undefined,
+        wife: family.wife
+          ? {
+              ...family.wife,
+              metadata:
+                family.wife.metadata || createDefaultIndividualMetadata(),
+            }
+          : undefined,
         metadata: family.metadata || createDefaultFamilyMetadata(),
       };
     });

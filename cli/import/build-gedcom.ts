@@ -416,7 +416,8 @@ async function buildGedcomFiles(
         generationCount?: number;
       };
       // Support both field names for backward compatibility
-      individualCount = stats.individualCount ?? stats.individualsProcessed ?? 0;
+      individualCount =
+        stats.individualCount ?? stats.individualsProcessed ?? 0;
       familyCount = stats.familyCount ?? stats.familiesProcessed ?? 0;
       generationCount = stats.generationCount ?? 0;
     } catch {

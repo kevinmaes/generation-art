@@ -43,10 +43,10 @@ export function processGedcomWithLLMOptimization(
     // Create a simplified structure without heavy analysis
     // But still calculate essential data for front-end performance
     console.log('  📊 Pre-calculating essential data for front-end...');
-    
+
     // Pre-calculate generations for all individuals
     const generationMap = calculateGenerationsForAll(individuals, families);
-    
+
     // Pre-calculate centrality scores (connection count)
     const centralityMap = new Map<string, number>();
     individuals.forEach((ind) => {
@@ -57,14 +57,17 @@ export function processGedcomWithLLMOptimization(
       connections += ind.siblings?.length || 0;
       centralityMap.set(ind.id, connections);
     });
-    
+
     // Convert to ID-keyed objects with pre-computed metadata
-    const individualsObj: Record<string, Individual & { 
-      generation?: number;
-      centrality?: number;
-      relationshipCount?: number;
-    }> = {};
-    
+    const individualsObj: Record<
+      string,
+      Individual & {
+        generation?: number;
+        centrality?: number;
+        relationshipCount?: number;
+      }
+    > = {};
+
     individuals.forEach((ind) => {
       individualsObj[ind.id] = {
         ...ind,
@@ -81,16 +84,16 @@ export function processGedcomWithLLMOptimization(
 
     // Generate edges for front-end graph operations
     const edges = generateEdges(individuals, families);
-    
+
     // Calculate generation statistics
     const generations = Array.from(generationMap.values());
     const maxGenerations = Math.max(...generations, 0);
     const minGenerations = Math.min(...generations, 0);
     const generationDistribution: Record<number, number> = {};
-    generations.forEach(gen => {
+    generations.forEach((gen) => {
       generationDistribution[gen] = (generationDistribution[gen] || 0) + 1;
     });
-    
+
     fullData = {
       individuals: individualsObj,
       families: familiesObj,
@@ -104,20 +107,26 @@ export function processGedcomWithLLMOptimization(
           maxGenerations,
           minGenerations,
           generationDistribution,
-          averageGenerationsPerBranch: maxGenerations > 0 ? individuals.length / maxGenerations : 0,
+          averageGenerationsPerBranch:
+            maxGenerations > 0 ? individuals.length / maxGenerations : 0,
           // Add missing required fields with default values for large datasets
           disconnectedComponents: 1,
           largestComponentSize: individuals.length,
           averageConnectionsPerIndividual: edges.length / individuals.length,
-          connectivityDensity: edges.length / (individuals.length * (individuals.length - 1)),
-          averageFamilySize: families.length > 0 ? individuals.length / families.length : 0,
+          connectivityDensity:
+            edges.length / (individuals.length * (individuals.length - 1)),
+          averageFamilySize:
+            families.length > 0 ? individuals.length / families.length : 0,
           largestFamilySize: 0,
           familySizeDistribution: {},
           childlessFamilies: 0,
           largeFamilies: 0,
           treeComplexity: 0,
           branchingFactor: 0,
-          depthToBreadthRatio: maxGenerations > 0 ? maxGenerations / Math.sqrt(individuals.length) : 0,
+          depthToBreadthRatio:
+            maxGenerations > 0
+              ? maxGenerations / Math.sqrt(individuals.length)
+              : 0,
         },
         temporalPatterns: {
           earliestBirthYear: 0,
@@ -215,9 +224,14 @@ export function processGedcomWithLLMOptimization(
         edges, // Include edges in metadata too
         edgeAnalysis: {
           totalEdges: edges.length,
-          parentChildEdges: edges.filter((e: any) => e.relationshipType === 'parent-child').length,
-          spouseEdges: edges.filter((e: any) => e.relationshipType === 'spouse').length,
-          siblingEdges: edges.filter((e: any) => e.relationshipType === 'sibling').length,
+          parentChildEdges: edges.filter(
+            (e: any) => e.relationshipType === 'parent-child',
+          ).length,
+          spouseEdges: edges.filter((e: any) => e.relationshipType === 'spouse')
+            .length,
+          siblingEdges: edges.filter(
+            (e: any) => e.relationshipType === 'sibling',
+          ).length,
           averageEdgeWeight: 1,
           edgeWeightDistribution: {},
           strongRelationships: edges.length,
