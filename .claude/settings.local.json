@@ -40,7 +40,9 @@
       "Bash(pnpm typecheck:*)",
       "Bash(rm:*)",
       "Bash(tsx:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm vitest:*)"
     ],
     "deny": []
   }
