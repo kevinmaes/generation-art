@@ -11,6 +11,7 @@ import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
 import { processGedcomWithLLMOptimization } from '../metadata/llm-optimized-processing';
 import type { Individual, Family } from '../../shared/types';
 import { PerformanceTimer } from '../utils/performance-timer';
+import { writeJsonStream, writeJsonObjectStream } from '../utils/streaming-json-writer';
 
 // Local interfaces that match SimpleGedcomParser output
 interface ParsedIndividual {
@@ -264,7 +265,14 @@ async function buildGedcomFiles(
 
       // Write raw parsed JSON (intermediate file)
       fileTimer.start('Raw JSON Writing');
-      await writeFile(rawOutputPath, JSON.stringify(parsedData, null, 2));
+      // Use streaming for large files
+      const useStreaming = parsedData.individuals.length > 1000;
+      if (useStreaming) {
+        console.log('  📊 Using stream-based writing for large dataset...');
+        await writeJsonStream(rawOutputPath, parsedData, true);
+      } else {
+        await writeFile(rawOutputPath, JSON.stringify(parsedData, null, 2));
+      }
       fileTimer.endAndLog('Raw JSON Writing');
       console.log(
         `  ✓ Generated _${baseName}-raw.json (${String(parsedData.individuals.length)} individuals, ${String(parsedData.families.length)} families)`,
@@ -285,19 +293,30 @@ async function buildGedcomFiles(
 
       // Write full data (for local operations)
       fileTimer.start('Full JSON Writing');
-      await writeFile(
-        fullOutputPath,
-        JSON.stringify(processingResult.full, null, 2),
-      );
+      const useStreamingForLarge = individuals.length > 1000;
+      if (useStreamingForLarge) {
+        console.log('  📊 Using stream-based writing for full data...');
+        await writeJsonStream(fullOutputPath, processingResult.full, true);
+      } else {
+        await writeFile(
+          fullOutputPath,
+          JSON.stringify(processingResult.full, null, 2),
+        );
+      }
       fileTimer.endAndLog('Full JSON Writing');
       console.log(`  ✓ Generated ${baseName}.json (full data with metadata)`);
 
       // Write LLM-ready data (PII stripped)
       fileTimer.start('LLM JSON Writing');
-      await writeFile(
-        llmOutputPath,
-        JSON.stringify(processingResult.llm, null, 2),
-      );
+      if (useStreamingForLarge) {
+        console.log('  📊 Using stream-based writing for LLM data...');
+        await writeJsonStream(llmOutputPath, processingResult.llm, true);
+      } else {
+        await writeFile(
+          llmOutputPath,
+          JSON.stringify(processingResult.llm, null, 2),
+        );
+      }
       fileTimer.endAndLog('LLM JSON Writing');
       console.log(
         `  ✓ Generated ${baseName}-llm.json (LLM-ready, PII stripped)`,
