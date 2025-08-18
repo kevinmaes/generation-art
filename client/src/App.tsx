@@ -82,6 +82,9 @@ function App(): React.ReactElement {
     total: number;
     transformerName: string;
   } | null>(null);
+  const [primaryIndividualId, setPrimaryIndividualId] = useState<
+    string | undefined
+  >(undefined);
 
   const [currentDataset, setCurrentDataset] = useState<string>('');
   const [availableDatasets, setAvailableDatasets] = useState<string[]>([]);
@@ -230,6 +233,7 @@ function App(): React.ReactElement {
         canvasWidth: minWidth,
         canvasHeight: minHeight,
         temperature: 0.5,
+        primaryIndividualId,
         transformerParameters,
       });
 
@@ -442,6 +446,8 @@ function App(): React.ReactElement {
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
           dualData={dualData}
+          primaryIndividualId={primaryIndividualId}
+          onPrimaryIndividualChange={setPrimaryIndividualId}
           onTransformerSelect={handleTransformerSelect}
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}

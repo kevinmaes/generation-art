@@ -70,6 +70,9 @@ export interface PipelineConfig {
   // Canvas dimensions for reference
   canvasWidth?: number;
   canvasHeight?: number;
+
+  // Primary individual ID for transformers that need a focal point
+  primaryIndividualId?: string;
 }
 
 interface PipelineInput {
@@ -464,6 +467,7 @@ export async function* runPipelineGenerator({
         seed: config.seed,
         canvasWidth: config.canvasWidth,
         canvasHeight: config.canvasHeight,
+        primaryIndividualId: config.primaryIndividualId,
         dimensions: {
           primary:
             transformerInstance.dimensions.primary ??
@@ -693,6 +697,7 @@ export function createSimplePipeline(
     seed?: string;
     canvasWidth?: number;
     canvasHeight?: number;
+    primaryIndividualId?: string;
     transformerParameters?: Record<
       string,
       {
@@ -734,5 +739,6 @@ export function createSimplePipeline(
     seed: options?.seed,
     canvasWidth: options?.canvasWidth,
     canvasHeight: options?.canvasHeight,
+    primaryIndividualId: options?.primaryIndividualId,
   };
 }
