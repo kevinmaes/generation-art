@@ -103,6 +103,18 @@ function App(): React.ReactElement {
     },
   });
 
+  // Development: Auto-select Raphael Ophir Maes (I12406240) when data loads
+  useEffect(() => {
+    if (dualData?.full?.individuals && !primaryIndividualId) {
+      const targetId = 'I12406240';
+      
+      if (dualData.full.individuals[targetId]) {
+        console.log('🎯 Auto-selecting Raphael Ophir Maes:', targetId);
+        setPrimaryIndividualId(targetId);
+      }
+    }
+  }, [dualData, primaryIndividualId]);
+
   // Load manifest to get available datasets
   useEffect(() => {
     const loadManifest = async () => {
@@ -160,17 +172,20 @@ function App(): React.ReactElement {
 
       // For uploaded files, create a minimal dual-data structure
       // (LLM data will be null since we don't have pre-processed LLM data)
-      setDualData({
+      const newDualData = {
         full: validatedData,
         llm: {
           individuals: {},
           families: {},
           metadata: validatedData.metadata,
         },
-      });
+      };
+      setDualData(newDualData);
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
+      // Clear primary individual so the useEffect can auto-select
+      setPrimaryIndividualId(undefined);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load file');
     } finally {
@@ -183,6 +198,8 @@ function App(): React.ReactElement {
     setCurrentView('artwork');
     setError(null);
     setPipelineResult(null);
+    // Clear primary individual when switching datasets so auto-select can work
+    setPrimaryIndividualId(undefined);
     // The hook will automatically load the data
   };
 

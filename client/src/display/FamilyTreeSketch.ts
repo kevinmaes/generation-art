@@ -403,6 +403,15 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
           // Render shape geometry when available, else fallback to legacy shapes
           if (shapeProfile) {
+            // Debug: Log shape profile rendering
+            if (Math.random() < 0.1) { // Log ~10% of shape profiles to avoid spam
+              console.log('Rendering shape profile:', {
+                id: ind.id,
+                kind: shapeProfile.kind,
+                shape,
+                params: shapeProfile.params,
+              });
+            }
             try {
               const needsSize =
                 !shapeProfile.size ||
@@ -419,16 +428,29 @@ function createSketch(props: SketchProps): (p: p5) => void {
               };
               const geometry = resolveShapeGeometry(profile);
               p.beginShape();
-              const poly = geometry.polygon as unknown as number[];
+              const poly = geometry.polygon;
               for (let i = 0; i < poly.length; i += 2) {
                 p.vertex(poly[i], poly[i + 1]);
               }
               p.endShape(p.CLOSE);
-            } catch {
-              // Fallback to circle if geometry fails
+            } catch (error) {
+              // Log error and fallback to circle if geometry fails
+              console.error('Shape profile rendering error:', error, {
+                individualId: ind.id,
+                profile,
+                shapeProfile,
+              });
               p.ellipse(0, 0, finalWidth, finalHeight);
             }
           } else {
+            // Debug: Log legacy shape fallback
+            if (Math.random() < 0.1) { // Log ~10% to avoid spam
+              console.log('Using legacy shape rendering:', {
+                id: ind.id,
+                shape,
+                hasShapeProfile: !!shapeProfile,
+              });
+            }
             if (shape === 'circle') {
               p.ellipse(0, 0, finalWidth, finalHeight);
             } else if (shape === 'square') {
