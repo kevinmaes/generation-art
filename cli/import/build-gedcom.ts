@@ -11,7 +11,7 @@ import { SimpleGedcomParser } from '../parsers/SimpleGedcomParser';
 import { processGedcomWithLLMOptimization } from '../metadata/llm-optimized-processing';
 import type { Individual, Family } from '../../shared/types';
 import { PerformanceTimer } from '../utils/performance-timer';
-import { writeJsonStream, writeJsonObjectStream } from '../utils/streaming-json-writer';
+import { writeJsonStream } from '../utils/streaming-json-writer';
 
 // Local interfaces that match SimpleGedcomParser output
 interface ParsedIndividual {
@@ -344,31 +344,33 @@ async function buildGedcomFiles(
         const mediaFiles = await readdir(foundMediaDir, {
           withFileTypes: true,
         });
-        
+
         // Track media files by extension for summary
         const mediaStats: Record<string, number> = {};
         let totalCopied = 0;
-        
+
         for (const entry of mediaFiles) {
           if (entry.isFile()) {
             const src = join(foundMediaDir, entry.name);
             const dest = join(destMediaDir, entry.name);
             await copyFile(src, dest);
-            
+
             // Track file extension
             const ext = extname(entry.name).toLowerCase() || '.unknown';
             mediaStats[ext] = (mediaStats[ext] || 0) + 1;
             totalCopied++;
           }
         }
-        
+
         // Show summary instead of individual files
         if (totalCopied > 0) {
           const summary = Object.entries(mediaStats)
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([ext, count]) => `${String(count)} ${ext}`)
             .join(', ');
-          console.log(`  ✓ Copied ${String(totalCopied)} media files: ${summary}`);
+          console.log(
+            `  ✓ Copied ${String(totalCopied)} media files: ${summary}`,
+          );
         }
       } else {
         console.log(`  ℹ No media directory found for ${baseName}`);

@@ -24,28 +24,28 @@ export function processGedcomWithLLMOptimization(
 
   // For very large datasets, use a simplified processing to avoid memory issues
   const isLargeDataset = individuals.length > 2000;
-  
+
   if (isLargeDataset) {
     console.log('  ⚠️  Large dataset detected - using optimized processing...');
   }
 
   // Step 1: Generate full data with comprehensive metadata
   console.log('📈 Generating full data with comprehensive metadata...');
-  
+
   // For large datasets, create a simplified version
   let fullData;
   if (isLargeDataset) {
     // Create a simplified structure without heavy analysis
     const individualsObj: Record<string, Individual> = {};
-    individuals.forEach(ind => {
+    individuals.forEach((ind) => {
       individualsObj[ind.id] = ind;
     });
-    
+
     const familiesObj: Record<string, Family> = {};
-    families.forEach(fam => {
+    families.forEach((fam) => {
       familiesObj[fam.id] = fam;
     });
-    
+
     fullData = {
       individuals: individualsObj,
       families: familiesObj,
@@ -96,19 +96,28 @@ export function processGedcomWithLLMOptimization(
 
   // Calculate memory usage (approximate) - use a more efficient estimation
   // For large datasets, we estimate based on counts rather than stringifying
-  const estimateDataSize = (data: any): number => {
+  interface DataWithCounts {
+    individuals?: Record<string, unknown>;
+    families?: Record<string, unknown>;
+  }
+
+  const estimateDataSize = (
+    data: DataWithCounts | null | undefined,
+  ): number => {
     if (!data) return 0;
-    
-    // Rough estimation: 
+
+    // Rough estimation:
     // - Each individual ~500 bytes average
-    // - Each family ~200 bytes average  
+    // - Each family ~200 bytes average
     // - Metadata ~10KB
-    const individualCount = data.individuals ? Object.keys(data.individuals).length : 0;
+    const individualCount = data.individuals
+      ? Object.keys(data.individuals).length
+      : 0;
     const familyCount = data.families ? Object.keys(data.families).length : 0;
-    
-    return (individualCount * 500) + (familyCount * 200) + 10240;
+
+    return individualCount * 500 + familyCount * 200 + 10240;
   };
-  
+
   const fullDataSize = estimateDataSize(fullData);
   const llmDataSize = estimateDataSize(llmData);
   const totalSize = fullDataSize + llmDataSize;

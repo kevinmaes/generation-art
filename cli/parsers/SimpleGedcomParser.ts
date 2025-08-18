@@ -91,7 +91,7 @@ export class SimpleGedcomParser {
 
     // Always show final counts
     console.log(
-      `  ✓ Parsed ${String(this.individuals.size)} individuals and ${String(this.families.size)} families`
+      `  ✓ Parsed ${String(this.individuals.size)} individuals and ${String(this.families.size)} families`,
     );
 
     return {
@@ -228,7 +228,11 @@ export class SimpleGedcomParser {
   private handleChild(line: GedcomLine) {
     if (this.currentFamily && line.value) {
       if (this.debug) {
-        console.log('Adding child to family:', this.currentFamily.id, line.value);
+        console.log(
+          'Adding child to family:',
+          this.currentFamily.id,
+          line.value,
+        );
       }
       // Remove @ symbols from reference
       const cleanRef = line.value.replace(/@/g, '');
