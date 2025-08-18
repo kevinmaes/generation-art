@@ -4,8 +4,13 @@ import type {
   CLIProcessingResult,
   CLIProcessingStats,
 } from '../../shared/types/llm-data';
+import type {
+  AugmentedIndividual,
+  FamilyWithMetadata,
+} from '../../shared/types/schemas';
 import { stripPIIForLLM } from '../../shared/utils/pii-stripping';
 import { transformGedcomDataWithComprehensiveAnalysis } from './transformation-pipeline';
+import { calculateGenerationsForAll, generateEdges } from './graph-analysis';
 
 /**
  * Process GEDCOM data with both full and LLM-ready outputs
@@ -22,12 +27,248 @@ export function processGedcomWithLLMOptimization(
     `📊 Processing ${String(individuals.length)} individuals and ${String(families.length)} families`,
   );
 
+  // For very large datasets, use a simplified processing to avoid memory issues
+  // Lowered threshold due to performance issues with comprehensive analysis
+  const isLargeDataset = individuals.length > 1000;
+
+  if (isLargeDataset) {
+    console.log('  ⚠️  Large dataset detected - using optimized processing...');
+  }
+
   // Step 1: Generate full data with comprehensive metadata
   console.log('📈 Generating full data with comprehensive metadata...');
-  const fullData = transformGedcomDataWithComprehensiveAnalysis(
-    individuals,
-    families,
+  console.log(
+    `  Dataset size check: ${String(individuals.length)} individuals (large threshold: 2000)`,
   );
+
+  // For large datasets, create a simplified version
+  let fullData;
+  if (isLargeDataset) {
+    // Create a simplified structure without heavy analysis
+    // But still calculate essential data for front-end performance
+    console.log('  📊 Pre-calculating essential data for front-end...');
+
+    // Pre-calculate generations for all individuals
+    const generationMap = calculateGenerationsForAll(individuals, families);
+
+    // Pre-calculate centrality scores (connection count)
+    const centralityMap = new Map<string, number>();
+    individuals.forEach((ind) => {
+      let connections = 0;
+      connections += ind.parents.length;
+      connections += ind.children.length;
+      connections += ind.spouses.length;
+      connections += ind.siblings.length;
+      centralityMap.set(ind.id, connections);
+    });
+
+    // Convert to ID-keyed objects with pre-computed metadata
+    const individualsObj: Record<string, AugmentedIndividual> = {};
+
+    individuals.forEach((ind) => {
+      individualsObj[ind.id] = {
+        ...ind,
+        metadata: {
+          generation: generationMap.get(ind.id),
+          centrality: centralityMap.get(ind.id),
+          relationshipCount: centralityMap.get(ind.id), // Same as centrality for now
+        },
+      };
+    });
+
+    const familiesObj: Record<string, FamilyWithMetadata> = {};
+    families.forEach((fam) => {
+      // Update family members to reference the enhanced individuals
+      const enhancedChildren = fam.children.map(
+        (child) => individualsObj[child.id],
+      );
+      const enhancedHusband = fam.husband
+        ? individualsObj[fam.husband.id]
+        : undefined;
+      const enhancedWife = fam.wife ? individualsObj[fam.wife.id] : undefined;
+
+      familiesObj[fam.id] = {
+        ...fam,
+        husband: enhancedHusband,
+        wife: enhancedWife,
+        children: enhancedChildren,
+        metadata: {
+          numberOfChildren: fam.children.length,
+        },
+      };
+    });
+
+    // Generate edges for front-end graph operations
+    const edges = generateEdges(individuals, families);
+
+    // Calculate generation statistics
+    const generations = Array.from(generationMap.values());
+    const maxGenerations = Math.max(...generations, 0);
+    const minGenerations = Math.min(...generations, 0);
+    const generationDistribution: Record<number, number> = {};
+    generations.forEach((gen) => {
+      generationDistribution[gen] = (generationDistribution[gen] || 0) + 1;
+    });
+
+    fullData = {
+      individuals: individualsObj,
+      families: familiesObj,
+      metadata: {
+        edges, // Include edges in metadata
+        graphStructure: {
+          totalIndividuals: individuals.length,
+          totalFamilies: families.length,
+          totalEdges: edges.length,
+          maxGenerations,
+          minGenerations,
+          generationDistribution,
+          averageGenerationsPerBranch:
+            maxGenerations > 0 ? individuals.length / maxGenerations : 0,
+          // Add missing required fields with default values for large datasets
+          disconnectedComponents: 1,
+          largestComponentSize: individuals.length,
+          averageConnectionsPerIndividual: edges.length / individuals.length,
+          connectivityDensity:
+            edges.length / (individuals.length * (individuals.length - 1)),
+          averageFamilySize:
+            families.length > 0 ? individuals.length / families.length : 0,
+          largestFamilySize: 0,
+          familySizeDistribution: {},
+          childlessFamilies: 0,
+          largeFamilies: 0,
+          treeComplexity: 0,
+          branchingFactor: 0,
+          depthToBreadthRatio:
+            maxGenerations > 0
+              ? maxGenerations / Math.sqrt(individuals.length)
+              : 0,
+        },
+        temporalPatterns: {
+          earliestBirthYear: 0,
+          latestBirthYear: 0,
+          timeSpan: 0,
+          generationTimeSpans: {},
+          averageLifespan: 0,
+          lifespanDistribution: {},
+          longestLifespan: 0,
+          shortestLifespan: 0,
+          lifespanVariance: 0,
+          historicalPeriods: [],
+          birthYearDistribution: {},
+          deathYearDistribution: {},
+          marriageYearDistribution: {},
+          averageGenerationGap: 0,
+          generationGapVariance: 0,
+        },
+        geographicPatterns: {
+          uniqueBirthPlaces: 0,
+          uniqueDeathPlaces: 0,
+          countriesRepresented: 0,
+          statesProvincesRepresented: 0,
+          birthPlaceDistribution: {},
+          deathPlaceDistribution: {},
+          countryDistribution: {},
+          stateProvinceDistribution: {},
+          countryPercentages: {},
+          stateProvincePercentages: {},
+          migrationPatterns: [],
+          regions: [],
+          geographicClusters: [],
+          geographicDiversity: 0,
+          averageDistanceBetweenBirthPlaces: 0,
+        },
+        demographics: {
+          genderDistribution: {
+            male: { count: 0, percentage: 0 },
+            female: { count: 0, percentage: 0 },
+            unknown: { count: 0, percentage: 0 },
+          },
+          ageDistribution: {},
+          averageAgeAtDeath: 0,
+          ageGroupDistribution: {},
+          ageVariance: 0,
+          averageChildrenPerFamily: 0,
+          childlessFamilies: 0,
+          largeFamilies: 0,
+          familySizeVariance: 0,
+          averageAgeAtMarriage: 0,
+          marriageAgeDistribution: {},
+          remarriageRate: 0,
+          marriageAgeVariance: 0,
+          averageChildrenPerWoman: 0,
+          fertilityRate: 0,
+          childbearingAgeRange: {
+            min: 0,
+            max: 0,
+            average: 0,
+          },
+        },
+        relationships: {
+          relationshipTypeDistribution: {},
+          averageRelationshipDistance: 0,
+          relationshipDistanceDistribution: {},
+          maxRelationshipDistance: 0,
+          blendedFamilies: 0,
+          stepRelationships: 0,
+          adoptionRate: 0,
+          multipleMarriages: 0,
+          averageAncestorsPerGeneration: 0,
+          missingAncestors: 0,
+          ancestralCompleteness: 0,
+          ancestralDepth: 0,
+          averageSiblingsPerFamily: 0,
+          onlyChildren: 0,
+          largeSiblingGroups: 0,
+          cousinRelationships: {
+            firstCousins: 0,
+            secondCousins: 0,
+            thirdCousins: 0,
+            distantCousins: 0,
+          },
+          keyConnectors: [],
+          averageCentrality: 0,
+          centralityDistribution: {},
+        },
+        edgeAnalysis: {
+          totalEdges: edges.length,
+          parentChildEdges: edges.filter(
+            (e) => e.relationshipType === 'parent-child',
+          ).length,
+          spouseEdges: edges.filter((e) => e.relationshipType === 'spouse')
+            .length,
+          siblingEdges: edges.filter((e) => e.relationshipType === 'sibling')
+            .length,
+          averageEdgeWeight: 1,
+          edgeWeightDistribution: {},
+          strongRelationships: edges.length,
+          weakRelationships: 0,
+          averageRelationshipDuration: 0,
+          relationshipDurationDistribution: {},
+          sameCountryRelationships: 0,
+          crossCountryRelationships: 0,
+          averageDistanceBetweenSpouses: 0,
+        },
+        summary: {
+          totalIndividuals: individuals.length,
+          totalFamilies: families.length,
+          timeSpan: '0 years',
+          geographicDiversity: 'Unknown',
+          familyComplexity: 'Unknown',
+          averageLifespan: 0,
+          maxGenerations,
+        },
+      },
+    };
+  } else {
+    console.log(
+      '  📊 Performing comprehensive analysis (non-large dataset)...',
+    );
+    fullData = transformGedcomDataWithComprehensiveAnalysis(
+      individuals,
+      families,
+    );
+    console.log('  ✅ Comprehensive analysis complete');
+  }
 
   // Step 2: Generate LLM-ready data (PII stripped)
   console.log('🔒 Generating LLM-ready data with PII stripping...');
@@ -44,9 +285,33 @@ export function processGedcomWithLLMOptimization(
   const endTime = performance.now();
   const processingTime = endTime - startTime;
 
-  // Calculate memory usage (approximate)
-  const fullDataSize = JSON.stringify(fullData).length;
-  const llmDataSize = JSON.stringify(llmData).length;
+  // Calculate memory usage (approximate) - use a more efficient estimation
+  // For large datasets, we estimate based on counts rather than stringifying
+  interface DataWithCounts {
+    individuals?: Record<string, unknown>;
+    families?: Record<string, unknown>;
+    metadata?: unknown;
+  }
+
+  const estimateDataSize = (
+    data: DataWithCounts | null | undefined,
+  ): number => {
+    if (!data) return 0;
+
+    // Rough estimation:
+    // - Each individual ~500 bytes average
+    // - Each family ~200 bytes average
+    // - Metadata ~10KB
+    const individualCount = data.individuals
+      ? Object.keys(data.individuals).length
+      : 0;
+    const familyCount = data.families ? Object.keys(data.families).length : 0;
+
+    return individualCount * 500 + familyCount * 200 + 10240;
+  };
+
+  const fullDataSize = estimateDataSize(fullData);
+  const llmDataSize = estimateDataSize(llmData);
   const totalSize = fullDataSize + llmDataSize;
 
   const stats: CLIProcessingStats = {

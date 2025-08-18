@@ -34,6 +34,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `pnpm build` - Production build (runs typecheck + vite build)
 
+## Performance Strategy
+
+### GEDCOM Generation
+
+- Uses stream-based file writing for memory efficiency
+- Handles 65K+ individuals with constant ~17MB memory usage
+- 80%+ memory reduction vs string concatenation for large trees
+
+### GEDCOM Processing
+
+- Timing instrumentation tracks bottlenecks
+- LLM optimization is main processing bottleneck (~170ms)
+- Consider worker threads for files >10K individuals
+
 ### Local CI Testing
 
 - `pnpm ci:local` - Test main app quality and unit test workflows locally

@@ -255,8 +255,71 @@ function createSketch(props: SketchProps): (p: p5) => void {
         sampleIndividual: Object.values(visualMetadata.individuals)[0],
       });
 
-      // IMPORTANT: Draw nodes FIRST (they will be in the background)
-      // Draw nodes (individuals) using per-entity visual metadata
+      // IMPORTANT: Draw edges FIRST (they will be in the background)
+      // Draw edges before nodes so that nodes appear on top
+      if (currentShowRelations) {
+        // Check if we have routing output (orthogonal edges)
+
+        if (visualMetadata.routing) {
+          // Use the functional edge renderer for advanced routing
+          console.log('📐 Rendering orthogonal edges');
+          renderEdgeRouting(visualMetadata.routing, p, {
+            debugMode: debugEdgeRouting,
+          });
+        } else {
+          // Fall back to legacy edge drawing
+          for (const edge of gedcomData.metadata.edges) {
+            // Skip edges that don't have visual metadata (filtered out by transformers)
+            const edgeMetadata = visualMetadata.edges[edge.id];
+            if (!edgeMetadata) {
+              continue;
+            }
+
+            const coord1 = getIndividualCoord(
+              edge.sourceId,
+              width,
+              height,
+              visualMetadata,
+            );
+            const coord2 = getIndividualCoord(
+              edge.targetId,
+              width,
+              height,
+              visualMetadata,
+            );
+
+            // Skip edges where coordinates couldn't be found
+            if (!coord1 || !coord2) {
+              continue;
+            }
+
+            // Skip edges marked as hidden or with opacity 0
+            if (edgeMetadata.hidden || edgeMetadata.opacity === 0) {
+              continue;
+            }
+
+            const strokeColor = p.color(
+              edgeMetadata.strokeColor ??
+                visualMetadata.global.defaultEdgeColor ??
+                '#ccc',
+            );
+            const opacity = edgeMetadata.opacity ?? 0.8;
+            const weight =
+              edgeMetadata.strokeWeight ??
+              visualMetadata.global.defaultEdgeWeight ??
+              1;
+
+            strokeColor.setAlpha(opacity * 255);
+            p.stroke(strokeColor);
+            p.strokeWeight(weight);
+
+            // Draw edge with appropriate curve type
+            drawEdge(p, coord1, coord2, edgeMetadata);
+          }
+        }
+      }
+
+      // Draw nodes (individuals) AFTER edges so they appear on top
       if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
         for (const ind of individuals) {
@@ -416,19 +479,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const labelOffsetY = customMetadata?.labelOffsetY ?? size * 0.7;
           const labelSize = customMetadata?.labelSize ?? size * 0.3;
 
-          // Debug logging for first few individuals
-          if (Math.random() < 0.05) {
-            // Log 5% of individuals
-            console.log(`🏷️ Label check for ${ind.id}:`, {
-              hasCustom: !!individualMetadata?.custom,
-              customLabel: customLabel ?? 'none',
-              labelOffsetY: labelOffsetY,
-              labelSize: labelSize,
-              showNames,
-              indName: ind.name,
-            });
-          }
-
           if (customLabel) {
             // Render label from transformer metadata with background for visibility
             console.log(
@@ -495,59 +545,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
             // Draw text
             p.fill(0);
             p.text(ind.name, x, y + fallbackOffsetY);
-          }
-        }
-      }
-
-      // Draw edges AFTER nodes (they will appear on top)
-      if (currentShowRelations) {
-        // Check if we have routing output (orthogonal edges)
-
-        if (visualMetadata.routing) {
-          // Use the functional edge renderer for advanced routing
-          console.log('📐 Rendering orthogonal edges');
-          renderEdgeRouting(visualMetadata.routing, p, {
-            debugMode: debugEdgeRouting,
-          });
-        } else {
-          // Fall back to legacy edge drawing
-          for (const edge of gedcomData.metadata.edges) {
-            const coord1 = getIndividualCoord(
-              edge.sourceId,
-              width,
-              height,
-              visualMetadata,
-            );
-            const coord2 = getIndividualCoord(
-              edge.targetId,
-              width,
-              height,
-              visualMetadata,
-            );
-
-            // Skip edges where coordinates couldn't be found
-            if (!coord1 || !coord2) {
-              continue;
-            }
-
-            const edgeMetadata = visualMetadata.edges[edge.id];
-            const strokeColor = p.color(
-              edgeMetadata?.strokeColor ??
-                visualMetadata.global.defaultEdgeColor ??
-                '#ccc',
-            );
-            const opacity = edgeMetadata?.opacity ?? 0.8;
-            const weight =
-              edgeMetadata?.strokeWeight ??
-              visualMetadata.global.defaultEdgeWeight ??
-              1;
-
-            strokeColor.setAlpha(opacity * 255);
-            p.stroke(strokeColor);
-            p.strokeWeight(weight);
-
-            // Draw edge with appropriate curve type
-            drawEdge(p, coord1, coord2, edgeMetadata ?? {});
           }
         }
       }

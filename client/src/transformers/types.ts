@@ -54,6 +54,9 @@ export interface VisualMetadata {
   layer?: number;
   priority?: number;
 
+  // Visibility
+  hidden?: boolean;
+
   // Edge curve attributes
   curveType?:
     | 'straight'
@@ -137,6 +140,9 @@ export interface TransformerContext {
 
   // User-selected visual parameters (injected by createTransformerInstance)
   visual: VisualParameterValues;
+
+  // Optional: Primary individual ID selected by the user for transformers that need a focal point
+  primaryIndividualId?: string;
 
   // Optional: describes which visual metadata properties were modified by the
   // immediately previous transformer in the pipeline

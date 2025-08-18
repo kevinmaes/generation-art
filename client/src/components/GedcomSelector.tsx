@@ -86,7 +86,7 @@ export function GedcomSelector({
       <div className="w-full max-w-md">
         <div className="text-sm text-red-600">{error}</div>
         <div className="text-xs text-gray-500 mt-1">
-          Run `pnpm gedcom:build:all` to generate datasets
+          Run `pnpm gedcom:build` to generate datasets
         </div>
       </div>
     );
@@ -106,8 +106,7 @@ export function GedcomSelector({
       {availableFiles.length === 0 ? (
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <div className="text-sm text-yellow-800">
-            No datasets available. Run `pnpm gedcom:build:all` to generate
-            datasets.
+            No datasets available. Run `pnpm gedcom:build` to generate datasets.
           </div>
         </div>
       ) : (

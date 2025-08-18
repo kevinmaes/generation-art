@@ -8,6 +8,7 @@ import type {
 } from '../../../shared/types';
 import type { VisualParameterValues } from '../transformers/visual-parameters';
 import { usePipeline } from '../hooks/usePipeline';
+import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 
 // Type for the complete dual-data structure
 export interface DualGedcomData {
@@ -126,7 +127,7 @@ export function PipelineProvider({
   children,
   initialActiveTransformerIds = [],
   canvasWidth = 800,
-  canvasHeight = 600,
+  canvasHeight = CANVAS_DIMENSIONS.WEB.HEIGHT,
   temperature,
   seed,
   onVisualize: externalOnVisualize,
