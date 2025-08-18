@@ -77,7 +77,7 @@ export const calculateGenerationsForAll = (
   const generationMap = new Map<string, number>();
 
   // Create lookup maps for performance
-  const individualMap = new Map(individuals.map((ind) => [ind.id, ind]));
+  // const individualMap = new Map(individuals.map((ind) => [ind.id, ind]));
   // const familyMap = new Map(families.map((fam) => [fam.id, fam]));
 
   // Find root individuals (those with no parents)

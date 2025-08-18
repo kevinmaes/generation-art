@@ -4,6 +4,10 @@ import type {
   CLIProcessingResult,
   CLIProcessingStats,
 } from '../../shared/types/llm-data';
+import type {
+  AugmentedIndividual,
+  FamilyWithMetadata,
+} from '../../shared/types/schemas';
 import { stripPIIForLLM } from '../../shared/utils/pii-stripping';
 import { transformGedcomDataWithComprehensiveAnalysis } from './transformation-pipeline';
 import { calculateGenerationsForAll, generateEdges } from './graph-analysis';
@@ -34,7 +38,7 @@ export function processGedcomWithLLMOptimization(
   // Step 1: Generate full data with comprehensive metadata
   console.log('📈 Generating full data with comprehensive metadata...');
   console.log(
-    `  Dataset size check: ${individuals.length} individuals (large threshold: 2000)`,
+    `  Dataset size check: ${String(individuals.length)} individuals (large threshold: 2000)`,
   );
 
   // For large datasets, create a simplified version
@@ -51,35 +55,47 @@ export function processGedcomWithLLMOptimization(
     const centralityMap = new Map<string, number>();
     individuals.forEach((ind) => {
       let connections = 0;
-      connections += ind.parents?.length || 0;
-      connections += ind.children?.length || 0;
-      connections += ind.spouses?.length || 0;
-      connections += ind.siblings?.length || 0;
+      connections += ind.parents.length;
+      connections += ind.children.length;
+      connections += ind.spouses.length;
+      connections += ind.siblings.length;
       centralityMap.set(ind.id, connections);
     });
 
     // Convert to ID-keyed objects with pre-computed metadata
-    const individualsObj: Record<
-      string,
-      Individual & {
-        generation?: number;
-        centrality?: number;
-        relationshipCount?: number;
-      }
-    > = {};
+    const individualsObj: Record<string, AugmentedIndividual> = {};
 
     individuals.forEach((ind) => {
       individualsObj[ind.id] = {
         ...ind,
-        generation: generationMap.get(ind.id),
-        centrality: centralityMap.get(ind.id),
-        relationshipCount: centralityMap.get(ind.id), // Same as centrality for now
+        metadata: {
+          generation: generationMap.get(ind.id),
+          centrality: centralityMap.get(ind.id),
+          relationshipCount: centralityMap.get(ind.id), // Same as centrality for now
+        },
       };
     });
 
-    const familiesObj: Record<string, Family> = {};
+    const familiesObj: Record<string, FamilyWithMetadata> = {};
     families.forEach((fam) => {
-      familiesObj[fam.id] = fam;
+      // Update family members to reference the enhanced individuals
+      const enhancedChildren = fam.children.map(
+        (child) => individualsObj[child.id],
+      );
+      const enhancedHusband = fam.husband
+        ? individualsObj[fam.husband.id]
+        : undefined;
+      const enhancedWife = fam.wife ? individualsObj[fam.wife.id] : undefined;
+
+      familiesObj[fam.id] = {
+        ...fam,
+        husband: enhancedHusband,
+        wife: enhancedWife,
+        children: enhancedChildren,
+        metadata: {
+          numberOfChildren: fam.children.length,
+        },
+      };
     });
 
     // Generate edges for front-end graph operations
@@ -97,9 +113,8 @@ export function processGedcomWithLLMOptimization(
     fullData = {
       individuals: individualsObj,
       families: familiesObj,
-      edges, // Include edges for front-end traversal
-      generationMap: Object.fromEntries(generationMap), // Include generation map
       metadata: {
+        edges, // Include edges in metadata
         graphStructure: {
           totalIndividuals: individuals.length,
           totalFamilies: families.length,
@@ -214,24 +229,15 @@ export function processGedcomWithLLMOptimization(
           averageCentrality: 0,
           centralityDistribution: {},
         },
-        namingPatterns: {},
-        dataQuality: {
-          completeness: 0.9,
-          missingDataDistribution: {},
-          dataConsistency: {},
-          qualityScore: 0.9,
-        },
-        edges, // Include edges in metadata too
         edgeAnalysis: {
           totalEdges: edges.length,
           parentChildEdges: edges.filter(
-            (e: any) => e.relationshipType === 'parent-child',
+            (e) => e.relationshipType === 'parent-child',
           ).length,
-          spouseEdges: edges.filter((e: any) => e.relationshipType === 'spouse')
+          spouseEdges: edges.filter((e) => e.relationshipType === 'spouse')
             .length,
-          siblingEdges: edges.filter(
-            (e: any) => e.relationshipType === 'sibling',
-          ).length,
+          siblingEdges: edges.filter((e) => e.relationshipType === 'sibling')
+            .length,
           averageEdgeWeight: 1,
           edgeWeightDistribution: {},
           strongRelationships: edges.length,
@@ -284,6 +290,7 @@ export function processGedcomWithLLMOptimization(
   interface DataWithCounts {
     individuals?: Record<string, unknown>;
     families?: Record<string, unknown>;
+    metadata?: unknown;
   }
 
   const estimateDataSize = (

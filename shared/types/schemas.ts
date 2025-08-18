@@ -634,7 +634,7 @@ export const validateFlexibleGedcomData = (
       // Ensure individual has metadata
       individualsById[individual.id] = {
         ...individual,
-        metadata: individual.metadata || createDefaultIndividualMetadata(),
+        metadata: individual.metadata ?? createDefaultIndividualMetadata(),
       };
     });
 
@@ -650,7 +650,7 @@ export const validateFlexibleGedcomData = (
       // Ensure individual has metadata
       individualsById[individual.id] = {
         ...individual,
-        metadata: individual.metadata || createDefaultIndividualMetadata(),
+        metadata: individual.metadata ?? createDefaultIndividualMetadata(),
       };
     });
 
@@ -660,7 +660,7 @@ export const validateFlexibleGedcomData = (
         // Ensure family and its members have metadata
         const enhancedChildren = family.children.map((child) => ({
           ...child,
-          metadata: child.metadata || createDefaultIndividualMetadata(),
+          metadata: child.metadata ?? createDefaultIndividualMetadata(),
         }));
 
         familiesById[family.id] = {
@@ -670,17 +670,17 @@ export const validateFlexibleGedcomData = (
             ? {
                 ...family.husband,
                 metadata:
-                  family.husband.metadata || createDefaultIndividualMetadata(),
+                  family.husband.metadata ?? createDefaultIndividualMetadata(),
               }
             : undefined,
           wife: family.wife
             ? {
                 ...family.wife,
                 metadata:
-                  family.wife.metadata || createDefaultIndividualMetadata(),
+                  family.wife.metadata ?? createDefaultIndividualMetadata(),
               }
             : undefined,
-          metadata: family.metadata || createDefaultFamilyMetadata(),
+          metadata: family.metadata ?? createDefaultFamilyMetadata(),
         };
       });
     }
@@ -703,7 +703,7 @@ export const validateFlexibleGedcomData = (
     Object.entries(result.individuals).forEach(([id, individual]) => {
       individualsWithMetadata[id] = {
         ...individual,
-        metadata: individual.metadata || createDefaultIndividualMetadata(),
+        metadata: individual.metadata ?? createDefaultIndividualMetadata(),
       };
     });
 
@@ -713,7 +713,7 @@ export const validateFlexibleGedcomData = (
       // Ensure family and its members have metadata
       const enhancedChildren = family.children.map((child) => ({
         ...child,
-        metadata: child.metadata || createDefaultIndividualMetadata(),
+        metadata: child.metadata ?? createDefaultIndividualMetadata(),
       }));
 
       familiesWithMetadata[id] = {
@@ -723,17 +723,17 @@ export const validateFlexibleGedcomData = (
           ? {
               ...family.husband,
               metadata:
-                family.husband.metadata || createDefaultIndividualMetadata(),
+                family.husband.metadata ?? createDefaultIndividualMetadata(),
             }
           : undefined,
         wife: family.wife
           ? {
               ...family.wife,
               metadata:
-                family.wife.metadata || createDefaultIndividualMetadata(),
+                family.wife.metadata ?? createDefaultIndividualMetadata(),
             }
           : undefined,
-        metadata: family.metadata || createDefaultFamilyMetadata(),
+        metadata: family.metadata ?? createDefaultFamilyMetadata(),
       };
     });
 

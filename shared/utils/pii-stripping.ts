@@ -61,7 +61,7 @@ function stripIndividualPII(
   index: number,
   config: Required<PIIStrippingConfig>,
 ): AnonymizedIndividual {
-  const generation = individual.metadata?.generation ?? null;
+  const generation = individual.metadata.generation ?? null;
 
   // Create base anonymized individual (inherits all properties except name, birth, death)
   const { birth, death, ...rest } = individual;
@@ -104,7 +104,7 @@ function stripIndividualPII(
   }
 
   // Handle lifespan normalization
-  if (config.normalizeLifespan && individual.metadata?.lifespan !== undefined) {
+  if (config.normalizeLifespan && individual.metadata.lifespan !== undefined) {
     // Lifespan should already be normalized 0-1, but ensure it's not absolute
     anonymizedIndividual.metadata.lifespan = individual.metadata.lifespan;
   }

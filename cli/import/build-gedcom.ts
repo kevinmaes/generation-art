@@ -266,7 +266,7 @@ async function buildGedcomFiles(
       console.log('  🔍 Starting parse...');
       const parsedData = parser.parse(gedcomText);
       console.log(
-        `  🔍 Parse complete: ${parsedData.individuals.length} individuals`,
+        `  🔍 Parse complete: ${String(parsedData.individuals.length)} individuals`,
       );
       fileTimer.endAndLog('GEDCOM Parsing');
 

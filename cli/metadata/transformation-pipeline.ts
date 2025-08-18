@@ -488,31 +488,33 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
   console.log('    1/7 Generating edges...');
   const edges = generateEdges(individuals, families);
   console.log(
-    `       Generated ${edges.length} edges (${Date.now() - analysisStart}ms)`,
+    `       Generated ${String(edges.length)} edges (${String(Date.now() - analysisStart)}ms)`,
   );
 
   // 2. Perform comprehensive analysis
   console.log('    2/7 Analyzing graph structure...');
   const graphStructure = analyzeGraphStructure(individuals, families);
   console.log(
-    `       Graph structure complete (${Date.now() - analysisStart}ms)`,
+    `       Graph structure complete (${String(Date.now() - analysisStart)}ms)`,
   );
 
   console.log('    3/7 Analyzing temporal patterns...');
   const temporalPatterns = analyzeTemporalPatterns(individuals, families);
   console.log(
-    `       Temporal patterns complete (${Date.now() - analysisStart}ms)`,
+    `       Temporal patterns complete (${String(Date.now() - analysisStart)}ms)`,
   );
 
   console.log('    4/7 Analyzing geographic patterns...');
   const geographicPatterns = analyzeGeographicPatterns(individuals);
   console.log(
-    `       Geographic patterns complete (${Date.now() - analysisStart}ms)`,
+    `       Geographic patterns complete (${String(Date.now() - analysisStart)}ms)`,
   );
 
   console.log('    5/7 Analyzing demographics...');
   const demographics = analyzeDemographics(individuals, families);
-  console.log(`       Demographics complete (${Date.now() - analysisStart}ms)`);
+  console.log(
+    `       Demographics complete (${String(Date.now() - analysisStart)}ms)`,
+  );
 
   console.log('    6/7 Analyzing relationships...');
   // Pre-calculate generations for relationships analysis
@@ -526,13 +528,13 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     generationMapForRelationships,
   );
   console.log(
-    `       Relationships complete (${Date.now() - analysisStart}ms)`,
+    `       Relationships complete (${String(Date.now() - analysisStart)}ms)`,
   );
 
   console.log('    7/7 Analyzing edges...');
   const edgeAnalysis = analyzeEdges(edges);
   console.log(
-    `       Edge analysis complete (${Date.now() - analysisStart}ms)`,
+    `       Edge analysis complete (${String(Date.now() - analysisStart)}ms)`,
   );
 
   // 3. Create enhanced metadata
@@ -557,7 +559,7 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
   console.log('    📊 Pre-calculating generations for all individuals...');
   const generationMap = calculateGenerationsForAll(individuals, families);
   console.log(
-    `       Calculated generations for ${generationMap.size} individuals (${Date.now() - analysisStart}ms)`,
+    `       Calculated generations for ${String(generationMap.size)} individuals (${String(Date.now() - analysisStart)}ms)`,
   );
 
   // 5. Enhance individual and family metadata with graph data
@@ -569,7 +571,7 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     generationMap,
   );
   console.log(
-    `       Enhanced ${enhancedIndividuals.length} individuals (${Date.now() - analysisStart}ms)`,
+    `       Enhanced ${String(enhancedIndividuals.length)} individuals (${String(Date.now() - analysisStart)}ms)`,
   );
 
   console.log('    📊 Enhancing family metadata...');
@@ -579,7 +581,7 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     generationMap,
   );
   console.log(
-    `       Enhanced ${enhancedFamilies.length} families (${Date.now() - analysisStart}ms)`,
+    `       Enhanced ${String(enhancedFamilies.length)} families (${String(Date.now() - analysisStart)}ms)`,
   );
 
   // 6. Convert arrays to ID-keyed objects for efficient lookups
@@ -627,7 +629,9 @@ export const enhanceIndividualMetadataWithCache = (
 
   return individuals.map((individual) => {
     if (processedCount % 100 === 0) {
-      console.log(`       Processing individual ${processedCount}/${total}...`);
+      console.log(
+        `       Processing individual ${String(processedCount)}/${String(total)}...`,
+      );
     }
     processedCount++;
 

@@ -9,7 +9,7 @@
       "Bash(cp:*)",
       "Bash(find:*)",
       "Bash(gh issue edit:*)",
-      "Bash(gh issue list:*)"
+      "Bash(gh issue list:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr view:*)",
       "Bash(gh project item-add:*)",
@@ -42,6 +42,9 @@
       "Bash(rm:*)",
       "Bash(tsx:*)",
       "mcp__ide__getDiagnostics",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm test:*)"
     ],
     "deny": []
   }
