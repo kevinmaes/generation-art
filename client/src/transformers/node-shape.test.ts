@@ -578,4 +578,57 @@ describe('nodeShapeTransform', () => {
     expect(validShapes).toContain(individuals.I2.shape);
     expect(validShapes).toContain(individuals.I3.shape);
   });
+
+  it('should generate shape profiles correctly', async () => {
+    const context: TransformerContext = {
+      gedcomData: mockGedcomData,
+      llmData: mockLLMData,
+      visualMetadata: mockVisualMetadata,
+      dimensions: { primary: 'generation' },
+      visual: { variationFactor: 0.1 },
+      temperature: 0.0,
+    };
+
+    const result = await nodeShapeTransform(context);
+    const individuals = result.visualMetadata.individuals ?? {};
+
+    // Each individual should have a shapeProfile
+    Object.values(individuals).forEach((individual) => {
+      expect(individual).toHaveProperty('shapeProfile');
+      expect(individual.shapeProfile).toHaveProperty('kind');
+      expect(individual.shapeProfile).toHaveProperty('size');
+
+      const profile = individual.shapeProfile;
+      expect(profile).toBeDefined();
+
+      if (profile) {
+        // Size should be reasonable
+        expect(profile.size.width).toBeGreaterThan(0);
+        expect(profile.size.height).toBeGreaterThan(0);
+
+        // Should have either circle or supershape kind
+        expect(['circle', 'supershape']).toContain(profile.kind);
+
+        // For supershapes, should have params
+        if (profile.kind === 'supershape' && profile.params) {
+          expect(profile.params).toBeDefined();
+          expect(profile.params.m).toBeDefined();
+        }
+      }
+    });
+
+    console.log(
+      'Generated shape profiles:',
+      Object.fromEntries(
+        Object.entries(individuals).map(([id, meta]) => [
+          id,
+          {
+            shape: meta.shape,
+            profileKind: meta.shapeProfile?.kind,
+            profileParams: meta.shapeProfile?.params,
+          },
+        ]),
+      ),
+    );
+  });
 });

@@ -105,10 +105,10 @@ function App(): React.ReactElement {
 
   // Development: Auto-select Raphael Ophir Maes (I12406240) when data loads
   useEffect(() => {
-    if (dualData?.full?.individuals && !primaryIndividualId) {
+    if (dualData?.full.individuals && !primaryIndividualId) {
       const targetId = 'I12406240';
-      
-      if (dualData.full.individuals[targetId]) {
+
+      if (targetId in dualData.full.individuals) {
         console.log('🎯 Auto-selecting Raphael Ophir Maes:', targetId);
         setPrimaryIndividualId(targetId);
       }

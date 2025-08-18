@@ -43,9 +43,56 @@ export const nodeShapeConfig: VisualTransformerConfig = {
   shortDescription: 'Shapes by dimension',
   transform: nodeShapeTransform,
   categories: ['visual'],
-  availableDimensions: ['generation', 'childrenCount', 'lifespan'],
+  availableDimensions: [
+    'generation',
+    'childrenCount',
+    'lifespan',
+    'marriageCount',
+    'birthYear',
+  ],
   defaultPrimaryDimension: 'generation',
-  visualParameters: [],
+  visualParameters: [
+    {
+      name: 'strokeOpacity',
+      label: 'Stroke Opacity',
+      type: 'range',
+      defaultValue: 100,
+      min: 0,
+      max: 100,
+      step: 5,
+      description: 'Stroke opacity (0 = no stroke, 100 = full opacity)',
+    },
+    {
+      name: 'layerCount',
+      label: 'Layer Count',
+      type: 'range',
+      defaultValue: 1,
+      min: 1,
+      max: 10,
+      step: 1,
+      description: 'Number of offset layers for depth effect',
+    },
+    {
+      name: 'layerOffset',
+      label: 'Layer Offset',
+      type: 'range',
+      defaultValue: 2,
+      min: 0,
+      max: 10,
+      step: 1,
+      description: 'Pixel offset between layers',
+    },
+    {
+      name: 'layerOpacityFalloff',
+      label: 'Layer Opacity Falloff',
+      type: 'range',
+      defaultValue: 30,
+      min: 10,
+      max: 90,
+      step: 10,
+      description: 'How quickly layers fade (lower = more subtle)',
+    },
+  ],
   createTransformerInstance: (params) =>
     createTransformerInstance(params, nodeShapeTransform, []),
   multiInstance: false,
@@ -57,11 +104,76 @@ export const nodeShapeConfig: VisualTransformerConfig = {
 const SHAPES = ['circle', 'square', 'triangle', 'hexagon', 'star'] as const;
 type NodeShape = (typeof SHAPES)[number];
 
+// Pre-calculate children counts for all individuals (for performance)
+function calculateChildrenCounts(
+  gedcomData: TransformerContext['gedcomData'],
+): Map<string, number> {
+  const childrenMap = new Map<string, number>();
+
+  // Initialize all individuals with 0 children
+  Object.keys(gedcomData.individuals).forEach((id) => {
+    childrenMap.set(id, 0);
+  });
+
+  // Count children by iterating once through all individuals
+  Object.values(gedcomData.individuals).forEach((individual) => {
+    if (individual?.parents) {
+      individual.parents.forEach((parentId) => {
+        const currentCount = childrenMap.get(parentId) || 0;
+        childrenMap.set(parentId, currentCount + 1);
+      });
+    }
+  });
+
+  return childrenMap;
+}
+
+// Pre-calculate marriage counts for all individuals (for performance)
+function calculateMarriageCounts(
+  gedcomData: TransformerContext['gedcomData'],
+): Map<string, number> {
+  const marriageMap = new Map<string, number>();
+
+  // Initialize all individuals with 0 marriages
+  Object.keys(gedcomData.individuals).forEach((id) => {
+    marriageMap.set(id, 0);
+  });
+
+  // Count marriages by iterating once through all families
+  Object.values(gedcomData.families).forEach((family) => {
+    if (family?.husband?.id) {
+      const currentCount = marriageMap.get(family.husband.id) || 0;
+      marriageMap.set(family.husband.id, currentCount + 1);
+    }
+    if (family?.wife?.id) {
+      const currentCount = marriageMap.get(family.wife.id) || 0;
+      marriageMap.set(family.wife.id, currentCount + 1);
+    }
+  });
+
+  return marriageMap;
+}
+
+// Cache for expensive calculations
+let cachedChildrenCounts: Map<string, number> | null = null;
+let cachedMarriageCounts: Map<string, number> | null = null;
+let cacheDataId: string | null = null;
+
 function calculateNodeShape(
   context: TransformerContext,
   individualId: string,
 ): NodeShape {
   const { gedcomData, dimensions } = context;
+
+  // Create a simple data ID to check if cache is still valid
+  const currentDataId = `${String(Object.keys(gedcomData.individuals).length)}-${String(Object.keys(gedcomData.families).length)}`;
+
+  // Clear cache if data has changed
+  if (cacheDataId !== currentDataId) {
+    cachedChildrenCounts = null;
+    cachedMarriageCounts = null;
+    cacheDataId = currentDataId;
+  }
 
   // Find the individual
   const individual = getIndividualSafe(gedcomData, individualId);
@@ -84,20 +196,13 @@ function calculateNodeShape(
       break;
     }
     case 'childrenCount': {
-      // Count children by looking at parent relationships
-      const allIndividuals = Object.values(gedcomData.individuals).filter(
-        (ind) => ind !== null && ind !== undefined,
-      );
-      const childrenCounts = allIndividuals.map((ind) => {
-        const children = allIndividuals.filter((child) =>
-          child?.parents?.includes(ind.id),
-        );
-        return children.length;
-      });
-      const maxChildren = Math.max(...childrenCounts);
-      const individualChildren = allIndividuals.filter((child) =>
-        child?.parents?.includes(individual.id),
-      ).length;
+      // Use pre-calculated children counts for performance
+      if (!cachedChildrenCounts) {
+        cachedChildrenCounts = calculateChildrenCounts(gedcomData);
+      }
+
+      const individualChildren = cachedChildrenCounts.get(individualId) || 0;
+      const maxChildren = Math.max(...cachedChildrenCounts.values());
       primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
       break;
     }
@@ -116,24 +221,13 @@ function calculateNodeShape(
       break;
     }
     case 'marriageCount': {
-      // Count marriages by checking families where individual is spouse
-      const families = Object.values(gedcomData.families).filter(
-        (family) => family !== null && family !== undefined,
-      );
-      const marriageCount = families.filter(
-        (family) =>
-          family.husband?.id === individualId ||
-          family.wife?.id === individualId,
-      ).length;
-      const allMarriageCounts = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined)
-        .map((ind) => {
-          return families.filter(
-            (family) =>
-              family.husband?.id === ind.id || family.wife?.id === ind.id,
-          ).length;
-        });
-      const maxMarriages = Math.max(...allMarriageCounts);
+      // Use pre-calculated marriage counts for performance
+      if (!cachedMarriageCounts) {
+        cachedMarriageCounts = calculateMarriageCounts(gedcomData);
+      }
+
+      const marriageCount = cachedMarriageCounts.get(individualId) || 0;
+      const maxMarriages = Math.max(...cachedMarriageCounts.values());
       primaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
       break;
     }
@@ -169,19 +263,13 @@ function calculateNodeShape(
         break;
       }
       case 'childrenCount': {
-        const allIndividuals = Object.values(gedcomData.individuals).filter(
-          (ind) => ind !== null && ind !== undefined,
-        );
-        const childrenCounts = allIndividuals.map((ind) => {
-          const children = allIndividuals.filter((child) =>
-            child?.parents?.includes(ind.id),
-          );
-          return children.length;
-        });
-        const maxChildren = Math.max(...childrenCounts);
-        const individualChildren = allIndividuals.filter((child) =>
-          child?.parents?.includes(individual.id),
-        ).length;
+        // Use pre-calculated children counts for performance
+        if (!cachedChildrenCounts) {
+          cachedChildrenCounts = calculateChildrenCounts(gedcomData);
+        }
+
+        const individualChildren = cachedChildrenCounts.get(individualId) || 0;
+        const maxChildren = Math.max(...cachedChildrenCounts.values());
         secondaryValue =
           maxChildren > 0 ? individualChildren / maxChildren : 0.5;
         break;
@@ -201,23 +289,13 @@ function calculateNodeShape(
         break;
       }
       case 'marriageCount': {
-        const families = Object.values(gedcomData.families).filter(
-          (family) => family !== null && family !== undefined,
-        );
-        const marriageCount = families.filter(
-          (family) =>
-            family.husband?.id === individualId ||
-            family.wife?.id === individualId,
-        ).length;
-        const allMarriageCounts = Object.values(gedcomData.individuals)
-          .filter((ind) => ind !== null && ind !== undefined)
-          .map((ind) => {
-            return families.filter(
-              (family) =>
-                family.husband?.id === ind.id || family.wife?.id === ind.id,
-            ).length;
-          });
-        const maxMarriages = Math.max(...allMarriageCounts);
+        // Use pre-calculated marriage counts for performance
+        if (!cachedMarriageCounts) {
+          cachedMarriageCounts = calculateMarriageCounts(gedcomData);
+        }
+
+        const marriageCount = cachedMarriageCounts.get(individualId) || 0;
+        const maxMarriages = Math.max(...cachedMarriageCounts.values());
         secondaryValue = maxMarriages > 0 ? marriageCount / maxMarriages : 0.5;
         break;
       }
@@ -261,12 +339,21 @@ function calculateNodeShape(
 export async function nodeShapeTransform(
   context: TransformerContext,
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
-  const { gedcomData, visualMetadata } = context;
+  const { gedcomData, visualMetadata, visual } = context;
+
+  // Extract visual parameters
+  const strokeOpacity = ((visual.strokeOpacity ?? 100) as number) / 100; // Convert 0-100 to 0-1
+  const layerCount = (visual.layerCount ?? 1) as number;
+  const layerOffset = (visual.layerOffset ?? 2) as number;
+  const layerOpacityFalloff =
+    ((visual.layerOpacityFalloff ?? 30) as number) / 100; // Convert 10-90 to 0.1-0.9
 
   console.log('🔍 nodeShapeTransform called with context:', {
     individualCount: Object.keys(gedcomData.individuals).length,
     dimensions: context.dimensions,
-    visual: Object.keys(context.visual),
+    visual: context.visual,
+    strokeOpacity,
+    layerCount,
   });
 
   const individuals = Object.values(gedcomData.individuals).filter(
@@ -333,6 +420,13 @@ export async function nodeShapeTransform(
       ...currentMetadata,
       shape: calculatedShape,
       shapeProfile: baseProfile,
+      // Add stroke control (0 opacity means no stroke)
+      strokeWeight: strokeOpacity > 0 ? (currentMetadata.strokeWeight ?? 1) : 0,
+      strokeOpacity: strokeOpacity,
+      // Store layer parameters for renderer
+      layerCount,
+      layerOffset,
+      layerOpacityFalloff,
     };
   });
 

@@ -42,7 +42,8 @@
       "Bash(tsx:*)",
       "mcp__ide__getDiagnostics",
       "Bash(pnpm build:*)",
-      "Bash(pnpm vitest:*)"
+      "Bash(pnpm vitest:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }

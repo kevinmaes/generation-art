@@ -360,8 +360,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
               | ShapeProfile
               | undefined;
           const opacity = individualMetadata?.opacity ?? 0.8;
-          const strokeColor = individualMetadata?.strokeColor;
+          const strokeColor = individualMetadata?.strokeColor ?? '#000000'; // Default to black stroke
           const strokeWeight = individualMetadata?.strokeWeight ?? 0;
+          const strokeOpacity = individualMetadata?.strokeOpacity ?? 1;
 
           // Calculate final dimensions
           const finalWidth = size * width;
@@ -387,8 +388,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
           }
 
           // Apply stroke if specified
-          if (strokeColor && strokeWeight > 0) {
+          if (strokeWeight > 0 && strokeOpacity > 0) {
             const pStrokeColor = p.color(strokeColor);
+            pStrokeColor.setAlpha(strokeOpacity * 255);
             p.stroke(pStrokeColor);
             p.strokeWeight(strokeWeight);
           } else {
@@ -404,7 +406,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
           // Render shape geometry when available, else fallback to legacy shapes
           if (shapeProfile) {
             // Debug: Log shape profile rendering
-            if (Math.random() < 0.1) { // Log ~10% of shape profiles to avoid spam
+            if (Math.random() < 0.1) {
+              // Log ~10% of shape profiles to avoid spam
               console.log('Rendering shape profile:', {
                 id: ind.id,
                 kind: shapeProfile.kind,
@@ -412,12 +415,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
                 params: shapeProfile.params,
               });
             }
+            let profile: ShapeProfile | undefined;
             try {
               const needsSize =
                 !shapeProfile.size ||
                 (shapeProfile.size.width ?? 0) <= 0 ||
                 (shapeProfile.size.height ?? 0) <= 0;
-              const profile: ShapeProfile = {
+              profile = {
                 kind: shapeProfile.kind ?? 'circle',
                 size: needsSize
                   ? { width: finalWidth, height: finalHeight }
@@ -437,14 +441,15 @@ function createSketch(props: SketchProps): (p: p5) => void {
               // Log error and fallback to circle if geometry fails
               console.error('Shape profile rendering error:', error, {
                 individualId: ind.id,
-                profile,
-                shapeProfile,
+                profile: profile,
+                shapeProfile: shapeProfile,
               });
               p.ellipse(0, 0, finalWidth, finalHeight);
             }
           } else {
             // Debug: Log legacy shape fallback
-            if (Math.random() < 0.1) { // Log ~10% to avoid spam
+            if (Math.random() < 0.1) {
+              // Log ~10% to avoid spam
               console.log('Using legacy shape rendering:', {
                 id: ind.id,
                 shape,

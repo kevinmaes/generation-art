@@ -41,7 +41,13 @@ export interface VisualMetadata {
   // New shape geometry profile; if present, renderer prefers this over legacy shape string
   shapeProfile?: ShapeProfile;
   strokeWeight?: number;
+  strokeOpacity?: number;
   strokeStyle?: 'solid' | 'dashed' | 'dotted';
+
+  // Layering parameters for depth effects
+  layerCount?: number;
+  layerOffset?: number;
+  layerOpacityFalloff?: number;
 
   // Animation and motion attributes
   velocity?: { x: number; y: number };
