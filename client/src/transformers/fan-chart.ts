@@ -157,8 +157,11 @@ export function fanChartTransform(
   // Use primary individual from context, or fall back to first individual
   let centerPerson;
   let centerPersonId;
-  
-  if (context.primaryIndividualId && gedcomData.individuals[context.primaryIndividualId]) {
+
+  if (
+    context.primaryIndividualId &&
+    gedcomData.individuals[context.primaryIndividualId]
+  ) {
     centerPerson = gedcomData.individuals[context.primaryIndividualId];
     centerPersonId = context.primaryIndividualId;
   } else {
@@ -227,7 +230,8 @@ export function fanChartTransform(
       if (generation === 0) return; // Skip center person
 
       const distance = distances[generation - 1];
-      const angleStep = (spreadDegrees * Math.PI) / 180 / Math.pow(2, generation);
+      const angleStep =
+        (spreadDegrees * Math.PI) / 180 / Math.pow(2, generation);
       const startAngle =
         (rotation * Math.PI) / 180 - (spreadDegrees * Math.PI) / 360;
       const twist = ((spiralTwist * Math.PI) / 180) * generation;
@@ -268,41 +272,47 @@ export function fanChartTransform(
   } else {
     // Descendant positioning - each child only occupies their parent's angular space
     const individualAngles = new Map<string, { start: number; end: number }>();
-    
+
     // Initialize center person's angular range
-    const baseStartAngle = (rotation * Math.PI) / 180 - (spreadDegrees * Math.PI) / 360;
+    const baseStartAngle =
+      (rotation * Math.PI) / 180 - (spreadDegrees * Math.PI) / 360;
     const baseEndAngle = baseStartAngle + (spreadDegrees * Math.PI) / 180;
-    individualAngles.set(centerPersonId, { start: baseStartAngle, end: baseEndAngle });
+    individualAngles.set(centerPersonId, {
+      start: baseStartAngle,
+      end: baseEndAngle,
+    });
 
     // Build a map of parent-to-children relationships from the relatives data
     const parentToChildren = new Map<string, any[]>();
-    
+
     // First pass: build the parent-child map
     for (let gen = 1; gen < relatives.length; gen++) {
       const previousGen = relatives[gen - 1];
       const currentGen = relatives[gen];
-      
+
       // For each person in the previous generation, find their children in current generation
       previousGen.forEach((parent) => {
         if (!parent) return;
-        
+
         const childrenOfParent = currentGen.filter((child) => {
           if (!child) return false;
           // Check if this parent is in the child's parent list
           const parentIds = child.parents as string[] | undefined;
           return parentIds?.includes(parent.id) ?? false;
         });
-        
+
         if (childrenOfParent.length > 0) {
           parentToChildren.set(parent.id, childrenOfParent);
         }
       });
     }
 
-    console.log('Parent to children map:', 
-      Array.from(parentToChildren.entries()).map(([parentId, children]) => 
-        `${parentId}: ${String(children.length)} children`
-      )
+    console.log(
+      'Parent to children map:',
+      Array.from(parentToChildren.entries()).map(
+        ([parentId, children]) =>
+          `${parentId}: ${String(children.length)} children`,
+      ),
     );
 
     // Second pass: position individuals
@@ -317,18 +327,19 @@ export function fanChartTransform(
       );
 
       // Get previous generation to find parents
-      const previousGeneration = generation > 0 ? relatives[generation - 1] : [];
-      
+      const previousGeneration =
+        generation > 0 ? relatives[generation - 1] : [];
+
       // Position each individual based on their parent's angular range
       previousGeneration.forEach((parent) => {
         if (!parent) return;
-        
+
         const parentAngle = individualAngles.get(parent.id);
         if (!parentAngle) return;
-        
+
         const children = parentToChildren.get(parent.id) || [];
         if (children.length === 0) return;
-        
+
         const angleRange = parentAngle.end - parentAngle.start;
         const childAngleStep = angleRange / children.length;
 
@@ -351,7 +362,8 @@ export function fanChartTransform(
               generation,
               angle,
               distance,
-              angleNormalized: (angle - baseStartAngle) / (baseEndAngle - baseStartAngle),
+              angleNormalized:
+                (angle - baseStartAngle) / (baseEndAngle - baseStartAngle),
               lineage: 'descendant',
               completeness: calculateCompleteness(generationRelatives),
               parentId: parent.id, // Track parent for debugging
@@ -359,7 +371,10 @@ export function fanChartTransform(
           };
 
           // Store this child's angular range for their potential children
-          individualAngles.set(child.id, { start: childStartAngle, end: childEndAngle });
+          individualAngles.set(child.id, {
+            start: childStartAngle,
+            end: childEndAngle,
+          });
         });
       });
     });

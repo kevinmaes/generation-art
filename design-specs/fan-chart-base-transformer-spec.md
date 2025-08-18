@@ -270,15 +270,15 @@ Move relationship metadata to CLI for ALL transformers that need it:
 enhancedIndividuals: {
   'I1': {
     ...existingData,
-    
+
     // Direct relationship arrays (no family lookups needed)
     parents: ['I2', 'I3'],      // Direct parent IDs
     children: ['I4', 'I5'],     // Direct child IDs
     spouses: ['I6'],            // Direct spouse IDs
-    
+
     // Normalized fields
     gender: 'M' | 'F' | 'U',    // Standardized across GEDCOM formats
-    
+
     // Generation metadata
     generation: 7,               // Absolute generation number
     ancestorCount: {            // Known ancestors per generation
@@ -291,7 +291,7 @@ enhancedIndividuals: {
       2: 8,  // grandchildren
       3: 15  // great-grandchildren
     },
-    
+
     // Lineage paths (for ancestor mode)
     lineageType: 'paternal' | 'maternal' | 'mixed',
     maternalLine: ['I1', 'I3', 'I7', 'I15'],  // Direct maternal ancestors
@@ -308,6 +308,7 @@ generationMatrix: {
 ```
 
 **Benefits:**
+
 - Eliminates ALL family iteration at runtime
 - O(1) parent/child lookups via direct arrays
 - No gender detection logic needed
@@ -329,13 +330,19 @@ Leverage existing graph utilities more effectively:
 
 ```typescript
 // Use graph's efficient path-finding
-const ancestors = graph.traversalUtils.getAncestorsToDepth(centerPerson, maxGen);
-const descendants = graph.traversalUtils.getDescendantsToDepth(centerPerson, maxGen);
+const ancestors = graph.traversalUtils.getAncestorsToDepth(
+  centerPerson,
+  maxGen,
+);
+const descendants = graph.traversalUtils.getDescendantsToDepth(
+  centerPerson,
+  maxGen,
+);
 
 // Use breadth-first search with early termination
 const relatives = graph.bfs(centerPerson, {
   maxDepth: maxGenerations,
-  direction: viewMode === 'ancestors' ? 'up' : 'down'
+  direction: viewMode === 'ancestors' ? 'up' : 'down',
 });
 ```
 

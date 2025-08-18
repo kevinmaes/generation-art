@@ -19,7 +19,7 @@ export function PrimaryIndividualSelector({
     if (!gedcomData?.individuals) return [];
 
     const individuals = Object.values(gedcomData.individuals);
-    
+
     // Sort by generation (lowest first), then by name
     return individuals
       .map((individual) => ({
@@ -42,10 +42,14 @@ export function PrimaryIndividualSelector({
     if (value) return value;
     if (sortedIndividuals.length > 0) {
       // Find someone in the middle generations for better visualization
-      const generations = [...new Set(sortedIndividuals.map(i => i.generation))].sort((a, b) => a - b);
+      const generations = [
+        ...new Set(sortedIndividuals.map((i) => i.generation)),
+      ].sort((a, b) => a - b);
       if (generations.length > 2) {
         const middleGen = generations[Math.floor(generations.length / 2)];
-        const middleGenIndividuals = sortedIndividuals.filter(i => i.generation === middleGen);
+        const middleGenIndividuals = sortedIndividuals.filter(
+          (i) => i.generation === middleGen,
+        );
         return middleGenIndividuals[0]?.id;
       }
       return sortedIndividuals[0]?.id;
@@ -68,7 +72,10 @@ export function PrimaryIndividualSelector({
 
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <label htmlFor="primary-individual" className="text-sm font-medium text-gray-700">
+      <label
+        htmlFor="primary-individual"
+        className="text-sm font-medium text-gray-700"
+      >
         Primary individual
       </label>
       <select
