@@ -411,10 +411,13 @@ async function buildGedcomFiles(
       const stats = JSON.parse(statsContent) as {
         individualCount?: number;
         familyCount?: number;
+        individualsProcessed?: number;
+        familiesProcessed?: number;
         generationCount?: number;
       };
-      individualCount = stats.individualCount ?? 0;
-      familyCount = stats.familyCount ?? 0;
+      // Support both field names for backward compatibility
+      individualCount = stats.individualCount ?? stats.individualsProcessed ?? 0;
+      familyCount = stats.familyCount ?? stats.familiesProcessed ?? 0;
       generationCount = stats.generationCount ?? 0;
     } catch {
       // Stats file might not exist, use defaults

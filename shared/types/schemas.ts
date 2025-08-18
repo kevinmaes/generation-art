@@ -402,6 +402,16 @@ export const GedcomDataWithMetadataSchema = z.object({
   graph: GraphDataSchema.optional(), // Optional for backward compatibility
 });
 
+// Helper function to create default individual metadata
+const createDefaultIndividualMetadata = (): IndividualMetadata => ({
+  // All fields are optional, so empty object is valid
+});
+
+// Helper function to create default family metadata
+const createDefaultFamilyMetadata = (): FamilyMetadata => ({
+  numberOfChildren: 0, // Required field
+});
+
 // Helper function to create default metadata
 const createDefaultMetadata = (
   individualCount: number,
@@ -537,23 +547,37 @@ const createDefaultMetadata = (
   },
 });
 
+// Schema for individuals that may or may not have metadata yet
+export const FlexibleIndividualSchema = IndividualSchema.extend({
+  metadata: IndividualMetadataSchema.optional(),
+});
+
 // Alternative format for enhanced data (array of individuals)
-export const EnhancedIndividualArraySchema = z.array(AugmentedIndividualSchema);
+export const EnhancedIndividualArraySchema = z.array(FlexibleIndividualSchema);
+
+// Flexible family schema that allows optional metadata
+const FlexibleFamilySchema = z.object({
+  id: z.string(),
+  husband: FlexibleIndividualSchema.optional(),
+  wife: FlexibleIndividualSchema.optional(),
+  children: z.array(FlexibleIndividualSchema),
+  metadata: FamilyMetadataSchema.optional(),
+});
 
 // Union schema for flexible input validation
-// First try to parse as full schema with metadata
+// Try flexible schemas first, then strict schema last
 const FlexibleGedcomDataSchemaBase = z.union([
-  GedcomDataWithMetadataSchema,
   z.object({
-    individuals: z.record(z.string(), AugmentedIndividualSchema),
-    families: z.record(z.string(), FamilyWithMetadataSchema),
+    individuals: z.record(z.string(), FlexibleIndividualSchema),
+    families: z.record(z.string(), FlexibleFamilySchema),
     metadata: TreeMetadataSchema.optional(),
   }),
   z.object({
-    individuals: z.array(AugmentedIndividualSchema),
-    families: z.array(FamilyWithMetadataSchema),
+    individuals: z.array(FlexibleIndividualSchema),
+    families: z.array(FlexibleFamilySchema),
   }),
   EnhancedIndividualArraySchema,
+  GedcomDataWithMetadataSchema, // Try strict schema last
 ]);
 
 export const FlexibleGedcomDataSchema = FlexibleGedcomDataSchemaBase;
@@ -607,7 +631,11 @@ export const validateFlexibleGedcomData = (
     // Convert array to ID-keyed object
     const individualsById: Record<string, AugmentedIndividual> = {};
     result.forEach((individual) => {
-      individualsById[individual.id] = individual;
+      // Ensure individual has metadata
+      individualsById[individual.id] = {
+        ...individual,
+        metadata: individual.metadata || createDefaultIndividualMetadata(),
+      };
     });
 
     validatedData = {
@@ -619,13 +647,35 @@ export const validateFlexibleGedcomData = (
     // Convert array format to ID-keyed format
     const individualsById: Record<string, AugmentedIndividual> = {};
     result.individuals.forEach((individual) => {
-      individualsById[individual.id] = individual;
+      // Ensure individual has metadata
+      individualsById[individual.id] = {
+        ...individual,
+        metadata: individual.metadata || createDefaultIndividualMetadata(),
+      };
     });
 
     const familiesById: Record<string, FamilyWithMetadata> = {};
     if (Array.isArray(result.families)) {
       result.families.forEach((family) => {
-        familiesById[family.id] = family;
+        // Ensure family and its members have metadata
+        const enhancedChildren = family.children.map((child) => ({
+          ...child,
+          metadata: child.metadata || createDefaultIndividualMetadata(),
+        }));
+        
+        familiesById[family.id] = {
+          ...family,
+          children: enhancedChildren,
+          husband: family.husband ? {
+            ...family.husband,
+            metadata: family.husband.metadata || createDefaultIndividualMetadata(),
+          } : undefined,
+          wife: family.wife ? {
+            ...family.wife,
+            metadata: family.wife.metadata || createDefaultIndividualMetadata(),
+          } : undefined,
+          metadata: family.metadata || createDefaultFamilyMetadata(),
+        };
       });
     }
 
@@ -642,16 +692,54 @@ export const validateFlexibleGedcomData = (
         ),
     };
   } else if ('individuals' in result && 'families' in result) {
-    // Already in correct format, but might be missing metadata
+    // Ensure all individuals have metadata
+    const individualsWithMetadata: Record<string, AugmentedIndividual> = {};
+    Object.entries(result.individuals).forEach(([id, individual]) => {
+      individualsWithMetadata[id] = {
+        ...individual,
+        metadata: individual.metadata || createDefaultIndividualMetadata(),
+      };
+    });
+
+    // Ensure all families have metadata
+    const familiesWithMetadata: Record<string, FamilyWithMetadata> = {};
+    Object.entries(result.families).forEach(([id, family]) => {
+      // Ensure family and its members have metadata
+      const enhancedChildren = family.children.map((child) => ({
+        ...child,
+        metadata: child.metadata || createDefaultIndividualMetadata(),
+      }));
+      
+      familiesWithMetadata[id] = {
+        ...family,
+        children: enhancedChildren,
+        husband: family.husband ? {
+          ...family.husband,
+          metadata: family.husband.metadata || createDefaultIndividualMetadata(),
+        } : undefined,
+        wife: family.wife ? {
+          ...family.wife,
+          metadata: family.wife.metadata || createDefaultIndividualMetadata(),
+        } : undefined,
+        metadata: family.metadata || createDefaultFamilyMetadata(),
+      };
+    });
+
+    // Check for tree-level metadata
     if ('metadata' in result && result.metadata) {
-      validatedData = result as GedcomDataWithMetadata;
-    } else {
-      // Add default metadata
       validatedData = {
         ...result,
+        individuals: individualsWithMetadata,
+        families: familiesWithMetadata,
+      } as GedcomDataWithMetadata;
+    } else {
+      // Add default tree metadata
+      validatedData = {
+        individuals: individualsWithMetadata,
+        families: familiesWithMetadata,
         metadata: createDefaultMetadata(
-          Object.keys(result.individuals).length,
-          Object.keys(result.families).length,
+          Object.keys(individualsWithMetadata).length,
+          Object.keys(familiesWithMetadata).length,
         ),
       } as GedcomDataWithMetadata;
     }
