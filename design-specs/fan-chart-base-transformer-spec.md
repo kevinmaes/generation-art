@@ -314,6 +314,10 @@ generationMatrix: {
 - No gender detection logic needed
 - Works for any center person without recalculation
 - Enables instant lineage filtering
+- Eliminate redundant ancestor path traversals
+- Enable instant maternal/paternal line filtering
+- Support efficient duplicate ancestor detection
+- Allow for pre-optimized angular distribution
 
 ### Phase 2: Smart Positioning Strategy
 
@@ -353,6 +357,11 @@ const relatives = graph.bfs(centerPerson, {
 - **Virtual rendering**: Only render visible segments in viewport
 - **Progressive loading**: Start with 3-4 generations, expand on demand
 - **Layout diffing**: Calculate minimal position updates between states
+- Precompute parent chains and memoize person lookups
+- Use typed arrays for geometry if needed
+- Clamp label rendering when segment angle below threshold
+- For high depths, optionally skip `path` precomputation and let renderer derive
+- Implement virtual rendering for segments outside viewport (for zoomable implementations)
 
 ### Implementation Priority
 

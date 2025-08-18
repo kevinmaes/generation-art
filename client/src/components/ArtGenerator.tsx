@@ -29,6 +29,7 @@ interface ArtGeneratorProps {
     total: number;
     transformerName: string;
   } | null;
+  primaryIndividualId?: string;
 }
 
 export function ArtGenerator({
@@ -42,6 +43,7 @@ export function ArtGenerator({
   onVisualize,
   isVisualizing = false,
   pipelineProgress = null,
+  primaryIndividualId,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<EnhancedP5 | null>(null);
@@ -141,6 +143,18 @@ export function ArtGenerator({
       >
         {isVisualizing ? (
           <GenerationProgress progress={pipelineProgress} />
+        ) : !primaryIndividualId ? (
+          <div className="text-center">
+            <p className="text-gray-500 mb-3">
+              Please select a primary individual
+            </p>
+            <button
+              disabled
+              className="px-6 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium"
+            >
+              Generate art
+            </button>
+          </div>
         ) : (
           <button
             onClick={onVisualize}

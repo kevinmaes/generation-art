@@ -945,16 +945,26 @@ export function PipelineManager({
               <button
                 onClick={onVisualize}
                 disabled={
-                  !hasData || activeTransformerIds.length === 0 || isVisualizing
+                  !hasData ||
+                  activeTransformerIds.length === 0 ||
+                  isVisualizing ||
+                  !primaryIndividualId
                 }
                 className={`px-4 py-2 rounded font-medium transition-colors ${
                   isVisualizing
                     ? 'bg-blue-500 text-white'
-                    : hasData && activeTransformerIds.length > 0
+                    : hasData &&
+                        activeTransformerIds.length > 0 &&
+                        primaryIndividualId
                       ? 'bg-blue-500 text-white hover:bg-blue-600'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
                 style={{ width: '250px' }}
+                title={
+                  !primaryIndividualId
+                    ? 'Please select a primary individual'
+                    : undefined
+                }
               >
                 {isVisualizing ? (
                   <div className="flex items-center justify-center space-x-2">
@@ -977,16 +987,26 @@ export function PipelineManager({
               <button
                 onClick={onVisualize}
                 disabled={
-                  !hasData || activeTransformerIds.length === 0 || isVisualizing
+                  !hasData ||
+                  activeTransformerIds.length === 0 ||
+                  isVisualizing ||
+                  !primaryIndividualId
                 }
                 className={`px-4 py-2 rounded font-medium transition-colors ${
                   isVisualizing
                     ? 'bg-blue-500 text-white'
-                    : hasData && activeTransformerIds.length > 0
+                    : hasData &&
+                        activeTransformerIds.length > 0 &&
+                        primaryIndividualId
                       ? 'bg-blue-500 text-white hover:bg-blue-600'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
                 style={{ width: '250px' }}
+                title={
+                  !primaryIndividualId
+                    ? 'Please select a primary individual'
+                    : undefined
+                }
               >
                 {isVisualizing ? (
                   <div className="flex items-center justify-center space-x-2">

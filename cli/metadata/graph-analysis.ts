@@ -67,17 +67,16 @@ export const extractCountry = (place: string): string | null => {
 };
 
 /**
- * Calculate generation for an individual
+ * Calculate generations for all individuals at once
  */
-export const calculateGeneration = (
-  individual: Individual,
+export const calculateGenerationsForAll = (
   individuals: Individual[],
   families: Family[],
-): number => {
-  // Simple generation calculation based on family relationships
-  // This is a basic implementation that can be enhanced
+): Map<string, number> => {
+  // Calculate generations for all individuals in one pass
+  const generationMap = new Map<string, number>();
 
-  // Create lookup maps (for future use)
+  // Create lookup maps for performance
   // const individualMap = new Map(individuals.map((ind) => [ind.id, ind]));
   // const familyMap = new Map(families.map((fam) => [fam.id, fam]));
 
@@ -88,11 +87,10 @@ export const calculateGeneration = (
     );
   });
 
-  if (rootIndividuals.length === 0) return 0;
+  if (rootIndividuals.length === 0) return generationMap;
 
   // Simple approach: count generations from root
   const visited = new Set<string>();
-  const generationMap = new Map<string, number>();
 
   // Set root generation to 0
   rootIndividuals.forEach((ind) => {
@@ -140,6 +138,20 @@ export const calculateGeneration = (
     }
   }
 
+  return generationMap;
+};
+
+/**
+ * Calculate generation for an individual (using cached map)
+ */
+export const calculateGeneration = (
+  individual: Individual,
+  individuals: Individual[],
+  families: Family[],
+): number => {
+  // This is kept for backwards compatibility but should be replaced
+  // with a cached version in production code
+  const generationMap = calculateGenerationsForAll(individuals, families);
   return generationMap.get(individual.id) ?? 0;
 };
 
@@ -153,6 +165,9 @@ export const analyzeGraphStructure = (
   // Calculate basic counts
   const totalIndividuals = individuals.length;
   const totalFamilies = families.length;
+
+  // Pre-calculate all generations at once for performance
+  const generationMap = calculateGenerationsForAll(individuals, families);
 
   // Calculate family sizes
   const familySizes = families.map((fam) => fam.children.length);
@@ -172,10 +187,8 @@ export const analyzeGraphStructure = (
   const childlessFamilies = familySizes.filter((size) => size === 0).length;
   const largeFamilies = familySizes.filter((size) => size >= 5).length;
 
-  // Calculate generations
-  const generations = individuals.map((ind) =>
-    calculateGeneration(ind, individuals, families),
-  );
+  // Get generations from pre-calculated map
+  const generations = individuals.map((ind) => generationMap.get(ind.id) ?? 0);
   const maxGenerations = Math.max(...generations, 0);
   const minGenerations = Math.min(...generations, 0);
 
@@ -690,6 +703,7 @@ export const analyzeDemographics = (
 export const analyzeRelationships = (
   individuals: Individual[],
   families: Family[],
+  generationMap?: Map<string, number>,
 ): RelationshipMetadata => {
   // Relationship type distribution
   const relationshipTypeDistribution: Record<string, number> = {
@@ -730,12 +744,13 @@ export const analyzeRelationships = (
   const averageAncestorsPerGeneration = 2; // Default assumption
   const missingAncestors = 0; // Would need more sophisticated analysis
   const ancestralCompleteness = 0.8; // Default assumption
-  const ancestralDepth = Math.max(
-    ...individuals.map((ind) =>
-      calculateGeneration(ind, individuals, families),
-    ),
-    0,
-  );
+
+  // Calculate generations efficiently
+  const generations = generationMap
+    ? Array.from(generationMap.values())
+    : individuals.map((ind) => calculateGeneration(ind, individuals, families));
+
+  const ancestralDepth = Math.max(...generations, 0);
 
   // Sibling patterns
   const siblingCounts = families.map((fam) => fam.children.length);

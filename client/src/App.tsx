@@ -226,6 +226,11 @@ function App(): React.ReactElement {
       return;
     }
 
+    if (!primaryIndividualId) {
+      setError('Please select a primary individual before generating art');
+      return;
+    }
+
     setIsVisualizing(true);
     setPipelineProgress(null);
     try {
@@ -351,6 +356,7 @@ function App(): React.ReactElement {
                 }}
                 isVisualizing={isVisualizing}
                 pipelineProgress={pipelineProgress}
+                primaryIndividualId={primaryIndividualId}
               />
             </>
           ) : (

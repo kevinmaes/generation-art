@@ -14,13 +14,13 @@ export function PrimaryIndividualSelector({
   onChange,
   className = '',
 }: PrimaryIndividualSelectorProps): React.ReactElement {
-  // Prepare sorted list of individuals with generation numbers
+  // Prepare sorted list of individuals alphabetically by name
   const sortedIndividuals = useMemo(() => {
     if (!gedcomData?.individuals) return [];
 
     const individuals = Object.values(gedcomData.individuals);
 
-    // Sort by generation (lowest first), then by name
+    // Sort alphabetically by name (A to Z)
     return individuals
       .map((individual) => ({
         id: individual.id,
@@ -28,34 +28,13 @@ export function PrimaryIndividualSelector({
         generation: individual.metadata.generation ?? 999, // Use 999 for unknown generation
       }))
       .sort((a, b) => {
-        // First sort by generation
-        if (a.generation !== b.generation) {
-          return a.generation - b.generation;
-        }
-        // Then by name
+        // Sort alphabetically by name
         return a.name.localeCompare(b.name);
       });
   }, [gedcomData]);
 
-  // Find first individual if no value is set
-  const defaultValue = useMemo(() => {
-    if (value) return value;
-    if (sortedIndividuals.length > 0) {
-      // Find someone in the middle generations for better visualization
-      const generations = [
-        ...new Set(sortedIndividuals.map((i) => i.generation)),
-      ].sort((a, b) => a - b);
-      if (generations.length > 2) {
-        const middleGen = generations[Math.floor(generations.length / 2)];
-        const middleGenIndividuals = sortedIndividuals.filter(
-          (i) => i.generation === middleGen,
-        );
-        return middleGenIndividuals[0]?.id;
-      }
-      return sortedIndividuals[0]?.id;
-    }
-    return undefined;
-  }, [value, sortedIndividuals]);
+  // No default selection - user must choose
+  const defaultValue = undefined;
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = event.target.value;
@@ -87,7 +66,7 @@ export function PrimaryIndividualSelector({
         <option value="">Select an individual...</option>
         {sortedIndividuals.map((individual) => (
           <option key={individual.id} value={individual.id}>
-            Gen {individual.generation} | {individual.id}: {individual.name}
+            {individual.id}: {individual.name}
           </option>
         ))}
       </select>

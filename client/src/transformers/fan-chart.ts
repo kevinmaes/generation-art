@@ -60,7 +60,7 @@ export const fanChartConfig: VisualTransformerConfig = {
     {
       name: 'maxGenerations',
       type: 'range',
-      defaultValue: 8,
+      defaultValue: 16,
       min: 1,
       max: 16,
       label: 'Generations',
@@ -92,7 +92,7 @@ export const fanChartConfig: VisualTransformerConfig = {
     {
       name: 'spreadDegrees',
       type: 'range',
-      defaultValue: 180,
+      defaultValue: 360,
       min: 90,
       max: 360,
       step: 45,
@@ -102,7 +102,7 @@ export const fanChartConfig: VisualTransformerConfig = {
     {
       name: 'rotation',
       type: 'range',
-      defaultValue: -90,
+      defaultValue: 0,
       min: -180,
       max: 180,
       step: 15,
@@ -140,8 +140,8 @@ export function fanChartTransform(
   const maxGenerations = (context.visual.maxGenerations as number) ?? 6;
   const spacingMode = (context.visual.spacingMode as string) ?? 'auto-fit';
   const distribution = (context.visual.distribution as string) ?? 'uniform';
-  const spreadDegrees = (context.visual.spreadDegrees as number) ?? 180;
-  const rotation = (context.visual.rotation as number) ?? -90;
+  const spreadDegrees = (context.visual.spreadDegrees as number) ?? 360;
+  const rotation = (context.visual.rotation as number) ?? 0;
   const spiralTwist = (context.visual.spiralTwist as number) ?? 0;
 
   // Canvas center
