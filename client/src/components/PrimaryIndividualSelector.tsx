@@ -25,7 +25,7 @@ export function PrimaryIndividualSelector({
       .map((individual) => ({
         id: individual.id,
         name: individual.name || `Individual ${individual.id}`,
-        generation: individual.metadata?.generation ?? 999, // Use 999 for unknown generation
+        generation: individual.metadata.generation ?? 999, // Use 999 for unknown generation
       }))
       .sort((a, b) => {
         // First sort by generation
@@ -80,7 +80,7 @@ export function PrimaryIndividualSelector({
       </label>
       <select
         id="primary-individual"
-        value={value || defaultValue || ''}
+        value={value ?? defaultValue ?? ''}
         onChange={handleChange}
         className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
       >

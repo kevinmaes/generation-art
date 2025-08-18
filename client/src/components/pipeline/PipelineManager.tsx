@@ -603,7 +603,7 @@ export function PipelineManager({
                 <PrimaryIndividualSelector
                   gedcomData={dualData.full}
                   value={primaryIndividualId}
-                  onChange={onPrimaryIndividualChange || (() => {})}
+                  onChange={onPrimaryIndividualChange ?? (() => undefined)}
                 />
               </div>
             )}
