@@ -145,16 +145,26 @@ export class SimpleGedcomParser {
 
   private handleName(line: GedcomLine) {
     if (this.currentIndividual) {
-      if (this.debug) {
+      // Only set name if it hasn't been set yet (keep first NAME as primary)
+      // Additional NAME entries are typically nicknames, married names, or alternates
+      if (!this.currentIndividual.name) {
+        if (this.debug) {
+          console.log(
+            'Setting primary name for individual:',
+            this.currentIndividual.id,
+            line.value,
+          );
+        }
+        // Remove slashes and clean up name format
+        const cleanName = line.value.replace(/\//g, '').trim();
+        this.currentIndividual.name = cleanName;
+      } else if (this.debug) {
         console.log(
-          'Setting name for individual:',
+          'Skipping additional name for individual:',
           this.currentIndividual.id,
           line.value,
         );
       }
-      // Remove slashes and clean up name format
-      const cleanName = line.value.replace(/\//g, '').trim();
-      this.currentIndividual.name = cleanName;
     }
   }
 
