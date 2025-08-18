@@ -87,7 +87,7 @@ export function PrimaryIndividualSelector({
         <option value="">Select an individual...</option>
         {sortedIndividuals.map((individual) => (
           <option key={individual.id} value={individual.id}>
-            Gen {individual.generation} | {individual.id}: {individual.name}
+            {individual.id}: {individual.name}
           </option>
         ))}
       </select>
