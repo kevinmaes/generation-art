@@ -32,7 +32,9 @@ export function processGedcomWithLLMOptimization(
 
   // Step 1: Generate full data with comprehensive metadata
   console.log('📈 Generating full data with comprehensive metadata...');
-  console.log(`  Dataset size check: ${individuals.length} individuals (large threshold: 2000)`);
+  console.log(
+    `  Dataset size check: ${individuals.length} individuals (large threshold: 2000)`,
+  );
 
   // For large datasets, create a simplified version
   let fullData;
@@ -75,7 +77,9 @@ export function processGedcomWithLLMOptimization(
       },
     };
   } else {
-    console.log('  📊 Performing comprehensive analysis (non-large dataset)...');
+    console.log(
+      '  📊 Performing comprehensive analysis (non-large dataset)...',
+    );
     fullData = transformGedcomDataWithComprehensiveAnalysis(
       individuals,
       families,

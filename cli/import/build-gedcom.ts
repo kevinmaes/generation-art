@@ -265,7 +265,9 @@ async function buildGedcomFiles(
       const parser = new SimpleGedcomParser();
       console.log('  🔍 Starting parse...');
       const parsedData = parser.parse(gedcomText);
-      console.log(`  🔍 Parse complete: ${parsedData.individuals.length} individuals`);
+      console.log(
+        `  🔍 Parse complete: ${parsedData.individuals.length} individuals`,
+      );
       fileTimer.endAndLog('GEDCOM Parsing');
 
       // Write raw parsed JSON (intermediate file)
@@ -452,14 +454,16 @@ async function buildGedcomFiles(
   // Calculate total individuals and families processed
   let totalIndividuals = 0;
   let totalFamilies = 0;
-  
+
   for (const dataset of manifest.datasets) {
     totalIndividuals += dataset.individualCount;
     totalFamilies += dataset.familyCount;
   }
-  
+
   console.log('\nGEDCOM build complete!');
-  console.log(`📊 Total processed: ${String(totalIndividuals)} individuals, ${String(totalFamilies)} families`);
+  console.log(
+    `📊 Total processed: ${String(totalIndividuals)} individuals, ${String(totalFamilies)} families`,
+  );
   console.log(`Generated files are in: ${outputDir}`);
 
   // Warning for slow operations
