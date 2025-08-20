@@ -457,14 +457,17 @@ export function TransformerItem({
                                 value={
                                   sliderValues.temperature !== undefined
                                     ? (sliderValues.temperature as number)
-                                    : (parameters.visual.temperature as number) ||
+                                    : (parameters.visual
+                                        .temperature as number) ||
                                       (VISUAL_PARAMETERS.temperature
                                         .defaultValue as number)
                                 }
                                 onInput={(e) => {
                                   handleSliderInput(
                                     'temperature',
-                                    Number((e.target as HTMLInputElement).value),
+                                    Number(
+                                      (e.target as HTMLInputElement).value,
+                                    ),
                                   );
                                 }}
                                 onChange={(e) => {
@@ -482,7 +485,8 @@ export function TransformerItem({
                                   const value =
                                     sliderValues.temperature !== undefined
                                       ? (sliderValues.temperature as number)
-                                      : (parameters.visual.temperature as number) ||
+                                      : (parameters.visual
+                                          .temperature as number) ||
                                         (VISUAL_PARAMETERS.temperature
                                           .defaultValue as number);
                                   return `${(value * 100).toFixed(0)}%`;
@@ -682,8 +686,9 @@ export function TransformerItem({
                                                   handleSliderInput(
                                                     param.name,
                                                     Number(
-                                                      (e.target as HTMLInputElement)
-                                                        .value,
+                                                      (
+                                                        e.target as HTMLInputElement
+                                                      ).value,
                                                     ),
                                                   );
                                                 }}
@@ -700,28 +705,42 @@ export function TransformerItem({
                                                 <span>
                                                   {(() => {
                                                     // Show min value with unit
-                                                    if (param.unit === '%' && param.min !== undefined) {
+                                                    if (
+                                                      param.unit === '%' &&
+                                                      param.min !== undefined
+                                                    ) {
                                                       return `${(param.min * 100).toFixed(0)}%`;
-                                                    } else if (param.unit === 'px') {
+                                                    } else if (
+                                                      param.unit === 'px'
+                                                    ) {
                                                       return `${String(param.min ?? '')}px`;
                                                     } else if (param.unit) {
                                                       return `${String(param.min ?? '')}${param.unit}`;
                                                     } else {
-                                                      return String(param.min ?? '');
+                                                      return String(
+                                                        param.min ?? '',
+                                                      );
                                                     }
                                                   })()}
                                                 </span>
                                                 <span>
                                                   {(() => {
                                                     // Show max value with unit
-                                                    if (param.unit === '%' && param.max !== undefined) {
+                                                    if (
+                                                      param.unit === '%' &&
+                                                      param.max !== undefined
+                                                    ) {
                                                       return `${(param.max * 100).toFixed(0)}%`;
-                                                    } else if (param.unit === 'px') {
+                                                    } else if (
+                                                      param.unit === 'px'
+                                                    ) {
                                                       return `${String(param.max ?? '')}px`;
                                                     } else if (param.unit) {
                                                       return `${String(param.max ?? '')}${param.unit}`;
                                                     } else {
-                                                      return String(param.max ?? '');
+                                                      return String(
+                                                        param.max ?? '',
+                                                      );
                                                     }
                                                   })()}
                                                 </span>
@@ -742,19 +761,28 @@ export function TransformerItem({
                                                       (param.defaultValue as number);
                                                 // Use custom formatter if provided
                                                 if (param.formatValue) {
-                                                  return param.formatValue(value);
+                                                  return param.formatValue(
+                                                    value,
+                                                  );
                                                 }
                                                 // Format based on unit
                                                 if (param.unit === '%') {
                                                   return `${(value * 100).toFixed(0)}%`;
-                                                } else if (param.unit === 'px') {
+                                                } else if (
+                                                  param.unit === 'px'
+                                                ) {
                                                   return `${String(Math.round(value))}px`;
                                                 } else if (param.unit) {
                                                   return `${String(value)}${param.unit}`;
-                                                } else if (param.step && param.step < 1) {
+                                                } else if (
+                                                  param.step &&
+                                                  param.step < 1
+                                                ) {
                                                   return value.toFixed(1);
                                                 } else {
-                                                  return Math.round(value).toString();
+                                                  return Math.round(
+                                                    value,
+                                                  ).toString();
                                                 }
                                               })()}
                                             </div>
