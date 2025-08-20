@@ -18,8 +18,8 @@ import type {
   GraphTraversalUtils,
   GedcomDataWithMetadata,
   Edge,
-} from '../../../shared/types';
-import type { RoutingOutput } from '../display/types/edge-routing';
+} from '../../../../shared/types';
+import type { RoutingOutput } from '../../display/types/edge-routing';
 import { createTransformerInstance } from './utils';
 import {
   OrthogonalRouter,

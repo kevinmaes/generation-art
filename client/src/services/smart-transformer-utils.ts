@@ -4,11 +4,14 @@
  * Pure functions for extracting, merging, and building prompts for smart transformers
  */
 
-import type { TransformerContext, VisualMetadata } from '../transformers/types';
+import type {
+  TransformerContext,
+  VisualMetadata,
+} from '../pipeline/transformers/types';
 import type {
   SmartTransformerConfig,
   GenericPromptData,
-} from '../transformers/smart-transformer-types';
+} from '../pipeline/transformers/smart-transformer-types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
 
 type ExtractedData = Record<string, Record<string, unknown>>;

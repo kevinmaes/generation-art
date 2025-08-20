@@ -1,7 +1,7 @@
-import type { VisualTransformerConfig } from '../../../transformers/types';
-import type { VisualParameterValues } from '../../../transformers/visual-parameters';
-import { DIMENSIONS } from '../../../transformers/dimensions';
-import { VISUAL_PARAMETERS } from '../../../transformers/visual-parameters';
+import type { VisualTransformerConfig } from '../../../pipeline/transformers/types';
+import type { VisualParameterValues } from '../../../pipeline/transformers/visual-parameters';
+import { DIMENSIONS } from '../../../pipeline/transformers/dimensions';
+import { VISUAL_PARAMETERS } from '../../../pipeline/transformers/visual-parameters';
 
 interface DimensionsControlProps {
   transformer: VisualTransformerConfig;

@@ -29,7 +29,7 @@ import {
   DEFAULT_PRIORITY,
   DEFAULT_CUSTOM,
 } from './constants';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import { TRANSFORMERS, type TransformerId } from './transformers';
 import type { DimensionId } from './dimensions';
 

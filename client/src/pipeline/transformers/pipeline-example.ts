@@ -9,7 +9,7 @@ import { runPipeline, createSimplePipeline } from './pipeline';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
-} from '../../../shared/types';
+} from '../../../../shared/types';
 
 /**
  * Example: Run a simple pipeline with the horizontal spread transformer

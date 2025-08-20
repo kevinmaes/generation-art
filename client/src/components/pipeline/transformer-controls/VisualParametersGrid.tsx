@@ -1,5 +1,5 @@
-import type { VisualTransformerConfig } from '../../../transformers/types';
-import type { VisualParameterValues } from '../../../transformers/visual-parameters';
+import type { VisualTransformerConfig } from '../../../pipeline/transformers/types';
+import type { VisualParameterValues } from '../../../pipeline/transformers/visual-parameters';
 import { ParameterSlider } from './ParameterSlider';
 import { ParameterSelect } from './ParameterSelect';
 import { ParameterColorPicker } from './ParameterColorPicker';

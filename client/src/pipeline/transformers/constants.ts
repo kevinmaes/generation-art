@@ -6,7 +6,7 @@
  * to ensure consistency across the system.
  */
 
-import { CANVAS_DIMENSIONS } from '../../../shared/constants';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 
 // Default position (center of canvas)
 export const DEFAULT_X = CANVAS_DIMENSIONS.WEB.WIDTH / 2;

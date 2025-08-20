@@ -1,7 +1,7 @@
 import React from 'react';
-import type { VisualTransformerConfig } from '../../transformers/types';
-import type { TransformerId } from '../../transformers/transformers';
-import type { VisualParameterValues } from '../../transformers/visual-parameters';
+import type { VisualTransformerConfig } from '../../pipeline/transformers/types';
+import type { TransformerId } from '../../pipeline/transformers/transformers';
+import type { VisualParameterValues } from '../../pipeline/transformers/visual-parameters';
 
 // Sub-components
 import { TransformerHeader } from './transformer-header/TransformerHeader';

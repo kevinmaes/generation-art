@@ -1,4 +1,4 @@
-import type { VisualParameter } from '../../../transformers/types';
+import type { VisualParameter } from '../../../pipeline/transformers/types';
 
 interface ParameterColorPickerProps {
   param: VisualParameter;

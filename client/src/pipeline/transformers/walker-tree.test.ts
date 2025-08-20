@@ -9,7 +9,7 @@ import type {
   GedcomDataWithMetadata,
   AugmentedIndividual,
   FamilyWithMetadata,
-} from '../../../shared/types';
+} from '../../../../shared/types';
 
 // Test data factory
 function createTestIndividual(

@@ -17,9 +17,9 @@ import { createTransformerInstance } from './utils';
 import {
   buildSmartTransformerPrompt,
   mergeLLMResponse,
-} from '../services/smart-transformer-utils';
-import { executeSmartTransformer } from '../services/smart-llm-service';
-import { llmService } from '../services/llm-service';
+} from '../../services/smart-transformer-utils';
+import { executeSmartTransformer } from '../../services/smart-llm-service';
+import { llmService } from '../../services/llm-service';
 
 /**
  * Configuration for the smart layout transformer

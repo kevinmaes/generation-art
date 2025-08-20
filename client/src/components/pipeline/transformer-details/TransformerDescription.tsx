@@ -1,4 +1,4 @@
-import type { VisualTransformerConfig } from '../../../transformers/types';
+import type { VisualTransformerConfig } from '../../../pipeline/transformers/types';
 
 interface TransformerDescriptionProps {
   transformer: VisualTransformerConfig;

@@ -21,7 +21,7 @@ import type {
 } from './types';
 import { getIndividualSafe } from './utils/safe-access';
 import { createTransformerInstance } from './utils';
-import type { ShapeProfile } from '../../../shared/types';
+import type { ShapeProfile } from '../../../../shared/types';
 
 // Deterministic small hash to derive numeric seeds from strings
 function hashStringToInt(input: string): number {

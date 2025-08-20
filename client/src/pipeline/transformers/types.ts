@@ -5,13 +5,13 @@
  * which converts GEDCOM metadata into visual attributes for generative art.
  */
 
-import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type { RoutingOutput } from '../display/types/edge-routing';
-import type { LLMReadyData } from '../../../shared/types/llm-data';
+import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import type { RoutingOutput } from '../../display/types/edge-routing';
+import type { LLMReadyData } from '../../../../shared/types/llm-data';
 import type { DimensionId } from './dimensions';
 import type { VisualParameterValues } from './visual-parameters';
 import type { TransformerId } from './transformers';
-import type { ShapeProfile } from '../../../shared/types';
+import type { ShapeProfile } from '../../../../shared/types';
 
 /**
  * Visual metadata represents the visual attributes of elements in the art

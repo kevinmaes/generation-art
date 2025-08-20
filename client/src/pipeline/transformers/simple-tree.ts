@@ -16,7 +16,7 @@ import type {
   AugmentedIndividual,
   Family,
   GraphTraversalUtils,
-} from '../../../shared/types';
+} from '../../../../shared/types';
 import { createTransformerInstance } from './utils';
 
 /**

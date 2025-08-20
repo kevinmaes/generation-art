@@ -12,8 +12,8 @@ import type {
   EdgeLayer,
   RoutingOutput,
   OrthogonalRoutingConfig,
-} from '../../display/types/edge-routing';
-import { createStraightSegment } from '../../display/types/edge-routing';
+} from '../../../display/types/edge-routing';
+import { createStraightSegment } from '../../../display/types/edge-routing';
 
 export interface FamilyNode {
   id: string;

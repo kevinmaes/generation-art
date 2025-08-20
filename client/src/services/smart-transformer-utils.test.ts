@@ -23,8 +23,8 @@ import {
 import type {
   SmartTransformerConfig,
   GenericPromptData,
-} from '../transformers/smart-transformer-types';
-import type { TransformerContext } from '../transformers/types';
+} from '../pipeline/transformers/smart-transformer-types';
+import type { TransformerContext } from '../pipeline/transformers/types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
 
 // Mock data for testing

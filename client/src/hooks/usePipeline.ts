@@ -7,10 +7,10 @@ import {
   runPipeline,
   createSimplePipeline,
   type PipelineResult,
-} from '../transformers/pipeline';
-import { type TransformerId } from '../transformers/transformers';
-import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
-import type { VisualParameterValues } from '../transformers/visual-parameters';
+} from '../pipeline/transformers/pipeline';
+import { type TransformerId } from '../pipeline/transformers/transformers';
+import { PIPELINE_DEFAULTS } from '../pipeline/transformers/pipeline';
+import type { VisualParameterValues } from '../pipeline/transformers/visual-parameters';
 
 interface UsePipelineOptions {
   temperature?: number;

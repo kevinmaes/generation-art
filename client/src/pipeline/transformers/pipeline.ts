@@ -8,7 +8,7 @@
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
-} from '../../../shared/types';
+} from '../../../../shared/types';
 import type {
   VisualMetadata,
   CompleteVisualMetadata,
@@ -23,7 +23,7 @@ import {
   type TransformerId,
   transformerConfigs,
 } from './transformers';
-import { GedcomDataWithMetadataSchema } from '../../../shared/types';
+import { GedcomDataWithMetadataSchema } from '../../../../shared/types';
 import {
   DEFAULT_X,
   DEFAULT_Y,
@@ -46,7 +46,7 @@ import {
   DEFAULT_PRIORITY,
   DEFAULT_CUSTOM,
 } from './constants';
-import { getTransformerParameterKey } from '../utils/pipeline-index';
+import { getTransformerParameterKey } from '../../utils/pipeline-index';
 
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];

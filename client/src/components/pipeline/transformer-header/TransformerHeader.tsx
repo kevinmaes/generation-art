@@ -1,5 +1,5 @@
-import type { VisualTransformerConfig } from '../../../transformers/types';
-import type { TransformerId } from '../../../transformers/transformers';
+import type { VisualTransformerConfig } from '../../../pipeline/transformers/types';
+import type { TransformerId } from '../../../pipeline/transformers/transformers';
 import { TransformerBadges } from './TransformerBadges';
 import { TransformerActions } from './TransformerActions';
 
