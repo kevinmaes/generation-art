@@ -1,14 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type p5 from 'p5';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type {
-  CompleteVisualMetadata,
-  VisualMetadata,
-} from '../pipeline/types';
-import {
-  TRANSFORMERS,
-  type TransformerId,
-} from '../pipeline/transformers';
+import type { CompleteVisualMetadata, VisualMetadata } from '../pipeline/types';
+import { TRANSFORMERS, type TransformerId } from '../pipeline/transformers';
 import { PIPELINE_DEFAULTS } from '../pipeline/pipeline';
 import { DEFAULT_COLOR } from '../pipeline/constants';
 import { renderEdgeRouting } from './edge-renderer';

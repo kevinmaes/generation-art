@@ -23,11 +23,7 @@ interface IndividualLike {
 export function isValidTransformerContext(context: unknown): boolean {
   // All fields are required in TransformerContext, so this is just a type guard
   const ctx = context as ContextLike;
-  return !!(
-    ctx.gedcomData &&
-    ctx.visualMetadata &&
-    ctx.dimensions
-  );
+  return !!(ctx.gedcomData && ctx.visualMetadata && ctx.dimensions);
 }
 
 /**

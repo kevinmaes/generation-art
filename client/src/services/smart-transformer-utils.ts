@@ -4,10 +4,7 @@
  * Pure functions for extracting, merging, and building prompts for smart transformers
  */
 
-import type {
-  TransformerContext,
-  VisualMetadata,
-} from '../pipeline/types';
+import type { TransformerContext, VisualMetadata } from '../pipeline/types';
 import type {
   SmartTransformerConfig,
   GenericPromptData,

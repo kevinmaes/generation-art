@@ -16,7 +16,10 @@ interface GedcomDataRuntime {
  * @param individualId - The ID of the individual to retrieve
  * @returns The individual if found, undefined otherwise
  */
-export function getIndividualSafe(gedcomData: unknown, individualId: string): unknown {
+export function getIndividualSafe(
+  gedcomData: unknown,
+  individualId: string,
+): unknown {
   if (!gedcomData || typeof gedcomData !== 'object') return undefined;
   const data = gedcomData as GedcomDataRuntime;
   return data.individuals?.[individualId];
