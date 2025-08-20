@@ -8,9 +8,18 @@ interface DimensionsControlProps {
   dimensions: { primary?: string; secondary?: string };
   visualParameters: VisualParameterValues;
   sliderValues: Record<string, string | number | boolean | undefined>;
-  onDimensionChange: (type: 'primary' | 'secondary', value: string | undefined) => void;
-  onSliderInput: (key: string, value: string | number | boolean | undefined) => void;
-  onSliderChangeComplete: (key: string, value: string | number | boolean) => void;
+  onDimensionChange: (
+    type: 'primary' | 'secondary',
+    value: string | undefined,
+  ) => void;
+  onSliderInput: (
+    key: string,
+    value: string | number | boolean | undefined,
+  ) => void;
+  onSliderChangeComplete: (
+    key: string,
+    value: string | number | boolean,
+  ) => void;
   disabled?: boolean;
   isVarianceTransformer?: boolean;
 }
@@ -36,7 +45,9 @@ export function DimensionsControl({
         {transformer.requiresLLM ? 'Dimensions + Temperature' : 'Dimensions'}
       </h4>
 
-      <div className={`grid gap-2 ${transformer.requiresLLM ? 'grid-cols-3' : 'grid-cols-2'}`}>
+      <div
+        className={`grid gap-2 ${transformer.requiresLLM ? 'grid-cols-3' : 'grid-cols-2'}`}
+      >
         {/* Primary Dimension */}
         <div>
           <label className="block text-xs text-gray-600 mb-1 text-left">
@@ -63,7 +74,9 @@ export function DimensionsControl({
           </label>
           <select
             value={dimensions.secondary ?? ''}
-            onChange={(e) => onDimensionChange('secondary', e.target.value || undefined)}
+            onChange={(e) =>
+              onDimensionChange('secondary', e.target.value || undefined)
+            }
             className="w-full text-xs border border-gray-300 rounded px-2 py-1 bg-white"
             disabled={disabled}
           >
@@ -97,7 +110,10 @@ export function DimensionsControl({
                       (VISUAL_PARAMETERS.temperature.defaultValue as number)
                 }
                 onInput={(e) => {
-                  onSliderInput('temperature', Number((e.target as HTMLInputElement).value));
+                  onSliderInput(
+                    'temperature',
+                    Number((e.target as HTMLInputElement).value),
+                  );
                 }}
                 onChange={(e) => {
                   onSliderChangeComplete('temperature', Number(e.target.value));

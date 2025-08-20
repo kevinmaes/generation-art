@@ -1,4 +1,3 @@
-
 interface VarianceToggleProps {
   isVarianceFollowing?: boolean;
   onToggleVariance?: () => void;
@@ -15,9 +14,7 @@ export function VarianceToggle({
   return (
     <div
       className={`px-4 py-2 bg-gray-50 border border-gray-200 ${
-        hasParameterControls
-          ? 'border-t-0 rounded-b mt-0'
-          : 'rounded mt-2'
+        hasParameterControls ? 'border-t-0 rounded-b mt-0' : 'rounded mt-2'
       }`}
     >
       <div className="flex items-center justify-between">

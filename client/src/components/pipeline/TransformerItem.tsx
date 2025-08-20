@@ -211,9 +211,10 @@ export function TransformerItem({
   // Disable controls during visualization
   const isDisabled = isVisualizing;
 
-  const hasParameterControls = isInPipeline && 
-    (transformer.availableDimensions.length > 0 || 
-     transformer.visualParameters.length > 0);
+  const hasParameterControls =
+    isInPipeline &&
+    (transformer.availableDimensions.length > 0 ||
+      transformer.visualParameters.length > 0);
 
   return (
     <div

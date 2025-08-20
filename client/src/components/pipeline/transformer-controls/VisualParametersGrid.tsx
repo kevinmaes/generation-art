@@ -12,8 +12,14 @@ interface VisualParametersGridProps {
   parameters: VisualParameterValues;
   sliderValues: Record<string, string | number | boolean | undefined>;
   onParameterChange: (key: string, value: string | number | boolean) => void;
-  onSliderInput: (key: string, value: string | number | boolean | undefined) => void;
-  onSliderChangeComplete: (key: string, value: string | number | boolean) => void;
+  onSliderInput: (
+    key: string,
+    value: string | number | boolean | undefined,
+  ) => void;
+  onSliderChangeComplete: (
+    key: string,
+    value: string | number | boolean,
+  ) => void;
   disabled?: boolean;
   isVarianceTransformer?: boolean;
 }
@@ -34,7 +40,9 @@ export function VisualParametersGrid({
 
   // Filter parameters based on whether this is a variance transformer
   const filteredParams = isVarianceTransformer
-    ? transformer.visualParameters.filter((p) => p.name !== 'limitToPreviousChanges')
+    ? transformer.visualParameters.filter(
+        (p) => p.name !== 'limitToPreviousChanges',
+      )
     : transformer.visualParameters;
 
   // Separate parameters by type for layout
@@ -42,13 +50,20 @@ export function VisualParametersGrid({
     (param) => param.type === 'range' && param.name !== 'temperature',
   );
   const colorParams = filteredParams.filter((param) => param.type === 'color');
-  const booleanParams = filteredParams.filter((param) => param.type === 'boolean');
-  const varianceAmountParam = filteredParams.find((p) => p.name === 'varianceAmount');
-  const varianceModeParam = filteredParams.find((p) => p.name === 'varianceMode');
+  const booleanParams = filteredParams.filter(
+    (param) => param.type === 'boolean',
+  );
+  const varianceAmountParam = filteredParams.find(
+    (p) => p.name === 'varianceAmount',
+  );
+  const varianceModeParam = filteredParams.find(
+    (p) => p.name === 'varianceMode',
+  );
 
   // Other dropdowns and number inputs (excluding variance controls)
   const rightColumnParams = filteredParams.filter((param) => {
-    if (param.name === 'varianceAmount' || param.name === 'varianceMode') return false;
+    if (param.name === 'varianceAmount' || param.name === 'varianceMode')
+      return false;
     return param.type === 'select' || param.type === 'number';
   });
 
@@ -63,7 +78,9 @@ export function VisualParametersGrid({
 
   return (
     <div>
-      <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">Visual Parameters</h4>
+      <h4 className="text-xs font-medium text-gray-700 mb-2 text-left">
+        Visual Parameters
+      </h4>
       <div className={isVarianceTransformer ? '' : 'grid grid-cols-2 gap-4'}>
         {/* Left column */}
         {leftColumnParams.length > 0 && (
@@ -71,7 +88,11 @@ export function VisualParametersGrid({
             {leftColumnParams.map((param) => {
               const value = parameters[param.name] ?? param.defaultValue;
 
-              if (param.name === 'varianceAmount' && param.type === 'select' && param.options) {
+              if (
+                param.name === 'varianceAmount' &&
+                param.type === 'select' &&
+                param.options
+              ) {
                 return (
                   <VarianceAmountButtons
                     key={param.name}
@@ -83,7 +104,11 @@ export function VisualParametersGrid({
                 );
               }
 
-              if (param.name === 'varianceMode' && param.type === 'select' && param.options) {
+              if (
+                param.name === 'varianceMode' &&
+                param.type === 'select' &&
+                param.options
+              ) {
                 return (
                   <ParameterSelect
                     key={param.name}

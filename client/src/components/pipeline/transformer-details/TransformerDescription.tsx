@@ -23,7 +23,9 @@ export function TransformerDescription({
       {/* Expandable Full Description - only for available transformers */}
       {!isInPipeline && isExpanded && transformer.description && (
         <div className="mt-2 pt-2 border-t border-gray-200">
-          <p className="text-xs text-gray-700 text-left">{transformer.description}</p>
+          <p className="text-xs text-gray-700 text-left">
+            {transformer.description}
+          </p>
         </div>
       )}
     </>

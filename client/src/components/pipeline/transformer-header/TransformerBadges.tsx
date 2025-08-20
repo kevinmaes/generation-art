@@ -5,7 +5,10 @@ interface TransformerBadgesProps {
   hasBeenModified: boolean;
 }
 
-export function TransformerBadges({ requiresLLM, hasBeenModified }: TransformerBadgesProps) {
+export function TransformerBadges({
+  requiresLLM,
+  hasBeenModified,
+}: TransformerBadgesProps) {
   return (
     <>
       {requiresLLM && (

@@ -1,4 +1,3 @@
-
 interface TransformerActionsProps {
   isInPipeline: boolean;
   isDisabled: boolean;

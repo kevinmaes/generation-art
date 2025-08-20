@@ -62,7 +62,9 @@ export function ParameterSlider({
             max={param.max}
             step={param.step}
             value={displayValue}
-            onInput={(e) => onInput(Number((e.target as HTMLInputElement).value))}
+            onInput={(e) =>
+              onInput(Number((e.target as HTMLInputElement).value))
+            }
             onChange={(e) => onChange(Number(e.target.value))}
             className="w-full"
             disabled={disabled}
