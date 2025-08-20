@@ -30,7 +30,7 @@ export interface SmartTransformerConfig {
   };
 
   // Zod schema for validating LLM response
-  responseSchema: z.ZodType<any>;
+  responseSchema: z.ZodType;
 
   // Transformer-specific prompt components
   prompt: {
@@ -51,9 +51,9 @@ export interface SmartTransformerConfig {
   };
 
   // Optional: custom extraction/merging if default logic doesn't suffice
-  customExtractor?: (metadata: TransformerContext['visualMetadata']) => any;
+  customExtractor?: (metadata: TransformerContext['visualMetadata']) => unknown;
   customMerger?: (
-    llmResponse: any,
+    llmResponse: unknown,
     originalMetadata: TransformerContext['visualMetadata'],
   ) => TransformerContext['visualMetadata'];
 }

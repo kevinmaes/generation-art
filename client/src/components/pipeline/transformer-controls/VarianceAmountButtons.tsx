@@ -1,4 +1,4 @@
-import type { VisualParameter } from '../../../pipeline/transformers/types';
+import type { VisualParameter } from '../../../pipeline/types';
 
 interface VarianceAmountButtonsProps {
   param: VisualParameter;

@@ -63,7 +63,7 @@ export function advancedLLMAnalysisTransform(
   const totalIndividuals = Object.keys(gedcomData.individuals).length;
   const averageAge =
     Object.values(gedcomData.individuals)
-      .map((ind) => ind.metadata.lifespan ?? 0)
+      .map((ind) => (ind as { metadata: { lifespan?: number } }).metadata.lifespan ?? 0)
       .reduce((sum, age) => sum + age, 0) / totalIndividuals;
 
   // Use LLM data for external analysis

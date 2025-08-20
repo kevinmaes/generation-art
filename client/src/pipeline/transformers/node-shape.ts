@@ -18,9 +18,9 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
   VisualTransformerConfig,
-} from './types';
-import { getIndividualSafe } from './utils/safe-access';
-import { createTransformerInstance } from './utils';
+} from '../types';
+import { getIndividualSafe } from '../utils/safe-access';
+import { createTransformerInstance } from '../utils';
 import type { ShapeProfile } from '../../../../shared/types';
 
 // Deterministic small hash to derive numeric seeds from strings

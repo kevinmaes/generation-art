@@ -7,11 +7,11 @@
 import type {
   TransformerContext,
   VisualMetadata,
-} from '../pipeline/transformers/types';
+} from '../pipeline/types';
 import type {
   SmartTransformerConfig,
   GenericPromptData,
-} from '../pipeline/transformers/smart-transformer-types';
+} from '../pipeline/smart-transformer-types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
 
 type ExtractedData = Record<string, Record<string, unknown>>;

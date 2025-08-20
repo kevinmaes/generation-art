@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { varianceTransform, varianceConfig } from './variance';
-import type { TransformerContext, CompleteVisualMetadata } from './types';
+import type { TransformerContext, CompleteVisualMetadata } from '../types';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { LLMReadyData } from '../../../../shared/types/llm-data';
 

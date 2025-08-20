@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { nodeShapeTransform } from './node-shape';
-import type { TransformerContext } from './types';
+import type { TransformerContext } from '../types';
 import type { LLMReadyData } from '../../../../shared/types/llm-data';
 
 // Mock GEDCOM data for testing

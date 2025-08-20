@@ -7,20 +7,20 @@
  */
 
 import type { VisualTransformerConfig } from './types';
-import { horizontalSpreadConfig } from './horizontal-spread';
-import { nodeSizeConfig } from './node-size';
-import { nodeOpacityConfig } from './node-opacity';
-import { edgeOpacityConfig } from './edge-opacity';
-import { verticalSpreadConfig } from './vertical-spread';
-import { nodeShapeConfig } from './node-shape';
-import { nodeRotationConfig } from './node-rotation';
-import { nodeScaleConfig } from './node-scale';
-import { smartLayoutTransformerConfig } from './smart-layout';
-import { edgeCurveConfig } from './edge-curve';
-import { varianceConfig } from './variance';
-import { simpleTreeConfig } from './simple-tree';
-import { walkerTreeConfig } from './walker-tree';
-import { fanChartConfig } from './fan-chart';
+import { horizontalSpreadConfig } from './transformers/horizontal-spread';
+import { nodeSizeConfig } from './transformers/node-size';
+import { nodeOpacityConfig } from './transformers/node-opacity';
+import { edgeOpacityConfig } from './transformers/edge-opacity';
+import { verticalSpreadConfig } from './transformers/vertical-spread';
+import { nodeShapeConfig } from './transformers/node-shape';
+import { nodeRotationConfig } from './transformers/node-rotation';
+import { nodeScaleConfig } from './transformers/node-scale';
+import { smartLayoutTransformerConfig } from './transformers/smart-layout';
+import { edgeCurveConfig } from './transformers/edge-curve';
+import { varianceConfig } from './transformers/variance';
+import { simpleTreeConfig } from './transformers/simple-tree';
+import { walkerTreeConfig } from './transformers/walker-tree';
+import { fanChartConfig } from './transformers/fan-chart';
 
 // Transformer constants for type safety
 export const TRANSFORMERS = {

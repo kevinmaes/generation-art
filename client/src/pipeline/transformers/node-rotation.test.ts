@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { nodeRotationTransform } from './node-rotation';
-import type { TransformerContext } from './types';
+import type { TransformerContext } from '../types';
 import type { LLMReadyData } from '../../../../shared/types/llm-data';
 
 // Mock GEDCOM data for testing

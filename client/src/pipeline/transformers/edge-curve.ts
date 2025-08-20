@@ -14,12 +14,12 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
   VisualTransformerConfig,
-} from './types';
+} from '../types';
 import {
   getIndividualOrWarn,
   validateEdgeReferences,
-} from './utils/transformer-guards';
-import { createTransformerInstance } from './utils';
+} from '../utils/transformer-guards';
+import { createTransformerInstance } from '../utils';
 
 interface Point {
   x: number;

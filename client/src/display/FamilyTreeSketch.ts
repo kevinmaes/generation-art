@@ -4,13 +4,13 @@ import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type {
   CompleteVisualMetadata,
   VisualMetadata,
-} from '../pipeline/transformers/types';
+} from '../pipeline/types';
 import {
   TRANSFORMERS,
   type TransformerId,
-} from '../pipeline/transformers/transformers';
-import { PIPELINE_DEFAULTS } from '../pipeline/transformers/pipeline';
-import { DEFAULT_COLOR } from '../pipeline/transformers/constants';
+} from '../pipeline/transformers';
+import { PIPELINE_DEFAULTS } from '../pipeline/pipeline';
+import { DEFAULT_COLOR } from '../pipeline/constants';
 import { renderEdgeRouting } from './edge-renderer';
 import type { ShapeProfile } from '../../../shared/types';
 import { resolveShapeGeometry } from './shapes/resolve';

@@ -11,9 +11,9 @@ import type {
   TransformerOutput,
   VisualMetadata,
   VisualTransformerConfig,
-} from './types';
-import type { SmartTransformerConfig } from './smart-transformer-types';
-import { createTransformerInstance } from './utils';
+} from '../types';
+import type { SmartTransformerConfig } from '../smart-transformer-types';
+import { createTransformerInstance } from '../utils';
 import {
   buildSmartTransformerPrompt,
   mergeLLMResponse,

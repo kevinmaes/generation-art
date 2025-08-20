@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { walkerTreeTransform, walkerTreeConfig } from './walker-tree';
-import type { TransformerContext, CompleteVisualMetadata } from './types';
+import type { TransformerContext, CompleteVisualMetadata } from '../types';
 import type {
   GedcomDataWithMetadata,
   AugmentedIndividual,

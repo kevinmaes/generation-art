@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { nodeSizeTransform } from './node-size';
-import type { TransformerContext } from './types';
+import type { TransformerContext } from '../types';
 
 // Mock GEDCOM data for testing
 const mockGedcomData = {

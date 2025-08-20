@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { simpleTreeTransform } from './simple-tree';
-import type { TransformerContext } from './types';
+import type { TransformerContext } from '../types';
 
 // Mock GEDCOM data for testing a simple tree structure
 const mockGedcomData = {

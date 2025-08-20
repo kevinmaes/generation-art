@@ -11,13 +11,13 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
   VisualTransformerConfig,
-} from './types';
+} from '../types';
 import type {
   AugmentedIndividual,
   Family,
   GraphTraversalUtils,
 } from '../../../../shared/types';
-import { createTransformerInstance } from './utils';
+import { createTransformerInstance } from '../utils';
 
 /**
  * Configuration for the simple tree transformer

@@ -13,9 +13,9 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
   VisualTransformerConfig,
-} from './types';
-import { getIndividualOrWarn } from './utils/transformer-guards';
-import { createTransformerInstance } from './utils';
+} from '../types';
+import { getIndividualOrWarn } from '../utils/transformer-guards';
+import { createTransformerInstance } from '../utils';
 
 /**
  * Configuration for the node opacity transformer

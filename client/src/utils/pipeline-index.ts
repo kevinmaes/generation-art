@@ -1,4 +1,4 @@
-import type { TransformerId } from '../pipeline/transformers/transformers';
+import type { TransformerId } from '../pipeline/transformers';
 
 /**
  * Generate a compound ID for a variance transformer based on its parent transformer.

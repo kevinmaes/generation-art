@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { varianceTransform, varianceConfig } from './variance';
+import { varianceTransform, varianceConfig } from './transformers/variance';
 import type { TransformerContext, CompleteVisualMetadata } from './types';
-import type { GedcomDataWithMetadata } from '../../../../shared/types';
-import type { LLMReadyData } from '../../../../shared/types/llm-data';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
+import type { LLMReadyData } from '../../../shared/types/llm-data';
 
 describe('Variance Modes Implementation', () => {
   let baseContext: TransformerContext;
@@ -69,9 +69,9 @@ describe('Variance Modes Implementation', () => {
         families: {
           F001: {
             id: 'F001',
-            husband: { id: 'I001' } as any,
+            husband: { id: 'I001' } as { id: string },
             wife: null,
-            children: [{ id: 'I002' } as any],
+            children: [{ id: 'I002' } as { id: string }],
             metadata: {},
           },
         },

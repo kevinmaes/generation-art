@@ -1,5 +1,5 @@
-import type { VisualTransformerConfig } from '../../../pipeline/transformers/types';
-import { DIMENSIONS } from '../../../pipeline/transformers/dimensions';
+import type { VisualTransformerConfig } from '../../../pipeline/types';
+import { DIMENSIONS } from '../../../pipeline/dimensions';
 
 interface TransformerMetadataProps {
   transformer: VisualTransformerConfig;

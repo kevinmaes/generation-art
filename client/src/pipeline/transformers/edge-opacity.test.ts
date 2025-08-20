@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { edgeOpacityTransform } from './edge-opacity';
-import { createInitialCompleteVisualMetadata } from './pipeline';
+import { createInitialCompleteVisualMetadata } from '../pipeline';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
-import type { TransformerContext } from './types';
+import type { TransformerContext } from '../types';
 
 // Test data
 const createTestData = (): GedcomDataWithMetadata => ({

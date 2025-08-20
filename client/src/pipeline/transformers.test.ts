@@ -7,7 +7,7 @@ import {
   getAllCategories,
   type TransformerId,
 } from './transformers';
-import type { GedcomDataWithMetadata } from '../../../../shared/types';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { VisualParameterValues } from './visual-parameters';
 import { initialEntityVisualMetadata } from './pipeline';
 

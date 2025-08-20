@@ -1,12 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useCallback, useMemo } from 'react';
-import type { PipelineResult } from '../pipeline/transformers/types';
-import type { TransformerId } from '../pipeline/transformers/transformers';
+import type { PipelineResult } from '../pipeline/types';
+import type { TransformerId } from '../pipeline/transformers';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
-import type { VisualParameterValues } from '../pipeline/transformers/visual-parameters';
+import type { VisualParameterValues } from '../pipeline/visual-parameters';
 import { usePipeline } from '../hooks/usePipeline';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 

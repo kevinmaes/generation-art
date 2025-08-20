@@ -5,9 +5,9 @@
 // Use any for now to avoid complex type casting issues
 // TODO: Fix the type mismatch between interface definition and runtime usage
 interface GedcomDataRuntime {
-  individuals: Record<string, any>;
-  families: Record<string, any>;
-  metadata: any;
+  individuals?: Record<string, unknown>;
+  families?: Record<string, unknown>;
+  metadata?: unknown;
 }
 
 /**
@@ -16,7 +16,8 @@ interface GedcomDataRuntime {
  * @param individualId - The ID of the individual to retrieve
  * @returns The individual if found, undefined otherwise
  */
-export function getIndividualSafe(gedcomData: any, individualId: string): any {
+export function getIndividualSafe(gedcomData: unknown, individualId: string): unknown {
+  if (!gedcomData || typeof gedcomData !== 'object') return undefined;
   const data = gedcomData as GedcomDataRuntime;
   return data.individuals?.[individualId];
 }
@@ -27,7 +28,8 @@ export function getIndividualSafe(gedcomData: any, individualId: string): any {
  * @param familyId - The ID of the family to retrieve
  * @returns The family if found, undefined otherwise
  */
-export function getFamilySafe(gedcomData: any, familyId: string): any {
+export function getFamilySafe(gedcomData: unknown, familyId: string): unknown {
+  if (!gedcomData || typeof gedcomData !== 'object') return undefined;
   const data = gedcomData as GedcomDataRuntime;
   return data.families?.[familyId];
 }

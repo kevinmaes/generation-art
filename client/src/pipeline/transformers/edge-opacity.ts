@@ -13,12 +13,12 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
   VisualTransformerConfig,
-} from './types';
+} from '../types';
 import {
   getIndividualOrWarn,
   validateEdgeReferences,
-} from './utils/transformer-guards';
-import { createTransformerInstance } from './utils';
+} from '../utils/transformer-guards';
+import { createTransformerInstance } from '../utils';
 
 /**
  * Configuration for the edge opacity transformer

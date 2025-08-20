@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { TransformerId } from '../pipeline/transformers/transformers';
+import type { TransformerId } from '../pipeline/transformers';
 import {
   getVarianceCompoundId,
   getTransformerParameterKey,

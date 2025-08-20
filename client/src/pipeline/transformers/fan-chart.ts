@@ -11,8 +11,8 @@ import type {
   CompleteVisualMetadata,
   VisualTransformerConfig,
   VisualMetadata,
-} from './types';
-import { createTransformerInstance } from './utils';
+} from '../types';
+import { createTransformerInstance } from '../utils';
 
 /**
  * Async wrapper for the fan chart transform

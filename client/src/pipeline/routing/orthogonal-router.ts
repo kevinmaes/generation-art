@@ -12,8 +12,8 @@ import type {
   EdgeLayer,
   RoutingOutput,
   OrthogonalRoutingConfig,
-} from '../../../display/types/edge-routing';
-import { createStraightSegment } from '../../../display/types/edge-routing';
+} from '../../display/types/edge-routing';
+import { createStraightSegment } from '../../display/types/edge-routing';
 
 export interface FamilyNode {
   id: string;
@@ -161,7 +161,7 @@ export class OrthogonalRouter {
     const childToFamily = new Map<string, string>();
 
     relationships.forEach((rel) => {
-      const familyId = rel.familyId || `family_${rel.sourceId}`;
+      const familyId = rel.familyId ?? `family_${rel.sourceId}`;
 
       // Track children for this family
       if (!familyToChildren.has(familyId)) {
@@ -190,7 +190,7 @@ export class OrthogonalRouter {
 
     // Create T-junctions for each family group
     familyToChildren.forEach((childIds, familyId) => {
-      const parentIds = familyToParents.get(familyId) || new Set();
+      const parentIds = familyToParents.get(familyId) ?? new Set();
       const parentNodes = Array.from(parentIds)
         .map((id) => nodeMap.get(id))
         .filter((node): node is FamilyNode => node !== undefined);

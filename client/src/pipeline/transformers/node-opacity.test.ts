@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { nodeOpacityTransform } from './node-opacity';
-import type { TransformerContext } from './types';
+import type { TransformerContext } from '../types';
 
 describe('nodeOpacityTransform', () => {
   const createMockContext = (

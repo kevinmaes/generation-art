@@ -19,7 +19,7 @@ import {
   getTransformerStats,
   executeSmartTransformer,
 } from './smart-llm-service';
-import type { SmartTransformerConfig } from '../pipeline/transformers/smart-transformer-types';
+import type { SmartTransformerConfig } from '../pipeline/smart-transformer-types';
 
 // Mock the ai module
 vi.mock('ai', () => ({

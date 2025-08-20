@@ -8,7 +8,7 @@
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
-} from '../../../../shared/types';
+} from '../../../shared/types';
 import type {
   VisualMetadata,
   CompleteVisualMetadata,
@@ -23,7 +23,7 @@ import {
   type TransformerId,
   transformerConfigs,
 } from './transformers';
-import { GedcomDataWithMetadataSchema } from '../../../../shared/types';
+import { GedcomDataWithMetadataSchema } from '../../../shared/types';
 import {
   DEFAULT_X,
   DEFAULT_Y,
@@ -46,7 +46,7 @@ import {
   DEFAULT_PRIORITY,
   DEFAULT_CUSTOM,
 } from './constants';
-import { getTransformerParameterKey } from '../../utils/pipeline-index';
+import { getTransformerParameterKey } from '../utils/pipeline-index';
 
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
@@ -186,8 +186,7 @@ export function createInitialCompleteVisualMetadata(
   });
 
   // Initialize visual metadata for each edge
-  // Check if edges exist in metadata (they might be missing in some data formats)
-  const metadataEdges = gedcomData.metadata?.edges ?? [];
+  const metadataEdges = gedcomData.metadata.edges;
 
   metadataEdges.forEach((edge) => {
     edges[edge.id] = {
@@ -337,42 +336,42 @@ function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
   } = {};
 
   if (updates.individuals) {
-    changeSet.individuals = {};
+    const individuals: Record<string, (keyof VisualMetadata)[]> = {};
     Object.entries(updates.individuals).forEach(([id, vm]) => {
-      if (vm) {
-        const keys = Object.keys(vm) as (keyof VisualMetadata)[];
-        if (keys.length > 0) {
-          if (!changeSet.individuals) changeSet.individuals = {};
-          changeSet.individuals[id] = keys;
-        }
+      const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+      if (keys.length > 0) {
+        individuals[id] = keys;
       }
     });
+    if (Object.keys(individuals).length > 0) {
+      changeSet.individuals = individuals;
+    }
   }
 
   if (updates.families) {
-    changeSet.families = {};
+    const families: Record<string, (keyof VisualMetadata)[]> = {};
     Object.entries(updates.families).forEach(([id, vm]) => {
-      if (vm) {
-        const keys = Object.keys(vm) as (keyof VisualMetadata)[];
-        if (keys.length > 0) {
-          if (!changeSet.families) changeSet.families = {};
-          changeSet.families[id] = keys;
-        }
+      const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+      if (keys.length > 0) {
+        families[id] = keys;
       }
     });
+    if (Object.keys(families).length > 0) {
+      changeSet.families = families;
+    }
   }
 
   if (updates.edges) {
-    changeSet.edges = {};
+    const edges: Record<string, (keyof VisualMetadata)[]> = {};
     Object.entries(updates.edges).forEach(([id, vm]) => {
-      if (vm) {
-        const keys = Object.keys(vm) as (keyof VisualMetadata)[];
-        if (keys.length > 0) {
-          if (!changeSet.edges) changeSet.edges = {};
-          changeSet.edges[id] = keys;
-        }
+      const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+      if (keys.length > 0) {
+        edges[id] = keys;
       }
     });
+    if (Object.keys(edges).length > 0) {
+      changeSet.edges = edges;
+    }
   }
 
   if (updates.tree) {
@@ -517,14 +516,14 @@ export async function* runPipelineGenerator({
 
       // Debug what positions this transformer created
       const positionedIndividuals = Object.entries(
-        result.visualMetadata.individuals || {},
+        result.visualMetadata.individuals ?? {},
       )
         .filter(([, meta]) => meta.x !== undefined && meta.y !== undefined)
         .slice(0, 3); // First 3 individuals
 
       const individualCount =
         positionedIndividuals.length > 0
-          ? Object.keys(result.visualMetadata.individuals || {}).length
+          ? Object.keys(result.visualMetadata.individuals ?? {}).length
           : 0;
       console.log(
         `✅ Transformer ${transformer.name} positioned ${String(individualCount)} individuals. Sample:`,

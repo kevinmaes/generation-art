@@ -7,17 +7,17 @@ import { GedcomSelector } from './components/GedcomSelector';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
-import type { PipelineResult } from './pipeline/transformers/pipeline';
+import type { PipelineResult } from './pipeline/pipeline';
 import {
   runPipeline,
   createSimplePipeline,
   PIPELINE_DEFAULTS,
-} from './pipeline/transformers/pipeline';
+} from './pipeline/pipeline';
 import {
   transformerConfigs,
   type TransformerId,
-} from './pipeline/transformers/transformers';
-import type { VisualParameterValues } from './pipeline/transformers/visual-parameters';
+} from './pipeline/transformers';
+import type { VisualParameterValues } from './pipeline/visual-parameters';
 import { getTransformerParameterKey } from './utils/pipeline-index';
 import { useGedcomDataWithLLM } from './hooks/useGedcomDataWithLLM';
 import './App.css';

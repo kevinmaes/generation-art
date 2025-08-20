@@ -13,8 +13,8 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
   VisualTransformerConfig,
-} from './types';
-import { createTransformerInstance } from './utils';
+} from '../types';
+import { createTransformerInstance } from '../utils';
 
 /**
  * Configuration for the variance transformer

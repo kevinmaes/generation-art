@@ -11,7 +11,7 @@ import type {
   CompleteVisualMetadata,
   VisualMetadata,
   VisualTransformerConfig,
-} from './types';
+} from '../types';
 import type {
   AugmentedIndividual,
   GraphData,
@@ -20,12 +20,12 @@ import type {
   Edge,
 } from '../../../../shared/types';
 import type { RoutingOutput } from '../../display/types/edge-routing';
-import { createTransformerInstance } from './utils';
+import { createTransformerInstance } from '../utils';
 import {
   OrthogonalRouter,
   type FamilyNode,
   type FamilyRelationship,
-} from './routing/orthogonal-router';
+} from '../routing/orthogonal-router';
 
 /**
  * Configuration for the Walker tree transformer
