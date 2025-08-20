@@ -180,6 +180,25 @@ export type VisualTransformerFn = (
 ) => Promise<TransformerOutput>;
 
 /**
+ * Visual parameter configuration
+ */
+export interface VisualParameter {
+  name: string;
+  type: 'select' | 'range' | 'number' | 'boolean' | 'color';
+  defaultValue: string | number | boolean;
+  label?: string;
+  description?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: { value: string | number; label: string }[];
+  unit?: string; // Unit for display (px, %, deg, etc.)
+  formatValue?: (value: number) => string; // Custom formatter for values
+  minLabel?: string; // Custom label for minimum value
+  maxLabel?: string; // Custom label for maximum value
+}
+
+/**
  * Configuration for a VisualTransformer
  */
 export interface VisualTransformerConfig {
@@ -208,21 +227,7 @@ export interface VisualTransformerConfig {
   defaultSecondaryDimension?: DimensionId;
 
   // Visual parameters configuration for this transformer
-  visualParameters: {
-    name: string;
-    type: 'select' | 'range' | 'number' | 'boolean' | 'color';
-    defaultValue: string | number | boolean;
-    label?: string;
-    description?: string;
-    min?: number;
-    max?: number;
-    step?: number;
-    options?: { value: string | number; label: string }[];
-    unit?: string; // Unit for display (px, %, deg, etc.)
-    formatValue?: (value: number) => string; // Custom formatter for values
-    minLabel?: string; // Custom label for minimum value
-    maxLabel?: string; // Custom label for maximum value
-  }[];
+  visualParameters: VisualParameter[];
 
   // Factory function to create transformer instance with parameters
   createTransformerInstance: (params: {
