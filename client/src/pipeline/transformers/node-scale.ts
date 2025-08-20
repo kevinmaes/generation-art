@@ -12,6 +12,7 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from '../types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 
@@ -48,7 +49,7 @@ function calculateNodeScale(
     gedcomData,
     individualId,
     'Node scale transformer',
-  );
+  ) as AugmentedIndividual | null;
   if (!individual) {
     return { width: 1, height: 1 }; // Return default scale
   }
@@ -84,7 +85,8 @@ function calculateNodeScale(
     case 'childrenCount': {
       // Count children by looking at parent relationships
       const allIndividuals = Object.values(gedcomData.individuals).filter(
-        (ind) => ind !== null && ind !== undefined,
+        (individual): individual is AugmentedIndividual =>
+          individual !== null && individual !== undefined,
       );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
@@ -197,7 +199,8 @@ function calculateNodeScale(
       }
       case 'childrenCount': {
         const allIndividuals = Object.values(gedcomData.individuals).filter(
-          (ind) => ind !== null && ind !== undefined,
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
         );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
@@ -327,7 +330,8 @@ export async function nodeScaleTransform(
   const { gedcomData, visualMetadata } = context;
 
   const individuals = Object.values(gedcomData.individuals).filter(
-    (individual) => individual !== null && individual !== undefined,
+    (individual): individual is AugmentedIndividual =>
+      individual !== null && individual !== undefined,
   );
   if (individuals.length === 0) {
     return { visualMetadata: {} };

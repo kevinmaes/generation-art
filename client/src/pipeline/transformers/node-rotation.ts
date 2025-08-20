@@ -12,6 +12,7 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from '../types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 
@@ -47,7 +48,7 @@ function calculateNodeRotation(
     gedcomData,
     individualId,
     'Node rotation transformer',
-  );
+  ) as AugmentedIndividual | null;
   if (!individual) {
     return 0; // Return default rotation
   }
@@ -59,7 +60,10 @@ function calculateNodeRotation(
   switch (primaryDimension) {
     case 'birthYear': {
       const allBirthYears = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined)
+        .filter(
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
+        )
         .map((ind) => ind.metadata?.birthYear)
         .filter((year): year is number => year !== undefined);
       if (allBirthYears.length > 0) {
@@ -82,7 +86,10 @@ function calculateNodeRotation(
     }
     case 'lifespan': {
       const allLifespans = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined)
+        .filter(
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
+        )
         .map((ind) => ind.metadata?.lifespan)
         .filter((span): span is number => span !== undefined);
       if (allLifespans.length > 0) {
@@ -97,7 +104,8 @@ function calculateNodeRotation(
     case 'childrenCount': {
       // Count children by looking at parent relationships
       const allIndividuals = Object.values(gedcomData.individuals).filter(
-        (ind) => ind !== null && ind !== undefined,
+        (individual): individual is AugmentedIndividual =>
+          individual !== null && individual !== undefined,
       );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
@@ -195,7 +203,8 @@ function calculateNodeRotation(
       }
       case 'childrenCount': {
         const allIndividuals = Object.values(gedcomData.individuals).filter(
-          (ind) => ind !== null && ind !== undefined,
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
         );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
@@ -277,7 +286,8 @@ export async function nodeRotationTransform(
   const { gedcomData, visualMetadata } = context;
 
   const individuals = Object.values(gedcomData.individuals).filter(
-    (individual) => individual !== null && individual !== undefined,
+    (individual): individual is AugmentedIndividual =>
+      individual !== null && individual !== undefined,
   );
   if (individuals.length === 0) {
     return { visualMetadata: {} };

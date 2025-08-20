@@ -15,6 +15,7 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from '../types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 import {
   getIndividualOrWarn,
   validateEdgeReferences,
@@ -213,12 +214,12 @@ function calculateCurveProperties(
     gedcomData,
     edge.sourceId,
     'Edge curve transformer',
-  );
+  ) as AugmentedIndividual | null;
   const targetIndividual = getIndividualOrWarn(
     gedcomData,
     edge.targetId,
     'Edge curve transformer',
-  );
+  ) as AugmentedIndividual | null;
 
   if (!sourceIndividual || !targetIndividual) {
     return { curveType: 'straight' };
@@ -276,7 +277,8 @@ function calculateCurveProperties(
     }
     case 'childrenCount': {
       const allIndividuals = Object.values(gedcomData.individuals).filter(
-        (ind) => ind !== null && ind !== undefined,
+        (individual): individual is AugmentedIndividual =>
+          individual !== null && individual !== undefined,
       );
       const sourceChildren = allIndividuals.filter((child) =>
         child?.parents?.includes(sourceIndividual.id),
@@ -324,13 +326,14 @@ function calculateCurveProperties(
       }
       case 'childrenCount': {
         const allIndividuals = Object.values(gedcomData.individuals).filter(
-          (ind) => ind !== null && ind !== undefined,
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
         );
         const sourceChildren = allIndividuals.filter((child) =>
-          child?.parents?.includes(sourceIndividual.id),
+          child.parents?.includes(sourceIndividual.id),
         ).length;
         const targetChildren = allIndividuals.filter((child) =>
-          child?.parents?.includes(targetIndividual.id),
+          child.parents?.includes(targetIndividual.id),
         ).length;
         const totalChildren = sourceChildren + targetChildren;
         const maxChildrenSum = 20;

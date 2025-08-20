@@ -21,7 +21,10 @@ import type {
 } from '../types';
 import { getIndividualSafe } from '../utils/safe-access';
 import { createTransformerInstance } from '../utils';
-import type { ShapeProfile } from '../../../../shared/types';
+import type {
+  ShapeProfile,
+  AugmentedIndividual,
+} from '../../../../shared/types';
 import { LAYER_PRESETS, type LayerPresetId } from '../layer-presets';
 
 // Deterministic small hash to derive numeric seeds from strings
@@ -163,7 +166,10 @@ function calculateNodeShape(
   }
 
   // Find the individual
-  const individual = getIndividualSafe(gedcomData, individualId);
+  const individual = getIndividualSafe(
+    gedcomData,
+    individualId,
+  ) as AugmentedIndividual | null;
   if (!individual) {
     console.warn(
       `Node shape transformer: Individual ${individualId} not found`,
@@ -350,7 +356,8 @@ export async function nodeShapeTransform(
   });
 
   const individuals = Object.values(gedcomData.individuals).filter(
-    (individual) => individual !== null && individual !== undefined,
+    (individual): individual is AugmentedIndividual =>
+      individual !== null && individual !== undefined,
   );
   if (individuals.length === 0) {
     console.log('🔍 No individuals found, returning empty metadata');

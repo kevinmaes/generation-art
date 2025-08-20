@@ -11,6 +11,7 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from '../types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 
@@ -48,7 +49,7 @@ function calculateHorizontalPosition(
     gedcomData,
     individualId,
     'Horizontal spread transformer',
-  );
+  ) as AugmentedIndividual | null;
   if (!individual) {
     return canvasWidth / 2; // Return center position
   }
@@ -70,7 +71,10 @@ function calculateHorizontalPosition(
     case 'birthYear': {
       // Normalize birth year to 0-1 range
       const allBirthYears = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined)
+        .filter(
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
+        )
         .map((ind) => ind.metadata?.birthYear)
         .filter((year): year is number => year !== undefined);
       if (allBirthYears.length > 0) {
@@ -84,7 +88,8 @@ function calculateHorizontalPosition(
     case 'childrenCount': {
       // Count children by looking at parent relationships
       const allIndividuals = Object.values(gedcomData.individuals).filter(
-        (ind) => ind !== null && ind !== undefined,
+        (individual): individual is AugmentedIndividual =>
+          individual !== null && individual !== undefined,
       );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
@@ -101,7 +106,11 @@ function calculateHorizontalPosition(
     }
     case 'lifespan': {
       const allLifespans = Object.values(gedcomData.individuals)
-        .map((ind) => ind.metadata.lifespan)
+        .filter(
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
+        )
+        .map((ind) => ind.metadata?.lifespan)
         .filter((span): span is number => span !== undefined);
       if (allLifespans.length > 0) {
         const maxLifespan = Math.max(...allLifespans);
@@ -113,9 +122,12 @@ function calculateHorizontalPosition(
       break;
     }
     case 'nameLength': {
-      const allNameLengths = Object.values(gedcomData.individuals).map(
-        (ind) => ind.name.length,
-      );
+      const allNameLengths = Object.values(gedcomData.individuals)
+        .filter(
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
+        )
+        .map((ind) => ind.name.length);
       const maxNameLength = Math.max(...allNameLengths);
       primaryValue =
         maxNameLength > 0 ? individual.name.length / maxNameLength : 0.5;
@@ -134,7 +146,11 @@ function calculateHorizontalPosition(
         break;
       case 'birthYear': {
         const allBirthYears = Object.values(gedcomData.individuals)
-          .map((ind) => ind.metadata.birthYear)
+          .filter(
+            (individual): individual is AugmentedIndividual =>
+              individual !== null && individual !== undefined,
+          )
+          .map((ind) => ind.metadata?.birthYear)
           .filter((year): year is number => year !== undefined);
         if (allBirthYears.length > 0) {
           const minYear = Math.min(...allBirthYears);
@@ -146,7 +162,8 @@ function calculateHorizontalPosition(
       }
       case 'childrenCount': {
         const allIndividuals = Object.values(gedcomData.individuals).filter(
-          (ind) => ind !== null && ind !== undefined,
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
         );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
@@ -164,7 +181,11 @@ function calculateHorizontalPosition(
       }
       case 'lifespan': {
         const allLifespans = Object.values(gedcomData.individuals)
-          .map((ind) => ind.metadata.lifespan)
+          .filter(
+            (individual): individual is AugmentedIndividual =>
+              individual !== null && individual !== undefined,
+          )
+          .map((ind) => ind.metadata?.lifespan)
           .filter((span): span is number => span !== undefined);
         if (allLifespans.length > 0) {
           const maxLifespan = Math.max(...allLifespans);
@@ -176,9 +197,12 @@ function calculateHorizontalPosition(
         break;
       }
       case 'nameLength': {
-        const allNameLengths = Object.values(gedcomData.individuals).map(
-          (ind) => ind.name.length,
-        );
+        const allNameLengths = Object.values(gedcomData.individuals)
+          .filter(
+            (individual): individual is AugmentedIndividual =>
+              individual !== null && individual !== undefined,
+          )
+          .map((ind) => ind.name.length);
         const maxNameLength = Math.max(...allNameLengths);
         secondaryValue =
           maxNameLength > 0 ? individual.name.length / maxNameLength : 0.5;

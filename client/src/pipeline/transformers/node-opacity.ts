@@ -14,6 +14,7 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from '../types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 
@@ -49,7 +50,7 @@ function calculateNodeOpacity(
     gedcomData,
     individualId,
     'Node opacity transformer',
-  );
+  ) as AugmentedIndividual | null;
   if (!individual) {
     return 0.5; // Return default opacity
   }
@@ -69,18 +70,19 @@ function calculateNodeOpacity(
     case 'childrenCount': {
       // More children = more opaque
       const allIndividuals = Object.values(gedcomData.individuals).filter(
-        (ind) => ind !== null && ind !== undefined,
+        (individual): individual is AugmentedIndividual =>
+          individual !== null && individual !== undefined,
       );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
-          child?.parents?.includes(ind.id),
+          child.parents?.includes(ind.id),
         );
         return children.length;
       });
       const maxChildren =
         childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
       const individualChildren = allIndividuals.filter((child) =>
-        child?.parents?.includes(individual.id),
+        child.parents?.includes(individual.id),
       ).length;
       primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
       break;
@@ -88,7 +90,10 @@ function calculateNodeOpacity(
     case 'lifespan': {
       // Longer life = more opaque
       const allLifespans = Object.values(gedcomData.individuals)
-        .filter((ind) => ind !== null && ind !== undefined)
+        .filter(
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
+        )
         .map((ind) => ind.metadata?.lifespan)
         .filter((span): span is number => span !== undefined && span > 0);
       if (allLifespans.length > 0) {
@@ -126,18 +131,19 @@ function calculateNodeOpacity(
       }
       case 'childrenCount': {
         const allIndividuals = Object.values(gedcomData.individuals).filter(
-          (ind) => ind !== null && ind !== undefined,
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
         );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
-            child?.parents?.includes(ind.id),
+            child.parents?.includes(ind.id),
           );
           return children.length;
         });
         const maxChildren =
           childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
         const individualChildren = allIndividuals.filter((child) =>
-          child?.parents?.includes(individual.id),
+          child.parents?.includes(individual.id),
         ).length;
         secondaryValue =
           maxChildren > 0 ? individualChildren / maxChildren : 0.5;
@@ -145,7 +151,10 @@ function calculateNodeOpacity(
       }
       case 'lifespan': {
         const allLifespans = Object.values(gedcomData.individuals)
-          .filter((ind) => ind !== null && ind !== undefined)
+          .filter(
+            (individual): individual is AugmentedIndividual =>
+              individual !== null && individual !== undefined,
+          )
           .map((ind) => ind.metadata?.lifespan)
           .filter((span): span is number => span !== undefined && span > 0);
         if (allLifespans.length > 0) {
@@ -222,7 +231,8 @@ export async function nodeOpacityTransform(
   const { gedcomData, visualMetadata } = context;
 
   const individuals = Object.values(gedcomData.individuals).filter(
-    (individual) => individual !== null && individual !== undefined,
+    (individual): individual is AugmentedIndividual =>
+      individual !== null && individual !== undefined,
   );
   if (individuals.length === 0) {
     return { visualMetadata: {} };

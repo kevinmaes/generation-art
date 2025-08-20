@@ -11,6 +11,7 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from '../types';
+import type { AugmentedIndividual } from '../../../../shared/types';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 
@@ -54,7 +55,7 @@ function calculateNodeSize(
     gedcomData,
     individualId,
     'Node size transformer',
-  );
+  ) as AugmentedIndividual | null;
   if (!individual) {
     return 15; // Return default size
   }
@@ -67,18 +68,19 @@ function calculateNodeSize(
     case 'childrenCount': {
       // Count children by looking at parent relationships
       const allIndividuals = Object.values(gedcomData.individuals).filter(
-        (ind) => ind !== null && ind !== undefined,
+        (individual): individual is AugmentedIndividual =>
+          individual !== null && individual !== undefined,
       );
       const childrenCounts = allIndividuals.map((ind) => {
         const children = allIndividuals.filter((child) =>
-          child?.parents?.includes(ind.id),
+          child.parents?.includes(ind.id),
         );
         return children.length;
       });
       const maxChildren =
         childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
       const individualChildren = allIndividuals.filter((child) =>
-        child?.parents?.includes(individual.id),
+        child.parents?.includes(individual.id),
       ).length;
       primaryValue = maxChildren > 0 ? individualChildren / maxChildren : 0.5;
       break;
@@ -144,18 +146,19 @@ function calculateNodeSize(
     switch (secondaryDimension) {
       case 'childrenCount': {
         const allIndividuals = Object.values(gedcomData.individuals).filter(
-          (ind) => ind !== null && ind !== undefined,
+          (individual): individual is AugmentedIndividual =>
+            individual !== null && individual !== undefined,
         );
         const childrenCounts = allIndividuals.map((ind) => {
           const children = allIndividuals.filter((child) =>
-            child?.parents?.includes(ind.id),
+            child.parents?.includes(ind.id),
           );
           return children.length;
         });
         const maxChildren =
           childrenCounts.length > 0 ? Math.max(...childrenCounts) : 0;
         const individualChildren = allIndividuals.filter((child) =>
-          child?.parents?.includes(individual.id),
+          child.parents?.includes(individual.id),
         ).length;
         secondaryValue =
           maxChildren > 0 ? individualChildren / maxChildren : 0.5;
@@ -255,7 +258,8 @@ export async function nodeSizeTransform(
   const { gedcomData, visualMetadata } = context;
 
   const individuals = Object.values(gedcomData.individuals).filter(
-    (individual) => individual !== null && individual !== undefined,
+    (individual): individual is AugmentedIndividual =>
+      individual !== null && individual !== undefined,
   );
   if (individuals.length === 0) {
     return { visualMetadata: {} };
