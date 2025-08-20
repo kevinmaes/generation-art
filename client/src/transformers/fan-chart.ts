@@ -96,8 +96,9 @@ export const fanChartConfig: VisualTransformerConfig = {
       min: 90,
       max: 360,
       step: 45,
-      label: 'Angular Spread',
+      label: 'Angular spread °',
       description: 'Degrees of circle to use (180=semi, 360=full)',
+      unit: '°',
     },
     {
       name: 'rotation',
@@ -106,8 +107,9 @@ export const fanChartConfig: VisualTransformerConfig = {
       min: -180,
       max: 180,
       step: 15,
-      label: 'Rotation',
+      label: 'Rotation °',
       description: 'Starting angle rotation',
+      unit: '°',
     },
     {
       name: 'spiralTwist',
@@ -115,8 +117,9 @@ export const fanChartConfig: VisualTransformerConfig = {
       defaultValue: 0,
       min: 0,
       max: 30,
-      label: 'Spiral Twist',
+      label: 'Spiral twist °',
       description: 'Degrees of twist per generation',
+      unit: '°',
     },
   ],
 };

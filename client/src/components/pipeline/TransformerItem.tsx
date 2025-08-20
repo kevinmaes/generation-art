@@ -448,36 +448,50 @@ export function TransformerItem({
                             <label className="block text-xs text-gray-600 mb-1 text-left">
                               Temperature
                             </label>
-                            <input
-                              type="range"
-                              min={0}
-                              max={1}
-                              step={0.1}
-                              value={
-                                sliderValues.temperature !== undefined
-                                  ? (sliderValues.temperature as number)
-                                  : (parameters.visual.temperature as number) ||
-                                    (VISUAL_PARAMETERS.temperature
-                                      .defaultValue as number)
-                              }
-                              onInput={(e) => {
-                                handleSliderInput(
-                                  'temperature',
-                                  Number((e.target as HTMLInputElement).value),
-                                );
-                              }}
-                              onChange={(e) => {
-                                handleSliderChangeComplete(
-                                  'temperature',
-                                  Number(e.target.value),
-                                );
-                              }}
-                              className="w-full"
-                              disabled={isDisabled}
-                            />
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="range"
+                                min={0}
+                                max={1}
+                                step={0.1}
+                                value={
+                                  sliderValues.temperature !== undefined
+                                    ? (sliderValues.temperature as number)
+                                    : (parameters.visual.temperature as number) ||
+                                      (VISUAL_PARAMETERS.temperature
+                                        .defaultValue as number)
+                                }
+                                onInput={(e) => {
+                                  handleSliderInput(
+                                    'temperature',
+                                    Number((e.target as HTMLInputElement).value),
+                                  );
+                                }}
+                                onChange={(e) => {
+                                  handleSliderChangeComplete(
+                                    'temperature',
+                                    Number(e.target.value),
+                                  );
+                                }}
+                                className="flex-1"
+                                disabled={isDisabled}
+                              />
+                              {/* Current value display */}
+                              <div className="min-w-[50px] text-right text-xs font-mono bg-gray-100 px-2 py-1 rounded border border-gray-200">
+                                {(() => {
+                                  const value =
+                                    sliderValues.temperature !== undefined
+                                      ? (sliderValues.temperature as number)
+                                      : (parameters.visual.temperature as number) ||
+                                        (VISUAL_PARAMETERS.temperature
+                                          .defaultValue as number);
+                                  return `${(value * 100).toFixed(0)}%`;
+                                })()}
+                              </div>
+                            </div>
                             <div className="flex justify-between text-xs text-gray-500 mt-1">
-                              <span>0</span>
-                              <span>1</span>
+                              <span>0%</span>
+                              <span>100%</span>
                             </div>
                           </div>
                         )}
@@ -645,50 +659,107 @@ export function TransformerItem({
                                           ))}
                                         </select>
                                       ) : param.type === 'range' ? (
-                                        <>
-                                          <input
-                                            type="range"
-                                            min={param.min}
-                                            max={param.max}
-                                            step={param.step}
-                                            value={
-                                              sliderValues[param.name] !==
-                                              undefined
-                                                ? (sliderValues[
-                                                    param.name
-                                                  ] as number)
-                                                : (parameters.visual[
-                                                    param.name
-                                                  ] as number) ||
-                                                  (param.defaultValue as number)
-                                            }
-                                            onInput={(e) => {
-                                              handleSliderInput(
-                                                param.name,
-                                                Number(
-                                                  (e.target as HTMLInputElement)
-                                                    .value,
-                                                ),
-                                              );
-                                            }}
-                                            onChange={(e) => {
-                                              handleSliderChangeComplete(
-                                                param.name,
-                                                Number(e.target.value),
-                                              );
-                                            }}
-                                            className="w-full"
-                                            disabled={isDisabled}
-                                          />
-                                          <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                            <span>
-                                              {String(param.min ?? '')}
-                                            </span>
-                                            <span>
-                                              {String(param.max ?? '')}
-                                            </span>
+                                        <div>
+                                          <div className="flex items-center gap-3">
+                                            <div className="flex-1">
+                                              <input
+                                                type="range"
+                                                min={param.min}
+                                                max={param.max}
+                                                step={param.step}
+                                                value={
+                                                  sliderValues[param.name] !==
+                                                  undefined
+                                                    ? (sliderValues[
+                                                        param.name
+                                                      ] as number)
+                                                    : (parameters.visual[
+                                                        param.name
+                                                      ] as number) ||
+                                                      (param.defaultValue as number)
+                                                }
+                                                onInput={(e) => {
+                                                  handleSliderInput(
+                                                    param.name,
+                                                    Number(
+                                                      (e.target as HTMLInputElement)
+                                                        .value,
+                                                    ),
+                                                  );
+                                                }}
+                                                onChange={(e) => {
+                                                  handleSliderChangeComplete(
+                                                    param.name,
+                                                    Number(e.target.value),
+                                                  );
+                                                }}
+                                                className="w-full"
+                                                disabled={isDisabled}
+                                              />
+                                              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                                <span>
+                                                  {(() => {
+                                                    // Show min value with unit
+                                                    if (param.unit === '%' && param.min !== undefined) {
+                                                      return `${(param.min * 100).toFixed(0)}%`;
+                                                    } else if (param.unit === 'px') {
+                                                      return `${String(param.min ?? '')}px`;
+                                                    } else if (param.unit) {
+                                                      return `${String(param.min ?? '')}${param.unit}`;
+                                                    } else {
+                                                      return String(param.min ?? '');
+                                                    }
+                                                  })()}
+                                                </span>
+                                                <span>
+                                                  {(() => {
+                                                    // Show max value with unit
+                                                    if (param.unit === '%' && param.max !== undefined) {
+                                                      return `${(param.max * 100).toFixed(0)}%`;
+                                                    } else if (param.unit === 'px') {
+                                                      return `${String(param.max ?? '')}px`;
+                                                    } else if (param.unit) {
+                                                      return `${String(param.max ?? '')}${param.unit}`;
+                                                    } else {
+                                                      return String(param.max ?? '');
+                                                    }
+                                                  })()}
+                                                </span>
+                                              </div>
+                                            </div>
+                                            {/* Current value display */}
+                                            <div className="min-w-[65px] text-right text-xs font-mono bg-gray-100 px-2 py-1 rounded border border-gray-200">
+                                              {(() => {
+                                                const value =
+                                                  sliderValues[param.name] !==
+                                                  undefined
+                                                    ? (sliderValues[
+                                                        param.name
+                                                      ] as number)
+                                                    : (parameters.visual[
+                                                        param.name
+                                                      ] as number) ||
+                                                      (param.defaultValue as number);
+                                                // Use custom formatter if provided
+                                                if (param.formatValue) {
+                                                  return param.formatValue(value);
+                                                }
+                                                // Format based on unit
+                                                if (param.unit === '%') {
+                                                  return `${(value * 100).toFixed(0)}%`;
+                                                } else if (param.unit === 'px') {
+                                                  return `${String(Math.round(value))}px`;
+                                                } else if (param.unit) {
+                                                  return `${String(value)}${param.unit}`;
+                                                } else if (param.step && param.step < 1) {
+                                                  return value.toFixed(1);
+                                                } else {
+                                                  return Math.round(value).toString();
+                                                }
+                                              })()}
+                                            </div>
                                           </div>
-                                        </>
+                                        </div>
                                       ) : param.type === 'color' ? (
                                         <input
                                           type="color"

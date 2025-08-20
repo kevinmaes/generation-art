@@ -54,43 +54,49 @@ export const nodeShapeConfig: VisualTransformerConfig = {
   visualParameters: [
     {
       name: 'strokeOpacity',
-      label: 'Stroke Opacity',
+      label: 'Stroke opacity %',
       type: 'range',
-      defaultValue: 100,
+      defaultValue: 1.0,
       min: 0,
-      max: 100,
-      step: 5,
+      max: 1,
+      step: 0.05,
       description: 'Stroke opacity (0 = no stroke, 100 = full opacity)',
+      unit: '%',
+      formatValue: (v: number) => `${(v * 100).toFixed(0)}%`,
     },
     {
       name: 'layerCount',
-      label: 'Layer Count',
+      label: 'Layer count',
       type: 'range',
       defaultValue: 1,
       min: 1,
       max: 10,
       step: 1,
       description: 'Number of offset layers for depth effect',
+      unit: '',
     },
     {
       name: 'layerOffset',
-      label: 'Layer Offset',
+      label: 'Layer offset px',
       type: 'range',
       defaultValue: 2,
       min: 0,
       max: 10,
       step: 1,
       description: 'Pixel offset between layers',
+      unit: 'px',
     },
     {
       name: 'layerOpacityFalloff',
-      label: 'Layer Opacity Falloff',
+      label: 'Layer opacity falloff %',
       type: 'range',
-      defaultValue: 30,
-      min: 10,
-      max: 90,
-      step: 10,
+      defaultValue: 0.3,
+      min: 0.1,
+      max: 0.9,
+      step: 0.1,
       description: 'How quickly layers fade (lower = more subtle)',
+      unit: '%',
+      formatValue: (v: number) => `${(v * 100).toFixed(0)}%`,
     },
   ],
   createTransformerInstance: (params) =>
@@ -342,11 +348,10 @@ export async function nodeShapeTransform(
   const { gedcomData, visualMetadata, visual } = context;
 
   // Extract visual parameters
-  const strokeOpacity = ((visual.strokeOpacity ?? 100) as number) / 100; // Convert 0-100 to 0-1
+  const strokeOpacity = (visual.strokeOpacity ?? 1.0) as number; // Already in 0-1 range
   const layerCount = (visual.layerCount ?? 1) as number;
   const layerOffset = (visual.layerOffset ?? 2) as number;
-  const layerOpacityFalloff =
-    ((visual.layerOpacityFalloff ?? 30) as number) / 100; // Convert 10-90 to 0.1-0.9
+  const layerOpacityFalloff = (visual.layerOpacityFalloff ?? 0.3) as number; // Already in 0-1 range
 
   console.log('🔍 nodeShapeTransform called with context:', {
     individualCount: Object.keys(gedcomData.individuals).length,

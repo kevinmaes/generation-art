@@ -218,6 +218,10 @@ export interface VisualTransformerConfig {
     max?: number;
     step?: number;
     options?: { value: string | number; label: string }[];
+    unit?: string; // Unit for display (px, %, deg, etc.)
+    formatValue?: (value: number) => string; // Custom formatter for values
+    minLabel?: string; // Custom label for minimum value
+    maxLabel?: string; // Custom label for maximum value
   }[];
 
   // Factory function to create transformer instance with parameters

@@ -17,6 +17,10 @@ export interface VisualParameterConfig {
   max?: number;
   step?: number;
   defaultValue: string | number | boolean;
+  unit?: string; // Unit for display (px, %, deg, etc.)
+  formatValue?: (value: number) => string; // Custom formatter for values
+  minLabel?: string; // Custom label for minimum value
+  maxLabel?: string; // Custom label for maximum value
 }
 
 export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
@@ -36,7 +40,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
   },
   verticalPadding: {
     id: 'verticalPadding',
-    label: 'Vertical Padding',
+    label: 'Vertical padding px',
     description: 'Padding from top and bottom of canvas',
     type: 'range',
     category: 'Position',
@@ -44,10 +48,13 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     max: 200,
     step: 5,
     defaultValue: 50,
+    unit: 'px',
+    minLabel: 'Tight',
+    maxLabel: 'Spacious',
   },
   horizontalPadding: {
     id: 'horizontalPadding',
-    label: 'Horizontal Padding',
+    label: 'Horizontal padding px',
     description: 'Padding from left and right of canvas',
     type: 'range',
     category: 'Position',
@@ -55,6 +62,9 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     max: 200,
     step: 5,
     defaultValue: 50,
+    unit: 'px',
+    minLabel: 'Tight',
+    maxLabel: 'Spacious',
   },
   spacing: {
     id: 'spacing',
@@ -139,7 +149,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
   // Opacity Parameters
   nodeOpacity: {
     id: 'nodeOpacity',
-    label: 'Node Opacity',
+    label: 'Node opacity %',
     description: 'Opacity of individual nodes',
     type: 'range',
     category: 'Opacity',
@@ -147,10 +157,14 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     max: 1.0,
     step: 0.1,
     defaultValue: DEFAULT_OPACITY,
+    unit: '%',
+    formatValue: (v) => `${(v * 100).toFixed(0)}%`,
+    minLabel: 'Transparent',
+    maxLabel: 'Opaque',
   },
   edgeOpacity: {
     id: 'edgeOpacity',
-    label: 'Edge Opacity',
+    label: 'Edge opacity %',
     description: 'Opacity of relationship lines',
     type: 'range',
     category: 'Opacity',
@@ -158,6 +172,10 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     max: 1.0,
     step: 0.1,
     defaultValue: 0.5,
+    unit: '%',
+    formatValue: (v) => `${(v * 100).toFixed(0)}%`,
+    minLabel: 'Transparent',
+    maxLabel: 'Opaque',
   },
 
   // Style Parameters
@@ -193,7 +211,7 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
   // General Parameters
   variationFactor: {
     id: 'variationFactor',
-    label: 'Variation Factor',
+    label: 'Variation factor %',
     description: 'Amount of random variation to apply',
     type: 'range',
     category: 'General',
@@ -201,10 +219,18 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     max: 1.0,
     step: 0.1,
     defaultValue: 0.2,
+    unit: '%',
+    formatValue: (v) => {
+      const labels = ['None', 'Low', 'Medium', 'High', 'Max'];
+      const index = Math.round(v * (labels.length - 1));
+      return `${labels[index]} (${(v * 100).toFixed(0)}%)`;
+    },
+    minLabel: 'None',
+    maxLabel: 'Max',
   },
   temperature: {
     id: 'temperature',
-    label: 'Temperature',
+    label: 'Temperature %',
     description: 'Randomness factor for non-deterministic behavior',
     type: 'range',
     category: 'General',
@@ -212,6 +238,10 @@ export const VISUAL_PARAMETERS: Record<string, VisualParameterConfig> = {
     max: 1.0,
     step: 0.1,
     defaultValue: 0.5,
+    unit: '%',
+    formatValue: (v) => `${(v * 100).toFixed(0)}%`,
+    minLabel: 'Deterministic',
+    maxLabel: 'Creative',
   },
 } as const;
 
