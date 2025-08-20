@@ -22,6 +22,7 @@ import type {
 import { getIndividualSafe } from '../utils/safe-access';
 import { createTransformerInstance } from '../utils';
 import type { ShapeProfile } from '../../../../shared/types';
+import { LAYER_PRESETS, type LayerPresetId } from '../layer-presets';
 
 // Deterministic small hash to derive numeric seeds from strings
 function hashStringToInt(input: string): number {
@@ -65,38 +66,18 @@ export const nodeShapeConfig: VisualTransformerConfig = {
       formatValue: (v: number) => `${(v * 100).toFixed(0)}%`,
     },
     {
-      name: 'layerCount',
-      label: 'Layer count',
-      type: 'range',
-      defaultValue: 1,
-      min: 1,
-      max: 10,
-      step: 1,
-      description: 'Number of offset layers for depth effect',
-      unit: '',
-    },
-    {
-      name: 'layerOffset',
-      label: 'Layer offset px',
-      type: 'range',
-      defaultValue: 2,
-      min: 0,
-      max: 10,
-      step: 1,
-      description: 'Pixel offset between layers',
-      unit: 'px',
-    },
-    {
-      name: 'layerOpacityFalloff',
-      label: 'Layer opacity falloff %',
-      type: 'range',
-      defaultValue: 0.3,
-      min: 0.1,
-      max: 0.9,
-      step: 0.1,
-      description: 'How quickly layers fade (lower = more subtle)',
-      unit: '%',
-      formatValue: (v: number) => `${(v * 100).toFixed(0)}%`,
+      name: 'layerPreset',
+      label: 'Layer effect',
+      type: 'select',
+      defaultValue: 'flat',
+      options: [
+        { value: 'flat', label: 'Flat' },
+        { value: 'shadow', label: 'Shadow' },
+        { value: 'echo', label: 'Echo' },
+        { value: 'stack', label: 'Stack' },
+        { value: 'cascade', label: 'Cascade' },
+      ],
+      description: 'Pre-configured layer depth effects',
     },
   ],
   createTransformerInstance: (params) =>
@@ -349,16 +330,23 @@ export async function nodeShapeTransform(
 
   // Extract visual parameters
   const strokeOpacity = (visual.strokeOpacity ?? 1.0) as number; // Already in 0-1 range
-  const layerCount = (visual.layerCount ?? 1) as number;
-  const layerOffset = (visual.layerOffset ?? 2) as number;
-  const layerOpacityFalloff = (visual.layerOpacityFalloff ?? 0.3) as number; // Already in 0-1 range
+  const layerPresetId = (visual.layerPreset ?? 'flat') as LayerPresetId;
+
+  // Get the layer preset configuration
+  const preset = LAYER_PRESETS[layerPresetId] || LAYER_PRESETS.flat;
+  const layerCount = preset.layerCount;
+  const layerOffset = preset.layerOffset;
+  const layerOpacityFalloff = preset.layerOpacityFalloff;
 
   console.log('🔍 nodeShapeTransform called with context:', {
     individualCount: Object.keys(gedcomData.individuals).length,
     dimensions: context.dimensions,
     visual: context.visual,
     strokeOpacity,
+    layerPreset: layerPresetId,
     layerCount,
+    layerOffset,
+    layerOpacityFalloff,
   });
 
   const individuals = Object.values(gedcomData.individuals).filter(
