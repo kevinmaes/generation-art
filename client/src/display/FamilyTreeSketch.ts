@@ -370,19 +370,19 @@ function createSketch(props: SketchProps): (p: p5) => void {
           p.fill(pColor);
 
           // Debug first few individuals only
-          if (Math.random() < 0.01) {
-            // Only log ~1% of individuals
-            console.log('Sample individual rendering:', {
-              id: ind.id,
-              x,
-              y,
-              size: finalWidth,
-              finalHeight: finalHeight,
-              color,
-              opacity,
-              shape,
-            });
-          }
+          // if (Math.random() < 0.01) {
+          //   // Only log ~1% of individuals
+          //   console.log('Sample individual rendering:', {
+          //     id: ind.id,
+          //     x,
+          //     y,
+          //     size: finalWidth,
+          //     finalHeight: finalHeight,
+          //     color,
+          //     opacity,
+          //     shape,
+          //   });
+          // }
 
           // Apply stroke if specified
           if (strokeWeight > 0 && strokeOpacity > 0) {
@@ -403,15 +403,15 @@ function createSketch(props: SketchProps): (p: p5) => void {
           // Render shape geometry when available, else fallback to legacy shapes
           if (shapeProfile) {
             // Debug: Log shape profile rendering
-            if (Math.random() < 0.1) {
-              // Log ~10% of shape profiles to avoid spam
-              console.log('Rendering shape profile:', {
-                id: ind.id,
-                kind: shapeProfile.kind,
-                shape,
-                params: shapeProfile.params,
-              });
-            }
+            // if (Math.random() < 0.1) {
+            //   // Log ~10% of shape profiles to avoid spam
+            //   console.log('Rendering shape profile:', {
+            //     id: ind.id,
+            //     kind: shapeProfile.kind,
+            //     shape,
+            //     params: shapeProfile.params,
+            //   });
+            // }
             let profile: ShapeProfile | undefined;
             try {
               const needsSize =
