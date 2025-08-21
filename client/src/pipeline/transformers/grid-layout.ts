@@ -222,9 +222,7 @@ function sortIndividuals(
   const arr = [...individuals];
 
   const getBirthYear = (p: AugmentedIndividual): number | undefined => {
-    return (
-      p.metadata?.birthYear ?? parseYear(p.birth?.date) ?? undefined
-    );
+    return p.metadata?.birthYear ?? parseYear(p.birth?.date) ?? undefined;
   };
   const getDeathYear = (p: AugmentedIndividual): number | undefined => {
     return (
@@ -316,7 +314,12 @@ function applyLinearGrid(
   spacing: SpacingMode,
   aspectPref: AspectRatioPref,
   flow: FlowDirection,
-  metadataEdges: { id: string; sourceId: string; targetId: string; relationshipType: string }[],
+  metadataEdges: {
+    id: string;
+    sourceId: string;
+    targetId: string;
+    relationshipType: string;
+  }[],
 ): void {
   const contentW = Math.max(0, canvasWidth - 2 * padding);
   const contentH = Math.max(0, canvasHeight - 2 * padding);
@@ -424,7 +427,12 @@ function applySpiralGrid(
   canvasHeight: number,
   padding: number,
   clockwise: boolean,
-  metadataEdges: { id: string; sourceId: string; targetId: string; relationshipType: string }[],
+  metadataEdges: {
+    id: string;
+    sourceId: string;
+    targetId: string;
+    relationshipType: string;
+  }[],
 ): void {
   const contentW = Math.max(0, canvasWidth - 2 * padding);
   const contentH = Math.max(0, canvasHeight - 2 * padding);
@@ -473,7 +481,12 @@ function applySpiralGrid(
 
 function buildEdges(
   nodePositions: Record<string, VisualMetadata>,
-  metadataEdges: { id: string; sourceId: string; targetId: string; relationshipType: string }[],
+  metadataEdges: {
+    id: string;
+    sourceId: string;
+    targetId: string;
+    relationshipType: string;
+  }[],
 ): Record<string, VisualMetadata> {
   const edges: Record<string, VisualMetadata> = {};
   metadataEdges.forEach((edge) => {
@@ -501,4 +514,3 @@ function buildEdges(
   });
   return edges;
 }
-
