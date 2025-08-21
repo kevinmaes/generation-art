@@ -10,6 +10,7 @@
       "Bash(find:*)",
       "Bash(gh issue edit:*)",
       "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr view:*)",
       "Bash(gh project item-add:*)",
@@ -38,11 +39,10 @@
       "Bash(pnpm test:*)",
       "Bash(pnpm tsx:*)",
       "Bash(pnpm typecheck:*)",
+      "Bash(pnpm vitest:*)",
       "Bash(rm:*)",
       "Bash(tsx:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(pnpm build:*)",
-      "Bash(pnpm vitest:*)",
       "WebFetch(domain:github.com)"
     ],
     "deny": []
