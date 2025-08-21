@@ -51,7 +51,10 @@ import { getTransformerParameterKey } from '../utils/pipeline-index';
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [TRANSFORMERS.FAN_CHART.ID, TRANSFORMERS.NODE_SHAPE.ID],
+  TRANSFORMER_IDS: [
+    // TRANSFORMERS.FAN_CHART.ID, TRANSFORMERS.NODE_SHAPE.ID
+    TRANSFORMERS.GRID_LAYOUT.ID,
+  ],
 };
 
 /**
