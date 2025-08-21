@@ -20,3 +20,6 @@ export type {
   WalkerTreeData,
   GraphData,
 } from './metadata';
+
+// Shape geometry types
+export type * from './shape';

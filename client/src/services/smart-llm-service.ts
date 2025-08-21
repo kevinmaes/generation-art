@@ -8,7 +8,7 @@
 import { generateObject } from 'ai';
 import type { z } from 'zod';
 import { llmService } from './llm-service';
-import type { SmartTransformerConfig } from '../transformers/smart-transformer-types';
+import type { SmartTransformerConfig } from '../pipeline/smart-transformer-types';
 
 interface CacheEntry {
   result: unknown;

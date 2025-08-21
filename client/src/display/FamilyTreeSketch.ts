@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type p5 from 'p5';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type {
-  CompleteVisualMetadata,
-  VisualMetadata,
-} from '../transformers/types';
-import { TRANSFORMERS, type TransformerId } from '../transformers/transformers';
-import { PIPELINE_DEFAULTS } from '../transformers/pipeline';
-import { DEFAULT_COLOR } from '../transformers/constants';
+import type { CompleteVisualMetadata, VisualMetadata } from '../pipeline/types';
+import { TRANSFORMERS, type TransformerId } from '../pipeline/transformers';
+import { PIPELINE_DEFAULTS } from '../pipeline/pipeline';
+import { DEFAULT_COLOR } from '../pipeline/constants';
 import { renderEdgeRouting } from './edge-renderer';
+import type { ShapeProfile } from '../../../shared/types';
+import { resolveShapeGeometry } from './shapes/resolve';
 
 export interface SketchConfig {
   width: number;
@@ -351,9 +350,16 @@ function createSketch(props: SketchProps): (p: p5) => void {
             individualMetadata?.shape ??
             visualMetadata.global.defaultNodeShape ??
             'circle';
+
+          // Shape geometry: prefer shapeProfile if present
+          const shapeProfile: ShapeProfile | undefined =
+            individualMetadata?.shapeProfile as unknown as
+              | ShapeProfile
+              | undefined;
           const opacity = individualMetadata?.opacity ?? 0.8;
-          const strokeColor = individualMetadata?.strokeColor;
+          const strokeColor = individualMetadata?.strokeColor ?? '#000000'; // Default to black stroke
           const strokeWeight = individualMetadata?.strokeWeight ?? 0;
+          const strokeOpacity = individualMetadata?.strokeOpacity ?? 1;
 
           // Calculate final dimensions
           const finalWidth = size * width;
@@ -379,8 +385,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
           }
 
           // Apply stroke if specified
-          if (strokeColor && strokeWeight > 0) {
+          if (strokeWeight > 0 && strokeOpacity > 0) {
             const pStrokeColor = p.color(strokeColor);
+            pStrokeColor.setAlpha(strokeOpacity * 255);
             p.stroke(pStrokeColor);
             p.strokeWeight(strokeWeight);
           } else {
@@ -393,40 +400,93 @@ function createSketch(props: SketchProps): (p: p5) => void {
           p.rotate(rotation);
           p.scale(scale);
 
-          // Render based on shape
-          if (shape === 'circle') {
-            p.ellipse(0, 0, finalWidth, finalHeight);
-          } else if (shape === 'square') {
-            p.rectMode(p.CENTER);
-            p.rect(0, 0, finalWidth, finalHeight);
-          } else if (shape === 'triangle') {
-            p.triangle(
-              0,
-              -finalHeight / 2,
-              -finalWidth / 2,
-              finalHeight / 2,
-              finalWidth / 2,
-              finalHeight / 2,
-            );
-          } else if (shape === 'hexagon') {
-            p.beginShape();
-            for (let i = 0; i < 6; i++) {
-              const angle = (p.TWO_PI / 6) * i;
-              const vx = (finalWidth / 2) * p.cos(angle);
-              const vy = (finalHeight / 2) * p.sin(angle);
-              p.vertex(vx, vy);
+          // Render shape geometry when available, else fallback to legacy shapes
+          if (shapeProfile) {
+            // Debug: Log shape profile rendering
+            if (Math.random() < 0.1) {
+              // Log ~10% of shape profiles to avoid spam
+              console.log('Rendering shape profile:', {
+                id: ind.id,
+                kind: shapeProfile.kind,
+                shape,
+                params: shapeProfile.params,
+              });
             }
-            p.endShape(p.CLOSE);
-          } else if (shape === 'star') {
-            p.beginShape();
-            for (let i = 0; i < 10; i++) {
-              const angle = (p.TWO_PI / 10) * i;
-              const radius = i % 2 === 0 ? finalWidth / 2 : finalWidth / 4;
-              const vx = radius * p.cos(angle);
-              const vy = radius * p.sin(angle);
-              p.vertex(vx, vy);
+            let profile: ShapeProfile | undefined;
+            try {
+              const needsSize =
+                !shapeProfile.size ||
+                (shapeProfile.size.width ?? 0) <= 0 ||
+                (shapeProfile.size.height ?? 0) <= 0;
+              profile = {
+                kind: shapeProfile.kind ?? 'circle',
+                size: needsSize
+                  ? { width: finalWidth, height: finalHeight }
+                  : shapeProfile.size,
+                seed: shapeProfile.seed,
+                params: shapeProfile.params,
+                detail: shapeProfile.detail ?? { maxVertices: 128 },
+              };
+              const geometry = resolveShapeGeometry(profile);
+              p.beginShape();
+              const poly = geometry.polygon;
+              for (let i = 0; i < poly.length; i += 2) {
+                p.vertex(poly[i], poly[i + 1]);
+              }
+              p.endShape(p.CLOSE);
+            } catch (error) {
+              // Log error and fallback to circle if geometry fails
+              console.error('Shape profile rendering error:', error, {
+                individualId: ind.id,
+                profile: profile,
+                shapeProfile: shapeProfile,
+              });
+              p.ellipse(0, 0, finalWidth, finalHeight);
             }
-            p.endShape(p.CLOSE);
+          } else {
+            // Debug: Log legacy shape fallback
+            if (Math.random() < 0.1) {
+              // Log ~10% to avoid spam
+              console.log('Using legacy shape rendering:', {
+                id: ind.id,
+                shape,
+                hasShapeProfile: !!shapeProfile,
+              });
+            }
+            if (shape === 'circle') {
+              p.ellipse(0, 0, finalWidth, finalHeight);
+            } else if (shape === 'square') {
+              p.rectMode(p.CENTER);
+              p.rect(0, 0, finalWidth, finalHeight);
+            } else if (shape === 'triangle') {
+              p.triangle(
+                0,
+                -finalHeight / 2,
+                -finalWidth / 2,
+                finalHeight / 2,
+                finalWidth / 2,
+                finalHeight / 2,
+              );
+            } else if (shape === 'hexagon') {
+              p.beginShape();
+              for (let i = 0; i < 6; i++) {
+                const angle = (p.TWO_PI / 6) * i;
+                const vx = (finalWidth / 2) * p.cos(angle);
+                const vy = (finalHeight / 2) * p.sin(angle);
+                p.vertex(vx, vy);
+              }
+              p.endShape(p.CLOSE);
+            } else if (shape === 'star') {
+              p.beginShape();
+              for (let i = 0; i < 10; i++) {
+                const angle = (p.TWO_PI / 10) * i;
+                const radius = i % 2 === 0 ? finalWidth / 2 : finalWidth / 4;
+                const vx = radius * p.cos(angle);
+                const vy = radius * p.sin(angle);
+                p.vertex(vx, vy);
+              }
+              p.endShape(p.CLOSE);
+            }
           }
 
           p.pop();

@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type { PipelineResult } from '../transformers/pipeline';
+import type { PipelineResult } from '../pipeline/pipeline';
 
 interface FramedArtworkProps {
   title: string;
