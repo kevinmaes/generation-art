@@ -445,14 +445,14 @@ function createSketch(props: SketchProps): (p: p5) => void {
             }
           } else {
             // Debug: Log legacy shape fallback
-            if (Math.random() < 0.1) {
-              // Log ~10% to avoid spam
-              console.log('Using legacy shape rendering:', {
-                id: ind.id,
-                shape,
-                hasShapeProfile: !!shapeProfile,
-              });
-            }
+            // if (Math.random() < 0.1) {
+            //   // Log ~10% to avoid spam
+            //   console.log('Using legacy shape rendering:', {
+            //     id: ind.id,
+            //     shape,
+            //     hasShapeProfile: !!shapeProfile,
+            //   });
+            // }
             if (shape === 'circle') {
               p.ellipse(0, 0, finalWidth, finalHeight);
             } else if (shape === 'square') {
