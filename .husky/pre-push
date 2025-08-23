@@ -1,6 +1,15 @@
 #!/bin/sh
-echo "🔍 Running pre-push checks..."
-echo "📝 Checking code formatting..."
-npm run format:check
-echo "🔧 Checking for linting issues..."
-npm run lint
+echo "🔍 Running pre-push checks with auto-fix..."
+
+# Run checks with auto-fix
+pnpm checks
+
+# Check if there are any changes after running checks
+if [ -n "$(git status --porcelain)" ]; then
+  echo "📝 Auto-fixes were applied. Creating commit..."
+  git add -A
+  git commit -m "fix: auto-fix linting, formatting, and JSON issues"
+  echo "✅ Created auto-fix commit. This will be included in your push."
+else
+  echo "✅ All checks passed, no fixes needed!"
+fi
