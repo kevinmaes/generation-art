@@ -16,7 +16,6 @@
       "Bash(gh run view:*)",
       "Bash(git add:*)",
       "Bash(git checkout:*)",
-      "Bash(git checkout:*)",
       "Bash(git commit:*)",
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
