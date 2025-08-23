@@ -1,5 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useReducer, useEffect, useCallback, useRef } from 'react';
 import type { AugmentedIndividual } from '../components/types';
+import {
+  gedcomDataReducer,
+  initialState,
+  getLoadingState,
+  getErrorState,
+} from './gedcomDataReducer';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
@@ -19,9 +25,7 @@ export function useGedcomData({
   onDataLoaded,
   onError,
 }: UseGedcomDataOptions): UseGedcomDataReturn {
-  const [data, setData] = useState<AugmentedIndividual[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(gedcomDataReducer, initialState);
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);
@@ -39,8 +43,7 @@ export function useGedcomData({
   const loadData = useCallback(async () => {
     if (!jsonFile) return;
 
-    setLoading(true);
-    setError(null);
+    dispatch({ type: 'fetch_started' });
 
     try {
       const response = await fetch(jsonFile);
@@ -92,7 +95,7 @@ export function useGedcomData({
         );
       }
 
-      setData(jsonData);
+      dispatch({ type: 'fetch_succeeded', payload: jsonData });
       onDataLoadedRef.current?.(jsonData);
     } catch (err) {
       let errorMessage: string;
@@ -107,10 +110,8 @@ export function useGedcomData({
         errorMessage = 'An unexpected error occurred while loading data';
       }
 
-      setError(errorMessage);
+      dispatch({ type: 'fetch_failed', payload: errorMessage });
       onErrorRef.current?.(errorMessage);
-    } finally {
-      setLoading(false);
     }
   }, [jsonFile]);
 
@@ -119,8 +120,14 @@ export function useGedcomData({
   }, [loadData]);
 
   const refetch = useCallback(() => {
+    dispatch({ type: 'refetch' });
     void loadData();
   }, [loadData]);
+
+  // Derive the API-compatible values from the reducer state
+  const data = state.data;
+  const loading = getLoadingState(state);
+  const error = getErrorState(state);
 
   return { data, loading, error, refetch };
 }
