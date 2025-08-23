@@ -31,6 +31,8 @@ jobs:
               - 'client/**'
               - 'cli/**'
               - 'shared/**'
+              - 'scripts/**'
+              - '.claude/**'
               - 'pnpm-lock.yaml'
               - 'package.json'
               - 'tsconfig*.json'
@@ -73,6 +75,10 @@ jobs:
       - name: TypeScript Check
         if: steps.changes.outputs.app == 'true'
         run: pnpm typecheck
+
+      - name: Validate JSON
+        if: steps.changes.outputs.app == 'true'
+        run: pnpm validate:json
 
       - name: Run tests
         if: steps.changes.outputs.app == 'true'
