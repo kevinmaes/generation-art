@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useReducer, useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type {
   GedcomDataWithMetadata,
@@ -23,15 +23,91 @@ interface UseGedcomDataWithLLMReturn {
   refetch: () => void;
 }
 
+// Discriminated union state type for dual data loading
+type DualGedcomDataState =
+  | { status: 'idle'; fullData: null; llmData: null; error: null }
+  | { status: 'loading'; fullData: null; llmData: null; error: null }
+  | {
+      status: 'success';
+      fullData: GedcomDataWithMetadata;
+      llmData: LLMReadyData;
+      error: null;
+    }
+  | { status: 'error'; fullData: null; llmData: null; error: string };
+
+// Action types for the reducer
+type DualGedcomDataAction =
+  | { type: 'fetch_started' }
+  | {
+      type: 'fetch_succeeded';
+      payload: {
+        fullData: GedcomDataWithMetadata;
+        llmData: LLMReadyData;
+      };
+    }
+  | { type: 'fetch_failed'; payload: string }
+  | { type: 'refetch' };
+
+// Reducer function with exhaustive event handling
+function dualGedcomDataReducer(
+  state: DualGedcomDataState,
+  action: DualGedcomDataAction,
+): DualGedcomDataState {
+  switch (action.type) {
+    case 'fetch_started':
+      return { status: 'loading', fullData: null, llmData: null, error: null };
+
+    case 'fetch_succeeded':
+      return {
+        status: 'success',
+        fullData: action.payload.fullData,
+        llmData: action.payload.llmData,
+        error: null,
+      };
+
+    case 'fetch_failed':
+      return {
+        status: 'error',
+        fullData: null,
+        llmData: null,
+        error: action.payload,
+      };
+
+    case 'refetch': {
+      // Only allow refetch from error or success states
+      if (state.status === 'error' || state.status === 'success') {
+        return {
+          status: 'loading',
+          fullData: null,
+          llmData: null,
+          error: null,
+        };
+      }
+      return state;
+    }
+
+    default: {
+      // TypeScript exhaustiveness check
+      const _exhaustiveCheck: never = action;
+      // This variable is used for compile-time exhaustiveness checking
+      void _exhaustiveCheck;
+      return state;
+    }
+  }
+}
+
 export function useGedcomDataWithLLM({
   baseFileName,
   onDataLoaded,
   onError,
 }: UseGedcomDataWithLLMOptions): UseGedcomDataWithLLMReturn {
-  const [fullData, setFullData] = useState<GedcomDataWithMetadata | null>(null);
-  const [llmData, setLlmData] = useState<LLMReadyData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Initialize reducer with idle state
+  const [state, dispatch] = useReducer(dualGedcomDataReducer, {
+    status: 'idle',
+    fullData: null,
+    llmData: null,
+    error: null,
+  });
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);
@@ -49,8 +125,7 @@ export function useGedcomDataWithLLM({
   const loadData = useCallback(async () => {
     if (!baseFileName) return;
 
-    setLoading(true);
-    setError(null);
+    dispatch({ type: 'fetch_started' });
 
     try {
       // Load full data
@@ -82,8 +157,13 @@ export function useGedcomDataWithLLM({
       // Validate LLM data (should match LLMReadyData structure)
       const validatedLlmData = llmJsonData as LLMReadyData;
 
-      setFullData(fullDataWithGraph);
-      setLlmData(validatedLlmData);
+      dispatch({
+        type: 'fetch_succeeded',
+        payload: {
+          fullData: fullDataWithGraph,
+          llmData: validatedLlmData,
+        },
+      });
 
       onDataLoadedRef.current?.({
         full: fullDataWithGraph,
@@ -102,10 +182,8 @@ export function useGedcomDataWithLLM({
         errorMessage = 'An unexpected error occurred while loading data';
       }
 
-      setError(errorMessage);
+      dispatch({ type: 'fetch_failed', payload: errorMessage });
       onErrorRef.current?.(errorMessage);
-    } finally {
-      setLoading(false);
     }
   }, [baseFileName]);
 
@@ -114,8 +192,16 @@ export function useGedcomDataWithLLM({
   }, [loadData]);
 
   const refetch = useCallback(() => {
+    dispatch({ type: 'refetch' });
     void loadData();
   }, [loadData]);
 
-  return { fullData, llmData, loading, error, refetch };
+  // Return values compatible with existing API
+  return {
+    fullData: state.fullData,
+    llmData: state.llmData,
+    loading: state.status === 'loading',
+    error: state.error,
+    refetch,
+  };
 }
