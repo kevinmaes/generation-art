@@ -38,24 +38,28 @@ export function gedcomDataReducer(
   switch (action.type) {
     case 'fetch_started':
       return { status: 'loading', data: null, error: null };
-    
+
     case 'fetch_succeeded':
       return { status: 'success', data: action.payload, error: null };
-    
+
     case 'fetch_failed':
       return { status: 'error', data: null, error: action.payload };
-    
-    case 'refetch':
+
+    case 'refetch': {
       // Only allow refetch from error or success states
       if (state.status === 'error' || state.status === 'success') {
         return { status: 'loading', data: null, error: null };
       }
       return state;
-    
-    default:
+    }
+
+    default: {
       // TypeScript exhaustiveness check
       const _exhaustiveCheck: never = action;
+      // This variable is used for compile-time exhaustiveness checking
+      void _exhaustiveCheck;
       return state;
+    }
   }
 }
 
