@@ -199,6 +199,7 @@ function drawEdge(
 export interface EnhancedP5 extends p5 {
   setShowIndividuals: (show: boolean) => void;
   setShowRelations: (show: boolean) => void;
+  getVisibleCounts: () => { individuals: number; relations: number };
 }
 
 /**
@@ -223,6 +224,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
     // Internal state for display parameters
     let currentShowIndividuals = showIndividuals;
     let currentShowRelations = showRelations;
+    let visibleIndividualsCount = 0;
+    let visibleRelationsCount = 0;
 
     // Add update methods to the p5 instance
     (p as EnhancedP5).setShowIndividuals = (show: boolean) => {
@@ -235,6 +238,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
       currentShowRelations = show;
       // Trigger redraw
       p.redraw();
+    };
+    
+    (p as EnhancedP5).getVisibleCounts = () => {
+      return {
+        individuals: visibleIndividualsCount,
+        relations: visibleRelationsCount,
+      };
     };
     p.setup = () => {
       p.createCanvas(width, height, p.P2D);
@@ -255,12 +265,23 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
       // IMPORTANT: Draw edges FIRST (they will be in the background)
       // Draw edges before nodes so that nodes appear on top
+      visibleRelationsCount = 0; // Reset count before drawing
       if (currentShowRelations) {
         // Check if we have routing output (orthogonal edges)
 
         if (visualMetadata.routing) {
           // Use the functional edge renderer for advanced routing
           console.log('📐 Rendering orthogonal edges');
+          // Count the actual edges (relations) that will be rendered
+          // Each layer contains edges, count all visible edges
+          let edgeCount = 0;
+          visualMetadata.routing.layers.forEach(layer => {
+            if (layer.visible !== false) { // Default is visible
+              edgeCount += layer.edges.length;
+            }
+          });
+          visibleRelationsCount = edgeCount;
+          
           renderEdgeRouting(visualMetadata.routing, p, {
             debugMode: debugEdgeRouting,
           });
@@ -295,6 +316,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
             if (edgeMetadata.hidden || edgeMetadata.opacity === 0) {
               continue;
             }
+            
+            // Count this edge as visible (it will be drawn)
+            visibleRelationsCount++;
 
             const strokeColor = p.color(
               edgeMetadata.strokeColor ??
@@ -318,8 +342,16 @@ function createSketch(props: SketchProps): (p: p5) => void {
       }
 
       // Draw nodes (individuals) AFTER edges so they appear on top
+      visibleIndividualsCount = 0; // Reset count before drawing
       if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
+        
+        // Debug: Track statistics
+        let debugLogged = false;
+        let totalWithCoords = 0;
+        let offCanvas = 0;
+        let transparent = 0;
+        
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
@@ -330,14 +362,57 @@ function createSketch(props: SketchProps): (p: p5) => void {
           ) {
             continue;
           }
-
-          // Only use visual metadata - no config fallbacks
+          
+          totalWithCoords++;
+          
+          // Get all visual properties first
           const x = individualMetadata.x;
           const y = individualMetadata.y;
           const size =
             individualMetadata?.size ??
             visualMetadata.global.defaultNodeSize ??
             20;
+          const opacity = individualMetadata?.opacity ?? 0.8;
+          
+          // Check if individual is actually on canvas (within bounds)
+          const margin = size / 2;
+          const isOnCanvas = 
+            x >= -margin && 
+            x <= p.width + margin && 
+            y >= -margin && 
+            y <= p.height + margin;
+            
+          // Check if actually visible (not transparent)
+          const isVisible = opacity > 0;
+          
+          // Track why individuals are skipped
+          if (!isOnCanvas) {
+            offCanvas++;
+            continue;
+          }
+          if (!isVisible) {
+            transparent++;
+            continue;
+          }
+          
+          // Count this individual as actually visible and drawn
+          visibleIndividualsCount++;
+          
+          // Debug first few visible individuals
+          if (!debugLogged && visibleIndividualsCount <= 3) {
+            console.log('Visible individual:', {
+              count: visibleIndividualsCount,
+              id: ind.id,
+              position: { x, y },
+              canvasBounds: { width: p.width, height: p.height },
+              isOnCanvas,
+              opacity
+            });
+            if (visibleIndividualsCount === 3) {
+              debugLogged = true;
+            }
+          }
+          // Get remaining visual properties
           const width = individualMetadata?.width ?? 1.0;
           const height = individualMetadata?.height ?? 1.0;
           const scale = individualMetadata?.scale ?? 1.0;
@@ -356,7 +431,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
             individualMetadata?.shapeProfile as unknown as
               | ShapeProfile
               | undefined;
-          const opacity = individualMetadata?.opacity ?? 0.8;
+          // opacity already declared above
           const strokeColor = individualMetadata?.strokeColor ?? '#000000'; // Default to black stroke
           const strokeWeight = individualMetadata?.strokeWeight ?? 0;
           const strokeOpacity = individualMetadata?.strokeOpacity ?? 1;
@@ -570,6 +645,18 @@ function createSketch(props: SketchProps): (p: p5) => void {
             p.fill(0);
             p.text(ind.name, x, y + fallbackOffsetY);
           }
+        }
+        
+        // Log summary once per draw cycle
+        if (totalWithCoords > 0) {
+          console.log('Individual visibility summary:', {
+            totalInDataset: individuals.length,
+            withCoordinates: totalWithCoords,
+            offCanvas,
+            transparent,
+            actuallyVisible: visibleIndividualsCount,
+            canvasSize: { width: p.width, height: p.height }
+          });
         }
       }
 
