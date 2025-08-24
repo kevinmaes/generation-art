@@ -6,10 +6,10 @@ import {
   type EnhancedP5,
 } from '../display/FamilyTreeSketch';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { PipelineResult } from '../pipeline/pipeline';
 import { TRANSFORMERS } from '../pipeline/transformers';
 import { GenerationProgress } from './GenerationProgress';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -17,7 +17,6 @@ const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
 interface ArtGeneratorProps {
   width?: number;
   height?: number;
-  gedcomData?: GedcomDataWithMetadata;
   pipelineResult?: PipelineResult | null;
   showIndividuals?: boolean;
   showRelations?: boolean;
@@ -30,12 +29,12 @@ interface ArtGeneratorProps {
     transformerName: string;
   } | null;
   primaryIndividualId?: string;
+  gedcomData?: GedcomDataWithMetadata | null;
 }
 
 export function ArtGenerator({
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
-  gedcomData,
   pipelineResult,
   showIndividuals = true,
   showRelations = true,
@@ -44,12 +43,10 @@ export function ArtGenerator({
   isVisualizing = false,
   pipelineProgress = null,
   primaryIndividualId,
+  gedcomData,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<EnhancedP5 | null>(null);
-
-  // Removed problematic useEffect that was causing feedback loop
-  // The parent component already manages the pipeline result state
 
   // Handle parameter updates without canvas recreation
   useEffect(() => {
@@ -64,7 +61,7 @@ export function ArtGenerator({
     }
   }, [showRelations]);
 
-  // Only create the sketch after pipelineResult is available
+  // Only create the sketch after data and pipelineResult are available
   useEffect(() => {
     if (!containerRef.current || !gedcomData) return;
 
@@ -118,6 +115,7 @@ export function ArtGenerator({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showIndividuals and showRelations handled in separate useEffects
   }, [pipelineResult, gedcomData, width, height, onExportReady]);
 
+  // Handle case where no data is provided
   if (!gedcomData) {
     return (
       <div
@@ -127,7 +125,9 @@ export function ArtGenerator({
           height: `${String(height)}px`,
         }}
       >
-        <p className="text-gray-500">No data loaded</p>
+        <div className="text-center">
+          <div className="text-gray-500 text-lg">No data available</div>
+        </div>
       </div>
     );
   }

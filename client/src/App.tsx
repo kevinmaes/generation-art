@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  familyTreeStore,
+  useFamilyTreeStore,
+} from './stores/family-tree.store';
 import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GedcomSelector } from './components/GedcomSelector';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
-import { validateFlexibleGedcomData } from '../../shared/types';
-import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
+import {
+  validateFlexibleGedcomData,
+  type LLMReadyData,
+} from '../../shared/types';
 import type { PipelineResult } from './pipeline/pipeline';
 import {
   runPipeline,
@@ -19,14 +25,7 @@ import {
 } from './pipeline/transformers';
 import type { VisualParameterValues } from './pipeline/visual-parameters';
 import { getTransformerParameterKey } from './utils/pipeline-index';
-import { useGedcomDataWithLLM } from './hooks/useGedcomDataWithLLM';
 import './App.css';
-
-// Type for the complete dual-data structure
-interface DualGedcomData {
-  full: GedcomDataWithMetadata;
-  llm: LLMReadyData;
-}
 
 // Type for manifest structure
 interface GedcomManifest {
@@ -45,9 +44,26 @@ interface GedcomManifest {
 }
 
 function App(): React.ReactElement {
-  const [dualData, setDualData] = useState<DualGedcomData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Use family tree store for data state
+  const [familyTreeState] = useFamilyTreeStore();
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('🔄 Family tree state changed:', familyTreeState.status);
+  }, [familyTreeState.status]);
+
+  // Derive boolean flags from the state
+  const isFamilyTreeLoading = familyTreeState.status === 'loading';
+  const isFamilyTreeSuccess = familyTreeState.status === 'success';
+  const isFamilyTreeError = familyTreeState.status === 'error';
+
+  // Create dual data structure from store state using useMemo
+  const familyTreeData = useMemo(() => {
+    return familyTreeState.status === 'success'
+      ? { full: familyTreeState.fullData, llm: familyTreeState.llmData }
+      : null;
+  }, [familyTreeState]);
+
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
   );
@@ -92,28 +108,73 @@ function App(): React.ReactElement {
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
 
-  // Use the new hook for loading both full and LLM data
-  useGedcomDataWithLLM({
-    baseFileName: currentDataset,
-    onDataLoaded: (data) => {
-      setDualData(data);
-    },
-    onError: (error) => {
-      setError(error);
-    },
-  });
-
-  // Development: Auto-select Raphael Ophir Maes (I12406240) when data loads
+  // Load GEDCOM data when dataset changes
   useEffect(() => {
-    if (dualData?.full.individuals && !primaryIndividualId) {
+    if (!currentDataset) return;
+
+    const loadData = async () => {
+      console.log('📊 Loading dataset:', currentDataset);
+      familyTreeStore.send({ type: 'fetchStarted' });
+
+      try {
+        // Load full data
+        const fullResponse = await fetch(
+          `/generated/parsed/${currentDataset}.json`,
+        );
+        if (!fullResponse.ok) {
+          throw new Error(
+            `Failed to load full data: ${String(fullResponse.status)}`,
+          );
+        }
+        const fullData = (await fullResponse.json()) as unknown;
+
+        // Validate full data (throws if invalid)
+        const validatedFullData = validateFlexibleGedcomData(fullData);
+
+        // Load LLM data
+        const llmResponse = await fetch(
+          `/generated/parsed/${currentDataset}-llm.json`,
+        );
+        if (!llmResponse.ok) {
+          throw new Error(
+            `Failed to load LLM data: ${String(llmResponse.status)}`,
+          );
+        }
+        const llmData = (await llmResponse.json()) as LLMReadyData;
+
+        console.log('✅ Data loaded successfully');
+        familyTreeStore.send({
+          type: 'fetchSucceeded',
+          fullData: validatedFullData,
+          llmData,
+        });
+
+        // Switch to artwork view when data loads successfully
+        setCurrentView('artwork');
+        console.log('✅ Switched to artwork view');
+      } catch (error) {
+        console.error('❌ Error loading data:', error);
+        familyTreeStore.send({
+          type: 'fetchFailed',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    };
+
+    void loadData();
+  }, [currentDataset]);
+
+  // Development: Auto-select Rafi (I12406240) when data loads
+  useEffect(() => {
+    if (isFamilyTreeSuccess && !primaryIndividualId && familyTreeData) {
       const targetId = 'I12406240';
 
-      if (targetId in dualData.full.individuals) {
+      if (targetId in familyTreeData.full.individuals) {
         console.log('🎯 Auto-selecting Raphael Ophir Maes:', targetId);
         setPrimaryIndividualId(targetId);
       }
     }
-  }, [dualData, primaryIndividualId]);
+  }, [isFamilyTreeSuccess, familyTreeData, primaryIndividualId]);
 
   // Load manifest to get available datasets
   useEffect(() => {
@@ -128,7 +189,7 @@ function App(): React.ReactElement {
           // Auto-load first dataset if none selected
           if (
             currentView === 'file-select' &&
-            !dualData &&
+            !isFamilyTreeSuccess &&
             !currentDataset &&
             datasetIds.length > 0
           ) {
@@ -145,7 +206,7 @@ function App(): React.ReactElement {
     };
 
     void loadManifest();
-  }, [currentView, dualData, currentDataset]);
+  }, [currentView, isFamilyTreeSuccess, currentDataset]);
 
   // Handle keyboard shortcut for pipeline modal
   useEventListener('keydown', (event) => {
@@ -161,8 +222,8 @@ function App(): React.ReactElement {
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setIsLoading(true);
-    setError(null);
+
+    familyTreeStore.send({ type: 'fetchStarted' });
     try {
       const text = await file.text();
       const data = JSON.parse(text) as unknown;
@@ -180,23 +241,29 @@ function App(): React.ReactElement {
           metadata: validatedData.metadata,
         },
       };
-      setDualData(newDualData);
+      familyTreeStore.send({
+        type: 'fetchSucceeded',
+        fullData: newDualData.full,
+        llmData: newDualData.llm,
+      });
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
       // Clear primary individual so the useEffect can auto-select
       setPrimaryIndividualId(undefined);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load file');
-    } finally {
-      setIsLoading(false);
+      familyTreeStore.send({
+        type: 'fetchFailed',
+        error: err instanceof Error ? err.message : 'Failed to load file',
+      });
     }
   };
 
   const handleLoadDataset = (datasetId: string) => {
     setCurrentDataset(datasetId);
     setCurrentView('artwork');
-    setError(null);
+    // Set loading state when switching datasets
+    familyTreeStore.send({ type: 'fetchStarted' });
     setPipelineResult(null);
     // Clear primary individual when switching datasets so auto-select can work
     setPrimaryIndividualId(undefined);
@@ -238,13 +305,20 @@ function App(): React.ReactElement {
   };
 
   const handleVisualize = async () => {
-    if (!dualData) {
-      setError('Data is required for visualization');
+    if (!isFamilyTreeSuccess) {
+      console.error('Cannot visualize: data not loaded');
+      return;
+    }
+
+    // const dualData = familyTreeData.full;
+
+    if (!familyTreeData) {
+      console.error('Cannot visualize: data is null');
       return;
     }
 
     if (!primaryIndividualId) {
-      setError('Please select a primary individual before generating art');
+      console.error('Please select a primary individual before generating art');
       return;
     }
 
@@ -260,8 +334,8 @@ function App(): React.ReactElement {
       });
 
       const result = await runPipeline({
-        fullData: dualData.full,
-        llmData: dualData.llm,
+        fullData: familyTreeData.full,
+        llmData: familyTreeData.llm,
         config: pipelineConfig,
         onProgress: (current, total, transformerName) => {
           setPipelineProgress({ current, total, transformerName });
@@ -299,14 +373,18 @@ function App(): React.ReactElement {
       setLastRunParameters(actualParametersUsed);
     } catch (err) {
       console.error('Pipeline execution failed:', err);
-      setError(
-        err instanceof Error ? err.message : 'Pipeline execution failed',
+      console.error(
+        'Pipeline execution failed:',
+        err instanceof Error ? err.message : 'Unknown error',
       );
     } finally {
       setIsVisualizing(false);
       setPipelineProgress(null);
     }
   };
+
+  const canShowArtwork =
+    currentView === 'artwork' && isFamilyTreeSuccess && familyTreeData;
 
   return (
     <div className="min-h-screen w-full bg-gray-100">
@@ -355,14 +433,13 @@ function App(): React.ReactElement {
               </div>
             )}
           </div>
-          {currentView === 'artwork' && dualData ? (
+          {canShowArtwork ? (
             <>
               <FramedArtwork
                 title="Family Tree Visualization"
                 subtitle="Generative visualization of family connections and generations"
                 width={minWidth}
                 height={minHeight}
-                gedcomData={dualData.full}
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onOpenPipelineClick={() => {
@@ -388,9 +465,9 @@ function App(): React.ReactElement {
                 <h2 className="text-2xl font-semibold mb-6 text-center">
                   Load Family Tree Data
                 </h2>
-                {error && (
+                {isFamilyTreeError && (
                   <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {error}
+                    {familyTreeState.error}
                   </div>
                 )}
                 <div className="space-y-6">
@@ -427,7 +504,7 @@ function App(): React.ReactElement {
                         onChange={(event) => {
                           void handleFileSelect(event);
                         }}
-                        disabled={isLoading}
+                        disabled={isFamilyTreeLoading}
                       />
                     </div>
                     <p className="text-sm text-gray-500">
@@ -442,11 +519,11 @@ function App(): React.ReactElement {
                     <GedcomSelector
                       onSelect={handleLoadDataset}
                       currentDataset={currentDataset}
-                      disabled={isLoading}
+                      disabled={isFamilyTreeLoading}
                     />
                   </div>
                   {/* Loading Indicator */}
-                  {isLoading && (
+                  {isFamilyTreeLoading && (
                     <div className="text-center">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                       <p className="mt-2 text-gray-600">Processing file...</p>
@@ -468,7 +545,6 @@ function App(): React.ReactElement {
           }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={dualData}
           primaryIndividualId={primaryIndividualId}
           onPrimaryIndividualChange={setPrimaryIndividualId}
           onTransformerSelect={handleTransformerSelect}
@@ -480,7 +556,7 @@ function App(): React.ReactElement {
             void handleVisualize();
           }}
           isVisualizing={isVisualizing}
-          hasData={!!dualData}
+          hasData={isFamilyTreeSuccess}
           lastRunParameters={lastRunParameters}
         />
       </ErrorBoundary>
