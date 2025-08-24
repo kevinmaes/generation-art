@@ -25,23 +25,42 @@ export function FamilyDataProvider({
     onError,
   });
 
-  // Determine status based on loading/error/data state
-  const status: FamilyDataContextValue['status'] = useMemo(() => {
-    if (loading) return 'loading';
-    if (error) return 'error';
-    if (data) return 'success';
-    return 'idle';
-  }, [loading, error, data]);
+  // Construct the full discriminated union value
+  const contextValue = useMemo<FamilyDataContextValue>(() => {
+    if (loading) {
+      return {
+        type: 'loading',
+        data: null,
+        error: null,
+        refetch,
+      };
+    }
 
-  const contextValue = useMemo<FamilyDataContextValue>(
-    () => ({
-      status,
-      data,
-      error,
+    if (error) {
+      return {
+        type: 'error',
+        data: null,
+        error,
+        refetch,
+      };
+    }
+
+    if (data) {
+      return {
+        type: 'success',
+        data,
+        error: null,
+        refetch,
+      };
+    }
+
+    return {
+      type: 'idle',
+      data: null,
+      error: null,
       refetch,
-    }),
-    [status, data, error, refetch],
-  );
+    };
+  }, [loading, error, data, refetch]);
 
   return (
     <FamilyDataContext.Provider value={contextValue}>
