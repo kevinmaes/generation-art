@@ -34,7 +34,6 @@ export const useGedcomStore = createStoreHook({
         llmData: null,
         error: null,
       }) satisfies GedcomDataState,
-
     fetchSucceeded: (
       _: GedcomDataState,
       event: { fullData: GedcomDataWithMetadata; llmData: LLMReadyData },
@@ -45,7 +44,6 @@ export const useGedcomStore = createStoreHook({
         llmData: event.llmData,
         error: null,
       }) satisfies GedcomDataState,
-
     fetchFailed: (_: GedcomDataState, event: { error: string }) =>
       ({
         status: 'error',
@@ -53,7 +51,6 @@ export const useGedcomStore = createStoreHook({
         llmData: null,
         error: event.error,
       }) satisfies GedcomDataState,
-
     refetch: (context: GedcomDataState) => {
       // Only allow refetch from error or success states
       if (context.status === 'error' || context.status === 'success') {
