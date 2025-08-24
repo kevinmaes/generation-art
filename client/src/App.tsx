@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useAppDataStore } from './stores/app-data.store';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useGedcomStore } from './stores/gedcom.store';
 import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
@@ -39,9 +39,8 @@ interface GedcomManifest {
 }
 
 function App(): React.ReactElement {
-  // Use XState Store for data state
-  // Get the full state and store
-  const [appDataState, appDataStore] = useAppDataStore(
+  // Use unified GEDCOM store for data state
+  const [appDataState, gedcomStore] = useGedcomStore(
     (state) => state.context,
   );
 
@@ -49,7 +48,13 @@ function App(): React.ReactElement {
   const isAppDataLoading = appDataState.status === 'loading';
   const isAppDataSuccess = appDataState.status === 'success';
   const isAppDataError = appDataState.status === 'error';
-  const appData = appDataState.data;
+  
+  // Create dual data structure from store state using useMemo
+  const appData = useMemo(() => {
+    return appDataState.status === 'success' 
+      ? { full: appDataState.fullData, llm: appDataState.llmData }
+      : null;
+  }, [appDataState]);
 
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
@@ -99,10 +104,10 @@ function App(): React.ReactElement {
   useGedcomDataWithLLM({
     baseFileName: currentDataset,
     onDataLoaded: (data) => {
-      appDataStore.send({ type: 'loadSuccess', data });
+      gedcomStore.send({ type: 'fetchSucceeded', fullData: data.full, llmData: data.llm });
     },
     onError: (error) => {
-      appDataStore.send({ type: 'loadError', error });
+      gedcomStore.send({ type: 'fetchFailed', error });
     },
   });
 
@@ -165,7 +170,7 @@ function App(): React.ReactElement {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    appDataStore.send({ type: 'startLoading' });
+    gedcomStore.send({ type: 'fetchStarted' });
     try {
       const text = await file.text();
       const data = JSON.parse(text) as unknown;
@@ -183,15 +188,15 @@ function App(): React.ReactElement {
           metadata: validatedData.metadata,
         },
       };
-      appDataStore.send({ type: 'loadSuccess', data: newDualData });
+      gedcomStore.send({ type: 'fetchSucceeded', fullData: newDualData.full, llmData: newDualData.llm });
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
       // Clear primary individual so the useEffect can auto-select
       setPrimaryIndividualId(undefined);
     } catch (err) {
-      appDataStore.send({
-        type: 'loadError',
+      gedcomStore.send({
+        type: 'fetchFailed',
         error: err instanceof Error ? err.message : 'Failed to load file',
       });
     }
@@ -201,7 +206,7 @@ function App(): React.ReactElement {
     setCurrentDataset(datasetId);
     setCurrentView('artwork');
     // Set loading state when switching datasets
-    appDataStore.send({ type: 'startLoading' });
+    gedcomStore.send({ type: 'fetchStarted' });
     setPipelineResult(null);
     // Clear primary individual when switching datasets so auto-select can work
     setPrimaryIndividualId(undefined);
