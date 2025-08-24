@@ -27,166 +27,166 @@ const appMachine = setup({
     exportArtwork: fromPromise(/* ... */),
   },
   guards: {
-    hasData: ({ context }) => context.fullData !== null,
-    hasArtwork: ({ context }) => context.pipelineResult !== null,
-    hasValidDataset: ({ context, event }) => /* validation logic */,
+    'has data': ({ context }) => context.fullData !== null,
+    'has artwork': ({ context }) => context.pipelineResult !== null,
+    'has valid dataset': ({ context, event }) => /* validation logic */,
   }
 }).createMachine({
   id: 'app',
   type: 'parallel',
   context: initialContext,
   states: {
-    navigation: {
-      initial: 'fileSelect',
+    Navigation: {
+      initial: 'File Select',
       states: {
-        fileSelect: {
+        'File Select': {
           on: {
-            SELECT_DATASET: {
-              target: 'artwork',
+            'Select dataset': {
+              target: 'Artwork',
               actions: 'setCurrentDataset'
             },
-            UPLOAD_FILE: {
-              target: 'artwork',
+            'Upload file': {
+              target: 'Artwork',
               actions: 'setUploadedFile'
             }
           }
         },
-        artwork: {
+        Artwork: {
           type: 'parallel',
           states: {
-            view: {
-              initial: 'canvas',
+            View: {
+              initial: 'Canvas',
               states: {
-                canvas: {
+                Canvas: {
                   on: {
-                    OPEN_PIPELINE: 'pipeline',
-                    OPEN_EXPORT: 'export'
+                    'Open pipeline': 'Pipeline',
+                    'Open export': 'Export'
                   }
                 },
-                pipeline: {
+                Pipeline: {
                   on: {
-                    CLOSE_PIPELINE: 'canvas'
+                    'Close pipeline': 'Canvas'
                   }
                 },
-                export: {
+                Export: {
                   on: {
-                    CLOSE_EXPORT: 'canvas'
+                    'Close export': 'Canvas'
                   }
                 }
               }
             },
-            dataLoading: {
-              initial: 'idle',
+            'Data Loading': {
+              initial: 'Idle',
               states: {
-                idle: {
+                Idle: {
                   always: {
-                    target: 'loading',
-                    guard: 'hasValidDataset'
+                    target: 'Loading',
+                    guard: 'has valid dataset'
                   }
                 },
-                loading: {
+                Loading: {
                   invoke: {
                     src: 'loadGedcomData',
                     onDone: {
-                      target: 'success',
+                      target: 'Success',
                       actions: 'storeGedcomData'
                     },
                     onError: {
-                      target: 'error',
+                      target: 'Error',
                       actions: 'storeError'
                     }
                   }
                 },
-                success: {
+                Success: {
                   on: {
-                    RELOAD_DATA: 'loading'
+                    'Reload data': 'Loading'
                   }
                 },
-                error: {
+                Error: {
                   on: {
-                    RETRY: 'loading'
+                    'Retry': 'Loading'
                   }
                 }
               }
             }
           },
           on: {
-            SWITCH_DATASET: {
-              target: 'artwork',
+            'Switch dataset': {
+              target: 'Artwork',
               actions: 'setCurrentDataset'
             },
-            BACK_TO_FILE_SELECT: 'fileSelect'
+            'Back to file select': 'File Select'
           }
         }
       }
     },
-    operations: {
-      initial: 'idle',
+    Operations: {
+      initial: 'Idle',
       states: {
-        idle: {
+        Idle: {
           on: {
-            GENERATE_ARTWORK: {
-              target: 'generating',
-              guard: 'hasData'
+            'Generate artwork': {
+              target: 'Generating',
+              guard: 'has data'
             },
-            EXPORT_ARTWORK: {
-              target: 'exporting',
-              guard: 'hasArtwork'
+            'Export artwork': {
+              target: 'Exporting',
+              guard: 'has artwork'
             }
           }
         },
-        generating: {
+        Generating: {
           invoke: {
             src: 'generateArtwork',
             onDone: {
-              target: 'idle',
+              target: 'Idle',
               actions: 'storePipelineResult'
             },
             onError: {
-              target: 'idle',
+              target: 'Idle',
               actions: 'logGenerationError'
             }
           },
           on: {
-            UPDATE_PROGRESS: {
+            'Update progress': {
               actions: 'updateGenerationProgress'
             }
           }
         },
-        exporting: {
-          initial: 'choosingFormat',
+        Exporting: {
+          initial: 'Choosing Format',
           states: {
-            choosingFormat: {
+            'Choosing Format': {
               on: {
-                EXPORT_WEB: 'exportingWeb',
-                EXPORT_PRINT: 'exportingPrint',
-                CANCEL_EXPORT: '#app.operations.idle'
+                'Export web': 'Exporting Web',
+                'Export print': 'Exporting Print',
+                'Cancel export': '#app.Operations.Idle'
               }
             },
-            exportingWeb: {
+            'Exporting Web': {
               invoke: {
                 src: 'exportArtwork',
                 data: { format: 'web' },
                 onDone: {
-                  target: '#app.operations.idle',
+                  target: '#app.Operations.Idle',
                   actions: 'notifyExportSuccess'
                 },
                 onError: {
-                  target: '#app.operations.idle',
+                  target: '#app.Operations.Idle',
                   actions: 'notifyExportError'
                 }
               }
             },
-            exportingPrint: {
+            'Exporting Print': {
               invoke: {
                 src: 'exportArtwork',
                 data: { format: 'print' },
                 onDone: {
-                  target: '#app.operations.idle',
+                  target: '#app.Operations.Idle',
                   actions: 'notifyExportSuccess'
                 },
                 onError: {
-                  target: '#app.operations.idle',
+                  target: '#app.Operations.Idle',
                   actions: 'notifyExportError'
                 }
               }
@@ -234,34 +234,34 @@ interface AppContext {
 ```typescript
 type AppEvents =
   // Navigation events
-  | { type: 'SELECT_DATASET'; datasetId: string }
-  | { type: 'UPLOAD_FILE'; file: File }
-  | { type: 'SWITCH_DATASET'; datasetId: string }
-  | { type: 'BACK_TO_FILE_SELECT' }
-  | { type: 'OPEN_PIPELINE' }
-  | { type: 'CLOSE_PIPELINE' }
-  | { type: 'OPEN_EXPORT' }
-  | { type: 'CLOSE_EXPORT' }
+  | { type: 'Select dataset'; datasetId: string }
+  | { type: 'Upload file'; file: File }
+  | { type: 'Switch dataset'; datasetId: string }
+  | { type: 'Back to file select' }
+  | { type: 'Open pipeline' }
+  | { type: 'Close pipeline' }
+  | { type: 'Open export' }
+  | { type: 'Close export' }
 
   // Data events
-  | { type: 'RELOAD_DATA' }
-  | { type: 'RETRY' }
+  | { type: 'Reload data' }
+  | { type: 'Retry' }
 
   // Operation events
-  | { type: 'GENERATE_ARTWORK' }
-  | { type: 'UPDATE_PROGRESS'; progress: GenerationProgress }
-  | { type: 'EXPORT_ARTWORK' }
-  | { type: 'EXPORT_WEB' }
-  | { type: 'EXPORT_PRINT' }
-  | { type: 'CANCEL_EXPORT' }
+  | { type: 'Generate artwork' }
+  | { type: 'Update progress'; progress: GenerationProgress }
+  | { type: 'Export artwork' }
+  | { type: 'Export web' }
+  | { type: 'Export print' }
+  | { type: 'Cancel export' }
 
   // Pipeline configuration
-  | { type: 'SET_PRIMARY_INDIVIDUAL'; individualId: string }
-  | { type: 'ADD_TRANSFORMER'; transformerId: TransformerId }
-  | { type: 'REMOVE_TRANSFORMER'; transformerId: string }
-  | { type: 'REORDER_TRANSFORMERS'; newOrder: TransformerId[] }
+  | { type: 'Set primary individual'; individualId: string }
+  | { type: 'Add transformer'; transformerId: TransformerId }
+  | { type: 'Remove transformer'; transformerId: string }
+  | { type: 'Reorder transformers'; newOrder: TransformerId[] }
   | {
-      type: 'UPDATE_PARAMETERS';
+      type: 'Update parameters';
       transformerId: string;
       parameters: TransformerParameters;
     };
@@ -321,37 +321,267 @@ type AppEvents =
 
 ## React Integration
 
+### Context Provider Setup
+
 ```typescript
-// Custom hook for app machine
-export const useAppMachine = () => {
-  const [state, send] = useMachine(appMachine);
+import { createActorContext } from '@xstate/react';
+import { appMachine } from './machines/app.machine';
 
-  return {
-    // State selectors
-    isLoading: state.matches({
-      navigation: { artwork: { dataLoading: 'loading' } },
-    }),
-    hasData: state.context.fullData !== null,
-    hasArtwork: state.context.pipelineResult !== null,
-    currentView: state.value.navigation,
+// Create the actor context
+export const AppMachineContext = createActorContext(appMachine);
 
-    // Actions
-    selectDataset: (datasetId: string) =>
-      send({ type: 'SELECT_DATASET', datasetId }),
-    generateArtwork: () => send({ type: 'GENERATE_ARTWORK' }),
-    exportArtwork: () => send({ type: 'EXPORT_ARTWORK' }),
+// App root component
+export function App() {
+  return (
+    <AppMachineContext.Provider>
+      <Router>
+        <Routes>
+          {/* Your app routes */}
+        </Routes>
+      </Router>
+    </AppMachineContext.Provider>
+  );
+}
+```
 
-    // Context
-    data: state.context.fullData
-      ? {
-          full: state.context.fullData,
-          llm: state.context.llmData,
-        }
-      : null,
-    pipelineResult: state.context.pipelineResult,
-    error: state.context.lastError,
+### Using useActorRef and useSelector in Components
+
+```typescript
+import { useActorRef, useSelector } from '@xstate/react';
+import { AppMachineContext } from './app-machine-context';
+
+// Selectors for derived state (memoized for performance)
+const selectIsLoading = (state: AppMachineState) => 
+  state.matches({ Navigation: { Artwork: { 'Data Loading': 'Loading' } } });
+
+const selectHasData = (state: AppMachineState) => 
+  state.context.fullData !== null;
+
+const selectHasArtwork = (state: AppMachineState) => 
+  state.context.pipelineResult !== null;
+
+const selectCurrentView = (state: AppMachineState) => 
+  state.value.navigation;
+
+const selectFamilyTreeData = (state: AppMachineState) => 
+  state.context.fullData && state.context.llmData
+    ? { full: state.context.fullData, llm: state.context.llmData }
+    : null;
+
+const selectPipelineResult = (state: AppMachineState) => 
+  state.context.pipelineResult;
+
+const selectError = (state: AppMachineState) => 
+  state.context.lastError;
+
+const selectAvailableDatasets = (state: AppMachineState) =>
+  state.context.availableDatasets;
+
+const selectCurrentDataset = (state: AppMachineState) =>
+  state.context.currentDataset;
+
+// Component using selectors
+export function ArtworkView() {
+  const actorRef = AppMachineContext.useActorRef();
+  
+  // Subscribe only to specific state slices
+  const isLoading = AppMachineContext.useSelector(selectIsLoading);
+  const hasData = AppMachineContext.useSelector(selectHasData);
+  const familyTreeData = AppMachineContext.useSelector(selectFamilyTreeData);
+  const pipelineResult = AppMachineContext.useSelector(selectPipelineResult);
+  
+  // Send events via actorRef
+  const handleGenerateArtwork = () => {
+    actorRef.send({ type: 'Generate artwork' });
   };
-};
+  
+  const handleExport = () => {
+    actorRef.send({ type: 'Export artwork' });
+  };
+  
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+  
+  if (!hasData) {
+    return <EmptyState />;
+  }
+  
+  return (
+    <div>
+      <Canvas pipelineResult={pipelineResult} />
+      <button onClick={handleGenerateArtwork}>Generate</button>
+      <button onClick={handleExport}>Export</button>
+    </div>
+  );
+}
+
+// Component with multiple selectors
+export function DatasetSelector() {
+  const actorRef = AppMachineContext.useActorRef();
+  
+  const availableDatasets = AppMachineContext.useSelector(selectAvailableDatasets);
+  const currentDataset = AppMachineContext.useSelector(selectCurrentDataset);
+  const isLoading = AppMachineContext.useSelector(selectIsLoading);
+  
+  const handleSelectDataset = (datasetId: string) => {
+    actorRef.send({ type: 'Select dataset', datasetId });
+  };
+  
+  return (
+    <select 
+      value={currentDataset ?? ''} 
+      onChange={(e) => handleSelectDataset(e.target.value)}
+      disabled={isLoading}
+    >
+      {availableDatasets.map(dataset => (
+        <option key={dataset} value={dataset}>
+          {dataset}
+        </option>
+      ))}
+    </select>
+  );
+}
+```
+
+### Creating Custom Hooks with Selectors
+
+```typescript
+// Custom hook for pipeline state
+export function usePipelineState() {
+  const actorRef = AppMachineContext.useActorRef();
+  
+  const transformers = AppMachineContext.useSelector(
+    state => state.context.activeTransformerIds
+  );
+  
+  const parameters = AppMachineContext.useSelector(
+    state => state.context.transformerParameters
+  );
+  
+  const isGenerating = AppMachineContext.useSelector(
+    state => state.matches('Operations.Generating')
+  );
+  
+  const progress = AppMachineContext.useSelector(
+    state => state.context.generationProgress
+  );
+  
+  return {
+    transformers,
+    parameters,
+    isGenerating,
+    progress,
+    addTransformer: (id: TransformerId) => 
+      actorRef.send({ type: 'Add transformer', transformerId: id }),
+    removeTransformer: (id: string) =>
+      actorRef.send({ type: 'Remove transformer', transformerId: id }),
+    updateParameters: (id: string, params: TransformerParameters) =>
+      actorRef.send({ type: 'Update parameters', transformerId: id, parameters: params }),
+  };
+}
+
+// Custom hook for navigation state
+export function useNavigationState() {
+  const actorRef = AppMachineContext.useActorRef();
+  
+  const currentView = AppMachineContext.useSelector(selectCurrentView);
+  const canGoBack = AppMachineContext.useSelector(
+    state => state.can({ type: 'Back to file select' })
+  );
+  
+  return {
+    currentView,
+    canGoBack,
+    navigateToFileSelect: () => 
+      actorRef.send({ type: 'Back to file select' }),
+    openPipeline: () => 
+      actorRef.send({ type: 'Open pipeline' }),
+    closePipeline: () => 
+      actorRef.send({ type: 'Close pipeline' }),
+  };
+}
+```
+
+### Performance Optimizations
+
+```typescript
+// Composite selectors with createSelector for derived state
+import { createSelector } from 'reselect';
+
+const selectIndividuals = (state: AppMachineState) => 
+  state.context.fullData?.individuals ?? {};
+
+const selectPrimaryIndividualId = (state: AppMachineState) =>
+  state.context.primaryIndividualId;
+
+// Memoized selector for primary individual
+const selectPrimaryIndividual = createSelector(
+  [selectIndividuals, selectPrimaryIndividualId],
+  (individuals, primaryId) => 
+    primaryId ? individuals[primaryId] : null
+);
+
+// Memoized selector for statistics
+const selectStatistics = createSelector(
+  [selectIndividuals],
+  (individuals) => ({
+    totalIndividuals: Object.keys(individuals).length,
+    withBirthDates: Object.values(individuals).filter(i => i.birthDate).length,
+    withDeathDates: Object.values(individuals).filter(i => i.deathDate).length,
+  })
+);
+
+// Component using memoized selectors
+export function StatisticsPanel() {
+  const statistics = AppMachineContext.useSelector(selectStatistics);
+  const primaryIndividual = AppMachineContext.useSelector(selectPrimaryIndividual);
+  
+  return (
+    <div>
+      <h3>Statistics</h3>
+      <p>Total individuals: {statistics.totalIndividuals}</p>
+      <p>With birth dates: {statistics.withBirthDates}</p>
+      <p>With death dates: {statistics.withDeathDates}</p>
+      {primaryIndividual && (
+        <p>Primary: {primaryIndividual.name}</p>
+      )}
+    </div>
+  );
+}
+```
+
+### Testing with Actor Context
+
+```typescript
+import { createActor } from 'xstate';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+describe('ArtworkView', () => {
+  it('should generate artwork when button clicked', async () => {
+    const mockMachine = appMachine.withConfig({
+      actions: {
+        // Mock actions
+      },
+      actors: {
+        // Mock actors
+      }
+    });
+    
+    render(
+      <AppMachineContext.Provider machine={mockMachine}>
+        <ArtworkView />
+      </AppMachineContext.Provider>
+    );
+    
+    const generateButton = screen.getByText('Generate');
+    await userEvent.click(generateButton);
+    
+    // Assert state changes
+    expect(screen.getByText('Generating...')).toBeInTheDocument();
+  });
+});
 ```
 
 ## State Visualization
@@ -408,6 +638,35 @@ The state machine can be visualized using XState's visualization tools:
 3. **Actors**: Cancel ongoing operations when navigating away
 4. **Subscriptions**: Clean up listeners properly
 
+## Pipeline Integration
+
+The pipeline functionality is managed through a separate state machine that runs as an actor within the main app machine. This provides:
+
+- **Independent pipeline configuration and execution states**
+- **Partial execution capabilities** (run only segments of the pipeline)
+- **Live preview during configuration changes**
+- **Result caching with smart invalidation**
+- **Pause/resume functionality for long-running pipelines**
+
+See [xstate-pipeline-architecture.md](./xstate-pipeline-architecture.md) for detailed pipeline machine specification.
+
+### Key Pipeline Features
+
+1. **Execution Modes**
+   - Full: Run entire pipeline from start to finish
+   - Partial: Run specific segments (e.g., transformers 2-4)
+   - Incremental: Continue from last successful transformer
+
+2. **Configuration Management**
+   - Add/remove/reorder transformers
+   - Update parameters with validation
+   - Live preview with debouncing
+
+3. **Performance Optimization**
+   - Result caching between runs
+   - Smart cache invalidation on parameter changes
+   - Parallel state regions for independent operations
+
 ## Conclusion
 
-This XState v5 architecture provides a robust foundation for managing the complex state requirements of the Generation Art application. The parallel state regions handle different concerns independently while maintaining type safety and predictability throughout the application.
+This XState v5 architecture provides a robust foundation for managing the complex state requirements of the Generation Art application. The parallel state regions handle different concerns independently while maintaining type safety and predictability throughout the application. The pipeline subsystem demonstrates how complex features can be modeled as separate machines and composed into the main application state.
