@@ -5,7 +5,7 @@ import type {
   LLMReadyData,
 } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
-import { useGedcomDataWithLLMStore } from '../stores/gedcom-data-with-llm.store';
+import { useGedcomStore } from '../stores/gedcom.store';
 
 interface UseGedcomDataWithLLMOptions {
   baseFileName: string; // e.g., "kennedy" (without extension)
@@ -29,8 +29,8 @@ export function useGedcomDataWithLLM({
   onDataLoaded,
   onError,
 }: UseGedcomDataWithLLMOptions): UseGedcomDataWithLLMReturn {
-  // Use XState store for state management
-  const [state, store] = useGedcomDataWithLLMStore((state) => state.context);
+  // Use unified XState store for state management
+  const [state, store] = useGedcomStore((state) => state.context);
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);

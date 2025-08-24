@@ -4,8 +4,9 @@ import type {
   LLMReadyData,
 } from '../../../shared/types';
 
-// Discriminated union state type for dual data loading
-export type DualGedcomDataState =
+// Discriminated union state type for GEDCOM data loading
+// Handles both single file (full only) and dual file (full + LLM) scenarios
+export type GedcomDataState =
   | { status: 'idle'; fullData: null; llmData: null; error: null }
   | { status: 'loading'; fullData: null; llmData: null; error: null }
   | {
@@ -16,14 +17,15 @@ export type DualGedcomDataState =
     }
   | { status: 'error'; fullData: null; llmData: null; error: string };
 
-// Create the custom hook for the store managing dual GEDCOM data loading
-export const useGedcomDataWithLLMStore = createStoreHook({
+// Create the custom hook for the unified GEDCOM store
+// This handles both single and dual data loading scenarios
+export const useGedcomStore = createStoreHook({
   context: {
     status: 'idle',
     fullData: null,
     llmData: null,
     error: null,
-  } as DualGedcomDataState,
+  } as GedcomDataState,
   on: {
     fetchStarted: () =>
       ({
@@ -31,10 +33,10 @@ export const useGedcomDataWithLLMStore = createStoreHook({
         fullData: null,
         llmData: null,
         error: null,
-      }) satisfies DualGedcomDataState,
+      }) satisfies GedcomDataState,
 
     fetchSucceeded: (
-      _: DualGedcomDataState,
+      _: GedcomDataState,
       event: { fullData: GedcomDataWithMetadata; llmData: LLMReadyData },
     ) =>
       ({
@@ -42,17 +44,17 @@ export const useGedcomDataWithLLMStore = createStoreHook({
         fullData: event.fullData,
         llmData: event.llmData,
         error: null,
-      }) satisfies DualGedcomDataState,
+      }) satisfies GedcomDataState,
 
-    fetchFailed: (_: DualGedcomDataState, event: { error: string }) =>
+    fetchFailed: (_: GedcomDataState, event: { error: string }) =>
       ({
         status: 'error',
         fullData: null,
         llmData: null,
         error: event.error,
-      }) satisfies DualGedcomDataState,
+      }) satisfies GedcomDataState,
 
-    refetch: (context: DualGedcomDataState) => {
+    refetch: (context: GedcomDataState) => {
       // Only allow refetch from error or success states
       if (context.status === 'error' || context.status === 'success') {
         return {
@@ -60,7 +62,7 @@ export const useGedcomDataWithLLMStore = createStoreHook({
           fullData: null,
           llmData: null,
           error: null,
-        } satisfies DualGedcomDataState;
+        } satisfies GedcomDataState;
       }
       return context;
     },

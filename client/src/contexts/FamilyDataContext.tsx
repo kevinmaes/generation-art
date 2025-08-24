@@ -8,7 +8,7 @@ import React, {
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
-import { useGedcomDataStore } from '../stores/gedcom-data.store';
+import { useGedcomStore } from '../stores/gedcom.store';
 import {
   FamilyDataContext,
   type FamilyDataContextValue,
@@ -27,8 +27,8 @@ export function FamilyDataProvider({
   onDataLoaded,
   onError,
 }: FamilyDataProviderProps): React.ReactElement {
-  // Use XState store directly
-  const [state, store] = useGedcomDataStore((state) => state.context);
+  // Use unified XState store directly
+  const [state, store] = useGedcomStore((state) => state.context);
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);
@@ -77,7 +77,16 @@ export function FamilyDataProvider({
       // Rebuild graph data since functions can't be serialized to JSON
       const dataWithGraph = rebuildGraphData(validatedData);
 
-      store.send({ type: 'fetchSucceeded', data: dataWithGraph });
+      // For single file loading, set llmData to empty structure
+      store.send({ 
+        type: 'fetchSucceeded', 
+        fullData: dataWithGraph,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: dataWithGraph.metadata,
+        }
+      });
       onDataLoadedRef.current?.(dataWithGraph);
     } catch (err) {
       let errorMessage: string;
@@ -126,7 +135,7 @@ export function FamilyDataProvider({
       case 'success':
         return {
           type: 'success',
-          data: state.data,
+          data: state.fullData,
           error: null,
           refetch,
         };

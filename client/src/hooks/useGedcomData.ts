@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
-import { useGedcomDataStore } from '../stores/gedcom-data.store';
+import { useGedcomStore } from '../stores/gedcom.store';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
@@ -18,15 +18,15 @@ interface UseGedcomDataReturn {
 }
 
 // Re-export types from store for backward compatibility
-export type { GedcomDataState } from '../stores/gedcom-data.store';
+export type { GedcomDataState } from '../stores/gedcom.store';
 
 export function useGedcomData({
   jsonFile,
   onDataLoaded,
   onError,
 }: UseGedcomDataOptions): UseGedcomDataReturn {
-  // Use XState store for state management
-  const [state, store] = useGedcomDataStore((state) => state.context);
+  // Use unified XState store for state management
+  const [state, store] = useGedcomStore((state) => state.context);
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);
@@ -75,7 +75,16 @@ export function useGedcomData({
       // Rebuild graph data since functions can't be serialized to JSON
       const dataWithGraph = rebuildGraphData(validatedData);
 
-      store.send({ type: 'fetchSucceeded', data: dataWithGraph });
+      // For single file loading, set llmData to empty structure
+      store.send({ 
+        type: 'fetchSucceeded', 
+        fullData: dataWithGraph,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: dataWithGraph.metadata,
+        }
+      });
       onDataLoadedRef.current?.(dataWithGraph);
     } catch (err) {
       let errorMessage: string;
@@ -105,8 +114,9 @@ export function useGedcomData({
   }, [loadData, store]);
 
   // Return values compatible with existing API
+  // Map fullData to data for backward compatibility
   return {
-    data: state.data,
+    data: state.fullData,
     loading: state.status === 'loading',
     error: state.error,
     refetch,
