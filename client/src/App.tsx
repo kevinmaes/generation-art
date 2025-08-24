@@ -40,24 +40,16 @@ interface GedcomManifest {
 
 function App(): React.ReactElement {
   // Use XState Store for data state
-  const [
-    {
-      isAppDataLoading,
-      isAppDataSuccess,
-      isAppDataError,
-      data: appData,
-      ...appDataState
-    },
-    appDataStore,
-  ] = useAppDataStore((state) => {
-    return {
-      // appData: state.context.data,
-      ...state.context,
-      isAppDataLoading: state.context.status === 'loading',
-      isAppDataSuccess: state.context.status === 'success',
-      isAppDataError: state.context.status === 'error',
-    };
-  });
+  // Get the full state and store
+  const [appDataState, appDataStore] = useAppDataStore(
+    (state) => state.context,
+  );
+
+  // Derive boolean flags from the state
+  const isAppDataLoading = appDataState.status === 'loading';
+  const isAppDataSuccess = appDataState.status === 'success';
+  const isAppDataError = appDataState.status === 'error';
+  const appData = appDataState.data;
 
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
