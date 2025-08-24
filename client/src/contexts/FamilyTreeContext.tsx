@@ -7,14 +7,13 @@ import {
 } from '../stores/family-tree.store';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../../shared/types';
 
-// Context value includes both state and store for maximum flexibility
+// Context value with convenience accessors for the state
 interface FamilyTreeContextValue {
-  state: FamilyTreeState;
-  store: typeof familyTreeStore;
-  // Convenience accessors
+  // State status flags
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
+  // Direct data access
   fullData: GedcomDataWithMetadata | null;
   llmData: LLMReadyData | null;
   error: string | null;
@@ -32,9 +31,7 @@ export function FamilyTreeProvider({ children }: FamilyTreeProviderProps): React
 
   // Create context value with convenience accessors
   const contextValue: FamilyTreeContextValue = {
-    state,
-    store: familyTreeStore,
-    // Convenience boolean flags
+    // Status flags
     isLoading: state.status === 'loading',
     isSuccess: state.status === 'success',
     isError: state.status === 'error',
