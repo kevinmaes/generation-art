@@ -9,7 +9,10 @@ import { PipelinePanel } from './components/pipeline/PipelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GedcomSelector } from './components/GedcomSelector';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
-import { validateFlexibleGedcomData } from '../../shared/types';
+import {
+  validateFlexibleGedcomData,
+  type LLMReadyData,
+} from '../../shared/types';
 import type { PipelineResult } from './pipeline/pipeline';
 import {
   runPipeline,
@@ -119,31 +122,30 @@ function App(): React.ReactElement {
           `/generated/parsed/${currentDataset}.json`,
         );
         if (!fullResponse.ok) {
-          throw new Error(`Failed to load full data: ${fullResponse.status}`);
-        }
-        const fullData = await fullResponse.json();
-
-        // Validate full data
-        const validationResult = validateFlexibleGedcomData(fullData);
-        if (!validationResult.isValid) {
           throw new Error(
-            `Invalid GEDCOM data: ${validationResult.errors.join(', ')}`,
+            `Failed to load full data: ${String(fullResponse.status)}`,
           );
         }
+        const fullData = (await fullResponse.json()) as unknown;
+
+        // Validate full data (throws if invalid)
+        const validatedFullData = validateFlexibleGedcomData(fullData);
 
         // Load LLM data
         const llmResponse = await fetch(
           `/generated/parsed/${currentDataset}-llm.json`,
         );
         if (!llmResponse.ok) {
-          throw new Error(`Failed to load LLM data: ${llmResponse.status}`);
+          throw new Error(
+            `Failed to load LLM data: ${String(llmResponse.status)}`,
+          );
         }
-        const llmData = await llmResponse.json();
+        const llmData = (await llmResponse.json()) as LLMReadyData;
 
         console.log('✅ Data loaded successfully');
         familyTreeStore.send({
           type: 'fetchSucceeded',
-          fullData: validationResult.data,
+          fullData: validatedFullData,
           llmData,
         });
 

@@ -79,7 +79,7 @@ export const useFamilyTreeStore = () => {
     const subscription = familyTreeStore.subscribe(() => {
       setSnapshot(familyTreeStore.getSnapshot());
     });
-    return subscription.unsubscribe;
+    return () => subscription.unsubscribe();
   }, []);
 
   // Return just the context (the actual state)
