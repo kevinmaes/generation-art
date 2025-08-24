@@ -28,6 +28,13 @@ interface DualGedcomData {
   llm: LLMReadyData;
 }
 
+// Discriminated union for app data loading state
+type AppDataState =
+  | { status: 'idle'; data: null; error: null }
+  | { status: 'loading'; data: null; error: null }
+  | { status: 'success'; data: DualGedcomData; error: null }
+  | { status: 'error'; data: null; error: string };
+
 // Type for manifest structure
 interface GedcomManifest {
   version: string;
@@ -45,9 +52,12 @@ interface GedcomManifest {
 }
 
 function App(): React.ReactElement {
-  const [dualData, setDualData] = useState<DualGedcomData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Use discriminated union for data state
+  const [dataState, setDataState] = useState<AppDataState>({
+    status: 'idle',
+    data: null,
+    error: null,
+  });
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
   );
@@ -96,24 +106,32 @@ function App(): React.ReactElement {
   useGedcomDataWithLLM({
     baseFileName: currentDataset,
     onDataLoaded: (data) => {
-      setDualData(data);
+      setDataState({
+        status: 'success',
+        data,
+        error: null,
+      });
     },
     onError: (error) => {
-      setError(error);
+      setDataState({
+        status: 'error',
+        data: null,
+        error,
+      });
     },
   });
 
-  // Development: Auto-select Raphael Ophir Maes (I12406240) when data loads
+  // Development: Auto-select Rafi (I12406240) when data loads
   useEffect(() => {
-    if (dualData?.full.individuals && !primaryIndividualId) {
+    if (dataState.status === 'success' && !primaryIndividualId) {
       const targetId = 'I12406240';
 
-      if (targetId in dualData.full.individuals) {
+      if (targetId in dataState.data.full.individuals) {
         console.log('🎯 Auto-selecting Raphael Ophir Maes:', targetId);
         setPrimaryIndividualId(targetId);
       }
     }
-  }, [dualData, primaryIndividualId]);
+  }, [dataState, primaryIndividualId]);
 
   // Load manifest to get available datasets
   useEffect(() => {
@@ -128,7 +146,7 @@ function App(): React.ReactElement {
           // Auto-load first dataset if none selected
           if (
             currentView === 'file-select' &&
-            !dualData &&
+            dataState.status !== 'success' &&
             !currentDataset &&
             datasetIds.length > 0
           ) {
@@ -145,7 +163,7 @@ function App(): React.ReactElement {
     };
 
     void loadManifest();
-  }, [currentView, dualData, currentDataset]);
+  }, [currentView, dataState, currentDataset]);
 
   // Handle keyboard shortcut for pipeline modal
   useEventListener('keydown', (event) => {
@@ -161,8 +179,12 @@ function App(): React.ReactElement {
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setIsLoading(true);
-    setError(null);
+
+    setDataState({
+      status: 'loading',
+      data: null,
+      error: null,
+    });
     try {
       const text = await file.text();
       const data = JSON.parse(text) as unknown;
@@ -180,23 +202,34 @@ function App(): React.ReactElement {
           metadata: validatedData.metadata,
         },
       };
-      setDualData(newDualData);
+      setDataState({
+        status: 'success',
+        data: newDualData,
+        error: null,
+      });
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
       // Clear primary individual so the useEffect can auto-select
       setPrimaryIndividualId(undefined);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load file');
-    } finally {
-      setIsLoading(false);
+      setDataState({
+        status: 'error',
+        data: null,
+        error: err instanceof Error ? err.message : 'Failed to load file',
+      });
     }
   };
 
   const handleLoadDataset = (datasetId: string) => {
     setCurrentDataset(datasetId);
     setCurrentView('artwork');
-    setError(null);
+    // Set loading state when switching datasets
+    setDataState({
+      status: 'loading',
+      data: null,
+      error: null,
+    });
     setPipelineResult(null);
     // Clear primary individual when switching datasets so auto-select can work
     setPrimaryIndividualId(undefined);
@@ -238,13 +271,15 @@ function App(): React.ReactElement {
   };
 
   const handleVisualize = async () => {
-    if (!dualData) {
-      setError('Data is required for visualization');
+    if (dataState.status !== 'success') {
+      console.error('Cannot visualize: data not loaded');
       return;
     }
 
+    const dualData = dataState.data;
+
     if (!primaryIndividualId) {
-      setError('Please select a primary individual before generating art');
+      console.error('Please select a primary individual before generating art');
       return;
     }
 
@@ -299,8 +334,9 @@ function App(): React.ReactElement {
       setLastRunParameters(actualParametersUsed);
     } catch (err) {
       console.error('Pipeline execution failed:', err);
-      setError(
-        err instanceof Error ? err.message : 'Pipeline execution failed',
+      console.error(
+        'Pipeline execution failed:',
+        err instanceof Error ? err.message : 'Unknown error',
       );
     } finally {
       setIsVisualizing(false);
@@ -355,14 +391,14 @@ function App(): React.ReactElement {
               </div>
             )}
           </div>
-          {currentView === 'artwork' && dualData ? (
+          {currentView === 'artwork' && dataState.status === 'success' ? (
             <>
               <FramedArtwork
                 title="Family Tree Visualization"
                 subtitle="Generative visualization of family connections and generations"
                 width={minWidth}
                 height={minHeight}
-                gedcomData={dualData.full}
+                gedcomData={dataState.data.full}
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onOpenPipelineClick={() => {
@@ -388,9 +424,9 @@ function App(): React.ReactElement {
                 <h2 className="text-2xl font-semibold mb-6 text-center">
                   Load Family Tree Data
                 </h2>
-                {error && (
+                {dataState.status === 'error' && (
                   <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {error}
+                    {dataState.error}
                   </div>
                 )}
                 <div className="space-y-6">
@@ -427,7 +463,7 @@ function App(): React.ReactElement {
                         onChange={(event) => {
                           void handleFileSelect(event);
                         }}
-                        disabled={isLoading}
+                        disabled={dataState.status === 'loading'}
                       />
                     </div>
                     <p className="text-sm text-gray-500">
@@ -442,11 +478,11 @@ function App(): React.ReactElement {
                     <GedcomSelector
                       onSelect={handleLoadDataset}
                       currentDataset={currentDataset}
-                      disabled={isLoading}
+                      disabled={dataState.status === 'loading'}
                     />
                   </div>
                   {/* Loading Indicator */}
-                  {isLoading && (
+                  {dataState.status === 'loading' && (
                     <div className="text-center">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                       <p className="mt-2 text-gray-600">Processing file...</p>
@@ -468,7 +504,7 @@ function App(): React.ReactElement {
           }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={dualData}
+          dualData={dataState.status === 'success' ? dataState.data : null}
           primaryIndividualId={primaryIndividualId}
           onPrimaryIndividualChange={setPrimaryIndividualId}
           onTransformerSelect={handleTransformerSelect}
@@ -480,7 +516,7 @@ function App(): React.ReactElement {
             void handleVisualize();
           }}
           isVisualizing={isVisualizing}
-          hasData={!!dualData}
+          hasData={dataState.status === 'success'}
           lastRunParameters={lastRunParameters}
         />
       </ErrorBoundary>
