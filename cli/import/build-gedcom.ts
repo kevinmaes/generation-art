@@ -204,7 +204,10 @@ async function buildGedcomFiles(
             await scanDirectory(fullPath);
           } else if (entry.isFile() && extname(entry.name) === '.ged') {
             // Found a GEDCOM file
-            const relativePath = fullPath.substring(0, fullPath.lastIndexOf('/'));
+            const relativePath = fullPath.substring(
+              0,
+              fullPath.lastIndexOf('/'),
+            );
             allGedcomFiles.push({ file: entry.name, inputDir: relativePath });
           }
         }
