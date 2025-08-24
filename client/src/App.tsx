@@ -110,6 +110,8 @@ function App(): React.ReactElement {
         fullData: data.full,
         llmData: data.llm,
       });
+      // Switch to artwork view when data loads successfully
+      setCurrentView('artwork');
     },
     onError: (error) => {
       familyTreeStore.send({ type: 'fetchFailed', error });
