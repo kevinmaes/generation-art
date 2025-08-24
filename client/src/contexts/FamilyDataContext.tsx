@@ -78,14 +78,14 @@ export function FamilyDataProvider({
       const dataWithGraph = rebuildGraphData(validatedData);
 
       // For single file loading, set llmData to empty structure
-      store.send({ 
-        type: 'fetchSucceeded', 
+      store.send({
+        type: 'fetchSucceeded',
         fullData: dataWithGraph,
         llmData: {
           individuals: {},
           families: {},
           metadata: dataWithGraph.metadata,
-        }
+        },
       });
       onDataLoadedRef.current?.(dataWithGraph);
     } catch (err) {

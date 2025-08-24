@@ -40,18 +40,16 @@ interface GedcomManifest {
 
 function App(): React.ReactElement {
   // Use unified GEDCOM store for data state
-  const [appDataState, gedcomStore] = useGedcomStore(
-    (state) => state.context,
-  );
+  const [appDataState, gedcomStore] = useGedcomStore((state) => state.context);
 
   // Derive boolean flags from the state
   const isAppDataLoading = appDataState.status === 'loading';
   const isAppDataSuccess = appDataState.status === 'success';
   const isAppDataError = appDataState.status === 'error';
-  
+
   // Create dual data structure from store state using useMemo
   const appData = useMemo(() => {
-    return appDataState.status === 'success' 
+    return appDataState.status === 'success'
       ? { full: appDataState.fullData, llm: appDataState.llmData }
       : null;
   }, [appDataState]);
@@ -104,7 +102,11 @@ function App(): React.ReactElement {
   useGedcomDataWithLLM({
     baseFileName: currentDataset,
     onDataLoaded: (data) => {
-      gedcomStore.send({ type: 'fetchSucceeded', fullData: data.full, llmData: data.llm });
+      gedcomStore.send({
+        type: 'fetchSucceeded',
+        fullData: data.full,
+        llmData: data.llm,
+      });
     },
     onError: (error) => {
       gedcomStore.send({ type: 'fetchFailed', error });
@@ -188,7 +190,11 @@ function App(): React.ReactElement {
           metadata: validatedData.metadata,
         },
       };
-      gedcomStore.send({ type: 'fetchSucceeded', fullData: newDualData.full, llmData: newDualData.llm });
+      gedcomStore.send({
+        type: 'fetchSucceeded',
+        fullData: newDualData.full,
+        llmData: newDualData.llm,
+      });
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
