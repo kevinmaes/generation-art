@@ -4,15 +4,14 @@ import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { PipelineResult } from '../pipeline/pipeline';
+import type { GedcomDataWithMetadata } from '../../../shared/types';
 
 interface FramedArtworkProps {
   title: string;
   subtitle?: string;
   width?: number;
   height?: number;
-  gedcomData?: GedcomDataWithMetadata;
   pipelineResult?: PipelineResult | null;
   className?: string;
   onOpenPipelineClick?: () => void;
@@ -24,6 +23,7 @@ interface FramedArtworkProps {
     transformerName: string;
   } | null;
   primaryIndividualId?: string;
+  gedcomData: GedcomDataWithMetadata;
 }
 
 export function FramedArtwork({
@@ -31,7 +31,6 @@ export function FramedArtwork({
   subtitle,
   width = CANVAS_DIMENSIONS.WEB.WIDTH,
   height = CANVAS_DIMENSIONS.WEB.HEIGHT,
-  gedcomData,
   pipelineResult,
   className = '',
   onOpenPipelineClick,
@@ -39,6 +38,7 @@ export function FramedArtwork({
   isVisualizing = false,
   pipelineProgress = null,
   primaryIndividualId,
+  gedcomData,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
@@ -57,7 +57,7 @@ export function FramedArtwork({
   }, [exportWebCanvas]);
 
   const handlePrintClick = useCallback(() => {
-    if (p5InstanceRef.current && gedcomData) {
+    if (p5InstanceRef.current) {
       // Access the canvas through the p5 instance
       const canvas = (
         p5InstanceRef.current as unknown as { canvas: HTMLCanvasElement }
@@ -151,7 +151,6 @@ export function FramedArtwork({
           <ArtGenerator
             width={width}
             height={height}
-            gedcomData={gedcomData}
             pipelineResult={pipelineResult}
             showIndividuals={showIndividuals}
             showRelations={showRelations}
@@ -160,6 +159,7 @@ export function FramedArtwork({
             isVisualizing={isVisualizing}
             pipelineProgress={pipelineProgress}
             primaryIndividualId={primaryIndividualId}
+            gedcomData={gedcomData}
           />
         </div>
       </div>
