@@ -18,8 +18,8 @@ export type FamilyTreeState =
     }
   | { status: 'error'; fullData: null; llmData: null; error: string };
 
-// Store configuration for family tree data
-const familyTreeStoreConfig = {
+// Create singleton store instance
+export const familyTreeStore = createStore({
   context: {
     status: 'idle',
     fullData: null,
@@ -64,10 +64,7 @@ const familyTreeStoreConfig = {
       return context;
     },
   },
-};
-
-// Create singleton store instance
-export const familyTreeStore = createStore(familyTreeStoreConfig);
+});
 
 // Create hook that uses the singleton store instance
 export const useFamilyTreeStore = () => {
