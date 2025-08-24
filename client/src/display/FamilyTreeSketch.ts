@@ -239,7 +239,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
       // Trigger redraw
       p.redraw();
     };
-    
+
     (p as EnhancedP5).getVisibleCounts = () => {
       return {
         individuals: visibleIndividualsCount,
@@ -275,13 +275,14 @@ function createSketch(props: SketchProps): (p: p5) => void {
           // Count the actual edges (relations) that will be rendered
           // Each layer contains edges, count all visible edges
           let edgeCount = 0;
-          visualMetadata.routing.layers.forEach(layer => {
-            if (layer.visible !== false) { // Default is visible
+          visualMetadata.routing.layers.forEach((layer) => {
+            if (layer.visible !== false) {
+              // Default is visible
               edgeCount += layer.edges.length;
             }
           });
           visibleRelationsCount = edgeCount;
-          
+
           renderEdgeRouting(visualMetadata.routing, p, {
             debugMode: debugEdgeRouting,
           });
@@ -316,7 +317,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
             if (edgeMetadata.hidden || edgeMetadata.opacity === 0) {
               continue;
             }
-            
+
             // Count this edge as visible (it will be drawn)
             visibleRelationsCount++;
 
@@ -345,13 +346,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
       visibleIndividualsCount = 0; // Reset count before drawing
       if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
-        
+
         // Debug: Track statistics
         let debugLogged = false;
         let totalWithCoords = 0;
         let offCanvas = 0;
         let transparent = 0;
-        
+
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
@@ -362,9 +363,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
           ) {
             continue;
           }
-          
+
           totalWithCoords++;
-          
+
           // Get all visual properties first
           const x = individualMetadata.x;
           const y = individualMetadata.y;
@@ -373,18 +374,18 @@ function createSketch(props: SketchProps): (p: p5) => void {
             visualMetadata.global.defaultNodeSize ??
             20;
           const opacity = individualMetadata?.opacity ?? 0.8;
-          
+
           // Check if individual is actually on canvas (within bounds)
           const margin = size / 2;
-          const isOnCanvas = 
-            x >= -margin && 
-            x <= p.width + margin && 
-            y >= -margin && 
+          const isOnCanvas =
+            x >= -margin &&
+            x <= p.width + margin &&
+            y >= -margin &&
             y <= p.height + margin;
-            
+
           // Check if actually visible (not transparent)
           const isVisible = opacity > 0;
-          
+
           // Track why individuals are skipped
           if (!isOnCanvas) {
             offCanvas++;
@@ -394,10 +395,10 @@ function createSketch(props: SketchProps): (p: p5) => void {
             transparent++;
             continue;
           }
-          
+
           // Count this individual as actually visible and drawn
           visibleIndividualsCount++;
-          
+
           // Debug first few visible individuals
           if (!debugLogged && visibleIndividualsCount <= 3) {
             console.log('Visible individual:', {
@@ -406,7 +407,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
               position: { x, y },
               canvasBounds: { width: p.width, height: p.height },
               isOnCanvas,
-              opacity
+              opacity,
             });
             if (visibleIndividualsCount === 3) {
               debugLogged = true;
@@ -646,7 +647,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
             p.text(ind.name, x, y + fallbackOffsetY);
           }
         }
-        
+
         // Log summary once per draw cycle
         if (totalWithCoords > 0) {
           console.log('Individual visibility summary:', {
@@ -655,7 +656,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
             offCanvas,
             transparent,
             actuallyVisible: visibleIndividualsCount,
-            canvasSize: { width: p.width, height: p.height }
+            canvasSize: { width: p.width, height: p.height },
           });
         }
       }
