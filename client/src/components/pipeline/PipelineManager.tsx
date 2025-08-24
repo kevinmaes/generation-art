@@ -15,10 +15,7 @@ import {
 } from '../../pipeline/transformers';
 import { GripVertical } from 'lucide-react';
 import { PrimaryIndividualSelector } from '../PrimaryIndividualSelector';
-import type {
-  GedcomDataWithMetadata,
-  LLMReadyData,
-} from '../../../../shared/types';
+import { useFamilyTreeData } from '../../contexts/FamilyTreeContext';
 import type { VisualParameterValues } from '../../pipeline/visual-parameters';
 import { DraggableTransformerItem } from './DraggableTransformerItem';
 import { SortableTransformerItem } from './SortableTransformerItem';
@@ -84,16 +81,9 @@ const ACCORDION_PANEL_CONSTANTS = {
   GAP: 20, // Gap between columns in 2-column layout
 } as const;
 
-// Type for the complete dual-data structure
-interface DualGedcomData {
-  full: GedcomDataWithMetadata;
-  llm: LLMReadyData;
-}
-
 interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;
   activeTransformerIds: TransformerId[];
-  dualData?: DualGedcomData | null;
   primaryIndividualId?: string;
   onPrimaryIndividualChange?: (individualId: string | undefined) => void;
   onTransformerSelect?: (transformerId: TransformerId) => void;
@@ -161,7 +151,6 @@ function calculateVisualMetadataDiff(
 export function PipelineManager({
   pipelineResult,
   activeTransformerIds,
-  dualData,
   primaryIndividualId,
   onPrimaryIndividualChange,
   onTransformerSelect,
@@ -174,6 +163,7 @@ export function PipelineManager({
   hasData = false,
   lastRunParameters,
 }: PipelineManagerProps): React.ReactElement {
+  const familyTreeData = useFamilyTreeData();
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
@@ -470,15 +460,15 @@ export function PipelineManager({
 
   // Memoize the pipeline input to avoid expensive recalculations
   const pipelineInput = React.useMemo(() => {
-    if (!dualData || activeTransformerIds.length === 0) {
+    if (!familyTreeData || activeTransformerIds.length === 0) {
       return null;
     }
 
     return {
-      fullData: dualData.full,
-      llmData: dualData.llm,
+      fullData: familyTreeData.full,
+      llmData: familyTreeData.llm,
       visualMetadata: createInitialCompleteVisualMetadata(
-        dualData.full,
+        familyTreeData.full,
         800, // Default canvas width
         600, // Default canvas height
       ),
@@ -489,7 +479,7 @@ export function PipelineManager({
         canvasHeight: 600, // Default canvas height
       },
     };
-  }, [dualData, activeTransformerIds]); // Only recalculate when data or transformer list changes
+  }, [familyTreeData, activeTransformerIds]); // Only recalculate when data or transformer list changes
 
   const visiblePipelineCount = React.useMemo(() => {
     return activeTransformerIds.filter((id) => id !== 'variance').length;
@@ -598,10 +588,10 @@ export function PipelineManager({
             }}
           >
             {/* Primary Individual Selector */}
-            {dualData && (
+            {familyTreeData && (
               <div className="mb-4">
                 <PrimaryIndividualSelector
-                  gedcomData={dualData.full}
+                  gedcomData={familyTreeData.full}
                   value={primaryIndividualId}
                   onChange={onPrimaryIndividualChange ?? (() => undefined)}
                 />
@@ -735,7 +725,7 @@ export function PipelineManager({
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-                  {dualData
+                  {familyTreeData
                     ? 'Add transformers to see pipeline input'
                     : 'Load data to see pipeline input'}
                 </div>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SimpleGedcomParser } from '../SimpleGedcomParser';
+import { SimpleGedcomParser } from './SimpleGedcomParser';
 
 describe('SimpleGedcomParser', () => {
   it('should parse a simple GEDCOM file with one individual', () => {

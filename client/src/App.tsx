@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useAppDataStore } from './stores/app-data.store';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  familyTreeStore,
+  useFamilyTreeStore,
+} from './stores/family-tree.store';
 import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GedcomSelector } from './components/GedcomSelector';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
-import { validateFlexibleGedcomData } from '../../shared/types';
+import {
+  validateFlexibleGedcomData,
+  type LLMReadyData,
+} from '../../shared/types';
 import type { PipelineResult } from './pipeline/pipeline';
 import {
   runPipeline,
@@ -19,7 +25,6 @@ import {
 } from './pipeline/transformers';
 import type { VisualParameterValues } from './pipeline/visual-parameters';
 import { getTransformerParameterKey } from './utils/pipeline-index';
-import { useGedcomDataWithLLM } from './hooks/useGedcomDataWithLLM';
 import './App.css';
 
 // Type for manifest structure
@@ -39,17 +44,25 @@ interface GedcomManifest {
 }
 
 function App(): React.ReactElement {
-  // Use XState Store for data state
-  // Get the full state and store
-  const [appDataState, appDataStore] = useAppDataStore(
-    (state) => state.context,
-  );
+  // Use family tree store for data state
+  const [appDataState] = useFamilyTreeStore();
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('🔄 Family tree state changed:', appDataState.status);
+  }, [appDataState.status]);
 
   // Derive boolean flags from the state
   const isAppDataLoading = appDataState.status === 'loading';
   const isAppDataSuccess = appDataState.status === 'success';
   const isAppDataError = appDataState.status === 'error';
-  const appData = appDataState.data;
+
+  // Create dual data structure from store state using useMemo
+  const appData = useMemo(() => {
+    return appDataState.status === 'success'
+      ? { full: appDataState.fullData, llm: appDataState.llmData }
+      : null;
+  }, [appDataState]);
 
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
@@ -95,16 +108,61 @@ function App(): React.ReactElement {
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
 
-  // Use the new hook for loading both full and LLM data
-  useGedcomDataWithLLM({
-    baseFileName: currentDataset,
-    onDataLoaded: (data) => {
-      appDataStore.send({ type: 'loadSuccess', data });
-    },
-    onError: (error) => {
-      appDataStore.send({ type: 'loadError', error });
-    },
-  });
+  // Load GEDCOM data when dataset changes
+  useEffect(() => {
+    if (!currentDataset) return;
+
+    const loadData = async () => {
+      console.log('📊 Loading dataset:', currentDataset);
+      familyTreeStore.send({ type: 'fetchStarted' });
+
+      try {
+        // Load full data
+        const fullResponse = await fetch(
+          `/generated/parsed/${currentDataset}.json`,
+        );
+        if (!fullResponse.ok) {
+          throw new Error(
+            `Failed to load full data: ${String(fullResponse.status)}`,
+          );
+        }
+        const fullData = (await fullResponse.json()) as unknown;
+
+        // Validate full data (throws if invalid)
+        const validatedFullData = validateFlexibleGedcomData(fullData);
+
+        // Load LLM data
+        const llmResponse = await fetch(
+          `/generated/parsed/${currentDataset}-llm.json`,
+        );
+        if (!llmResponse.ok) {
+          throw new Error(
+            `Failed to load LLM data: ${String(llmResponse.status)}`,
+          );
+        }
+        const llmData = (await llmResponse.json()) as LLMReadyData;
+
+        console.log('✅ Data loaded successfully');
+        familyTreeStore.send({
+          type: 'fetchSucceeded',
+          fullData: validatedFullData,
+          llmData,
+        });
+
+        // Switch to artwork view when data loads successfully
+        setCurrentView('artwork');
+        console.log('✅ Switched to artwork view');
+      } catch (error) {
+        console.error('❌ Error loading data:', error);
+        familyTreeStore.send({
+          type: 'fetchFailed',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    };
+
+    void loadData();
+  }, [currentDataset]);
 
   // Development: Auto-select Rafi (I12406240) when data loads
   useEffect(() => {
@@ -165,7 +223,7 @@ function App(): React.ReactElement {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    appDataStore.send({ type: 'startLoading' });
+    familyTreeStore.send({ type: 'fetchStarted' });
     try {
       const text = await file.text();
       const data = JSON.parse(text) as unknown;
@@ -183,15 +241,19 @@ function App(): React.ReactElement {
           metadata: validatedData.metadata,
         },
       };
-      appDataStore.send({ type: 'loadSuccess', data: newDualData });
+      familyTreeStore.send({
+        type: 'fetchSucceeded',
+        fullData: newDualData.full,
+        llmData: newDualData.llm,
+      });
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
       // Clear primary individual so the useEffect can auto-select
       setPrimaryIndividualId(undefined);
     } catch (err) {
-      appDataStore.send({
-        type: 'loadError',
+      familyTreeStore.send({
+        type: 'fetchFailed',
         error: err instanceof Error ? err.message : 'Failed to load file',
       });
     }
@@ -201,7 +263,7 @@ function App(): React.ReactElement {
     setCurrentDataset(datasetId);
     setCurrentView('artwork');
     // Set loading state when switching datasets
-    appDataStore.send({ type: 'startLoading' });
+    familyTreeStore.send({ type: 'fetchStarted' });
     setPipelineResult(null);
     // Clear primary individual when switching datasets so auto-select can work
     setPrimaryIndividualId(undefined);
@@ -375,7 +437,6 @@ function App(): React.ReactElement {
                 subtitle="Generative visualization of family connections and generations"
                 width={minWidth}
                 height={minHeight}
-                gedcomData={appData.full}
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onOpenPipelineClick={() => {
@@ -481,7 +542,6 @@ function App(): React.ReactElement {
           }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={isAppDataSuccess ? appData : null}
           primaryIndividualId={primaryIndividualId}
           onPrimaryIndividualChange={setPrimaryIndividualId}
           onTransformerSelect={handleTransformerSelect}
