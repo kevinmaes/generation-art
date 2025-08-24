@@ -45,24 +45,24 @@ interface GedcomManifest {
 
 function App(): React.ReactElement {
   // Use family tree store for data state
-  const [appDataState] = useFamilyTreeStore();
+  const [familyTreeState] = useFamilyTreeStore();
 
   // Debug state changes
   useEffect(() => {
-    console.log('🔄 Family tree state changed:', appDataState.status);
-  }, [appDataState.status]);
+    console.log('🔄 Family tree state changed:', familyTreeState.status);
+  }, [familyTreeState.status]);
 
   // Derive boolean flags from the state
-  const isAppDataLoading = appDataState.status === 'loading';
-  const isAppDataSuccess = appDataState.status === 'success';
-  const isAppDataError = appDataState.status === 'error';
+  const isFamilyTreeLoading = familyTreeState.status === 'loading';
+  const isFamilyTreeSuccess = familyTreeState.status === 'success';
+  const isFamilyTreeError = familyTreeState.status === 'error';
 
   // Create dual data structure from store state using useMemo
-  const appData = useMemo(() => {
-    return appDataState.status === 'success'
-      ? { full: appDataState.fullData, llm: appDataState.llmData }
+  const familyTreeData = useMemo(() => {
+    return familyTreeState.status === 'success'
+      ? { full: familyTreeState.fullData, llm: familyTreeState.llmData }
       : null;
-  }, [appDataState]);
+  }, [familyTreeState]);
 
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
@@ -166,15 +166,15 @@ function App(): React.ReactElement {
 
   // Development: Auto-select Rafi (I12406240) when data loads
   useEffect(() => {
-    if (isAppDataSuccess && !primaryIndividualId && appData) {
+    if (isFamilyTreeSuccess && !primaryIndividualId && familyTreeData) {
       const targetId = 'I12406240';
 
-      if (targetId in appData.full.individuals) {
+      if (targetId in familyTreeData.full.individuals) {
         console.log('🎯 Auto-selecting Raphael Ophir Maes:', targetId);
         setPrimaryIndividualId(targetId);
       }
     }
-  }, [isAppDataSuccess, appData, primaryIndividualId]);
+  }, [isFamilyTreeSuccess, familyTreeData, primaryIndividualId]);
 
   // Load manifest to get available datasets
   useEffect(() => {
@@ -189,7 +189,7 @@ function App(): React.ReactElement {
           // Auto-load first dataset if none selected
           if (
             currentView === 'file-select' &&
-            !isAppDataSuccess &&
+            !isFamilyTreeSuccess &&
             !currentDataset &&
             datasetIds.length > 0
           ) {
@@ -206,7 +206,7 @@ function App(): React.ReactElement {
     };
 
     void loadManifest();
-  }, [currentView, isAppDataSuccess, currentDataset]);
+  }, [currentView, isFamilyTreeSuccess, currentDataset]);
 
   // Handle keyboard shortcut for pipeline modal
   useEventListener('keydown', (event) => {
@@ -305,14 +305,14 @@ function App(): React.ReactElement {
   };
 
   const handleVisualize = async () => {
-    if (!isAppDataSuccess) {
+    if (!isFamilyTreeSuccess) {
       console.error('Cannot visualize: data not loaded');
       return;
     }
 
-    // const dualData = appData.full;
+    // const dualData = familyTreeData.full;
 
-    if (!appData) {
+    if (!familyTreeData) {
       console.error('Cannot visualize: data is null');
       return;
     }
@@ -334,8 +334,8 @@ function App(): React.ReactElement {
       });
 
       const result = await runPipeline({
-        fullData: appData.full,
-        llmData: appData.llm,
+        fullData: familyTreeData.full,
+        llmData: familyTreeData.llm,
         config: pipelineConfig,
         onProgress: (current, total, transformerName) => {
           setPipelineProgress({ current, total, transformerName });
@@ -430,7 +430,7 @@ function App(): React.ReactElement {
               </div>
             )}
           </div>
-          {currentView === 'artwork' && isAppDataSuccess && appData ? (
+          {currentView === 'artwork' && isFamilyTreeSuccess && familyTreeData ? (
             <>
               <FramedArtwork
                 title="Family Tree Visualization"
@@ -462,9 +462,9 @@ function App(): React.ReactElement {
                 <h2 className="text-2xl font-semibold mb-6 text-center">
                   Load Family Tree Data
                 </h2>
-                {isAppDataError && (
+                {isFamilyTreeError && (
                   <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {appDataState.error}
+                    {familyTreeState.error}
                   </div>
                 )}
                 <div className="space-y-6">
@@ -501,7 +501,7 @@ function App(): React.ReactElement {
                         onChange={(event) => {
                           void handleFileSelect(event);
                         }}
-                        disabled={isAppDataLoading}
+                        disabled={isFamilyTreeLoading}
                       />
                     </div>
                     <p className="text-sm text-gray-500">
@@ -516,11 +516,11 @@ function App(): React.ReactElement {
                     <GedcomSelector
                       onSelect={handleLoadDataset}
                       currentDataset={currentDataset}
-                      disabled={isAppDataLoading}
+                      disabled={isFamilyTreeLoading}
                     />
                   </div>
                   {/* Loading Indicator */}
-                  {isAppDataLoading && (
+                  {isFamilyTreeLoading && (
                     <div className="text-center">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                       <p className="mt-2 text-gray-600">Processing file...</p>
@@ -553,7 +553,7 @@ function App(): React.ReactElement {
             void handleVisualize();
           }}
           isVisualizing={isVisualizing}
-          hasData={isAppDataSuccess}
+          hasData={isFamilyTreeSuccess}
           lastRunParameters={lastRunParameters}
         />
       </ErrorBoundary>
