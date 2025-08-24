@@ -1,7 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, type ReactNode } from 'react';
 import { useFamilyTreeStore } from '../stores/family-tree.store';
-import type { GedcomDataWithMetadata, LLMReadyData } from '../../../shared/types';
+import type {
+  GedcomDataWithMetadata,
+  LLMReadyData,
+} from '../../../shared/types';
 
 // Context value with convenience accessors for the state
 interface FamilyTreeContextValue {
@@ -21,7 +24,9 @@ interface FamilyTreeProviderProps {
   children: ReactNode;
 }
 
-export function FamilyTreeProvider({ children }: FamilyTreeProviderProps): React.ReactElement {
+export function FamilyTreeProvider({
+  children,
+}: FamilyTreeProviderProps): React.ReactElement {
   // Use the singleton store
   const [state] = useFamilyTreeStore((state) => state.context);
 
@@ -60,9 +65,12 @@ export function useFamilyTreeData(): GedcomDataWithMetadata | null {
 }
 
 // Hook to get dual data structure (for components that need both)
-export function useDualFamilyTreeData(): { full: GedcomDataWithMetadata; llm: LLMReadyData } | null {
+export function useDualFamilyTreeData(): {
+  full: GedcomDataWithMetadata;
+  llm: LLMReadyData;
+} | null {
   const { isSuccess, fullData, llmData } = useFamilyTree();
-  return isSuccess && fullData && llmData 
+  return isSuccess && fullData && llmData
     ? { full: fullData, llm: llmData }
     : null;
 }

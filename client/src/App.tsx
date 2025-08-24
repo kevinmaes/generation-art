@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { familyTreeStore, useFamilyTreeStore } from './stores/family-tree.store';
+import {
+  familyTreeStore,
+  useFamilyTreeStore,
+} from './stores/family-tree.store';
 import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';

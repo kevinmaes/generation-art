@@ -2,7 +2,10 @@ import { useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
-import { useFamilyTreeStore, familyTreeStore } from '../stores/family-tree.store';
+import {
+  useFamilyTreeStore,
+  familyTreeStore,
+} from '../stores/family-tree.store';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
