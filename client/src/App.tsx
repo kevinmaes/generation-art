@@ -144,10 +144,10 @@ function App(): React.ReactElement {
         const llmData = (await llmResponse.json()) as LLMReadyData;
 
         console.log('✅ Data loaded successfully');
-        
+
         // Rebuild graph data for efficient traversal
         const fullDataWithGraph = rebuildGraphData(validatedFullData);
-        
+
         familyTreeStore.send({
           type: 'fetchSucceeded',
           fullData: fullDataWithGraph,
@@ -235,7 +235,7 @@ function App(): React.ReactElement {
 
       // Use Zod validation instead of manual type checking
       const validatedData = validateFlexibleGedcomData(data);
-      
+
       // Rebuild graph data for efficient traversal
       const fullDataWithGraph = rebuildGraphData(validatedData);
 

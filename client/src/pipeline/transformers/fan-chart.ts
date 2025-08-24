@@ -183,9 +183,9 @@ export function fanChartTransform(
     tree: visualMetadata.tree || {},
     global: visualMetadata.global || {},
   };
-  
+
   // First, clear all individual positions (we'll only set positions for those in the tree)
-  Object.keys(visualMetadata.individuals).forEach(id => {
+  Object.keys(visualMetadata.individuals).forEach((id) => {
     output.individuals[id] = {
       ...visualMetadata.individuals[id],
       x: undefined,
