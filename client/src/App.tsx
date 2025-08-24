@@ -383,6 +383,9 @@ function App(): React.ReactElement {
     }
   };
 
+  const canShowArtwork =
+    currentView === 'artwork' && isFamilyTreeSuccess && familyTreeData;
+
   return (
     <div className="min-h-screen w-full bg-gray-100">
       <div className="flex flex-col justify-center items-center min-h-screen">
@@ -430,7 +433,7 @@ function App(): React.ReactElement {
               </div>
             )}
           </div>
-          {currentView === 'artwork' && isFamilyTreeSuccess && familyTreeData ? (
+          {canShowArtwork ? (
             <>
               <FramedArtwork
                 title="Family Tree Visualization"
