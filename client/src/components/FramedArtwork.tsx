@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
 import type { PipelineResult } from '../pipeline/pipeline';
-import { useFamilyTreeData } from '../contexts/FamilyTreeContext';
+import { useFamilyTree } from '../contexts/FamilyTreeContext';
 
 interface FramedArtworkProps {
   title: string;
@@ -38,7 +38,7 @@ export function FramedArtwork({
   pipelineProgress = null,
   primaryIndividualId,
 }: FramedArtworkProps): React.ReactElement {
-  const gedcomData = useFamilyTreeData();
+  const { fullData: gedcomData } = useFamilyTree();
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);

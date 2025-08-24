@@ -58,14 +58,8 @@ export function useFamilyTree(): FamilyTreeContextValue {
   return context;
 }
 
-// Hook to get just the full data (backward compatibility)
-export function useFamilyTreeData(): GedcomDataWithMetadata | null {
-  const { fullData } = useFamilyTree();
-  return fullData;
-}
-
-// Hook to get dual data structure (for components that need both)
-export function useDualFamilyTreeData(): {
+// Hook to get family tree data (both full and LLM)
+export function useFamilyTreeData(): {
   full: GedcomDataWithMetadata;
   llm: LLMReadyData;
 } | null {

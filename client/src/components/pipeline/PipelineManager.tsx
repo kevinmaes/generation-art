@@ -15,10 +15,7 @@ import {
 } from '../../pipeline/transformers';
 import { GripVertical } from 'lucide-react';
 import { PrimaryIndividualSelector } from '../PrimaryIndividualSelector';
-import {
-  useDualFamilyTreeData,
-  useFamilyTreeData,
-} from '../../contexts/FamilyTreeContext';
+import { useFamilyTreeData, useFamilyTree } from '../../contexts/FamilyTreeContext';
 import type { VisualParameterValues } from '../../pipeline/visual-parameters';
 import { DraggableTransformerItem } from './DraggableTransformerItem';
 import { SortableTransformerItem } from './SortableTransformerItem';
@@ -166,8 +163,8 @@ export function PipelineManager({
   hasData = false,
   lastRunParameters,
 }: PipelineManagerProps): React.ReactElement {
-  const dualData = useDualFamilyTreeData();
-  const gedcomData = useFamilyTreeData();
+  const dualData = useFamilyTreeData();
+  const { fullData: gedcomData } = useFamilyTree();
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
