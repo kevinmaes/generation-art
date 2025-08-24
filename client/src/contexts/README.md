@@ -1,36 +1,38 @@
 # Contexts
 
-## FamilyDataContext
+## FamilyTreeContext
 
-**Status**: Available but not currently used in the app.
+**Status**: Active - Primary data management solution
 
 ### Overview
 
-- Provides centralized family data sharing across components
-- Eliminates duplicate network requests
-- Uses status discriminated union: `'idle' | 'loading' | 'success' | 'error'`
+- Provides centralized family tree data access via XState Store
+- Single source of truth for all GEDCOM/family tree data
+- Uses discriminated union state: `'idle' | 'loading' | 'success' | 'error'`
+- Eliminates prop drilling across component tree
 
 ### Files
 
-- `FamilyDataContext.tsx` - Provider component
-- `familyDataContextDefinition.ts` - Context and type definitions
-- `useFamilyData.ts` - Hook for consuming context
+- `FamilyTreeContext.tsx` - Provider component with convenience hooks
+- `../stores/family-tree.store.ts` - XState Store with singleton instance
 
 ### Usage
 
 ```tsx
-// Wrap components
-<FamilyDataProvider jsonFile="/data/family.json">
-  <MyComponents />
-</FamilyDataProvider>;
+// Already wrapped in main.tsx
+// Use in any component:
+const { isLoading, fullData, llmData } = useFamilyTree();
 
-// Use in child components
-const { status, data, error, refetch } = useFamilyData();
+// Or specific hooks:
+const gedcomData = useFamilyTreeData(); // Just full data
+const dualData = useDualFamilyTreeData(); // Both full and LLM data
 ```
 
-### Note
+### Architecture
 
-Currently, the app manages data directly in `App.tsx` using `useGedcomDataWithLLM` and passes data as props. The context remains available for future use if centralized data management is needed.
+- App.tsx triggers data loads via `familyTreeStore.send()`
+- All components read from the same store instance
+- No duplicate data fetching or state synchronization issues
 
 ## PipelineContext
 

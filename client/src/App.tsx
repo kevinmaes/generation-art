@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useAppDataStore } from './stores/app-data.store';
+import React, { useState, useEffect, useMemo } from 'react';
+import { familyTreeStore, useFamilyTreeStore } from './stores/family-tree.store';
 import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
@@ -39,17 +39,20 @@ interface GedcomManifest {
 }
 
 function App(): React.ReactElement {
-  // Use XState Store for data state
-  // Get the full state and store
-  const [appDataState, appDataStore] = useAppDataStore(
-    (state) => state.context,
-  );
+  // Use family tree store for data state
+  const [appDataState] = useFamilyTreeStore((state) => state.context);
 
   // Derive boolean flags from the state
   const isAppDataLoading = appDataState.status === 'loading';
   const isAppDataSuccess = appDataState.status === 'success';
   const isAppDataError = appDataState.status === 'error';
-  const appData = appDataState.data;
+
+  // Create dual data structure from store state using useMemo
+  const appData = useMemo(() => {
+    return appDataState.status === 'success'
+      ? { full: appDataState.fullData, llm: appDataState.llmData }
+      : null;
+  }, [appDataState]);
 
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
@@ -99,10 +102,14 @@ function App(): React.ReactElement {
   useGedcomDataWithLLM({
     baseFileName: currentDataset,
     onDataLoaded: (data) => {
-      appDataStore.send({ type: 'loadSuccess', data });
+      familyTreeStore.send({
+        type: 'fetchSucceeded',
+        fullData: data.full,
+        llmData: data.llm,
+      });
     },
     onError: (error) => {
-      appDataStore.send({ type: 'loadError', error });
+      familyTreeStore.send({ type: 'fetchFailed', error });
     },
   });
 
@@ -165,7 +172,7 @@ function App(): React.ReactElement {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    appDataStore.send({ type: 'startLoading' });
+    familyTreeStore.send({ type: 'fetchStarted' });
     try {
       const text = await file.text();
       const data = JSON.parse(text) as unknown;
@@ -183,15 +190,19 @@ function App(): React.ReactElement {
           metadata: validatedData.metadata,
         },
       };
-      appDataStore.send({ type: 'loadSuccess', data: newDualData });
+      familyTreeStore.send({
+        type: 'fetchSucceeded',
+        fullData: newDualData.full,
+        llmData: newDualData.llm,
+      });
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
       // Clear primary individual so the useEffect can auto-select
       setPrimaryIndividualId(undefined);
     } catch (err) {
-      appDataStore.send({
-        type: 'loadError',
+      familyTreeStore.send({
+        type: 'fetchFailed',
         error: err instanceof Error ? err.message : 'Failed to load file',
       });
     }
@@ -201,7 +212,7 @@ function App(): React.ReactElement {
     setCurrentDataset(datasetId);
     setCurrentView('artwork');
     // Set loading state when switching datasets
-    appDataStore.send({ type: 'startLoading' });
+    familyTreeStore.send({ type: 'fetchStarted' });
     setPipelineResult(null);
     // Clear primary individual when switching datasets so auto-select can work
     setPrimaryIndividualId(undefined);
@@ -375,7 +386,6 @@ function App(): React.ReactElement {
                 subtitle="Generative visualization of family connections and generations"
                 width={minWidth}
                 height={minHeight}
-                gedcomData={appData.full}
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onOpenPipelineClick={() => {
@@ -481,7 +491,6 @@ function App(): React.ReactElement {
           }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={isAppDataSuccess ? appData : null}
           primaryIndividualId={primaryIndividualId}
           onPrimaryIndividualChange={setPrimaryIndividualId}
           onTransformerSelect={handleTransformerSelect}
