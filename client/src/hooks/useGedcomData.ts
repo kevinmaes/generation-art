@@ -1,7 +1,8 @@
-import { useReducer, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
+import { useGedcomStore } from '../stores/gedcom.store';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
@@ -16,64 +17,16 @@ interface UseGedcomDataReturn {
   refetch: () => void;
 }
 
-// Discriminated union state type
-export type GedcomDataState =
-  | { status: 'idle'; data: null; error: null }
-  | { status: 'loading'; data: null; error: null }
-  | { status: 'success'; data: GedcomDataWithMetadata; error: null }
-  | { status: 'error'; data: null; error: string };
-
-// Action types for the reducer
-export type GedcomDataAction =
-  | { type: 'fetch_started' }
-  | { type: 'fetch_succeeded'; payload: GedcomDataWithMetadata }
-  | { type: 'fetch_failed'; payload: string }
-  | { type: 'refetch' };
-
-// Reducer function with exhaustive event handling
-export function gedcomDataReducer(
-  state: GedcomDataState,
-  action: GedcomDataAction,
-): GedcomDataState {
-  switch (action.type) {
-    case 'fetch_started':
-      return { status: 'loading', data: null, error: null };
-
-    case 'fetch_succeeded':
-      return { status: 'success', data: action.payload, error: null };
-
-    case 'fetch_failed':
-      return { status: 'error', data: null, error: action.payload };
-
-    case 'refetch': {
-      // Only allow refetch from error or success states
-      if (state.status === 'error' || state.status === 'success') {
-        return { status: 'loading', data: null, error: null };
-      }
-      return state;
-    }
-
-    default: {
-      // TypeScript exhaustiveness check
-      const _exhaustiveCheck: never = action;
-      // This variable is used for compile-time exhaustiveness checking
-      void _exhaustiveCheck;
-      return state;
-    }
-  }
-}
+// Re-export types from store for backward compatibility
+export type { GedcomDataState } from '../stores/gedcom.store';
 
 export function useGedcomData({
   jsonFile,
   onDataLoaded,
   onError,
 }: UseGedcomDataOptions): UseGedcomDataReturn {
-  // Initialize reducer with idle state
-  const [state, dispatch] = useReducer(gedcomDataReducer, {
-    status: 'idle',
-    data: null,
-    error: null,
-  });
+  // Use unified XState store for state management
+  const [state, store] = useGedcomStore((state) => state.context);
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);
@@ -91,7 +44,7 @@ export function useGedcomData({
   const loadData = useCallback(async () => {
     if (!jsonFile) return;
 
-    dispatch({ type: 'fetch_started' });
+    store.send({ type: 'fetchStarted' });
 
     try {
       const response = await fetch(jsonFile);
@@ -122,7 +75,16 @@ export function useGedcomData({
       // Rebuild graph data since functions can't be serialized to JSON
       const dataWithGraph = rebuildGraphData(validatedData);
 
-      dispatch({ type: 'fetch_succeeded', payload: dataWithGraph });
+      // For single file loading, set llmData to empty structure
+      store.send({ 
+        type: 'fetchSucceeded', 
+        fullData: dataWithGraph,
+        llmData: {
+          individuals: {},
+          families: {},
+          metadata: dataWithGraph.metadata,
+        }
+      });
       onDataLoadedRef.current?.(dataWithGraph);
     } catch (err) {
       let errorMessage: string;
@@ -137,23 +99,24 @@ export function useGedcomData({
         errorMessage = 'An unexpected error occurred while loading data';
       }
 
-      dispatch({ type: 'fetch_failed', payload: errorMessage });
+      store.send({ type: 'fetchFailed', error: errorMessage });
       onErrorRef.current?.(errorMessage);
     }
-  }, [jsonFile]);
+  }, [jsonFile, store]);
 
   useEffect(() => {
     void loadData();
   }, [loadData]);
 
   const refetch = useCallback(() => {
-    dispatch({ type: 'refetch' });
+    store.send({ type: 'refetch' });
     void loadData();
-  }, [loadData]);
+  }, [loadData, store]);
 
   // Return values compatible with existing API
+  // Map fullData to data for backward compatibility
   return {
-    data: state.data,
+    data: state.fullData,
     loading: state.status === 'loading',
     error: state.error,
     refetch,
