@@ -3,10 +3,6 @@ import { useEventListener, useWindowSize, useMediaQuery } from 'usehooks-ts';
 import { PipelineManager } from './PipelineManager';
 import type { PipelineResult } from '../../pipeline/types';
 import type { TransformerId } from '../../pipeline/transformers';
-import type {
-  GedcomDataWithMetadata,
-  LLMReadyData,
-} from '../../../../shared/types';
 import type { VisualParameterValues } from '../../pipeline/visual-parameters';
 import { PipelineProvider } from '../../contexts/PipelineContext';
 
@@ -18,17 +14,11 @@ const PANEL_WIDTH_CONSTANTS = {
   DRAG_HANDLE_WIDTH: 8, // Width of the drag handle in pixels
 } as const;
 
-interface DualGedcomData {
-  full: GedcomDataWithMetadata;
-  llm: LLMReadyData;
-}
-
 interface PipelinePanelProps {
   isOpen: boolean;
   onClose: () => void;
   pipelineResult: PipelineResult | null;
   activeTransformerIds: TransformerId[];
-  dualData?: DualGedcomData | null;
   primaryIndividualId?: string;
   onPrimaryIndividualChange?: (individualId: string | undefined) => void;
   onTransformerSelect?: (transformerId: TransformerId) => void;
@@ -59,7 +49,6 @@ export function PipelinePanel({
   onClose,
   pipelineResult,
   activeTransformerIds,
-  dualData,
   primaryIndividualId,
   onPrimaryIndividualChange,
   onTransformerSelect,
@@ -212,7 +201,6 @@ export function PipelinePanel({
                 <PipelineManager
                   pipelineResult={pipelineResult}
                   activeTransformerIds={activeTransformerIds}
-                  dualData={dualData}
                   primaryIndividualId={primaryIndividualId}
                   onPrimaryIndividualChange={onPrimaryIndividualChange}
                   onTransformerSelect={onTransformerSelect}
