@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAppDataStore } from './stores/app-data.store';
 import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
@@ -6,7 +7,6 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { GedcomSelector } from './components/GedcomSelector';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import { validateFlexibleGedcomData } from '../../shared/types';
-import type { GedcomDataWithMetadata, LLMReadyData } from '../../shared/types';
 import type { PipelineResult } from './pipeline/pipeline';
 import {
   runPipeline,
@@ -21,19 +21,6 @@ import type { VisualParameterValues } from './pipeline/visual-parameters';
 import { getTransformerParameterKey } from './utils/pipeline-index';
 import { useGedcomDataWithLLM } from './hooks/useGedcomDataWithLLM';
 import './App.css';
-
-// Type for the complete dual-data structure
-interface DualGedcomData {
-  full: GedcomDataWithMetadata;
-  llm: LLMReadyData;
-}
-
-// Discriminated union for app data loading state
-type AppDataState =
-  | { status: 'idle'; data: null; error: null }
-  | { status: 'loading'; data: null; error: null }
-  | { status: 'success'; data: DualGedcomData; error: null }
-  | { status: 'error'; data: null; error: string };
 
 // Type for manifest structure
 interface GedcomManifest {
@@ -52,12 +39,26 @@ interface GedcomManifest {
 }
 
 function App(): React.ReactElement {
-  // Use discriminated union for data state
-  const [dataState, setDataState] = useState<AppDataState>({
-    status: 'idle',
-    data: null,
-    error: null,
+  // Use XState Store for data state
+  const [
+    {
+      isAppDataLoading,
+      isAppDataSuccess,
+      isAppDataError,
+      data: appData,
+      ...appDataState
+    },
+    appDataStore,
+  ] = useAppDataStore((state) => {
+    return {
+      // appData: state.context.data,
+      ...state.context,
+      isAppDataLoading: state.context.status === 'loading',
+      isAppDataSuccess: state.context.status === 'success',
+      isAppDataError: state.context.status === 'error',
+    };
   });
+
   const [currentView, setCurrentView] = useState<'file-select' | 'artwork'>(
     'file-select',
   );
@@ -106,32 +107,24 @@ function App(): React.ReactElement {
   useGedcomDataWithLLM({
     baseFileName: currentDataset,
     onDataLoaded: (data) => {
-      setDataState({
-        status: 'success',
-        data,
-        error: null,
-      });
+      appDataStore.send({ type: 'loadSuccess', data });
     },
     onError: (error) => {
-      setDataState({
-        status: 'error',
-        data: null,
-        error,
-      });
+      appDataStore.send({ type: 'loadError', error });
     },
   });
 
   // Development: Auto-select Rafi (I12406240) when data loads
   useEffect(() => {
-    if (dataState.status === 'success' && !primaryIndividualId) {
+    if (isAppDataSuccess && !primaryIndividualId && appData) {
       const targetId = 'I12406240';
 
-      if (targetId in dataState.data.full.individuals) {
+      if (targetId in appData.full.individuals) {
         console.log('🎯 Auto-selecting Raphael Ophir Maes:', targetId);
         setPrimaryIndividualId(targetId);
       }
     }
-  }, [dataState, primaryIndividualId]);
+  }, [isAppDataSuccess, appData, primaryIndividualId]);
 
   // Load manifest to get available datasets
   useEffect(() => {
@@ -146,7 +139,7 @@ function App(): React.ReactElement {
           // Auto-load first dataset if none selected
           if (
             currentView === 'file-select' &&
-            dataState.status !== 'success' &&
+            !isAppDataSuccess &&
             !currentDataset &&
             datasetIds.length > 0
           ) {
@@ -163,7 +156,7 @@ function App(): React.ReactElement {
     };
 
     void loadManifest();
-  }, [currentView, dataState, currentDataset]);
+  }, [currentView, isAppDataSuccess, currentDataset]);
 
   // Handle keyboard shortcut for pipeline modal
   useEventListener('keydown', (event) => {
@@ -180,11 +173,7 @@ function App(): React.ReactElement {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setDataState({
-      status: 'loading',
-      data: null,
-      error: null,
-    });
+    appDataStore.send({ type: 'startLoading' });
     try {
       const text = await file.text();
       const data = JSON.parse(text) as unknown;
@@ -202,20 +191,15 @@ function App(): React.ReactElement {
           metadata: validatedData.metadata,
         },
       };
-      setDataState({
-        status: 'success',
-        data: newDualData,
-        error: null,
-      });
+      appDataStore.send({ type: 'loadSuccess', data: newDualData });
       setCurrentView('artwork');
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
       // Clear primary individual so the useEffect can auto-select
       setPrimaryIndividualId(undefined);
     } catch (err) {
-      setDataState({
-        status: 'error',
-        data: null,
+      appDataStore.send({
+        type: 'loadError',
         error: err instanceof Error ? err.message : 'Failed to load file',
       });
     }
@@ -225,11 +209,7 @@ function App(): React.ReactElement {
     setCurrentDataset(datasetId);
     setCurrentView('artwork');
     // Set loading state when switching datasets
-    setDataState({
-      status: 'loading',
-      data: null,
-      error: null,
-    });
+    appDataStore.send({ type: 'startLoading' });
     setPipelineResult(null);
     // Clear primary individual when switching datasets so auto-select can work
     setPrimaryIndividualId(undefined);
@@ -271,12 +251,17 @@ function App(): React.ReactElement {
   };
 
   const handleVisualize = async () => {
-    if (dataState.status !== 'success') {
+    if (!isAppDataSuccess) {
       console.error('Cannot visualize: data not loaded');
       return;
     }
 
-    const dualData = dataState.data;
+    // const dualData = appData.full;
+
+    if (!appData) {
+      console.error('Cannot visualize: data is null');
+      return;
+    }
 
     if (!primaryIndividualId) {
       console.error('Please select a primary individual before generating art');
@@ -295,8 +280,8 @@ function App(): React.ReactElement {
       });
 
       const result = await runPipeline({
-        fullData: dualData.full,
-        llmData: dualData.llm,
+        fullData: appData.full,
+        llmData: appData.llm,
         config: pipelineConfig,
         onProgress: (current, total, transformerName) => {
           setPipelineProgress({ current, total, transformerName });
@@ -391,14 +376,14 @@ function App(): React.ReactElement {
               </div>
             )}
           </div>
-          {currentView === 'artwork' && dataState.status === 'success' ? (
+          {currentView === 'artwork' && isAppDataSuccess && appData ? (
             <>
               <FramedArtwork
                 title="Family Tree Visualization"
                 subtitle="Generative visualization of family connections and generations"
                 width={minWidth}
                 height={minHeight}
-                gedcomData={dataState.data.full}
+                gedcomData={appData.full}
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onOpenPipelineClick={() => {
@@ -424,9 +409,9 @@ function App(): React.ReactElement {
                 <h2 className="text-2xl font-semibold mb-6 text-center">
                   Load Family Tree Data
                 </h2>
-                {dataState.status === 'error' && (
+                {isAppDataError && (
                   <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {dataState.error}
+                    {appDataState.error}
                   </div>
                 )}
                 <div className="space-y-6">
@@ -463,7 +448,7 @@ function App(): React.ReactElement {
                         onChange={(event) => {
                           void handleFileSelect(event);
                         }}
-                        disabled={dataState.status === 'loading'}
+                        disabled={isAppDataLoading}
                       />
                     </div>
                     <p className="text-sm text-gray-500">
@@ -478,11 +463,11 @@ function App(): React.ReactElement {
                     <GedcomSelector
                       onSelect={handleLoadDataset}
                       currentDataset={currentDataset}
-                      disabled={dataState.status === 'loading'}
+                      disabled={isAppDataLoading}
                     />
                   </div>
                   {/* Loading Indicator */}
-                  {dataState.status === 'loading' && (
+                  {isAppDataLoading && (
                     <div className="text-center">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                       <p className="mt-2 text-gray-600">Processing file...</p>
@@ -504,7 +489,7 @@ function App(): React.ReactElement {
           }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={dataState.status === 'success' ? dataState.data : null}
+          dualData={isAppDataSuccess ? appData : null}
           primaryIndividualId={primaryIndividualId}
           onPrimaryIndividualChange={setPrimaryIndividualId}
           onTransformerSelect={handleTransformerSelect}
@@ -516,7 +501,7 @@ function App(): React.ReactElement {
             void handleVisualize();
           }}
           isVisualizing={isVisualizing}
-          hasData={dataState.status === 'success'}
+          hasData={isAppDataSuccess}
           lastRunParameters={lastRunParameters}
         />
       </ErrorBoundary>
