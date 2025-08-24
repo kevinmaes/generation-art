@@ -1,5 +1,8 @@
 import { useContext } from 'react';
-import { FamilyDataContext, type FamilyDataContextValue } from './familyDataContextDefinition';
+import {
+  FamilyDataContext,
+  type FamilyDataContextValue,
+} from './familyDataContextDefinition';
 
 export function useFamilyData(): FamilyDataContextValue {
   const context = useContext(FamilyDataContext);

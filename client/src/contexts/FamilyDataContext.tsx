@@ -1,7 +1,10 @@
 import React, { useMemo, type ReactNode } from 'react';
 import { useGedcomData } from '../hooks/useGedcomData';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import { FamilyDataContext, type FamilyDataContextValue } from './familyDataContextDefinition';
+import {
+  FamilyDataContext,
+  type FamilyDataContextValue,
+} from './familyDataContextDefinition';
 
 interface FamilyDataProviderProps {
   jsonFile: string;

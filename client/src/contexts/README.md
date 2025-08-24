@@ -14,7 +14,10 @@ The `FamilyDataContext` provides a centralized way to share family data across c
 ### Basic Usage
 
 ```tsx
-import { FamilyDataProvider, useFamilyData } from '../contexts/FamilyDataContext';
+import {
+  FamilyDataProvider,
+  useFamilyData,
+} from '../contexts/FamilyDataContext';
 
 // Wrap your components with the provider
 function App() {
@@ -28,11 +31,12 @@ function App() {
 // Use the hook in any child component
 function MyComponent() {
   const { status, data, error, refetch } = useFamilyData();
-  
+
   if (status === 'loading') return <div>Loading...</div>;
   if (status === 'error') return <div>Error: {error}</div>;
-  if (status === 'success') return <div>Data loaded: {data.individuals.length} individuals</div>;
-  
+  if (status === 'success')
+    return <div>Data loaded: {data.individuals.length} individuals</div>;
+
   return <div>No data</div>;
 }
 ```
@@ -46,7 +50,7 @@ import { createKeyedFamilyDataProvider } from '../contexts/FamilyDataContext';
 
 function App() {
   const [jsonFile, setJsonFile] = useState('/data/family1.json');
-  
+
   return createKeyedFamilyDataProvider({
     jsonFile,
     children: <MyComponents />,
@@ -59,6 +63,7 @@ function App() {
 ### Migration from useGedcomData
 
 **Before (with duplicate fetching):**
+
 ```tsx
 // FramedArtwork.tsx
 function FramedArtwork({ jsonFile }) {
@@ -66,7 +71,7 @@ function FramedArtwork({ jsonFile }) {
   // ...
 }
 
-// ArtGenerator.tsx  
+// ArtGenerator.tsx
 function ArtGenerator({ jsonFile }) {
   const { data } = useGedcomData({ jsonFile }); // Duplicate request!
   // ...
@@ -74,6 +79,7 @@ function ArtGenerator({ jsonFile }) {
 ```
 
 **After (with context):**
+
 ```tsx
 // App.tsx
 function App() {

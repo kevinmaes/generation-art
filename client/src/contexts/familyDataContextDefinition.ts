@@ -2,7 +2,7 @@ import { createContext } from 'react';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 
 // Status discriminated union as mentioned in the issue requirements
-type FamilyDataStatus = 
+type FamilyDataStatus =
   | { type: 'idle'; data: null; error: null }
   | { type: 'loading'; data: null; error: null }
   | { type: 'success'; data: GedcomDataWithMetadata; error: null }
@@ -15,6 +15,6 @@ export interface FamilyDataContextValue {
   refetch: () => void;
 }
 
-export const FamilyDataContext = createContext<FamilyDataContextValue | undefined>(
-  undefined,
-);
+export const FamilyDataContext = createContext<
+  FamilyDataContextValue | undefined
+>(undefined);
