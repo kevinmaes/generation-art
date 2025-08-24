@@ -49,6 +49,7 @@
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.15.29",
     "@types/p5": "^1.7.6",
+    "@xstate/store": "^3.9.2",
     "ai": "^5.0.0",
     "gedcom-ts": "^1.1.1",
     "leva": "^0.10.0",
