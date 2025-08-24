@@ -22,7 +22,6 @@ import {
 } from './pipeline/transformers';
 import type { VisualParameterValues } from './pipeline/visual-parameters';
 import { getTransformerParameterKey } from './utils/pipeline-index';
-import { useGedcomDataWithLLM } from './hooks/useGedcomDataWithLLM';
 import './App.css';
 
 // Type for manifest structure
@@ -43,7 +42,12 @@ interface GedcomManifest {
 
 function App(): React.ReactElement {
   // Use family tree store for data state
-  const [appDataState] = useFamilyTreeStore((state) => state.context);
+  const [appDataState] = useFamilyTreeStore();
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('🔄 Family tree state changed:', appDataState.status);
+  }, [appDataState.status]);
 
   // Derive boolean flags from the state
   const isAppDataLoading = appDataState.status === 'loading';
@@ -101,22 +105,62 @@ function App(): React.ReactElement {
   const minWidth = CANVAS_DIMENSIONS.WEB.WIDTH;
   const minHeight = CANVAS_DIMENSIONS.WEB.HEIGHT;
 
-  // Use the new hook for loading both full and LLM data
-  useGedcomDataWithLLM({
-    baseFileName: currentDataset,
-    onDataLoaded: (data) => {
-      familyTreeStore.send({
-        type: 'fetchSucceeded',
-        fullData: data.full,
-        llmData: data.llm,
-      });
-      // Switch to artwork view when data loads successfully
-      setCurrentView('artwork');
-    },
-    onError: (error) => {
-      familyTreeStore.send({ type: 'fetchFailed', error });
-    },
-  });
+  // Load GEDCOM data when dataset changes
+  useEffect(() => {
+    if (!currentDataset) return;
+
+    const loadData = async () => {
+      console.log('📊 Loading dataset:', currentDataset);
+      familyTreeStore.send({ type: 'fetchStarted' });
+
+      try {
+        // Load full data
+        const fullResponse = await fetch(
+          `/generated/parsed/${currentDataset}.json`,
+        );
+        if (!fullResponse.ok) {
+          throw new Error(`Failed to load full data: ${fullResponse.status}`);
+        }
+        const fullData = await fullResponse.json();
+
+        // Validate full data
+        const validationResult = validateFlexibleGedcomData(fullData);
+        if (!validationResult.isValid) {
+          throw new Error(
+            `Invalid GEDCOM data: ${validationResult.errors.join(', ')}`,
+          );
+        }
+
+        // Load LLM data
+        const llmResponse = await fetch(
+          `/generated/parsed/${currentDataset}-llm.json`,
+        );
+        if (!llmResponse.ok) {
+          throw new Error(`Failed to load LLM data: ${llmResponse.status}`);
+        }
+        const llmData = await llmResponse.json();
+
+        console.log('✅ Data loaded successfully');
+        familyTreeStore.send({
+          type: 'fetchSucceeded',
+          fullData: validationResult.data,
+          llmData,
+        });
+
+        // Switch to artwork view when data loads successfully
+        setCurrentView('artwork');
+        console.log('✅ Switched to artwork view');
+      } catch (error) {
+        console.error('❌ Error loading data:', error);
+        familyTreeStore.send({
+          type: 'fetchFailed',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    };
+
+    void loadData();
+  }, [currentDataset]);
 
   // Development: Auto-select Rafi (I12406240) when data loads
   useEffect(() => {

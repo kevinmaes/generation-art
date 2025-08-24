@@ -1,5 +1,5 @@
+import * as React from 'react';
 import { createStore } from '@xstate/store';
-import { createStoreHook } from '@xstate/store/react';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
@@ -69,5 +69,19 @@ const familyTreeStoreConfig = {
 // Create singleton store instance
 export const familyTreeStore = createStore(familyTreeStoreConfig);
 
-// Create hook for React components
-export const useFamilyTreeStore = createStoreHook(familyTreeStoreConfig);
+// Create hook that uses the singleton store instance
+export const useFamilyTreeStore = () => {
+  const [snapshot, setSnapshot] = React.useState(() =>
+    familyTreeStore.getSnapshot(),
+  );
+
+  React.useEffect(() => {
+    const subscription = familyTreeStore.subscribe(() => {
+      setSnapshot(familyTreeStore.getSnapshot());
+    });
+    return subscription.unsubscribe;
+  }, []);
+
+  // Return just the context (the actual state)
+  return [snapshot.context, familyTreeStore.send] as const;
+};

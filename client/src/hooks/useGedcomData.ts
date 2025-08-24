@@ -29,7 +29,7 @@ export function useGedcomData({
   onError,
 }: UseGedcomDataOptions): UseGedcomDataReturn {
   // Use family tree store for state management
-  const [state] = useFamilyTreeStore((state) => state.context);
+  const [state] = useFamilyTreeStore();
   const store = familyTreeStore;
 
   // Store callbacks in refs to avoid dependency issues

@@ -28,7 +28,7 @@ export function FamilyTreeProvider({
   children,
 }: FamilyTreeProviderProps): React.ReactElement {
   // Use the singleton store
-  const [state] = useFamilyTreeStore((state) => state.context);
+  const [state] = useFamilyTreeStore();
 
   // Create context value with convenience accessors
   const contextValue: FamilyTreeContextValue = {
