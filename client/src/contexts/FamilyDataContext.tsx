@@ -1,4 +1,10 @@
-import React, { useEffect, useCallback, useRef, useMemo, type ReactNode } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  type ReactNode,
+} from 'react';
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
@@ -23,7 +29,7 @@ export function FamilyDataProvider({
 }: FamilyDataProviderProps): React.ReactElement {
   // Use XState store directly
   const [state, store] = useGedcomDataStore((state) => state.context);
-  
+
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);
   const onErrorRef = useRef(onError);

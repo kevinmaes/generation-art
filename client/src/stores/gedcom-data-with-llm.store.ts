@@ -32,10 +32,10 @@ const storeConfig = {
         llmData: null,
         error: null,
       }) satisfies DualGedcomDataState,
-    
+
     fetchSucceeded: (
       _: DualGedcomDataState,
-      event: { fullData: GedcomDataWithMetadata; llmData: LLMReadyData }
+      event: { fullData: GedcomDataWithMetadata; llmData: LLMReadyData },
     ) =>
       ({
         status: 'success',
@@ -43,7 +43,7 @@ const storeConfig = {
         llmData: event.llmData,
         error: null,
       }) satisfies DualGedcomDataState,
-    
+
     fetchFailed: (_: DualGedcomDataState, event: { error: string }) =>
       ({
         status: 'error',
@@ -51,7 +51,7 @@ const storeConfig = {
         llmData: null,
         error: event.error,
       }) satisfies DualGedcomDataState,
-    
+
     refetch: (context: DualGedcomDataState) => {
       // Only allow refetch from error or success states
       if (context.status === 'error' || context.status === 'success') {
