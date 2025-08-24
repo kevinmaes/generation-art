@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
 import type { PipelineResult } from '../pipeline/pipeline';
-import { useFamilyTree } from '../contexts/FamilyTreeContext';
+import { useFamilyTreeData } from '../contexts/FamilyTreeContext';
 
 interface FramedArtworkProps {
   title: string;
@@ -38,7 +38,7 @@ export function FramedArtwork({
   pipelineProgress = null,
   primaryIndividualId,
 }: FramedArtworkProps): React.ReactElement {
-  const { fullData: gedcomData } = useFamilyTree();
+  const familyTreeData = useFamilyTreeData();
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);
@@ -81,7 +81,7 @@ export function FramedArtwork({
                 <div class="print-title">${title}</div>
                 ${subtitle ? `<div class="print-subtitle">${subtitle}</div>` : ''}
                 <div class="print-info">
-                  Generated from ${String(Object.keys(gedcomData?.individuals ?? {}).length)} individuals
+                  Generated from ${String(Object.keys(familyTreeData?.full.individuals ?? {}).length)} individuals
                 </div>
               </div>
               <canvas id="printCanvas"></canvas>
@@ -103,7 +103,7 @@ export function FramedArtwork({
         printWindow.print();
       }
     }
-  }, [title, subtitle, gedcomData]);
+  }, [title, subtitle, familyTreeData]);
 
   return (
     <div className={`bg-white rounded-lg shadow-lg ${className}`}>
@@ -158,7 +158,7 @@ export function FramedArtwork({
             isVisualizing={isVisualizing}
             pipelineProgress={pipelineProgress}
             primaryIndividualId={primaryIndividualId}
-            gedcomData={gedcomData}
+            gedcomData={familyTreeData?.full}
           />
         </div>
       </div>

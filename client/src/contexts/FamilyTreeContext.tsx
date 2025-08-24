@@ -49,21 +49,16 @@ export function FamilyTreeProvider({
   );
 }
 
-// Hook to use family tree data in components
-export function useFamilyTree(): FamilyTreeContextValue {
-  const context = useContext(FamilyTreeContext);
-  if (!context) {
-    throw new Error('useFamilyTree must be used within FamilyTreeProvider');
-  }
-  return context;
-}
-
 // Hook to get family tree data (both full and LLM)
 export function useFamilyTreeData(): {
   full: GedcomDataWithMetadata;
   llm: LLMReadyData;
 } | null {
-  const { isSuccess, fullData, llmData } = useFamilyTree();
+  const context = useContext(FamilyTreeContext);
+  if (!context) {
+    throw new Error('useFamilyTree must be used within FamilyTreeProvider');
+  }
+  const { isSuccess, fullData, llmData } = context;
   return isSuccess && fullData && llmData
     ? { full: fullData, llm: llmData }
     : null;
