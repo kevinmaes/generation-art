@@ -483,7 +483,7 @@ async function buildGedcomFiles(
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   const config: BuildConfig = {
-    inputDirs: ['examples'],
+    inputDirs: ['examples', 'gedcom'],
     outputDir: 'client/public/generated/parsed',
     mediaDir: 'client/public/generated/media',
   };
