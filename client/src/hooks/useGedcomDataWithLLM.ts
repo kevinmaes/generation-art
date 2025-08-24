@@ -1,10 +1,11 @@
-import { useReducer, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
+import { useGedcomDataWithLLMStore } from '../stores/gedcom-data-with-llm.store';
 
 interface UseGedcomDataWithLLMOptions {
   baseFileName: string; // e.g., "kennedy" (without extension)
@@ -23,91 +24,14 @@ interface UseGedcomDataWithLLMReturn {
   refetch: () => void;
 }
 
-// Discriminated union state type for dual data loading
-type DualGedcomDataState =
-  | { status: 'idle'; fullData: null; llmData: null; error: null }
-  | { status: 'loading'; fullData: null; llmData: null; error: null }
-  | {
-      status: 'success';
-      fullData: GedcomDataWithMetadata;
-      llmData: LLMReadyData;
-      error: null;
-    }
-  | { status: 'error'; fullData: null; llmData: null; error: string };
-
-// Action types for the reducer
-type DualGedcomDataAction =
-  | { type: 'fetch_started' }
-  | {
-      type: 'fetch_succeeded';
-      payload: {
-        fullData: GedcomDataWithMetadata;
-        llmData: LLMReadyData;
-      };
-    }
-  | { type: 'fetch_failed'; payload: string }
-  | { type: 'refetch' };
-
-// Reducer function with exhaustive event handling
-function dualGedcomDataReducer(
-  state: DualGedcomDataState,
-  action: DualGedcomDataAction,
-): DualGedcomDataState {
-  switch (action.type) {
-    case 'fetch_started':
-      return { status: 'loading', fullData: null, llmData: null, error: null };
-
-    case 'fetch_succeeded':
-      return {
-        status: 'success',
-        fullData: action.payload.fullData,
-        llmData: action.payload.llmData,
-        error: null,
-      };
-
-    case 'fetch_failed':
-      return {
-        status: 'error',
-        fullData: null,
-        llmData: null,
-        error: action.payload,
-      };
-
-    case 'refetch': {
-      // Only allow refetch from error or success states
-      if (state.status === 'error' || state.status === 'success') {
-        return {
-          status: 'loading',
-          fullData: null,
-          llmData: null,
-          error: null,
-        };
-      }
-      return state;
-    }
-
-    default: {
-      // TypeScript exhaustiveness check
-      const _exhaustiveCheck: never = action;
-      // This variable is used for compile-time exhaustiveness checking
-      void _exhaustiveCheck;
-      return state;
-    }
-  }
-}
 
 export function useGedcomDataWithLLM({
   baseFileName,
   onDataLoaded,
   onError,
 }: UseGedcomDataWithLLMOptions): UseGedcomDataWithLLMReturn {
-  // Initialize reducer with idle state
-  const [state, dispatch] = useReducer(dualGedcomDataReducer, {
-    status: 'idle',
-    fullData: null,
-    llmData: null,
-    error: null,
-  });
+  // Use XState store for state management
+  const [state, store] = useGedcomDataWithLLMStore((state) => state.context);
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);
@@ -125,7 +49,7 @@ export function useGedcomDataWithLLM({
   const loadData = useCallback(async () => {
     if (!baseFileName) return;
 
-    dispatch({ type: 'fetch_started' });
+    store.send({ type: 'fetchStarted' });
 
     try {
       // Load full data
@@ -157,12 +81,10 @@ export function useGedcomDataWithLLM({
       // Validate LLM data (should match LLMReadyData structure)
       const validatedLlmData = llmJsonData as LLMReadyData;
 
-      dispatch({
-        type: 'fetch_succeeded',
-        payload: {
-          fullData: fullDataWithGraph,
-          llmData: validatedLlmData,
-        },
+      store.send({
+        type: 'fetchSucceeded',
+        fullData: fullDataWithGraph,
+        llmData: validatedLlmData,
       });
 
       onDataLoadedRef.current?.({
@@ -182,19 +104,19 @@ export function useGedcomDataWithLLM({
         errorMessage = 'An unexpected error occurred while loading data';
       }
 
-      dispatch({ type: 'fetch_failed', payload: errorMessage });
+      store.send({ type: 'fetchFailed', error: errorMessage });
       onErrorRef.current?.(errorMessage);
     }
-  }, [baseFileName]);
+  }, [baseFileName, store]);
 
   useEffect(() => {
     void loadData();
   }, [loadData]);
 
   const refetch = useCallback(() => {
-    dispatch({ type: 'refetch' });
+    store.send({ type: 'refetch' });
     void loadData();
-  }, [loadData]);
+  }, [loadData, store]);
 
   // Return values compatible with existing API
   return {
