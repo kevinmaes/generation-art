@@ -15,7 +15,10 @@ import {
 } from '../../pipeline/transformers';
 import { GripVertical } from 'lucide-react';
 import { PrimaryIndividualSelector } from '../PrimaryIndividualSelector';
-import { useDualFamilyTreeData, useFamilyTreeData } from '../../contexts/FamilyTreeContext';
+import {
+  useDualFamilyTreeData,
+  useFamilyTreeData,
+} from '../../contexts/FamilyTreeContext';
 import type { VisualParameterValues } from '../../pipeline/visual-parameters';
 import { DraggableTransformerItem } from './DraggableTransformerItem';
 import { SortableTransformerItem } from './SortableTransformerItem';
@@ -80,7 +83,6 @@ const ACCORDION_PANEL_CONSTANTS = {
   },
   GAP: 20, // Gap between columns in 2-column layout
 } as const;
-
 
 interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;

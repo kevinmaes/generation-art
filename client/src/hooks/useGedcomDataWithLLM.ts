@@ -5,7 +5,10 @@ import type {
   LLMReadyData,
 } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
-import { useFamilyTreeStore, familyTreeStore } from '../stores/family-tree.store';
+import {
+  useFamilyTreeStore,
+  familyTreeStore,
+} from '../stores/family-tree.store';
 
 interface UseGedcomDataWithLLMOptions {
   baseFileName: string; // e.g., "kennedy" (without extension)

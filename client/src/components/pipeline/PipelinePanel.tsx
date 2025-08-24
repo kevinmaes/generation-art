@@ -14,7 +14,6 @@ const PANEL_WIDTH_CONSTANTS = {
   DRAG_HANDLE_WIDTH: 8, // Width of the drag handle in pixels
 } as const;
 
-
 interface PipelinePanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -202,7 +201,7 @@ export function PipelinePanel({
                 <PipelineManager
                   pipelineResult={pipelineResult}
                   activeTransformerIds={activeTransformerIds}
-                    primaryIndividualId={primaryIndividualId}
+                  primaryIndividualId={primaryIndividualId}
                   onPrimaryIndividualChange={onPrimaryIndividualChange}
                   onTransformerSelect={onTransformerSelect}
                   onAddTransformer={onAddTransformer}
