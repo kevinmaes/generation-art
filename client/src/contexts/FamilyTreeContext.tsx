@@ -1,10 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, type ReactNode } from 'react';
-import {
-  familyTreeStore,
-  useFamilyTreeStore,
-  type FamilyTreeState,
-} from '../stores/family-tree.store';
+import { useFamilyTreeStore } from '../stores/family-tree.store';
 import type { GedcomDataWithMetadata, LLMReadyData } from '../../../shared/types';
 
 // Context value with convenience accessors for the state
@@ -27,7 +23,7 @@ interface FamilyTreeProviderProps {
 
 export function FamilyTreeProvider({ children }: FamilyTreeProviderProps): React.ReactElement {
   // Use the singleton store
-  const [state] = useFamilyTreeStore((state) => state.context) as [FamilyTreeState, typeof familyTreeStore];
+  const [state] = useFamilyTreeStore((state) => state.context);
 
   // Create context value with convenience accessors
   const contextValue: FamilyTreeContextValue = {
