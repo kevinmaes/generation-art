@@ -351,27 +351,27 @@ import { useActorRef, useSelector } from '@xstate/react';
 import { AppMachineContext } from './app-machine-context';
 
 // Selectors for derived state (memoized for performance)
-const selectIsLoading = (state: AppMachineState) => 
+const selectIsLoading = (state: AppMachineState) =>
   state.matches({ Navigation: { Artwork: { 'Data Loading': 'Loading' } } });
 
-const selectHasData = (state: AppMachineState) => 
+const selectHasData = (state: AppMachineState) =>
   state.context.fullData !== null;
 
-const selectHasArtwork = (state: AppMachineState) => 
+const selectHasArtwork = (state: AppMachineState) =>
   state.context.pipelineResult !== null;
 
-const selectCurrentView = (state: AppMachineState) => 
+const selectCurrentView = (state: AppMachineState) =>
   state.value.navigation;
 
-const selectFamilyTreeData = (state: AppMachineState) => 
+const selectFamilyTreeData = (state: AppMachineState) =>
   state.context.fullData && state.context.llmData
     ? { full: state.context.fullData, llm: state.context.llmData }
     : null;
 
-const selectPipelineResult = (state: AppMachineState) => 
+const selectPipelineResult = (state: AppMachineState) =>
   state.context.pipelineResult;
 
-const selectError = (state: AppMachineState) => 
+const selectError = (state: AppMachineState) =>
   state.context.lastError;
 
 const selectAvailableDatasets = (state: AppMachineState) =>
@@ -383,30 +383,30 @@ const selectCurrentDataset = (state: AppMachineState) =>
 // Component using selectors
 export function ArtworkView() {
   const actorRef = AppMachineContext.useActorRef();
-  
+
   // Subscribe only to specific state slices
   const isLoading = AppMachineContext.useSelector(selectIsLoading);
   const hasData = AppMachineContext.useSelector(selectHasData);
   const familyTreeData = AppMachineContext.useSelector(selectFamilyTreeData);
   const pipelineResult = AppMachineContext.useSelector(selectPipelineResult);
-  
+
   // Send events via actorRef
   const handleGenerateArtwork = () => {
     actorRef.send({ type: 'Generate artwork' });
   };
-  
+
   const handleExport = () => {
     actorRef.send({ type: 'Export artwork' });
   };
-  
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
-  
+
   if (!hasData) {
     return <EmptyState />;
   }
-  
+
   return (
     <div>
       <Canvas pipelineResult={pipelineResult} />
@@ -419,18 +419,18 @@ export function ArtworkView() {
 // Component with multiple selectors
 export function DatasetSelector() {
   const actorRef = AppMachineContext.useActorRef();
-  
+
   const availableDatasets = AppMachineContext.useSelector(selectAvailableDatasets);
   const currentDataset = AppMachineContext.useSelector(selectCurrentDataset);
   const isLoading = AppMachineContext.useSelector(selectIsLoading);
-  
+
   const handleSelectDataset = (datasetId: string) => {
     actorRef.send({ type: 'Select dataset', datasetId });
   };
-  
+
   return (
-    <select 
-      value={currentDataset ?? ''} 
+    <select
+      value={currentDataset ?? ''}
       onChange={(e) => handleSelectDataset(e.target.value)}
       disabled={isLoading}
     >
@@ -450,55 +450,56 @@ export function DatasetSelector() {
 // Custom hook for pipeline state
 export function usePipelineState() {
   const actorRef = AppMachineContext.useActorRef();
-  
+
   const transformers = AppMachineContext.useSelector(
-    state => state.context.activeTransformerIds
+    (state) => state.context.activeTransformerIds,
   );
-  
+
   const parameters = AppMachineContext.useSelector(
-    state => state.context.transformerParameters
+    (state) => state.context.transformerParameters,
   );
-  
-  const isGenerating = AppMachineContext.useSelector(
-    state => state.matches('Operations.Generating')
+
+  const isGenerating = AppMachineContext.useSelector((state) =>
+    state.matches('Operations.Generating'),
   );
-  
+
   const progress = AppMachineContext.useSelector(
-    state => state.context.generationProgress
+    (state) => state.context.generationProgress,
   );
-  
+
   return {
     transformers,
     parameters,
     isGenerating,
     progress,
-    addTransformer: (id: TransformerId) => 
+    addTransformer: (id: TransformerId) =>
       actorRef.send({ type: 'Add transformer', transformerId: id }),
     removeTransformer: (id: string) =>
       actorRef.send({ type: 'Remove transformer', transformerId: id }),
     updateParameters: (id: string, params: TransformerParameters) =>
-      actorRef.send({ type: 'Update parameters', transformerId: id, parameters: params }),
+      actorRef.send({
+        type: 'Update parameters',
+        transformerId: id,
+        parameters: params,
+      }),
   };
 }
 
 // Custom hook for navigation state
 export function useNavigationState() {
   const actorRef = AppMachineContext.useActorRef();
-  
+
   const currentView = AppMachineContext.useSelector(selectCurrentView);
-  const canGoBack = AppMachineContext.useSelector(
-    state => state.can({ type: 'Back to file select' })
+  const canGoBack = AppMachineContext.useSelector((state) =>
+    state.can({ type: 'Back to file select' }),
   );
-  
+
   return {
     currentView,
     canGoBack,
-    navigateToFileSelect: () => 
-      actorRef.send({ type: 'Back to file select' }),
-    openPipeline: () => 
-      actorRef.send({ type: 'Open pipeline' }),
-    closePipeline: () => 
-      actorRef.send({ type: 'Close pipeline' }),
+    navigateToFileSelect: () => actorRef.send({ type: 'Back to file select' }),
+    openPipeline: () => actorRef.send({ type: 'Open pipeline' }),
+    closePipeline: () => actorRef.send({ type: 'Close pipeline' }),
   };
 }
 ```
@@ -509,7 +510,7 @@ export function useNavigationState() {
 // Composite selectors with createSelector for derived state
 import { createSelector } from 'reselect';
 
-const selectIndividuals = (state: AppMachineState) => 
+const selectIndividuals = (state: AppMachineState) =>
   state.context.fullData?.individuals ?? {};
 
 const selectPrimaryIndividualId = (state: AppMachineState) =>
@@ -518,7 +519,7 @@ const selectPrimaryIndividualId = (state: AppMachineState) =>
 // Memoized selector for primary individual
 const selectPrimaryIndividual = createSelector(
   [selectIndividuals, selectPrimaryIndividualId],
-  (individuals, primaryId) => 
+  (individuals, primaryId) =>
     primaryId ? individuals[primaryId] : null
 );
 
@@ -536,7 +537,7 @@ const selectStatistics = createSelector(
 export function StatisticsPanel() {
   const statistics = AppMachineContext.useSelector(selectStatistics);
   const primaryIndividual = AppMachineContext.useSelector(selectPrimaryIndividual);
-  
+
   return (
     <div>
       <h3>Statistics</h3>
@@ -568,16 +569,16 @@ describe('ArtworkView', () => {
         // Mock actors
       }
     });
-    
+
     render(
       <AppMachineContext.Provider machine={mockMachine}>
         <ArtworkView />
       </AppMachineContext.Provider>
     );
-    
+
     const generateButton = screen.getByText('Generate');
     await userEvent.click(generateButton);
-    
+
     // Assert state changes
     expect(screen.getByText('Generating...')).toBeInTheDocument();
   });
@@ -653,11 +654,13 @@ See [xstate-pipeline-architecture.md](./xstate-pipeline-architecture.md) for det
 ### Key Pipeline Features
 
 1. **Execution Modes**
+
    - Full: Run entire pipeline from start to finish
    - Partial: Run specific segments (e.g., transformers 2-4)
    - Incremental: Continue from last successful transformer
 
 2. **Configuration Management**
+
    - Add/remove/reorder transformers
    - Update parameters with validation
    - Live preview with debouncing

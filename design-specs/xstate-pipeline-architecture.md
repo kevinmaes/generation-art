@@ -28,7 +28,7 @@ const pipelineMachine = setup({
   guards: {
     'has valid configuration': ({ context }) => context.transformers.length > 0,
     'can execute segment': ({ context, event }) => /* validation logic */,
-    'has more transformers': ({ context }) => 
+    'has more transformers': ({ context }) =>
       context.executionIndex < context.transformers.length - 1,
   }
 }).createMachine({
@@ -39,7 +39,7 @@ const pipelineMachine = setup({
     transformers: input.transformers ?? [],
     parameters: input.parameters ?? {},
     primaryIndividualId: input.primaryIndividualId,
-    
+
     // Execution
     executionMode: 'full', // 'full' | 'partial' | 'incremental'
     executionIndex: 0,
@@ -47,7 +47,7 @@ const pipelineMachine = setup({
     results: [],
     intermediateResults: new Map(),
     currentResult: null,
-    
+
     // Status
     lastError: null,
     isDirty: false,
@@ -179,7 +179,7 @@ const pipelineMachine = setup({
                 input: ({ context }) => ({
                   transformer: context.transformers[context.executionIndex],
                   parameters: context.parameters[context.executionIndex],
-                  previousResult: context.executionIndex > 0 
+                  previousResult: context.executionIndex > 0
                     ? context.results[context.executionIndex - 1]
                     : null,
                   primaryIndividualId: context.primaryIndividualId
@@ -315,7 +315,7 @@ interface PipelineContext {
   transformers: TransformerConfig[];
   parameters: Record<string, TransformerParameters>;
   primaryIndividualId: string | null;
-  
+
   // Execution state
   executionMode: 'full' | 'partial' | 'incremental';
   executionIndex: number;
@@ -323,11 +323,11 @@ interface PipelineContext {
   results: PipelineResult[];
   intermediateResults: Map<string, IntermediateResult>;
   currentResult: PipelineResult | null;
-  
+
   // Caching
   cachedResults: Map<string, CachedResult>;
   cacheKeys: Map<string, string>; // For invalidation
-  
+
   // Status
   lastError: Error | null;
   isDirty: boolean; // Configuration changed since last execution
@@ -358,10 +358,14 @@ type PipelineEvents =
   | { type: 'Add transformer'; transformer: TransformerConfig; index?: number }
   | { type: 'Remove transformer'; transformerId: string }
   | { type: 'Reorder transformers'; newOrder: string[] }
-  | { type: 'Update parameters'; transformerId: string; parameters: TransformerParameters }
+  | {
+      type: 'Update parameters';
+      transformerId: string;
+      parameters: TransformerParameters;
+    }
   | { type: 'Set primary individual'; individualId: string }
   | { type: 'Toggle transformer'; transformerId: string }
-  
+
   // Execution events
   | { type: 'Execute full' }
   | { type: 'Execute partial'; startIndex?: number; endIndex: number }
@@ -372,10 +376,10 @@ type PipelineEvents =
   | { type: 'Cancel execution' }
   | { type: 'Retry execution' }
   | { type: 'Retry from failed' }
-  
+
   // Progress events
   | { type: 'Update progress'; progress: number; message: string }
-  
+
   // Preview events
   | { type: 'Enable preview' }
   | { type: 'Disable preview' }
@@ -390,7 +394,7 @@ const appMachine = setup({
   actors: {
     pipelineMachine,
     // ... other actors
-  }
+  },
 }).createMachine({
   // ... main machine config
   states: {
@@ -405,8 +409,8 @@ const appMachine = setup({
               states: {
                 Inactive: {
                   on: {
-                    'Initialize pipeline': 'Active'
-                  }
+                    'Initialize pipeline': 'Active',
+                  },
                 },
                 Active: {
                   invoke: {
@@ -417,33 +421,33 @@ const appMachine = setup({
                       parameters: context.transformerParameters,
                       primaryIndividualId: context.primaryIndividualId,
                       fullData: context.fullData,
-                      llmData: context.llmData
+                      llmData: context.llmData,
                     }),
                     onDone: {
-                      actions: 'storePipelineResult'
-                    }
+                      actions: 'storePipelineResult',
+                    },
                   },
                   on: {
                     // Forward events to pipeline actor
                     'Pipeline.*': {
-                      actions: forwardTo('pipeline')
+                      actions: forwardTo('pipeline'),
                     },
                     // Handle pipeline results
                     'Pipeline completed': {
-                      actions: 'updateCanvasWithResult'
+                      actions: 'updateCanvasWithResult',
                     },
                     'Pipeline partial completed': {
-                      actions: 'updateCanvasWithPartialResult'
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+                      actions: 'updateCanvasWithPartialResult',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 });
 ```
 
@@ -453,10 +457,10 @@ const appMachine = setup({
 
 ```typescript
 // Execute only transformers 2-4
-send({ 
-  type: 'Execute partial', 
-  startIndex: 2, 
-  endIndex: 4 
+send({
+  type: 'Execute partial',
+  startIndex: 2,
+  endIndex: 4,
 });
 
 // The canvas will show results up to transformer 4
@@ -467,21 +471,21 @@ send({
 
 ```typescript
 // Run pipeline up to transformer 3
-send({ 
-  type: 'Execute partial', 
-  endIndex: 3 
+send({
+  type: 'Execute partial',
+  endIndex: 3,
 });
 
 // User tweaks transformer 4 parameters
-send({ 
-  type: 'Update parameters', 
+send({
+  type: 'Update parameters',
   transformerId: 'transformer-4',
-  parameters: newParams 
+  parameters: newParams,
 });
 
 // Continue from transformer 4
-send({ 
-  type: 'Continue execution' 
+send({
+  type: 'Continue execution',
 });
 ```
 
@@ -524,9 +528,11 @@ interface TransformerDependency {
 
 // Validate dependencies before execution
 const validateDependencies = (transformer: TransformerConfig) => {
-  return transformer.dependencies?.every(depId => 
-    context.results.some(r => r.transformerId === depId)
-  ) ?? true;
+  return (
+    transformer.dependencies?.every((depId) =>
+      context.results.some((r) => r.transformerId === depId),
+    ) ?? true
+  );
 };
 ```
 
@@ -540,14 +546,11 @@ import { useActorRef, useSelector } from '@xstate/react';
 import { AppMachineContext } from './app-machine-context';
 
 // Selectors for pipeline state
-const selectPipelineActor = (state: AppMachineState) => 
-  state.children.pipeline;
+const selectPipelineActor = (state: AppMachineState) => state.children.pipeline;
 
-const selectTransformers = (state: PipelineState) => 
-  state.context.transformers;
+const selectTransformers = (state: PipelineState) => state.context.transformers;
 
-const selectParameters = (state: PipelineState) => 
-  state.context.parameters;
+const selectParameters = (state: PipelineState) => state.context.parameters;
 
 const selectIsRunning = (state: PipelineState) =>
   state.matches('Execution.Running');
@@ -558,8 +561,7 @@ const selectIsPaused = (state: PipelineState) =>
 const selectIsConfigValid = (state: PipelineState) =>
   state.matches('Configuration.Valid');
 
-const selectResults = (state: PipelineState) =>
-  state.context.results;
+const selectResults = (state: PipelineState) => state.context.results;
 
 const selectCurrentResult = (state: PipelineState) =>
   state.context.currentResult;
@@ -568,7 +570,7 @@ const selectExecutionProgress = (state: PipelineState) => ({
   mode: state.context.executionMode,
   currentIndex: state.context.executionIndex,
   targetIndex: state.context.targetIndex,
-  totalTransformers: state.context.transformers.length
+  totalTransformers: state.context.transformers.length,
 });
 
 const selectIsPreviewEnabled = (state: PipelineState) =>
@@ -580,18 +582,18 @@ const selectPreviewResult = (state: PipelineState) =>
 // Custom hook using selectors
 export function usePipelineMachine() {
   const appActorRef = AppMachineContext.useActorRef();
-  
+
   // Get pipeline actor from app machine
   const pipelineActor = AppMachineContext.useSelector(selectPipelineActor);
-  
+
   if (!pipelineActor) {
     // Pipeline not initialized yet
     return {
       isInitialized: false,
-      initialize: () => appActorRef.send({ type: 'Initialize pipeline' })
+      initialize: () => appActorRef.send({ type: 'Initialize pipeline' }),
     };
   }
-  
+
   // Use selectors for fine-grained subscriptions
   const transformers = useSelector(pipelineActor, selectTransformers);
   const parameters = useSelector(pipelineActor, selectParameters);
@@ -603,58 +605,62 @@ export function usePipelineMachine() {
   const executionProgress = useSelector(pipelineActor, selectExecutionProgress);
   const isPreviewEnabled = useSelector(pipelineActor, selectIsPreviewEnabled);
   const previewResult = useSelector(pipelineActor, selectPreviewResult);
-  
+
   return {
     isInitialized: true,
-    
+
     // Configuration
     transformers,
     parameters,
     isConfigValid,
-    addTransformer: (transformer: TransformerConfig) => 
+    addTransformer: (transformer: TransformerConfig) =>
       pipelineActor.send({ type: 'Add transformer', transformer }),
     removeTransformer: (id: string) =>
       pipelineActor.send({ type: 'Remove transformer', transformerId: id }),
     updateParameters: (id: string, params: TransformerParameters) =>
-      pipelineActor.send({ type: 'Update parameters', transformerId: id, parameters: params }),
-    
+      pipelineActor.send({
+        type: 'Update parameters',
+        transformerId: id,
+        parameters: params,
+      }),
+
     // Execution
     execute: () => pipelineActor.send({ type: 'Execute full' }),
-    executePartial: (endIndex: number) => 
+    executePartial: (endIndex: number) =>
       pipelineActor.send({ type: 'Execute partial', endIndex }),
     executeIncremental: (targetIndex?: number) =>
       pipelineActor.send({ type: 'Execute incremental', targetIndex }),
     pause: () => pipelineActor.send({ type: 'Pause execution' }),
     resume: () => pipelineActor.send({ type: 'Resume execution' }),
     cancel: () => pipelineActor.send({ type: 'Cancel execution' }),
-    
+
     // State
     isRunning,
     isPaused,
     results,
     currentResult,
     executionProgress,
-    
+
     // Preview
     isPreviewEnabled,
     previewResult,
-    togglePreview: () => 
-      pipelineActor.send({ 
-        type: isPreviewEnabled ? 'Disable preview' : 'Enable preview' 
-      })
+    togglePreview: () =>
+      pipelineActor.send({
+        type: isPreviewEnabled ? 'Disable preview' : 'Enable preview',
+      }),
   };
 }
 
 // Granular hooks for specific pipeline concerns
 export function usePipelineExecution() {
   const pipelineActor = AppMachineContext.useSelector(selectPipelineActor);
-  
+
   if (!pipelineActor) return null;
-  
+
   const isRunning = useSelector(pipelineActor, selectIsRunning);
   const isPaused = useSelector(pipelineActor, selectIsPaused);
   const progress = useSelector(pipelineActor, selectExecutionProgress);
-  
+
   return {
     isRunning,
     isPaused,
@@ -662,28 +668,29 @@ export function usePipelineExecution() {
     canExecute: !isRunning,
     canPause: isRunning && !isPaused,
     canResume: isRunning && isPaused,
-    canCancel: isRunning
+    canCancel: isRunning,
   };
 }
 
 export function usePipelineResults() {
   const pipelineActor = AppMachineContext.useSelector(selectPipelineActor);
-  
+
   if (!pipelineActor) return null;
-  
+
   const results = useSelector(pipelineActor, selectResults);
   const currentResult = useSelector(pipelineActor, selectCurrentResult);
-  
+
   // Memoized selector for latest result
-  const latestResult = useSelector(pipelineActor, (state) => 
-    state.context.results[state.context.results.length - 1] ?? null
+  const latestResult = useSelector(
+    pipelineActor,
+    (state) => state.context.results[state.context.results.length - 1] ?? null,
   );
-  
+
   return {
     results,
     currentResult,
     latestResult,
-    hasResults: results.length > 0
+    hasResults: results.length > 0,
   };
 }
 ```
@@ -693,7 +700,7 @@ export function usePipelineResults() {
 ```typescript
 function PipelineControls() {
   const pipeline = usePipelineMachine();
-  
+
   return (
     <div>
       {/* Transformer list with drag-and-drop reordering */}
@@ -703,23 +710,23 @@ function PipelineControls() {
         onRemove={pipeline.removeTransformer}
         onToggle={pipeline.toggleTransformer}
       />
-      
+
       {/* Execution controls */}
       <ExecutionControls>
-        <button 
+        <button
           onClick={pipeline.execute}
           disabled={!pipeline.isConfigValid || pipeline.isRunning}
         >
           Run Full Pipeline
         </button>
-        
+
         <button
           onClick={() => pipeline.executePartial(3)}
           disabled={!pipeline.isConfigValid || pipeline.isRunning}
         >
           Run to Step 3
         </button>
-        
+
         {pipeline.isRunning && (
           <>
             <button onClick={pipeline.pause}>
@@ -729,7 +736,7 @@ function PipelineControls() {
           </>
         )}
       </ExecutionControls>
-      
+
       {/* Live preview toggle */}
       <PreviewToggle
         enabled={pipeline.isPreviewEnabled}
@@ -743,28 +750,33 @@ function PipelineControls() {
 ## Benefits of This Architecture
 
 ### 1. Separation of Concerns
+
 - Configuration management is separate from execution
 - Preview runs independently without affecting main execution
 - Caching is transparent to the UI
 
 ### 2. Flexible Execution Modes
+
 - Full pipeline execution
 - Partial execution to specific steps
 - Incremental continuation from previous results
 - Pause/resume capability
 
 ### 3. Performance Optimization
+
 - Results caching with smart invalidation
 - Debounced preview updates
 - Parallel state regions for independent operations
 
 ### 4. Developer Experience
+
 - Clear state boundaries
 - Type-safe events and context
 - Predictable state transitions
 - Easy testing of individual features
 
 ### 5. User Experience
+
 - Live preview of changes
 - Ability to run partial pipelines
 - Visual feedback on execution progress
@@ -780,33 +792,31 @@ describe('Pipeline Machine', () => {
         runTransformer: fromPromise(async ({ input }) => {
           // Mock transformer execution
           return { data: `result-${input.transformer.id}` };
-        })
-      }
+        }),
+      },
     });
-    
+
     const actor = createActor(machine, {
       input: {
         transformers: [
           { id: 't1', type: 'circles' },
-          { id: 't2', type: 'connections' }
-        ]
-      }
+          { id: 't2', type: 'connections' },
+        ],
+      },
     });
-    
+
     actor.start();
     actor.send({ type: 'EXECUTE_FULL' });
-    
-    await waitFor(actor, state => 
-      state.matches('execution.completed')
-    );
-    
+
+    await waitFor(actor, (state) => state.matches('execution.completed'));
+
     expect(actor.getSnapshot().context.results).toHaveLength(2);
   });
-  
+
   it('should support partial execution', async () => {
     // Test executing only first 2 of 4 transformers
   });
-  
+
   it('should invalidate cache on parameter change', () => {
     // Test cache invalidation logic
   });
@@ -816,21 +826,25 @@ describe('Pipeline Machine', () => {
 ## Migration Path
 
 ### Phase 1: Basic Pipeline Machine
+
 1. Implement core configuration management
 2. Add full pipeline execution
 3. Connect to existing UI components
 
 ### Phase 2: Advanced Execution
+
 1. Add partial execution support
 2. Implement pause/resume functionality
 3. Add result caching
 
 ### Phase 3: Preview & Optimization
+
 1. Implement live preview
 2. Add smart caching with invalidation
 3. Optimize for large pipelines
 
 ### Phase 4: Enhanced Features
+
 1. Add transformer dependencies
 2. Implement parallel transformer execution
 3. Add pipeline templates/presets
