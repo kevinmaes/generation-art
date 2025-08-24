@@ -121,7 +121,7 @@ function App(): React.ReactElement {
     },
   });
 
-  // Development: Auto-select Raphael Ophir Maes (I12406240) when data loads
+  // Development: Auto-select Rafi (I12406240) when data loads
   useEffect(() => {
     if (dataState.status === 'success' && !primaryIndividualId) {
       const targetId = 'I12406240';
