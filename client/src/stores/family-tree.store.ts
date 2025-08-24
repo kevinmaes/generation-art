@@ -1,12 +1,13 @@
+import { createStore } from '@xstate/store';
 import { createStoreHook } from '@xstate/store/react';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
 
-// Discriminated union state type for GEDCOM data loading
+// Discriminated union state type for family tree data loading
 // Handles both single file (full only) and dual file (full + LLM) scenarios
-export type GedcomDataState =
+export type FamilyTreeState =
   | { status: 'idle'; fullData: null; llmData: null; error: null }
   | { status: 'loading'; fullData: null; llmData: null; error: null }
   | {
@@ -17,15 +18,14 @@ export type GedcomDataState =
     }
   | { status: 'error'; fullData: null; llmData: null; error: string };
 
-// Create the custom hook for the unified GEDCOM store
-// This handles both single and dual data loading scenarios
-export const useGedcomStore = createStoreHook({
+// Store configuration for family tree data
+const familyTreeStoreConfig = {
   context: {
     status: 'idle',
     fullData: null,
     llmData: null,
     error: null,
-  } as GedcomDataState,
+  } as FamilyTreeState,
   on: {
     fetchStarted: () =>
       ({
@@ -33,9 +33,9 @@ export const useGedcomStore = createStoreHook({
         fullData: null,
         llmData: null,
         error: null,
-      }) satisfies GedcomDataState,
+      }) satisfies FamilyTreeState,
     fetchSucceeded: (
-      _: GedcomDataState,
+      _: FamilyTreeState,
       event: { fullData: GedcomDataWithMetadata; llmData: LLMReadyData },
     ) =>
       ({
@@ -43,15 +43,15 @@ export const useGedcomStore = createStoreHook({
         fullData: event.fullData,
         llmData: event.llmData,
         error: null,
-      }) satisfies GedcomDataState,
-    fetchFailed: (_: GedcomDataState, event: { error: string }) =>
+      }) satisfies FamilyTreeState,
+    fetchFailed: (_: FamilyTreeState, event: { error: string }) =>
       ({
         status: 'error',
         fullData: null,
         llmData: null,
         error: event.error,
-      }) satisfies GedcomDataState,
-    refetch: (context: GedcomDataState) => {
+      }) satisfies FamilyTreeState,
+    refetch: (context: FamilyTreeState) => {
       // Only allow refetch from error or success states
       if (context.status === 'error' || context.status === 'success') {
         return {
@@ -59,9 +59,15 @@ export const useGedcomStore = createStoreHook({
           fullData: null,
           llmData: null,
           error: null,
-        } satisfies GedcomDataState;
+        } satisfies FamilyTreeState;
       }
       return context;
     },
   },
-});
+};
+
+// Create singleton store instance
+export const familyTreeStore = createStore(familyTreeStoreConfig);
+
+// Create hook for React components
+export const useFamilyTreeStore = createStoreHook(familyTreeStoreConfig);

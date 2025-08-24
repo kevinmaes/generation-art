@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useGedcomStore } from './stores/gedcom.store';
+import { familyTreeStore, useFamilyTreeStore } from './stores/family-tree.store';
 import { useEventListener } from 'usehooks-ts';
 import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
@@ -39,8 +39,8 @@ interface GedcomManifest {
 }
 
 function App(): React.ReactElement {
-  // Use unified GEDCOM store for data state
-  const [appDataState, gedcomStore] = useGedcomStore((state) => state.context);
+  // Use family tree store for data state
+  const [appDataState] = useFamilyTreeStore((state) => state.context);
 
   // Derive boolean flags from the state
   const isAppDataLoading = appDataState.status === 'loading';
@@ -102,14 +102,14 @@ function App(): React.ReactElement {
   useGedcomDataWithLLM({
     baseFileName: currentDataset,
     onDataLoaded: (data) => {
-      gedcomStore.send({
+      familyTreeStore.send({
         type: 'fetchSucceeded',
         fullData: data.full,
         llmData: data.llm,
       });
     },
     onError: (error) => {
-      gedcomStore.send({ type: 'fetchFailed', error });
+      familyTreeStore.send({ type: 'fetchFailed', error });
     },
   });
 
@@ -172,7 +172,7 @@ function App(): React.ReactElement {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    gedcomStore.send({ type: 'fetchStarted' });
+    familyTreeStore.send({ type: 'fetchStarted' });
     try {
       const text = await file.text();
       const data = JSON.parse(text) as unknown;
@@ -190,7 +190,7 @@ function App(): React.ReactElement {
           metadata: validatedData.metadata,
         },
       };
-      gedcomStore.send({
+      familyTreeStore.send({
         type: 'fetchSucceeded',
         fullData: newDualData.full,
         llmData: newDualData.llm,
@@ -201,7 +201,7 @@ function App(): React.ReactElement {
       // Clear primary individual so the useEffect can auto-select
       setPrimaryIndividualId(undefined);
     } catch (err) {
-      gedcomStore.send({
+      familyTreeStore.send({
         type: 'fetchFailed',
         error: err instanceof Error ? err.message : 'Failed to load file',
       });
@@ -212,7 +212,7 @@ function App(): React.ReactElement {
     setCurrentDataset(datasetId);
     setCurrentView('artwork');
     // Set loading state when switching datasets
-    gedcomStore.send({ type: 'fetchStarted' });
+    familyTreeStore.send({ type: 'fetchStarted' });
     setPipelineResult(null);
     // Clear primary individual when switching datasets so auto-select can work
     setPrimaryIndividualId(undefined);
@@ -386,7 +386,6 @@ function App(): React.ReactElement {
                 subtitle="Generative visualization of family connections and generations"
                 width={minWidth}
                 height={minHeight}
-                gedcomData={appData.full}
                 pipelineResult={pipelineResult}
                 className="mb-8"
                 onOpenPipelineClick={() => {
@@ -492,7 +491,6 @@ function App(): React.ReactElement {
           }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          dualData={isAppDataSuccess ? appData : null}
           primaryIndividualId={primaryIndividualId}
           onPrimaryIndividualChange={setPrimaryIndividualId}
           onTransformerSelect={handleTransformerSelect}

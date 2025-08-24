@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
-import { useGedcomStore } from '../stores/gedcom.store';
+import { useFamilyTreeStore, familyTreeStore } from '../stores/family-tree.store';
 
 interface UseGedcomDataOptions {
   jsonFile: string;
@@ -18,15 +18,16 @@ interface UseGedcomDataReturn {
 }
 
 // Re-export types from store for backward compatibility
-export type { GedcomDataState } from '../stores/gedcom.store';
+export type { FamilyTreeState as GedcomDataState } from '../stores/family-tree.store';
 
 export function useGedcomData({
   jsonFile,
   onDataLoaded,
   onError,
 }: UseGedcomDataOptions): UseGedcomDataReturn {
-  // Use unified XState store for state management
-  const [state, store] = useGedcomStore((state) => state.context);
+  // Use family tree store for state management
+  const [state] = useFamilyTreeStore((state) => state.context);
+  const store = familyTreeStore;
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);

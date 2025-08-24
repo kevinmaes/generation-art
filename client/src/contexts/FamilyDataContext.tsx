@@ -8,7 +8,7 @@ import React, {
 import { validateFlexibleGedcomData } from '../../../shared/types';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import { rebuildGraphData } from '../graph-rebuilder';
-import { useGedcomStore } from '../stores/gedcom.store';
+import { useFamilyTreeStore, familyTreeStore } from '../stores/family-tree.store';
 import {
   FamilyDataContext,
   type FamilyDataContextValue,
@@ -27,8 +27,9 @@ export function FamilyDataProvider({
   onDataLoaded,
   onError,
 }: FamilyDataProviderProps): React.ReactElement {
-  // Use unified XState store directly
-  const [state, store] = useGedcomStore((state) => state.context);
+  // Use family tree store directly
+  const [state] = useFamilyTreeStore((state) => state.context);
+  const store = familyTreeStore;
 
   // Store callbacks in refs to avoid dependency issues
   const onDataLoadedRef = useRef(onDataLoaded);

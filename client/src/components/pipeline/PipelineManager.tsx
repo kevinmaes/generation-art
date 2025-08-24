@@ -15,10 +15,7 @@ import {
 } from '../../pipeline/transformers';
 import { GripVertical } from 'lucide-react';
 import { PrimaryIndividualSelector } from '../PrimaryIndividualSelector';
-import type {
-  GedcomDataWithMetadata,
-  LLMReadyData,
-} from '../../../../shared/types';
+import { useDualFamilyTreeData, useFamilyTreeData } from '../../contexts/FamilyTreeContext';
 import type { VisualParameterValues } from '../../pipeline/visual-parameters';
 import { DraggableTransformerItem } from './DraggableTransformerItem';
 import { SortableTransformerItem } from './SortableTransformerItem';
@@ -84,16 +81,10 @@ const ACCORDION_PANEL_CONSTANTS = {
   GAP: 20, // Gap between columns in 2-column layout
 } as const;
 
-// Type for the complete dual-data structure
-interface DualGedcomData {
-  full: GedcomDataWithMetadata;
-  llm: LLMReadyData;
-}
 
 interface PipelineManagerProps {
   pipelineResult: PipelineResult | null;
   activeTransformerIds: TransformerId[];
-  dualData?: DualGedcomData | null;
   primaryIndividualId?: string;
   onPrimaryIndividualChange?: (individualId: string | undefined) => void;
   onTransformerSelect?: (transformerId: TransformerId) => void;
@@ -161,7 +152,6 @@ function calculateVisualMetadataDiff(
 export function PipelineManager({
   pipelineResult,
   activeTransformerIds,
-  dualData,
   primaryIndividualId,
   onPrimaryIndividualChange,
   onTransformerSelect,
@@ -174,6 +164,8 @@ export function PipelineManager({
   hasData = false,
   lastRunParameters,
 }: PipelineManagerProps): React.ReactElement {
+  const dualData = useDualFamilyTreeData();
+  const gedcomData = useFamilyTreeData();
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
@@ -601,7 +593,7 @@ export function PipelineManager({
             {dualData && (
               <div className="mb-4">
                 <PrimaryIndividualSelector
-                  gedcomData={dualData.full}
+                  gedcomData={gedcomData}
                   value={primaryIndividualId}
                   onChange={onPrimaryIndividualChange ?? (() => undefined)}
                 />

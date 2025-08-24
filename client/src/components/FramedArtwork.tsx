@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
 import type { PipelineResult } from '../pipeline/pipeline';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import { useFamilyTreeData } from '../contexts/FamilyTreeContext';
 
 interface FramedArtworkProps {
   title: string;
@@ -23,7 +23,6 @@ interface FramedArtworkProps {
     transformerName: string;
   } | null;
   primaryIndividualId?: string;
-  gedcomData: GedcomDataWithMetadata;
 }
 
 export function FramedArtwork({
@@ -38,8 +37,8 @@ export function FramedArtwork({
   isVisualizing = false,
   pipelineProgress = null,
   primaryIndividualId,
-  gedcomData,
 }: FramedArtworkProps): React.ReactElement {
+  const gedcomData = useFamilyTreeData();
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);
@@ -82,7 +81,7 @@ export function FramedArtwork({
                 <div class="print-title">${title}</div>
                 ${subtitle ? `<div class="print-subtitle">${subtitle}</div>` : ''}
                 <div class="print-info">
-                  Generated from ${String(Object.keys(gedcomData.individuals).length)} individuals
+                  Generated from ${String(Object.keys(gedcomData?.individuals ?? {}).length)} individuals
                 </div>
               </div>
               <canvas id="printCanvas"></canvas>
