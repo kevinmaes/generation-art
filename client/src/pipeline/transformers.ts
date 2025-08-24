@@ -21,6 +21,7 @@ import { varianceConfig } from './transformers/variance';
 import { simpleTreeConfig } from './transformers/simple-tree';
 import { walkerTreeConfig } from './transformers/walker-tree';
 import { fanChartConfig } from './transformers/fan-chart';
+import { gridLayoutConfig } from './transformers/grid-layout';
 
 // Transformer constants for type safety
 export const TRANSFORMERS = {
@@ -80,6 +81,10 @@ export const TRANSFORMERS = {
     ID: 'fan-chart',
     NAME: 'Fan Chart Layout',
   },
+  GRID_LAYOUT: {
+    ID: 'grid-layout',
+    NAME: 'Grid Layout',
+  },
 } as const;
 
 export type TransformerId =
@@ -110,6 +115,7 @@ export const transformerConfigs: Record<
   'simple-tree': simpleTreeConfig,
   'walker-tree': walkerTreeConfig,
   'fan-chart': fanChartConfig,
+  'grid-layout': gridLayoutConfig,
 };
 
 /**
