@@ -24,7 +24,6 @@ interface UseGedcomDataWithLLMReturn {
   refetch: () => void;
 }
 
-
 export function useGedcomDataWithLLM({
   baseFileName,
   onDataLoaded,

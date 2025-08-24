@@ -21,21 +21,24 @@ const storeConfig = {
         data: null,
         error: null,
       }) satisfies GedcomDataState,
-    
-    fetchSucceeded: (_: GedcomDataState, event: { data: GedcomDataWithMetadata }) =>
+
+    fetchSucceeded: (
+      _: GedcomDataState,
+      event: { data: GedcomDataWithMetadata },
+    ) =>
       ({
         status: 'success',
         data: event.data,
         error: null,
       }) satisfies GedcomDataState,
-    
+
     fetchFailed: (_: GedcomDataState, event: { error: string }) =>
       ({
         status: 'error',
         data: null,
         error: event.error,
       }) satisfies GedcomDataState,
-    
+
     refetch: (context: GedcomDataState) => {
       // Only allow refetch from error or success states
       if (context.status === 'error' || context.status === 'success') {
