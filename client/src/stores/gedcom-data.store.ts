@@ -7,8 +7,8 @@ export type GedcomDataState =
   | { status: 'success'; data: GedcomDataWithMetadata; error: null }
   | { status: 'error'; data: null; error: string };
 
-// Store configuration for GEDCOM data loading
-const storeConfig = {
+// Create the custom hook for the store managing GEDCOM data loading
+export const useGedcomDataStore = createStoreHook({
   context: {
     status: 'idle',
     data: null,
@@ -51,7 +51,4 @@ const storeConfig = {
       return context;
     },
   },
-};
-
-// Create the custom hook for the store
-export const useGedcomDataStore = createStoreHook(storeConfig);
+});

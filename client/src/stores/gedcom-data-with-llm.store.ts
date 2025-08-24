@@ -16,8 +16,8 @@ export type DualGedcomDataState =
     }
   | { status: 'error'; fullData: null; llmData: null; error: string };
 
-// Store configuration for dual GEDCOM data loading
-const storeConfig = {
+// Create the custom hook for the store managing dual GEDCOM data loading
+export const useGedcomDataWithLLMStore = createStoreHook({
   context: {
     status: 'idle',
     fullData: null,
@@ -65,7 +65,4 @@ const storeConfig = {
       return context;
     },
   },
-};
-
-// Create the custom hook for the store
-export const useGedcomDataWithLLMStore = createStoreHook(storeConfig);
+});
