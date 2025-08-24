@@ -164,43 +164,7 @@ async function buildGedcomFiles(
 
   let allGedcomFiles: { file: string; inputDir: string }[] = [];
 
-  // Collect GEDCOM files from all input directories (recursively)
-  async function scanDirectory(dir: string): Promise<void> {
-    try {
-      const entries = await readdir(dir, { withFileTypes: true });
-
-      for (const entry of entries) {
-        const fullPath = join(dir, entry.name);
-
-        if (entry.isDirectory()) {
-          // Skip directories starting with underscore (archived)
-          if (entry.name.startsWith('_')) {
-            console.log(`  Skipping archived directory: ${fullPath}`);
-            continue;
-          }
-          // Recursively scan subdirectories
-          await scanDirectory(fullPath);
-        } else if (entry.isFile() && extname(entry.name) === '.ged') {
-          // Found a GEDCOM file
-          const relativePath = fullPath.substring(0, fullPath.lastIndexOf('/'));
-          allGedcomFiles.push({ file: entry.name, inputDir: relativePath });
-        }
-      }
-    } catch (error) {
-      console.log(`Error scanning directory ${dir}:`, error);
-    }
-  }
-
-  // Scan each input directory recursively
-  for (const inputDir of inputDirs) {
-    try {
-      await access(inputDir);
-      await scanDirectory(inputDir);
-    } catch {
-      console.log(`Input directory ${inputDir} does not exist.`);
-    }
-  }
-
+  // If a single file is specified, only process that file
   if (singleFilePath) {
     // Check if the specified file exists at the full path
     try {
@@ -219,6 +183,44 @@ async function buildGedcomFiles(
     } catch {
       console.log(`File ${singleFilePath} not found`);
       return;
+    }
+  } else {
+    // Otherwise, scan all input directories
+    // Collect GEDCOM files from all input directories (recursively)
+    async function scanDirectory(dir: string): Promise<void> {
+      try {
+        const entries = await readdir(dir, { withFileTypes: true });
+
+        for (const entry of entries) {
+          const fullPath = join(dir, entry.name);
+
+          if (entry.isDirectory()) {
+            // Skip directories starting with underscore (archived)
+            if (entry.name.startsWith('_')) {
+              console.log(`  Skipping archived directory: ${fullPath}`);
+              continue;
+            }
+            // Recursively scan subdirectories
+            await scanDirectory(fullPath);
+          } else if (entry.isFile() && extname(entry.name) === '.ged') {
+            // Found a GEDCOM file
+            const relativePath = fullPath.substring(0, fullPath.lastIndexOf('/'));
+            allGedcomFiles.push({ file: entry.name, inputDir: relativePath });
+          }
+        }
+      } catch (error) {
+        console.log(`Error scanning directory ${dir}:`, error);
+      }
+    }
+
+    // Scan each input directory recursively
+    for (const inputDir of inputDirs) {
+      try {
+        await access(inputDir);
+        await scanDirectory(inputDir);
+      } catch {
+        console.log(`Input directory ${inputDir} does not exist.`);
+      }
     }
   }
 
