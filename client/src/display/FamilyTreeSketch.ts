@@ -212,9 +212,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
     height,
     showNames = false,
     strokeWeight: _strokeWeight = 0.2,
-    transformerIds = PIPELINE_DEFAULTS.TRANSFORMER_IDS,
-    temperature = 0.5,
-    seed,
+    transformerIds: _transformerIds = PIPELINE_DEFAULTS.TRANSFORMER_IDS,
+    temperature: _temperature = 0.5,
+    seed: _seed,
     showIndividuals = true,
     showRelations = true,
     debugEdgeRouting = false,
@@ -660,27 +660,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
           });
         }
       }
-
-      p.fill(100);
-      p.textSize(10);
-      p.textAlign(p.LEFT);
-      p.text(`Pipeline: ${transformerIds.join(', ')}`, 10, 20);
-      p.text(`Temperature: ${String(temperature)}`, 10, 35);
-      if (seed) {
-        p.text(`Seed: ${seed}`, 10, 50);
-      }
-
-      // Debug info
-      p.text(
-        `Individuals: ${String(Object.keys(visualMetadata.individuals).length)}`,
-        10,
-        65,
-      );
-      p.text(
-        `With positions: ${String(Object.values(visualMetadata.individuals).filter((i) => i.x !== undefined && i.y !== undefined).length)}`,
-        10,
-        80,
-      );
     };
   };
 }
