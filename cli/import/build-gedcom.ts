@@ -12,13 +12,17 @@ import { processGedcomWithLLMOptimization } from '../metadata/llm-optimized-proc
 import type { Individual, Family } from '../../shared/types';
 import { PerformanceTimer } from '../utils/performance-timer';
 import { writeJsonStream } from '../utils/streaming-json-writer';
+import { CountryMatcher } from '../country-matching/country-matcher';
+import type { UnresolvedLocation, ProcessingMetadata } from '../country-matching/types';
 
 // Local interfaces that match SimpleGedcomParser output
 interface ParsedIndividual {
   id: string;
   name: string;
   birthDate?: string;
+  birthPlace?: string;
   deathDate?: string;
+  deathPlace?: string;
 }
 
 interface ParsedFamily {
@@ -27,6 +31,7 @@ interface ParsedFamily {
   wife: string;
   children: string[];
   marriageDate?: string;
+  marriagePlace?: string;
 }
 
 interface ParsedGedcomData {
@@ -41,21 +46,69 @@ interface BuildConfig {
 }
 
 // Convert parsed data to our shared types and build relationships
-function convertAndBuildRelationships(data: ParsedGedcomData): {
+function convertAndBuildRelationships(
+  data: ParsedGedcomData,
+  countryMatcher: CountryMatcher,
+): {
   individuals: Individual[];
   families: Family[];
+  countryStats: {
+    totalLocations: number;
+    matched: {
+      high: number;
+      medium: number;
+      low: number;
+      unmatched: number;
+    };
+    methods: Record<string, number>;
+    unresolvedLocations: UnresolvedLocation[];
+  };
 } {
-  // Convert ParsedIndividual to Individual
-  const individuals: Individual[] = data.individuals.map((parsed) => ({
-    id: parsed.id,
-    name: parsed.name,
-    birth: parsed.birthDate ? { date: parsed.birthDate } : undefined,
-    death: parsed.deathDate ? { date: parsed.deathDate } : undefined,
-    parents: [],
-    spouses: [],
-    children: [],
-    siblings: [],
-  }));
+  // Convert ParsedIndividual to Individual with country matching
+  const individuals: Individual[] = data.individuals.map((parsed) => {
+    const birthCountry = parsed.birthPlace
+      ? countryMatcher.processPlace(
+          parsed.birthPlace,
+          undefined,
+          parsed.id,
+          'birth',
+        )
+      : undefined;
+
+    const deathCountry = parsed.deathPlace
+      ? countryMatcher.processPlace(
+          parsed.deathPlace,
+          undefined,
+          parsed.id,
+          'death',
+        )
+      : undefined;
+
+    return {
+      id: parsed.id,
+      name: parsed.name,
+      birth:
+        parsed.birthDate || parsed.birthPlace
+          ? {
+              date: parsed.birthDate,
+              place: parsed.birthPlace,
+              country: birthCountry?.country,
+            }
+          : undefined,
+      death:
+        parsed.deathDate || parsed.deathPlace
+          ? {
+              date: parsed.deathDate,
+              place: parsed.deathPlace,
+              country: deathCountry?.country,
+            }
+          : undefined,
+      parents: [],
+      spouses: [],
+      children: [],
+      siblings: [],
+    };
+  });
 
   // Build lookup for individuals
   const individualsById: Record<string, Individual> = {};
@@ -124,7 +177,17 @@ function convertAndBuildRelationships(data: ParsedGedcomData): {
       .filter(Boolean),
   }));
 
-  return { individuals: individualsWithRelationships, families };
+  const countryStats = countryMatcher.getStatistics();
+  const unresolvedLocations = countryMatcher.getUnresolvedLocations();
+
+  return {
+    individuals: individualsWithRelationships,
+    families,
+    countryStats: {
+      ...countryStats,
+      unresolvedLocations,
+    },
+  };
 }
 
 // Helper function to find media directory
@@ -254,7 +317,7 @@ async function buildGedcomFiles(
     const llmOutputPath = join(outputDir, `${baseName}-llm.json`);
     const statsOutputPath = join(outputDir, `${baseName}-stats.json`);
 
-    console.log(`\nProcessing ${inputDir}/${file}...`);
+    console.log(`\nProcessing ${inputDir}/${file}`);
     console.log('─'.repeat(50));
     const fileTimer = new PerformanceTimer();
     fileTimer.start('File Processing');
@@ -266,13 +329,8 @@ async function buildGedcomFiles(
       fileTimer.endAndLog('File Reading');
 
       fileTimer.start('GEDCOM Parsing');
-      console.log('  🔍 Creating parser...');
       const parser = new SimpleGedcomParser();
-      console.log('  🔍 Starting parse...');
       const parsedData = parser.parse(gedcomText);
-      console.log(
-        `  🔍 Parse complete: ${String(parsedData.individuals.length)} individuals`,
-      );
       fileTimer.endAndLog('GEDCOM Parsing');
 
       // Write raw parsed JSON (intermediate file)
@@ -280,36 +338,105 @@ async function buildGedcomFiles(
       // Use streaming for large files
       const useStreaming = parsedData.individuals.length > 1000;
       if (useStreaming) {
-        console.log('  📊 Using stream-based writing for large dataset...');
         await writeJsonStream(rawOutputPath, parsedData, true);
       } else {
         await writeFile(rawOutputPath, JSON.stringify(parsedData, null, 2));
       }
       fileTimer.endAndLog('Raw JSON Writing');
       console.log(
-        `  ✓ Generated _${baseName}-raw.json (${String(parsedData.individuals.length)} individuals, ${String(parsedData.families.length)} families)`,
+        `  Generated _${baseName}-raw.json (${parsedData.individuals.length.toLocaleString()} individuals, ${parsedData.families.length.toLocaleString()} families)`,
       );
 
+      // Initialize country matcher
+      const countryMatcher = new CountryMatcher();
+
       // Generate LLM-optimized data
-      fileTimer.start('Relationship Building');
-      const { individuals, families } =
-        convertAndBuildRelationships(parsedData);
-      fileTimer.endAndLog('Relationship Building');
+      fileTimer.start('Relationship Building & Country Matching');
+      const { individuals, families, countryStats } =
+        convertAndBuildRelationships(parsedData, countryMatcher);
+      fileTimer.endAndLog('Relationship Building & Country Matching');
+
+      // Log country matching statistics
+      if (countryStats.totalLocations > 0) {
+        const totalMatched =
+          countryStats.matched.high +
+          countryStats.matched.medium +
+          countryStats.matched.low;
+        const matchRate = (
+          (totalMatched / countryStats.totalLocations) *
+          100
+        ).toFixed(1);
+
+        console.log(`\n  Country Matching Statistics:`);
+        console.log(
+          `     Total locations: ${countryStats.totalLocations.toLocaleString()}`,
+        );
+        console.log(`     Match rate: ${matchRate}%`);
+        console.log(`     Confidence breakdown:`);
+        console.log(
+          `       • High (≥90%): ${countryStats.matched.high.toLocaleString()}`,
+        );
+        console.log(
+          `       • Medium (70-89%): ${countryStats.matched.medium.toLocaleString()}`,
+        );
+        console.log(
+          `       • Low (50-69%): ${countryStats.matched.low.toLocaleString()}`,
+        );
+        console.log(
+          `       • Unmatched (<50%): ${countryStats.matched.unmatched.toLocaleString()}`,
+        );
+
+        console.log(`     Matching methods used:`);
+        if (countryStats.methods.exact > 0) {
+          console.log(
+            `       • Exact ISO: ${countryStats.methods.exact.toLocaleString()}`,
+          );
+        }
+        if (countryStats.methods.alias > 0) {
+          console.log(
+            `       • Alias: ${countryStats.methods.alias.toLocaleString()}`,
+          );
+        }
+        if (countryStats.methods.pattern > 0) {
+          console.log(
+            `       • Pattern: ${countryStats.methods.pattern.toLocaleString()}`,
+          );
+        }
+        if (countryStats.methods.region > 0) {
+          console.log(
+            `       • Region: ${countryStats.methods.region.toLocaleString()}`,
+          );
+        }
+        if (countryStats.methods.historical > 0) {
+          console.log(
+            `       • Historical: ${countryStats.methods.historical.toLocaleString()}`,
+          );
+        }
+        if (countryStats.methods.fuzzy > 0) {
+          console.log(
+            `       • Fuzzy: ${countryStats.methods.fuzzy.toLocaleString()}`,
+          );
+        }
+
+        if (countryStats.unresolvedLocations.length > 0) {
+          console.log(`     Sample unresolved locations (first 3):`);
+          countryStats.unresolvedLocations.slice(0, 3).forEach((loc) => {
+            console.log(`       • "${loc.original}"`);
+          });
+        }
+      }
 
       fileTimer.start('LLM Optimization');
-      console.log('  🤖 Starting LLM optimization...');
       const processingResult = processGedcomWithLLMOptimization(
         individuals,
         families,
       );
-      console.log('  🤖 LLM optimization complete');
       fileTimer.endAndLog('LLM Optimization');
 
       // Write full data (for local operations)
       fileTimer.start('Full JSON Writing');
       const useStreamingForLarge = individuals.length > 1000;
       if (useStreamingForLarge) {
-        console.log('  📊 Using stream-based writing for full data...');
         await writeJsonStream(fullOutputPath, processingResult.full, true);
       } else {
         await writeFile(
@@ -318,12 +445,11 @@ async function buildGedcomFiles(
         );
       }
       fileTimer.endAndLog('Full JSON Writing');
-      console.log(`  ✓ Generated ${baseName}.json (full data with metadata)`);
+      console.log(`  Generated ${baseName}.json (full data with metadata)`);
 
       // Write LLM-ready data (PII stripped)
       fileTimer.start('LLM JSON Writing');
       if (useStreamingForLarge) {
-        console.log('  📊 Using stream-based writing for LLM data...');
         await writeJsonStream(llmOutputPath, processingResult.llm, true);
       } else {
         await writeFile(
@@ -333,25 +459,26 @@ async function buildGedcomFiles(
       }
       fileTimer.endAndLog('LLM JSON Writing');
       console.log(
-        `  ✓ Generated ${baseName}-llm.json (LLM-ready, PII stripped)`,
+        `  Generated ${baseName}-llm.json (LLM-ready, PII stripped)`,
       );
 
-      // Write processing statistics
+      // Write processing statistics with country data
       fileTimer.start('Stats JSON Writing');
-      await writeFile(
-        statsOutputPath,
-        JSON.stringify(processingResult.stats, null, 2),
-      );
+      const enhancedStats: unknown = {
+        ...processingResult.stats,
+        countryMatching: countryStats,
+      };
+      await writeFile(statsOutputPath, JSON.stringify(enhancedStats, null, 2));
       fileTimer.endAndLog('Stats JSON Writing');
       console.log(
-        `  ✓ Generated ${baseName}-stats.json (processing statistics)`,
+        `  Generated ${baseName}-stats.json (processing statistics)`,
       );
 
       // Check for media directory with flexible naming
       fileTimer.start('Media Processing');
       const foundMediaDir = await findMediaDirectory(inputDir, baseName);
       if (foundMediaDir) {
-        console.log(`  ℹ Found media directory: ${foundMediaDir}`);
+        console.log(`  Found media directory: ${foundMediaDir.split('/').pop() ?? foundMediaDir}`);
         // Copy media files to generated/media/<baseName>/
         const destMediaDir = join(mediaDir, baseName);
         await mkdir(destMediaDir, { recursive: true });
@@ -383,11 +510,11 @@ async function buildGedcomFiles(
             .map(([ext, count]) => `${String(count)} ${ext}`)
             .join(', ');
           console.log(
-            `  ✓ Copied ${String(totalCopied)} media files: ${summary}`,
+            `  ✅ Copied ${String(totalCopied)} media files: ${summary}`,
           );
         }
       } else {
-        console.log(`  ℹ No media directory found for ${baseName}`);
+        console.log(`  ℹ️  No media directory found for ${baseName}`);
       }
       fileTimer.endAndLog('Media Processing');
 
@@ -454,7 +581,7 @@ async function buildGedcomFiles(
   const manifestPath = join(outputDir, 'manifest.json');
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   console.log(
-    `\n  ✓ Generated manifest.json (${String(manifest.datasets.length)} datasets)`,
+    `\n📄 Generated manifest.json (${String(manifest.datasets.length)} datasets)`,
   );
 
   overallTimer.endAndLog('Total Processing');
@@ -463,17 +590,67 @@ async function buildGedcomFiles(
   // Calculate total individuals and families processed
   let totalIndividuals = 0;
   let totalFamilies = 0;
+  let totalLocations = 0;
+  let totalMatchedLocations = 0;
+  let totalHighConfidence = 0;
+  let totalMediumConfidence = 0;
+  let totalLowConfidence = 0;
+  let totalUnmatched = 0;
 
   for (const dataset of manifest.datasets) {
     totalIndividuals += dataset.individualCount;
     totalFamilies += dataset.familyCount;
+
+    // Read stats file for country matching data
+    try {
+      const statsPath = join(outputDir, `${dataset.fileName}-stats.json`);
+      const statsData = JSON.parse(await readFile(statsPath, 'utf-8')) as {
+        countryMatching?: ProcessingMetadata & { unresolvedLocations: UnresolvedLocation[] };
+      };
+      if (statsData.countryMatching) {
+        const cm = statsData.countryMatching;
+        totalLocations += cm.totalLocations;
+        totalHighConfidence += cm.matched.high;
+        totalMediumConfidence += cm.matched.medium;
+        totalLowConfidence += cm.matched.low;
+        totalUnmatched += cm.matched.unmatched;
+        totalMatchedLocations +=
+          cm.matched.high + cm.matched.medium + cm.matched.low;
+      }
+    } catch {
+      // Stats file may not exist for all datasets
+    }
   }
 
-  console.log('\nGEDCOM build complete!');
+  console.log('\n✅ GEDCOM build complete!');
   console.log(
-    `📊 Total processed: ${String(totalIndividuals)} individuals, ${String(totalFamilies)} families`,
+    `Total processed: ${totalIndividuals.toLocaleString()} individuals, ${totalFamilies.toLocaleString()} families`,
   );
-  console.log(`Generated files are in: ${outputDir}`);
+
+  // Only show overall country matching summary when processing multiple files
+  if (totalLocations > 0 && manifest.datasets.length > 1) {
+    const overallMatchRate = (
+      (totalMatchedLocations / totalLocations) *
+      100
+    ).toFixed(1);
+    console.log('\n\nOverall Country Matching Summary:');
+    console.log(`   Locations processed: ${totalLocations.toLocaleString()}`);
+    console.log(`   Overall match rate: ${overallMatchRate}%`);
+    console.log(
+      `   High confidence: ${totalHighConfidence.toLocaleString()} (${((totalHighConfidence / totalLocations) * 100).toFixed(1)}%)`,
+    );
+    console.log(
+      `   Medium confidence: ${totalMediumConfidence.toLocaleString()} (${((totalMediumConfidence / totalLocations) * 100).toFixed(1)}%)`,
+    );
+    console.log(
+      `   Low confidence: ${totalLowConfidence.toLocaleString()} (${((totalLowConfidence / totalLocations) * 100).toFixed(1)}%)`,
+    );
+    console.log(
+      `   Unmatched: ${totalUnmatched.toLocaleString()} (${((totalUnmatched / totalLocations) * 100).toFixed(1)}%)`,
+    );
+  }
+
+  console.log(`\nGenerated files are in: ${outputDir}`);
 
   // Warning for slow operations
   const totalTime = overallTimer.getDurations().get('Total Processing') ?? 0;

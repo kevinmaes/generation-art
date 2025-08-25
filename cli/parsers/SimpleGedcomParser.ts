@@ -9,7 +9,9 @@ interface Individual {
   id: string;
   name: string;
   birthDate?: string;
+  birthPlace?: string;
   deathDate?: string;
+  deathPlace?: string;
 }
 
 interface Family {
@@ -18,6 +20,7 @@ interface Family {
   wife: string;
   children: string[];
   marriageDate?: string;
+  marriagePlace?: string;
 }
 
 export class SimpleGedcomParser {
@@ -43,7 +46,7 @@ export class SimpleGedcomParser {
 
     // Only show line count for files over 1000 lines
     if (lines.length > 1000) {
-      console.log(`  📝 Parsing ${String(lines.length)} lines...`);
+      console.log(`  Parsing ${lines.length.toLocaleString()} lines...`);
     }
 
     let processedLines = 0;
@@ -86,12 +89,15 @@ export class SimpleGedcomParser {
         case 'CHIL':
           this.handleChild(line);
           break;
+        case 'PLAC':
+          this.handlePlace(line);
+          break;
       }
     }
 
     // Always show final counts
     console.log(
-      `  ✓ Parsed ${String(this.individuals.size)} individuals and ${String(this.families.size)} families`,
+      `  Parsed ${this.individuals.size.toLocaleString()} individuals and ${this.families.size.toLocaleString()} families`,
     );
 
     return {
@@ -247,6 +253,43 @@ export class SimpleGedcomParser {
       // Remove @ symbols from reference
       const cleanRef = line.value.replace(/@/g, '');
       this.currentFamily.children.push(cleanRef);
+    }
+  }
+
+  private handlePlace(line: GedcomLine) {
+    if (!line.value) return;
+
+    if (this.currentIndividual) {
+      if (this.currentEvent === 'BIRT') {
+        if (this.debug) {
+          console.log(
+            'Setting birth place for individual:',
+            this.currentIndividual.id,
+            line.value,
+          );
+        }
+        this.currentIndividual.birthPlace = line.value;
+      } else if (this.currentEvent === 'DEAT') {
+        if (this.debug) {
+          console.log(
+            'Setting death place for individual:',
+            this.currentIndividual.id,
+            line.value,
+          );
+        }
+        this.currentIndividual.deathPlace = line.value;
+      }
+    }
+
+    if (this.currentFamily && this.currentEvent === 'MARR') {
+      if (this.debug) {
+        console.log(
+          'Setting marriage place for family:',
+          this.currentFamily.id,
+          line.value,
+        );
+      }
+      this.currentFamily.marriagePlace = line.value;
     }
   }
 }

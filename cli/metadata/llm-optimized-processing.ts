@@ -22,9 +22,9 @@ export function processGedcomWithLLMOptimization(
 ): CLIProcessingResult {
   const startTime = performance.now();
 
-  console.log('🔄 Starting GEDCOM processing with LLM optimization...');
+  console.log('\n🤖 Starting GEDCOM processing with LLM optimization...');
   console.log(
-    `📊 Processing ${String(individuals.length)} individuals and ${String(families.length)} families`,
+    `Processing ${individuals.length.toLocaleString()} individuals and ${families.length.toLocaleString()} families`,
   );
 
   // For very large datasets, use a simplified processing to avoid memory issues
@@ -32,13 +32,13 @@ export function processGedcomWithLLMOptimization(
   const isLargeDataset = individuals.length > 1000;
 
   if (isLargeDataset) {
-    console.log('  ⚠️  Large dataset detected - using optimized processing...');
+    console.log('  Large dataset detected - using optimized processing...');
   }
 
   // Step 1: Generate full data with comprehensive metadata
-  console.log('📈 Generating full data with comprehensive metadata...');
+  console.log('\n📊 Generating full data with comprehensive metadata...');
   console.log(
-    `  Dataset size check: ${String(individuals.length)} individuals (large threshold: 2000)`,
+    `  Dataset size check: ${individuals.length.toLocaleString()} individuals (large threshold: 2,000)`,
   );
 
   // For large datasets, create a simplified version
@@ -46,7 +46,7 @@ export function processGedcomWithLLMOptimization(
   if (isLargeDataset) {
     // Create a simplified structure without heavy analysis
     // But still calculate essential data for front-end performance
-    console.log('  📊 Pre-calculating essential data for front-end...');
+    console.log('  Pre-calculating essential data for front-end...');
 
     // Pre-calculate generations for all individuals
     const generationMap = calculateGenerationsForAll(individuals, families);
@@ -261,17 +261,17 @@ export function processGedcomWithLLMOptimization(
     };
   } else {
     console.log(
-      '  📊 Performing comprehensive analysis (non-large dataset)...',
+      '  Performing comprehensive analysis (non-large dataset)...',
     );
     fullData = transformGedcomDataWithComprehensiveAnalysis(
       individuals,
       families,
     );
-    console.log('  ✅ Comprehensive analysis complete');
+    console.log('  Comprehensive analysis complete');
   }
 
   // Step 2: Generate LLM-ready data (PII stripped)
-  console.log('🔒 Generating LLM-ready data with PII stripping...');
+  console.log('\n🔒 Generating LLM-ready data with PII stripping...');
   const piiStrippingResult = stripPIIForLLM(fullData);
 
   // Step 3: Create LLM-ready data structure
@@ -329,11 +329,11 @@ export function processGedcomWithLLMOptimization(
     },
   };
 
-  console.log('✅ GEDCOM processing completed successfully');
-  console.log(`⏱️  Processing time: ${processingTime.toFixed(2)}ms`);
-  console.log(`💾 Memory usage: ${(totalSize / 1024).toFixed(2)}KB`);
+  console.log('\n✅ GEDCOM processing completed successfully');
+  console.log(`Processing time: ${processingTime.toFixed(2)}ms`);
+  console.log(`Memory usage: ${(totalSize / 1024).toFixed(2)}KB`);
   console.log(
-    `🔒 PII stripped: ${String(piiStrippingResult.strippingStats.namesStripped)} names, ${String(piiStrippingResult.strippingStats.datesStripped)} dates, ${String(piiStrippingResult.strippingStats.locationsStripped)} locations`,
+    `PII stripped: ${piiStrippingResult.strippingStats.namesStripped.toLocaleString()} names, ${piiStrippingResult.strippingStats.datesStripped.toLocaleString()} dates, ${piiStrippingResult.strippingStats.locationsStripped.toLocaleString()} locations`,
   );
 
   return {
@@ -350,7 +350,7 @@ export function generateLLMReadyData(
   individuals: Individual[],
   families: Family[],
 ) {
-  console.log('🔒 Generating LLM-ready data only...');
+  console.log('Generating LLM-ready data only...');
 
   // Generate full data first (needed for metadata)
   const fullData = transformGedcomDataWithComprehensiveAnalysis(
@@ -374,7 +374,7 @@ export function generateLLMReadyData(
 export function validateLLMData(
   llmData: ReturnType<typeof generateLLMReadyData>,
 ) {
-  console.log('🔍 Validating LLM-ready data...');
+  console.log('Validating LLM-ready data...');
 
   const issues: string[] = [];
 
@@ -416,13 +416,13 @@ export function validateLLMData(
   });
 
   if (issues.length > 0) {
-    console.warn('⚠️  LLM data validation issues found:');
+    console.warn('LLM data validation issues found:');
     issues.forEach((issue) => {
       console.warn(`  - ${issue}`);
     });
     return false;
   }
 
-  console.log('✅ LLM-ready data validation passed');
+  console.log('LLM-ready data validation passed');
   return true;
 }

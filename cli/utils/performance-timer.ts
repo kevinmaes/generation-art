@@ -41,7 +41,7 @@ export class PerformanceTimer {
     const memoryEnd = process.memoryUsage();
 
     const seconds = (duration / 1000).toFixed(2);
-    let message = `${prefix}⏱️  ${label}: ${seconds}s`;
+    let message = `${prefix}${label}: ${seconds}s`;
 
     if (memoryStart) {
       const heapDiff =
@@ -55,7 +55,7 @@ export class PerformanceTimer {
 
     // Warn if operation took too long
     if (duration > 10000) {
-      console.log(`${prefix}⚠️  Warning: ${label} took more than 10 seconds`);
+      console.log(`${prefix}Warning: ${label} took more than 10 seconds`);
     }
 
     return duration;
@@ -90,7 +90,7 @@ export class PerformanceTimer {
   logSummary(title = 'Performance Summary'): void {
     const summary = this.getSummary();
 
-    console.log(`\n📊 ${title}`);
+    console.log(`\n\ud83d\udcca ${title}`);
     console.log('─'.repeat(50));
 
     for (const op of summary.operations) {

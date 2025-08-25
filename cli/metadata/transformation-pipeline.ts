@@ -481,14 +481,14 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
   families: Family[],
   _rootIndividual?: Individual,
 ): GedcomDataWithMetadata => {
-  console.log('    🕰️ Starting comprehensive transformation...');
+  console.log('    Starting comprehensive transformation...');
   const analysisStart = Date.now();
 
   // 1. Generate edges
   console.log('    1/7 Generating edges...');
   const edges = generateEdges(individuals, families);
   console.log(
-    `       Generated ${String(edges.length)} edges (${String(Date.now() - analysisStart)}ms)`,
+    `       Generated ${edges.length.toLocaleString()} edges (${String(Date.now() - analysisStart)}ms)`,
   );
 
   // 2. Perform comprehensive analysis
@@ -556,14 +556,14 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
   };
 
   // 4. Pre-calculate generations for performance
-  console.log('    📊 Pre-calculating generations for all individuals...');
+  console.log('    Pre-calculating generations for all individuals...');
   const generationMap = calculateGenerationsForAll(individuals, families);
   console.log(
-    `       Calculated generations for ${String(generationMap.size)} individuals (${String(Date.now() - analysisStart)}ms)`,
+    `       Calculated generations for ${generationMap.size.toLocaleString()} individuals (${String(Date.now() - analysisStart)}ms)`,
   );
 
   // 5. Enhance individual and family metadata with graph data
-  console.log('    📊 Enhancing individual metadata...');
+  console.log('    Enhancing individual metadata...');
   const enhancedIndividuals = enhanceIndividualMetadataWithCache(
     individuals,
     enhancedMetadata,
@@ -571,17 +571,17 @@ export const transformGedcomDataWithComprehensiveAnalysis = (
     generationMap,
   );
   console.log(
-    `       Enhanced ${String(enhancedIndividuals.length)} individuals (${String(Date.now() - analysisStart)}ms)`,
+    `       Enhanced ${enhancedIndividuals.length.toLocaleString()} individuals (${String(Date.now() - analysisStart)}ms)`,
   );
 
-  console.log('    📊 Enhancing family metadata...');
+  console.log('    Enhancing family metadata...');
   const enhancedFamilies = enhanceFamilyMetadataWithCache(
     families,
     enhancedMetadata,
     generationMap,
   );
   console.log(
-    `       Enhanced ${String(enhancedFamilies.length)} families (${String(Date.now() - analysisStart)}ms)`,
+    `       Enhanced ${enhancedFamilies.length.toLocaleString()} families (${String(Date.now() - analysisStart)}ms)`,
   );
 
   // 6. Convert arrays to ID-keyed objects for efficient lookups
@@ -630,7 +630,7 @@ export const enhanceIndividualMetadataWithCache = (
   return individuals.map((individual) => {
     if (processedCount % 100 === 0) {
       console.log(
-        `       Processing individual ${String(processedCount)}/${String(total)}...`,
+        `       Processing individual ${processedCount.toLocaleString()}/${total.toLocaleString()}...`,
       );
     }
     processedCount++;
