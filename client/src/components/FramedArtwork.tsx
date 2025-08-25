@@ -6,6 +6,7 @@ import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
 import type { PipelineResult } from '../pipeline/pipeline';
 import { useFamilyTreeData } from '../contexts/FamilyTreeContext';
+import type { EnhancedP5 } from '../display/FamilyTreeSketch';
 
 interface FramedArtworkProps {
   title: string;
@@ -42,11 +43,31 @@ export function FramedArtwork({
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);
+  const [visibleCounts, setVisibleCounts] = useState<{
+    individuals: number;
+    relations: number;
+  }>({ individuals: 0, relations: 0 });
 
   const { shareState, exportWebCanvas } = useShareArt();
 
   const handleExport = useCallback((p5Instance: p5) => {
     p5InstanceRef.current = p5Instance;
+
+    // Update visible counts when the canvas is ready
+    const updateCounts = () => {
+      const counts = (p5Instance as EnhancedP5).getVisibleCounts();
+      setVisibleCounts(counts);
+    };
+
+    // Initial count update
+    setTimeout(updateCounts, 100); // Small delay to ensure drawing is complete
+
+    // Update counts whenever the canvas redraws
+    const originalRedraw = p5Instance.redraw.bind(p5Instance);
+    p5Instance.redraw = () => {
+      originalRedraw();
+      setTimeout(updateCounts, 50); // Small delay to ensure drawing is complete
+    };
   }, []);
 
   const handleExportClick = useCallback(() => {
@@ -126,7 +147,12 @@ export function FramedArtwork({
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
             />
             <span className="text-sm font-medium text-gray-700">
-              Individuals
+              Individuals{' '}
+              {visibleCounts.individuals > 0 && (
+                <span className="text-gray-500">
+                  ({visibleCounts.individuals} visible)
+                </span>
+              )}
             </span>
           </label>
 
@@ -139,9 +165,27 @@ export function FramedArtwork({
               }}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
             />
-            <span className="text-sm font-medium text-gray-700">Relations</span>
+            <span className="text-sm font-medium text-gray-700">
+              Relations{' '}
+              {visibleCounts.relations > 0 && (
+                <span className="text-gray-500">
+                  ({visibleCounts.relations})
+                </span>
+              )}
+            </span>
           </label>
         </div>
+
+        {/* Statistics */}
+        {familyTreeData && (
+          <div className="mt-4 text-center text-sm text-gray-600">
+            <span>
+              Total dataset:{' '}
+              {Object.keys(familyTreeData.full.individuals).length} individuals,{' '}
+              {Object.keys(familyTreeData.full.families).length} families
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Canvas Container */}

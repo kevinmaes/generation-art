@@ -51,7 +51,7 @@ import { getTransformerParameterKey } from '../utils/pipeline-index';
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [TRANSFORMERS.FAN_CHART.ID, TRANSFORMERS.NODE_SHAPE.ID],
+  TRANSFORMER_IDS: [TRANSFORMERS.GRID_LAYOUT.ID],
 };
 
 /**
@@ -513,26 +513,6 @@ export async function* runPipelineGenerator({
           _lastChangeSet?: ReturnType<typeof buildChangeSet>['changeSet'];
         }
       )._lastChangeSet = changeSet;
-
-      // Debug what positions this transformer created
-      const positionedIndividuals = Object.entries(
-        result.visualMetadata.individuals ?? {},
-      )
-        .filter(([, meta]) => meta.x !== undefined && meta.y !== undefined)
-        .slice(0, 3); // First 3 individuals
-
-      const individualCount =
-        positionedIndividuals.length > 0
-          ? Object.keys(result.visualMetadata.individuals ?? {}).length
-          : 0;
-      console.log(
-        `✅ Transformer ${transformer.name} positioned ${String(individualCount)} individuals. Sample:`,
-        positionedIndividuals.map(([id, meta]) => ({
-          id,
-          x: meta.x,
-          y: meta.y,
-        })),
-      );
 
       // Yield transformer result
       yield {

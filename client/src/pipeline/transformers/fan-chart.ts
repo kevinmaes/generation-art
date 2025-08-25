@@ -184,8 +184,18 @@ export function fanChartTransform(
     global: visualMetadata.global || {},
   };
 
+  // First, clear all individual positions (we'll only set positions for those in the tree)
+  Object.keys(visualMetadata.individuals).forEach((id) => {
+    output.individuals[id] = {
+      ...visualMetadata.individuals[id],
+      x: undefined,
+      y: undefined,
+    };
+  });
+
   // Position center person
   output.individuals[centerPersonId] = {
+    ...output.individuals[centerPersonId],
     x: centerX,
     y: centerY,
     custom: {
@@ -236,6 +246,7 @@ export function fanChartTransform(
         const y = centerY + distance * Math.sin(angle);
 
         output.individuals[relative.id] = {
+          ...output.individuals[relative.id],
           x,
           y,
           custom: {
@@ -320,6 +331,7 @@ export function fanChartTransform(
           const y = centerY + distance * Math.sin(angle);
 
           output.individuals[child.id] = {
+            ...output.individuals[child.id],
             x,
             y,
             custom: {

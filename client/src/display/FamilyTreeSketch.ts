@@ -199,6 +199,7 @@ function drawEdge(
 export interface EnhancedP5 extends p5 {
   setShowIndividuals: (show: boolean) => void;
   setShowRelations: (show: boolean) => void;
+  getVisibleCounts: () => { individuals: number; relations: number };
 }
 
 /**
@@ -211,9 +212,6 @@ function createSketch(props: SketchProps): (p: p5) => void {
     height,
     showNames = false,
     strokeWeight: _strokeWeight = 0.2,
-    transformerIds = PIPELINE_DEFAULTS.TRANSFORMER_IDS,
-    temperature = 0.5,
-    seed,
     showIndividuals = true,
     showRelations = true,
     debugEdgeRouting = false,
@@ -223,6 +221,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
     // Internal state for display parameters
     let currentShowIndividuals = showIndividuals;
     let currentShowRelations = showRelations;
+    let visibleIndividualsCount = 0;
+    let visibleRelationsCount = 0;
 
     // Add update methods to the p5 instance
     (p as EnhancedP5).setShowIndividuals = (show: boolean) => {
@@ -235,6 +235,13 @@ function createSketch(props: SketchProps): (p: p5) => void {
       currentShowRelations = show;
       // Trigger redraw
       p.redraw();
+    };
+
+    (p as EnhancedP5).getVisibleCounts = () => {
+      return {
+        individuals: visibleIndividualsCount,
+        relations: visibleRelationsCount,
+      };
     };
     p.setup = () => {
       p.createCanvas(width, height, p.P2D);
@@ -255,12 +262,24 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
       // IMPORTANT: Draw edges FIRST (they will be in the background)
       // Draw edges before nodes so that nodes appear on top
+      visibleRelationsCount = 0; // Reset count before drawing
       if (currentShowRelations) {
         // Check if we have routing output (orthogonal edges)
 
         if (visualMetadata.routing) {
           // Use the functional edge renderer for advanced routing
           console.log('📐 Rendering orthogonal edges');
+          // Count the actual edges (relations) that will be rendered
+          // Each layer contains edges, count all visible edges
+          let edgeCount = 0;
+          visualMetadata.routing.layers.forEach((layer) => {
+            if (layer.visible !== false) {
+              // Default is visible
+              edgeCount += layer.edges.length;
+            }
+          });
+          visibleRelationsCount = edgeCount;
+
           renderEdgeRouting(visualMetadata.routing, p, {
             debugMode: debugEdgeRouting,
           });
@@ -296,6 +315,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
               continue;
             }
 
+            // Count this edge as visible (it will be drawn)
+            visibleRelationsCount++;
+
             const strokeColor = p.color(
               edgeMetadata.strokeColor ??
                 visualMetadata.global.defaultEdgeColor ??
@@ -318,8 +340,16 @@ function createSketch(props: SketchProps): (p: p5) => void {
       }
 
       // Draw nodes (individuals) AFTER edges so they appear on top
+      visibleIndividualsCount = 0; // Reset count before drawing
       if (currentShowIndividuals) {
         const individuals = Object.values(gedcomData.individuals);
+
+        // Debug: Track statistics
+        let debugLogged = false;
+        let totalWithCoords = 0;
+        let offCanvas = 0;
+        let transparent = 0;
+
         for (const ind of individuals) {
           const individualMetadata = visualMetadata.individuals[ind.id];
 
@@ -331,13 +361,56 @@ function createSketch(props: SketchProps): (p: p5) => void {
             continue;
           }
 
-          // Only use visual metadata - no config fallbacks
+          totalWithCoords++;
+
+          // Get all visual properties first
           const x = individualMetadata.x;
           const y = individualMetadata.y;
           const size =
             individualMetadata?.size ??
             visualMetadata.global.defaultNodeSize ??
             20;
+          const opacity = individualMetadata?.opacity ?? 0.8;
+
+          // Check if individual is actually on canvas (within bounds)
+          const margin = size / 2;
+          const isOnCanvas =
+            x >= -margin &&
+            x <= p.width + margin &&
+            y >= -margin &&
+            y <= p.height + margin;
+
+          // Check if actually visible (not transparent)
+          const isVisible = opacity > 0;
+
+          // Track why individuals are skipped
+          if (!isOnCanvas) {
+            offCanvas++;
+            continue;
+          }
+          if (!isVisible) {
+            transparent++;
+            continue;
+          }
+
+          // Count this individual as actually visible and drawn
+          visibleIndividualsCount++;
+
+          // Debug first few visible individuals
+          if (!debugLogged && visibleIndividualsCount <= 3) {
+            console.log('Visible individual:', {
+              count: visibleIndividualsCount,
+              id: ind.id,
+              position: { x, y },
+              canvasBounds: { width: p.width, height: p.height },
+              isOnCanvas,
+              opacity,
+            });
+            if (visibleIndividualsCount === 3) {
+              debugLogged = true;
+            }
+          }
+          // Get remaining visual properties
           const width = individualMetadata?.width ?? 1.0;
           const height = individualMetadata?.height ?? 1.0;
           const scale = individualMetadata?.scale ?? 1.0;
@@ -356,7 +429,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
             individualMetadata?.shapeProfile as unknown as
               | ShapeProfile
               | undefined;
-          const opacity = individualMetadata?.opacity ?? 0.8;
+          // opacity already declared above
           const strokeColor = individualMetadata?.strokeColor ?? '#000000'; // Default to black stroke
           const strokeWeight = individualMetadata?.strokeWeight ?? 0;
           const strokeOpacity = individualMetadata?.strokeOpacity ?? 1;
@@ -370,19 +443,19 @@ function createSketch(props: SketchProps): (p: p5) => void {
           p.fill(pColor);
 
           // Debug first few individuals only
-          if (Math.random() < 0.01) {
-            // Only log ~1% of individuals
-            console.log('Sample individual rendering:', {
-              id: ind.id,
-              x,
-              y,
-              size: finalWidth,
-              finalHeight: finalHeight,
-              color,
-              opacity,
-              shape,
-            });
-          }
+          // if (Math.random() < 0.01) {
+          //   // Only log ~1% of individuals
+          //   console.log('Sample individual rendering:', {
+          //     id: ind.id,
+          //     x,
+          //     y,
+          //     size: finalWidth,
+          //     finalHeight: finalHeight,
+          //     color,
+          //     opacity,
+          //     shape,
+          //   });
+          // }
 
           // Apply stroke if specified
           if (strokeWeight > 0 && strokeOpacity > 0) {
@@ -403,15 +476,15 @@ function createSketch(props: SketchProps): (p: p5) => void {
           // Render shape geometry when available, else fallback to legacy shapes
           if (shapeProfile) {
             // Debug: Log shape profile rendering
-            if (Math.random() < 0.1) {
-              // Log ~10% of shape profiles to avoid spam
-              console.log('Rendering shape profile:', {
-                id: ind.id,
-                kind: shapeProfile.kind,
-                shape,
-                params: shapeProfile.params,
-              });
-            }
+            // if (Math.random() < 0.1) {
+            //   // Log ~10% of shape profiles to avoid spam
+            //   console.log('Rendering shape profile:', {
+            //     id: ind.id,
+            //     kind: shapeProfile.kind,
+            //     shape,
+            //     params: shapeProfile.params,
+            //   });
+            // }
             let profile: ShapeProfile | undefined;
             try {
               const needsSize =
@@ -445,14 +518,14 @@ function createSketch(props: SketchProps): (p: p5) => void {
             }
           } else {
             // Debug: Log legacy shape fallback
-            if (Math.random() < 0.1) {
-              // Log ~10% to avoid spam
-              console.log('Using legacy shape rendering:', {
-                id: ind.id,
-                shape,
-                hasShapeProfile: !!shapeProfile,
-              });
-            }
+            // if (Math.random() < 0.1) {
+            //   // Log ~10% to avoid spam
+            //   console.log('Using legacy shape rendering:', {
+            //     id: ind.id,
+            //     shape,
+            //     hasShapeProfile: !!shapeProfile,
+            //   });
+            // }
             if (shape === 'circle') {
               p.ellipse(0, 0, finalWidth, finalHeight);
             } else if (shape === 'square') {
@@ -571,28 +644,19 @@ function createSketch(props: SketchProps): (p: p5) => void {
             p.text(ind.name, x, y + fallbackOffsetY);
           }
         }
-      }
 
-      p.fill(100);
-      p.textSize(10);
-      p.textAlign(p.LEFT);
-      p.text(`Pipeline: ${transformerIds.join(', ')}`, 10, 20);
-      p.text(`Temperature: ${String(temperature)}`, 10, 35);
-      if (seed) {
-        p.text(`Seed: ${seed}`, 10, 50);
+        // Log summary once per draw cycle
+        if (totalWithCoords > 0) {
+          console.log('Individual visibility summary:', {
+            totalInDataset: individuals.length,
+            withCoordinates: totalWithCoords,
+            offCanvas,
+            transparent,
+            actuallyVisible: visibleIndividualsCount,
+            canvasSize: { width: p.width, height: p.height },
+          });
+        }
       }
-
-      // Debug info
-      p.text(
-        `Individuals: ${String(Object.keys(visualMetadata.individuals).length)}`,
-        10,
-        65,
-      );
-      p.text(
-        `With positions: ${String(Object.values(visualMetadata.individuals).filter((i) => i.x !== undefined && i.y !== undefined).length)}`,
-        10,
-        80,
-      );
     };
   };
 }

@@ -13,6 +13,7 @@ import {
   validateFlexibleGedcomData,
   type LLMReadyData,
 } from '../../shared/types';
+import { rebuildGraphData } from './graph-rebuilder';
 import type { PipelineResult } from './pipeline/pipeline';
 import {
   runPipeline,
@@ -143,9 +144,13 @@ function App(): React.ReactElement {
         const llmData = (await llmResponse.json()) as LLMReadyData;
 
         console.log('✅ Data loaded successfully');
+
+        // Rebuild graph data for efficient traversal
+        const fullDataWithGraph = rebuildGraphData(validatedFullData);
+
         familyTreeStore.send({
           type: 'fetchSucceeded',
-          fullData: validatedFullData,
+          fullData: fullDataWithGraph,
           llmData,
         });
 
@@ -231,14 +236,17 @@ function App(): React.ReactElement {
       // Use Zod validation instead of manual type checking
       const validatedData = validateFlexibleGedcomData(data);
 
+      // Rebuild graph data for efficient traversal
+      const fullDataWithGraph = rebuildGraphData(validatedData);
+
       // For uploaded files, create a minimal dual-data structure
       // (LLM data will be null since we don't have pre-processed LLM data)
       const newDualData = {
-        full: validatedData,
+        full: fullDataWithGraph,
         llm: {
           individuals: {},
           families: {},
-          metadata: validatedData.metadata,
+          metadata: fullDataWithGraph.metadata,
         },
       };
       familyTreeStore.send({
