@@ -1,0 +1,271 @@
+{
+  "US": {
+    "canonical": "United States",
+    "iso3": "USA",
+    "aliases": [
+      "USA",
+      "U.S.A.",
+      "US",
+      "U.S.",
+      "United States of America",
+      "America",
+      "États-Unis",
+      "Estados Unidos",
+      "Stati Uniti",
+      "Vereinigte Staaten"
+    ],
+    "patterns": [
+      "*, USA",
+      "*, United States",
+      "*, US",
+      "*, America"
+    ],
+    "regions": [
+      "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+      "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
+      "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+      "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+      "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+      "New Hampshire", "New Jersey", "New Mexico", "New York",
+      "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+      "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+      "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+      "West Virginia", "Wisconsin", "Wyoming",
+      "Washington DC", "District of Columbia", "DC"
+    ]
+  },
+  "VN": {
+    "canonical": "Vietnam",
+    "iso3": "VNM",
+    "aliases": [
+      "Viet Nam",
+      "Socialist Republic of Vietnam",
+      "Việt Nam",
+      "Cộng hòa Xã hội chủ nghĩa Việt Nam"
+    ],
+    "patterns": [
+      "*, Vietnam",
+      "*, Viet Nam"
+    ],
+    "historicalNames": {
+      "North Vietnam": [1945, 1976],
+      "South Vietnam": [1955, 1975],
+      "French Indochina": [1887, 1954],
+      "Indochine": [1887, 1954]
+    },
+    "regions": [
+      "Hanoi", "Saigon", "Ho Chi Minh City", "Da Nang", "Haiphong"
+    ]
+  },
+  "IL": {
+    "canonical": "Israel",
+    "iso3": "ISR",
+    "aliases": [
+      "State of Israel",
+      "מדינת ישראל",
+      "Medinat Yisrael"
+    ],
+    "patterns": [
+      "*, Israel",
+      "*, IL"
+    ],
+    "historicalNames": {
+      "Palestine": [1920, 1948],
+      "British Palestine": [1920, 1948],
+      "Mandatory Palestine": [1920, 1948]
+    },
+    "regions": [
+      "Jerusalem", "Tel Aviv", "Haifa", "Beer Sheva", "Nazareth",
+      "Eilat", "Netanya", "Ashdod", "Rishon LeZion"
+    ]
+  },
+  "BE": {
+    "canonical": "Belgium",
+    "iso3": "BEL",
+    "aliases": [
+      "Kingdom of Belgium",
+      "België",
+      "Belgique",
+      "Belgien",
+      "Bélgica"
+    ],
+    "patterns": [
+      "*, Belgium",
+      "*, België",
+      "*, Belgique",
+      "*, BE"
+    ],
+    "regions": [
+      "Flanders", "Wallonia", "Brussels",
+      "Antwerp", "Ghent", "Charleroi", "Liège", "Bruges",
+      "Namur", "Leuven", "Mons", "Mechelen", "Aalst"
+    ]
+  },
+  "ES": {
+    "canonical": "Spain",
+    "iso3": "ESP",
+    "aliases": [
+      "Kingdom of Spain",
+      "España",
+      "Espagne",
+      "Spanien",
+      "Espanha"
+    ],
+    "patterns": [
+      "*, Spain",
+      "*, España",
+      "*, ES"
+    ],
+    "regions": [
+      "Catalonia", "Catalunya", "Andalusia", "Andalucía",
+      "Madrid", "Valencia", "Galicia", "Castile and León",
+      "Basque Country", "País Vasco", "Euskadi",
+      "Canary Islands", "Castilla-La Mancha", "Murcia",
+      "Aragon", "Extremadura", "Balearic Islands",
+      "Asturias", "Navarre", "Cantabria", "La Rioja",
+      "Barcelona", "Seville", "Bilbao", "Málaga", "Zaragoza"
+    ]
+  },
+  "FR": {
+    "canonical": "France",
+    "iso3": "FRA",
+    "aliases": [
+      "French Republic",
+      "République française",
+      "Frankrijk",
+      "Frankreich",
+      "Francia"
+    ],
+    "patterns": [
+      "*, France",
+      "*, FR"
+    ],
+    "historicalNames": {
+      "Vichy France": [1940, 1944],
+      "Free France": [1940, 1944]
+    },
+    "regions": [
+      "Paris", "Marseille", "Lyon", "Toulouse", "Nice",
+      "Nantes", "Strasbourg", "Montpellier", "Bordeaux",
+      "Lille", "Rennes", "Reims", "Le Havre", "Saint-Étienne",
+      "Toulon", "Grenoble", "Dijon", "Angers", "Nîmes",
+      "Île-de-France", "Provence", "Normandy", "Brittany",
+      "Alsace", "Aquitaine", "Burgundy", "Champagne"
+    ]
+  },
+  "IE": {
+    "canonical": "Ireland",
+    "iso3": "IRL",
+    "aliases": [
+      "Republic of Ireland",
+      "Éire",
+      "Ierland",
+      "Irland",
+      "Irlanda"
+    ],
+    "patterns": [
+      "*, Ireland",
+      "*, Éire",
+      "*, IE"
+    ],
+    "historicalNames": {
+      "Irish Free State": [1922, 1949]
+    },
+    "regions": [
+      "Dublin", "Cork", "Galway", "Limerick", "Waterford",
+      "County Cork", "County Kerry", "County Galway", "County Mayo",
+      "County Donegal", "County Dublin", "County Kildare",
+      "County Wicklow", "County Meath", "County Clare",
+      "Leinster", "Munster", "Connacht", "Ulster"
+    ]
+  },
+  "IT": {
+    "canonical": "Italy",
+    "iso3": "ITA",
+    "aliases": [
+      "Italian Republic",
+      "Italia",
+      "République italienne",
+      "Italien",
+      "Itália"
+    ],
+    "patterns": [
+      "*, Italy",
+      "*, Italia",
+      "*, IT"
+    ],
+    "regions": [
+      "Rome", "Milan", "Naples", "Turin", "Palermo",
+      "Genoa", "Bologna", "Florence", "Bari", "Catania",
+      "Venice", "Verona", "Messina", "Padua", "Trieste",
+      "Sicily", "Sardinia", "Lombardy", "Veneto", "Piedmont",
+      "Emilia-Romagna", "Lazio", "Tuscany", "Campania",
+      "Puglia", "Calabria", "Liguria", "Marche", "Abruzzo"
+    ]
+  },
+  "GB": {
+    "canonical": "United Kingdom",
+    "iso3": "GBR",
+    "aliases": [
+      "UK",
+      "U.K.",
+      "Great Britain",
+      "Britain",
+      "England",
+      "Scotland",
+      "Wales",
+      "Northern Ireland",
+      "United Kingdom of Great Britain and Northern Ireland"
+    ],
+    "patterns": [
+      "*, UK",
+      "*, U.K.",
+      "*, United Kingdom",
+      "*, England",
+      "*, Scotland",
+      "*, Wales",
+      "*, Britain"
+    ],
+    "regions": [
+      "London", "Birmingham", "Manchester", "Leeds", "Glasgow",
+      "Newcastle", "Sheffield", "Liverpool", "Bristol", "Edinburgh",
+      "Belfast", "Cardiff", "Nottingham", "Leicester", "Coventry",
+      "Kingston upon Hull", "Bradford", "Stoke-on-Trent", "Wolverhampton",
+      "Plymouth", "Southampton", "Reading", "Derby", "Northampton"
+    ]
+  },
+  "DE": {
+    "canonical": "Germany",
+    "iso3": "DEU",
+    "aliases": [
+      "Federal Republic of Germany",
+      "Deutschland",
+      "Allemagne",
+      "Alemania",
+      "Germania"
+    ],
+    "patterns": [
+      "*, Germany",
+      "*, Deutschland",
+      "*, DE"
+    ],
+    "historicalNames": {
+      "East Germany": [1949, 1990],
+      "GDR": [1949, 1990],
+      "DDR": [1949, 1990],
+      "West Germany": [1949, 1990],
+      "FRG": [1949, 1990],
+      "BRD": [1949, 1990],
+      "Weimar Republic": [1919, 1933],
+      "German Empire": [1871, 1918],
+      "Prussia": [1525, 1947]
+    },
+    "regions": [
+      "Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt",
+      "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig",
+      "Bremen", "Dresden", "Hanover", "Nuremberg", "Duisburg",
+      "Bavaria", "Saxony", "Brandenburg", "Hesse", "Thuringia",
+      "Rhineland", "Westphalia", "Baden-Württemberg"
+    ]
+  }
+}
