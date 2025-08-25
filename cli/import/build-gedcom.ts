@@ -13,7 +13,10 @@ import type { Individual, Family } from '../../shared/types';
 import { PerformanceTimer } from '../utils/performance-timer';
 import { writeJsonStream } from '../utils/streaming-json-writer';
 import { CountryMatcher } from '../country-matching/country-matcher';
-import type { UnresolvedLocation, ProcessingMetadata } from '../country-matching/types';
+import type {
+  UnresolvedLocation,
+  ProcessingMetadata,
+} from '../country-matching/types';
 
 // Local interfaces that match SimpleGedcomParser output
 interface ParsedIndividual {
@@ -458,9 +461,7 @@ async function buildGedcomFiles(
         );
       }
       fileTimer.endAndLog('LLM JSON Writing');
-      console.log(
-        `  Generated ${baseName}-llm.json (LLM-ready, PII stripped)`,
-      );
+      console.log(`  Generated ${baseName}-llm.json (LLM-ready, PII stripped)`);
 
       // Write processing statistics with country data
       fileTimer.start('Stats JSON Writing');
@@ -470,15 +471,15 @@ async function buildGedcomFiles(
       };
       await writeFile(statsOutputPath, JSON.stringify(enhancedStats, null, 2));
       fileTimer.endAndLog('Stats JSON Writing');
-      console.log(
-        `  Generated ${baseName}-stats.json (processing statistics)`,
-      );
+      console.log(`  Generated ${baseName}-stats.json (processing statistics)`);
 
       // Check for media directory with flexible naming
       fileTimer.start('Media Processing');
       const foundMediaDir = await findMediaDirectory(inputDir, baseName);
       if (foundMediaDir) {
-        console.log(`  Found media directory: ${foundMediaDir.split('/').pop() ?? foundMediaDir}`);
+        console.log(
+          `  Found media directory: ${foundMediaDir.split('/').pop() ?? foundMediaDir}`,
+        );
         // Copy media files to generated/media/<baseName>/
         const destMediaDir = join(mediaDir, baseName);
         await mkdir(destMediaDir, { recursive: true });
@@ -605,7 +606,9 @@ async function buildGedcomFiles(
     try {
       const statsPath = join(outputDir, `${dataset.fileName}-stats.json`);
       const statsData = JSON.parse(await readFile(statsPath, 'utf-8')) as {
-        countryMatching?: ProcessingMetadata & { unresolvedLocations: UnresolvedLocation[] };
+        countryMatching?: ProcessingMetadata & {
+          unresolvedLocations: UnresolvedLocation[];
+        };
       };
       if (statsData.countryMatching) {
         const cm = statsData.countryMatching;

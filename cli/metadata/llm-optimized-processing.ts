@@ -260,9 +260,7 @@ export function processGedcomWithLLMOptimization(
       },
     };
   } else {
-    console.log(
-      '  Performing comprehensive analysis (non-large dataset)...',
-    );
+    console.log('  Performing comprehensive analysis (non-large dataset)...');
     fullData = transformGedcomDataWithComprehensiveAnalysis(
       individuals,
       families,
