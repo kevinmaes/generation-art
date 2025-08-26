@@ -459,6 +459,7 @@ function App(): React.ReactElement {
                 isVisualizing={isVisualizing}
                 pipelineProgress={pipelineProgress}
                 primaryIndividualId={primaryIndividualId}
+                onSetPrimaryIndividual={setPrimaryIndividualId}
               />
             </>
           ) : (

@@ -24,6 +24,7 @@ interface FramedArtworkProps {
     transformerName: string;
   } | null;
   primaryIndividualId?: string;
+  onSetPrimaryIndividual?: (id: string) => void;
 }
 
 export function FramedArtwork({
@@ -38,6 +39,7 @@ export function FramedArtwork({
   isVisualizing = false,
   pipelineProgress = null,
   primaryIndividualId,
+  onSetPrimaryIndividual,
 }: FramedArtworkProps): React.ReactElement {
   const familyTreeData = useFamilyTreeData();
   const p5InstanceRef = useRef<p5 | null>(null);
@@ -203,6 +205,7 @@ export function FramedArtwork({
             pipelineProgress={pipelineProgress}
             primaryIndividualId={primaryIndividualId}
             gedcomData={familyTreeData?.full}
+            onSetPrimaryIndividual={onSetPrimaryIndividual}
           />
         </div>
       </div>
