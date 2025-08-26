@@ -60,9 +60,7 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
     setTooltipPosition({ x, y });
   }, [position, canvasBounds, isVisible]);
 
-  // Extract birth and death information
-  const birthYear = individual.birth?.date?.match(/\d{4}/)?.[0];
-  const deathYear = individual.death?.date?.match(/\d{4}/)?.[0];
+  // Extract birth and death country information
   const birthCountry = individual.birth?.country?.iso2;
   const deathCountry = individual.death?.country?.iso2;
 
@@ -90,58 +88,42 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
       }}
     >
       {/* Name */}
-      <div className="font-semibold text-gray-900 text-sm mb-1">
+      <div className="font-semibold text-gray-900 text-sm mb-1 text-center">
         {individual.name || 'Unknown'}
       </div>
 
       {/* Birth Information */}
-      {(birthYear ?? birthCountry) && (
-        <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1">
-          <span>
-            Born{birthYear && ` ${birthYear}`}
-            {birthCountry && ' in'}
-          </span>
-          {birthCountry && (
-            <>
-              <span>{birthCountry}</span>
-              {birthFlagUrl && (
-                <img
-                  src={birthFlagUrl}
-                  alt={`${birthCountry} flag`}
-                  className="w-4 h-auto rounded-sm shadow-sm"
-                  onError={(e) => {
-                    // Hide image if flag fails to load
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              )}
-            </>
+      {birthCountry && (
+        <div className="flex items-center justify-center gap-1.5 text-xs text-gray-600 mb-1">
+          <span>Born {birthCountry}</span>
+          {birthFlagUrl && (
+            <img
+              src={birthFlagUrl}
+              alt={`${birthCountry} flag`}
+              className="w-4 h-auto rounded-sm shadow-sm"
+              onError={(e) => {
+                // Hide image if flag fails to load
+                e.currentTarget.style.display = 'none';
+              }}
+            />
           )}
         </div>
       )}
 
       {/* Death Information */}
-      {(deathYear ?? deathCountry) && (
-        <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-2">
-          <span>
-            Died{deathYear && ` ${deathYear}`}
-            {deathCountry && ' in'}
-          </span>
-          {deathCountry && (
-            <>
-              <span>{deathCountry}</span>
-              {deathFlagUrl && (
-                <img
-                  src={deathFlagUrl}
-                  alt={`${deathCountry} flag`}
-                  className="w-4 h-auto rounded-sm shadow-sm"
-                  onError={(e) => {
-                    // Hide image if flag fails to load
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              )}
-            </>
+      {deathCountry && (
+        <div className="flex items-center justify-center gap-1.5 text-xs text-gray-600 mb-2">
+          <span>Died {deathCountry}</span>
+          {deathFlagUrl && (
+            <img
+              src={deathFlagUrl}
+              alt={`${deathCountry} flag`}
+              className="w-4 h-auto rounded-sm shadow-sm"
+              onError={(e) => {
+                // Hide image if flag fails to load
+                e.currentTarget.style.display = 'none';
+              }}
+            />
           )}
         </div>
       )}
