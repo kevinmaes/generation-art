@@ -23,3 +23,6 @@ export type {
 
 // Shape geometry types
 export type * from './shape';
+
+// Country-related types
+export type * from './country';

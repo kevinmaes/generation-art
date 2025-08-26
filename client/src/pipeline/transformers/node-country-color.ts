@@ -2,9 +2,8 @@
  * Node Country Color Transformer
  *
  * Colors nodes based on the countries associated with individuals:
- * - Birth country (primary)
- * - Death country (secondary)
- * - Marriage country (tertiary)
+ * - Fill color: Birth country's primary flag color
+ * - Stroke color: Birth country's secondary flag color (or death country's primary if different)
  *
  * Uses country flag colors from the country-colors.json data.
  */
@@ -15,37 +14,13 @@ import type {
   VisualMetadata,
   VisualTransformerConfig,
 } from '../types';
-import type { AugmentedIndividual } from '../../../../shared/types';
+import type {
+  AugmentedIndividual,
+  CountryColorMap,
+} from '../../../../shared/types';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 import countryColors from '../../../../shared/data/country-colors.json';
-
-interface CountryColor {
-  primary: {
-    hex: string;
-    oklch: number[];
-    name: string;
-    proportion: number;
-  };
-  secondary?: {
-    hex: string;
-    oklch: number[];
-    name: string;
-    proportion: number;
-  };
-  tertiary?: {
-    hex: string;
-    oklch: number[];
-    name: string;
-    proportion: number;
-  };
-  quaternary?: {
-    hex: string;
-    oklch: number[];
-    name: string;
-    proportion: number;
-  };
-}
 
 /**
  * Configuration for the node country color transformer
@@ -54,22 +29,23 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
   id: 'node-country-color',
   name: 'Node Country Color',
   description:
-    'Colors nodes based on their birth or death country using flag colors.',
-  shortDescription: 'Color by country',
+    'Colors nodes with birth country flag colors - primary for fill, secondary for stroke.',
+  shortDescription: 'Country flag colors',
   transform: nodeCountryColorTransform,
   categories: ['color', 'geographic'],
   availableDimensions: [],
   defaultPrimaryDimension: 'generation',
   visualParameters: [
     {
-      name: 'colorMode',
-      label: 'Color Mode',
+      name: 'strokeMode',
+      label: 'Stroke Color',
       type: 'select',
-      defaultValue: 'primary',
+      defaultValue: 'secondary',
       options: [
-        { value: 'primary', label: 'Primary Flag Color' },
-        { value: 'blend', label: 'Blend Flag Colors' },
-        { value: 'gradient', label: 'Flag Gradient' },
+        { value: 'secondary', label: 'Secondary flag color' },
+        { value: 'death', label: 'Death country color' },
+        { value: 'darker', label: 'Darker shade of fill' },
+        { value: 'none', label: 'No stroke' },
       ],
     },
     {
@@ -94,118 +70,46 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
 };
 
 /**
- * Extract ISO2 country code from a place string
- * This is a simplified version - in production, you'd use CountryMatcher
+ * Get primary color for a country ISO2 code
  */
-function extractCountryFromPlace(place?: string): string | null {
-  if (!place) return null;
+function getCountryPrimaryColor(iso2: string | null): string | null {
+  if (!iso2) return null;
 
-  // For now, use a simple mapping for common patterns
-  // In production, integrate with CountryMatcher class
-  const countryPatterns: Record<string, string> = {
-    USA: 'US',
-    'United States': 'US',
-    England: 'GB',
-    'United Kingdom': 'GB',
-    UK: 'GB',
-    France: 'FR',
-    Germany: 'DE',
-    Ireland: 'IE',
-    Canada: 'CA',
-    Australia: 'AU',
-    'New Zealand': 'NZ',
-    Italy: 'IT',
-    Spain: 'ES',
-    Netherlands: 'NL',
-    Belgium: 'BE',
-    Switzerland: 'CH',
-    Austria: 'AT',
-    Poland: 'PL',
-    Russia: 'RU',
-    China: 'CN',
-    Japan: 'JP',
-    India: 'IN',
-    Brazil: 'BR',
-    Mexico: 'MX',
-    Argentina: 'AR',
-  };
+  const countryData = (countryColors as unknown as CountryColorMap)[iso2];
 
-  // Check if place contains any known country
-  const upperPlace = place.toUpperCase();
-  for (const [pattern, iso2] of Object.entries(countryPatterns)) {
-    if (upperPlace.includes(pattern.toUpperCase())) {
-      return iso2;
-    }
+  return countryData?.primary?.hex || null;
+}
+
+/**
+ * Get secondary color for a country ISO2 code
+ */
+function getCountrySecondaryColor(iso2: string | null): string | null {
+  if (!iso2) return null;
+
+  const countryData = (countryColors as unknown as CountryColorMap)[iso2];
+
+  // Return secondary if available, otherwise return a darker shade of primary
+  if (countryData?.secondary?.hex) {
+    return countryData.secondary.hex;
   }
 
-  // Check if the last part after comma might be a country
-  const parts = place.split(',');
-  if (parts.length > 1) {
-    const lastPart = parts[parts.length - 1].trim();
-    for (const [pattern, iso2] of Object.entries(countryPatterns)) {
-      if (lastPart.toUpperCase() === pattern.toUpperCase()) {
-        return iso2;
-      }
-    }
+  if (countryData?.primary?.hex) {
+    return darkenColor(countryData.primary.hex, 0.2);
   }
 
   return null;
 }
 
 /**
- * Get color for a country ISO2 code
+ * Darken a hex color by a percentage
  */
-function getCountryColor(
-  iso2: string | null,
-  colorMode: string,
-): string | null {
-  if (!iso2) return null;
+function darkenColor(hex: string, percent: number): string {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const r = Math.floor((num >> 16) * (1 - percent));
+  const g = Math.floor(((num >> 8) & 0x00ff) * (1 - percent));
+  const b = Math.floor((num & 0x0000ff) * (1 - percent));
 
-  const countryData = (
-    countryColors as unknown as Record<string, CountryColor>
-  )[iso2];
-  if (!countryData) return null;
-
-  switch (colorMode) {
-    case 'blend': {
-      // Blend primary and secondary colors if available
-      if (countryData.secondary) {
-        const primary = countryData.primary.hex;
-        const secondary = countryData.secondary.hex;
-        return blendColors(primary, secondary, 0.5);
-      }
-      return countryData.primary.hex;
-    }
-    case 'gradient': {
-      // For gradient mode, return primary color (gradient would be applied in rendering)
-      return countryData.primary.hex;
-    }
-    case 'primary':
-    default:
-      return countryData.primary.hex;
-  }
-}
-
-/**
- * Blend two hex colors
- */
-function blendColors(color1: string, color2: string, ratio: number): string {
-  const hex1 = color1.replace('#', '');
-  const hex2 = color2.replace('#', '');
-
-  const r1 = parseInt(hex1.substring(0, 2), 16);
-  const g1 = parseInt(hex1.substring(2, 4), 16);
-  const b1 = parseInt(hex1.substring(4, 6), 16);
-
-  const r2 = parseInt(hex2.substring(0, 2), 16);
-  const g2 = parseInt(hex2.substring(2, 4), 16);
-  const b2 = parseInt(hex2.substring(4, 6), 16);
-
-  const r = Math.round(r1 * (1 - ratio) + r2 * ratio);
-  const g = Math.round(g1 * (1 - ratio) + g2 * ratio);
-  const b = Math.round(b1 * (1 - ratio) + b2 * ratio);
-
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
 }
 
 /**
@@ -227,12 +131,12 @@ function applyColorIntensity(color: string, intensity: number): string {
 }
 
 /**
- * Calculate node color based on country associations
+ * Calculate node colors (fill and stroke) based on country associations
  */
-function calculateNodeColor(
+function calculateNodeColors(
   context: TransformerContext,
   individualId: string,
-): string {
+): { color: string; strokeColor?: string } {
   const { gedcomData, visual } = context;
 
   // Find the individual
@@ -242,38 +146,70 @@ function calculateNodeColor(
     'Node country color transformer',
   ) as AugmentedIndividual | null;
 
-  if (!individual) {
-    return (visual.fallbackColor as string) || '#808080';
-  }
-
-  const colorMode = (visual.colorMode as string) || 'primary';
-  const colorIntensity = (visual.colorIntensity as number) || 0.8;
   const fallbackColor = (visual.fallbackColor as string) || '#808080';
+  const strokeMode = (visual.strokeMode as string) || 'secondary';
+  const colorIntensity = (visual.colorIntensity as number) || 0.8;
 
-  // Try to extract country from birth place first, then death place
-  let countryIso2: string | null = null;
-
-  // Primary: Check birth place
-  const birthPlace = individual.birth?.place;
-  countryIso2 = extractCountryFromPlace(birthPlace);
-
-  // Fallback: Check death place if birth didn't yield a country
-  if (!countryIso2) {
-    const deathPlace = individual.death?.place;
-    countryIso2 = extractCountryFromPlace(deathPlace);
+  if (!individual) {
+    return { color: fallbackColor };
   }
 
-  // Get color for the country
-  let color = getCountryColor(countryIso2, colorMode);
+  // Get country ISO codes from pre-processed data (added by CLI)
+  const birthCountryIso2 = individual.birth?.country?.iso2 || null;
+  const deathCountryIso2 = individual.death?.country?.iso2 || null;
 
-  if (!color) {
-    return fallbackColor;
+  // Get primary color from birth country (or death if no birth)
+  const countryIso2 = birthCountryIso2 || deathCountryIso2;
+  let fillColor = getCountryPrimaryColor(countryIso2);
+
+  if (!fillColor) {
+    return { color: fallbackColor };
   }
 
-  // Apply color intensity
-  color = applyColorIntensity(color, colorIntensity);
+  // Apply color intensity to fill
+  fillColor = applyColorIntensity(fillColor, colorIntensity);
 
-  return color;
+  // Determine stroke color based on mode
+  let strokeColor: string | undefined;
+
+  switch (strokeMode) {
+    case 'secondary': {
+      // Use secondary color from birth country
+      const secondaryColor = getCountrySecondaryColor(birthCountryIso2);
+      strokeColor = secondaryColor || undefined;
+      break;
+    }
+    case 'death': {
+      // Use primary color from death country if different from birth
+      if (deathCountryIso2 && deathCountryIso2 !== birthCountryIso2) {
+        const deathColor = getCountryPrimaryColor(deathCountryIso2);
+        strokeColor = deathColor || undefined;
+      } else {
+        const secondaryColor = getCountrySecondaryColor(birthCountryIso2);
+        strokeColor = secondaryColor || undefined;
+      }
+      break;
+    }
+    case 'darker':
+      // Use a darker shade of the fill color
+      strokeColor = darkenColor(fillColor, 0.3);
+      break;
+    case 'none':
+      // No stroke
+      strokeColor = undefined;
+      break;
+    default: {
+      const defaultSecondary = getCountrySecondaryColor(birthCountryIso2);
+      strokeColor = defaultSecondary || undefined;
+    }
+  }
+
+  // Apply intensity to stroke color if present
+  if (strokeColor) {
+    strokeColor = applyColorIntensity(strokeColor, colorIntensity);
+  }
+
+  return { color: fillColor, strokeColor };
 }
 
 /**
@@ -300,12 +236,14 @@ export async function nodeCountryColorTransform(
   // Apply color calculations to each individual
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals?.[individual.id] ?? {};
-    const calculatedColor = calculateNodeColor(context, individual.id);
+    const calculatedColors = calculateNodeColors(context, individual.id);
 
-    // Preserve existing visual metadata and update color
+    // Preserve existing visual metadata and update colors
     updatedIndividuals[individual.id] = {
       ...currentMetadata,
-      color: calculatedColor,
+      color: calculatedColors.color,
+      strokeColor: calculatedColors.strokeColor,
+      strokeWeight: calculatedColors.strokeColor ? 2 : 0, // Add stroke weight if there's a stroke color
     };
   });
 
