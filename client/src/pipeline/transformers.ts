@@ -22,6 +22,7 @@ import { simpleTreeConfig } from './transformers/simple-tree';
 import { walkerTreeConfig } from './transformers/walker-tree';
 import { fanChartConfig } from './transformers/fan-chart';
 import { gridLayoutConfig } from './transformers/grid-layout';
+import { nodeCountryColorConfig } from './transformers/node-country-color';
 
 // Transformer constants for type safety
 export const TRANSFORMERS = {
@@ -85,6 +86,10 @@ export const TRANSFORMERS = {
     ID: 'grid-layout',
     NAME: 'Grid Layout',
   },
+  NODE_COUNTRY_COLOR: {
+    ID: 'node-country-color',
+    NAME: 'Node Country Color',
+  },
 } as const;
 
 export type TransformerId =
@@ -116,6 +121,7 @@ export const transformerConfigs: Record<
   'walker-tree': walkerTreeConfig,
   'fan-chart': fanChartConfig,
   'grid-layout': gridLayoutConfig,
+  'node-country-color': nodeCountryColorConfig,
 };
 
 /**
