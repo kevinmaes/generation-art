@@ -186,6 +186,10 @@ export class SimpleGedcomParser {
   private handleDate(line: GedcomLine) {
     if (!line.value) return;
 
+    // Only process DATE tags at level 2 for events (BIRT, DEAT, MARR are at level 1)
+    // This prevents CHAN/DATE at level 3 from overwriting birth/death dates
+    if (line.level !== 2) return;
+
     if (this.currentIndividual) {
       if (this.currentEvent === 'BIRT') {
         if (this.debug) {
@@ -267,6 +271,10 @@ export class SimpleGedcomParser {
 
   private handlePlace(line: GedcomLine) {
     if (!line.value) return;
+
+    // Only process PLAC tags at level 2 for events (BIRT, DEAT, MARR are at level 1)
+    // This prevents nested PLAC tags from overwriting event places
+    if (line.level !== 2) return;
 
     if (this.currentIndividual) {
       if (this.currentEvent === 'BIRT') {

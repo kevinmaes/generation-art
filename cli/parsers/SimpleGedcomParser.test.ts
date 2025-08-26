@@ -190,6 +190,32 @@ invalid line
     expect(individual.deathDate).not.toBe('1 JAN 2024');
   });
 
+  it('should not confuse level 2 CHAN dates under BIRT', () => {
+    const gedcomText = `0 HEAD
+0 @I1@ INDI
+1 NAME Test /Person/
+1 BIRT
+2 DATE 15 JUL 1974
+2 PLAC Ho Chi Minh City, Vietnam
+2 _COR
+3 _LAD 10
+3 _LAM 45
+2 CHAN
+3 DATE 27 SEP 2014
+4 TIME 08:05:03
+0 TRLR`;
+
+    const parser = new SimpleGedcomParser();
+    const result = parser.parse(gedcomText);
+
+    const individual = result.individuals[0];
+    // Birth date should be preserved as 1974, not overwritten by CHAN date
+    expect(individual.birthDate).toBe('15 JUL 1974');
+    expect(individual.birthPlace).toBe('Ho Chi Minh City, Vietnam');
+    // CHAN date at level 3 should NOT overwrite birth date
+    expect(individual.birthDate).not.toBe('27 SEP 2014');
+  });
+
   it('should reset event state when encountering level 0 or 1 tags', () => {
     const gedcomText = `0 HEAD
 0 @I1@ INDI
