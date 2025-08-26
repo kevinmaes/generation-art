@@ -72,17 +72,10 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
       type: 'select',
       defaultValue: 'single',
       options: [
-        { value: 'single', label: 'Single layer (fill + stroke)' },
-        { value: 'multi', label: 'Multiple layers (flag colors)' },
+        { value: 'single', label: 'Single color' },
+        { value: 'multi', label: 'Multiple flag colors' },
       ],
-      description: 'How to apply country colors',
-    },
-    {
-      name: 'useNewLayerSystem',
-      label: 'Use new layer system',
-      type: 'boolean',
-      defaultValue: false,
-      description: 'Use the new layer-based rendering system',
+      description: 'Use single color or multiple flag colors',
     },
   ],
   createTransformerInstance: (params) =>
@@ -253,7 +246,6 @@ export async function nodeCountryColorTransform(
 
   // Extract visual parameters
   const layerMode = (visual.layerMode as string) || 'single';
-  const useNewLayerSystem = (visual.useNewLayerSystem as boolean) || false;
   const colorIntensity = (visual.colorIntensity as number) || 0.8;
   const fallbackColor = (visual.fallbackColor as string) || '#808080';
 
@@ -281,7 +273,7 @@ export async function nodeCountryColorTransform(
     // Get country colors
     const countryColorsData = getCountryColors(countryIso2);
 
-    if (useNewLayerSystem && layerMode === 'multi' && countryColorsData) {
+    if (layerMode === 'multi' && countryColorsData) {
       // Create multiple layers with different flag colors
       const layers: NodeVisualLayer[] = [];
 
@@ -348,50 +340,37 @@ export async function nodeCountryColorTransform(
         nodeLayers: layers,
       };
     } else {
-      // Use traditional single-layer approach
+      // Single-layer approach
       const calculatedColors = calculateNodeColors(context, individual.id);
 
-      if (useNewLayerSystem) {
-        // Create a single layer with the calculated colors
-        const layers: NodeVisualLayer[] = currentMetadata.nodeLayers || [];
+      // Always use layers, even for single color
+      const layers: NodeVisualLayer[] = [];
 
-        // Update or add the country color layer
-        const countryColorLayer: NodeVisualLayer = {
-          shape: currentMetadata.shape,
-          shapeProfile: currentMetadata.shapeProfile,
-          fill: {
-            color: calculatedColors.color,
-            opacity: currentMetadata.opacity ?? 0.8,
-          },
-          stroke: calculatedColors.strokeColor
-            ? {
-                color: calculatedColors.strokeColor,
-                weight: 2,
-                opacity: 1,
-              }
-            : undefined,
-          offset: { x: 0, y: 0 },
-          source: 'node-country-color',
-        };
-
-        // Replace or add our layer
-        const otherLayers = layers.filter(
-          (l) => l.source !== 'node-country-color',
-        );
-
-        updatedIndividuals[individual.id] = {
-          ...currentMetadata,
-          nodeLayers: [...otherLayers, countryColorLayer],
-        };
-      } else {
-        // Legacy approach - just update color properties
-        updatedIndividuals[individual.id] = {
-          ...currentMetadata,
+      // Create a single layer with the calculated colors
+      const countryColorLayer: NodeVisualLayer = {
+        shape: currentMetadata.shape,
+        shapeProfile: currentMetadata.shapeProfile,
+        fill: {
           color: calculatedColors.color,
-          strokeColor: calculatedColors.strokeColor,
-          strokeWeight: calculatedColors.strokeColor ? 2 : 0,
-        };
-      }
+          opacity: currentMetadata.opacity ?? 0.8,
+        },
+        stroke: calculatedColors.strokeColor
+          ? {
+              color: calculatedColors.strokeColor,
+              weight: 2,
+              opacity: 1,
+            }
+          : undefined,
+        offset: { x: 0, y: 0 },
+        source: 'node-country-color',
+      };
+
+      layers.push(countryColorLayer);
+
+      updatedIndividuals[individual.id] = {
+        ...currentMetadata,
+        nodeLayers: layers,
+      };
     }
   });
 
