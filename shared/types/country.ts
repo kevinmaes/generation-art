@@ -2,6 +2,8 @@
  * Shared country-related types used by both CLI and client
  */
 
+import type { ISO2 } from './iso2';
+
 /**
  * Country matching methods
  */
@@ -17,7 +19,7 @@ export type MatchMethod =
  * Result of country matching operation
  */
 export interface MatchResult {
-  iso2: string | null;
+  iso2: ISO2 | null;
   confidence: number;
   method: MatchMethod;
   details?: {
@@ -25,7 +27,7 @@ export interface MatchResult {
     matchedValue?: string;
     historicalYear?: number;
     alternativeMatches?: {
-      iso2: string;
+      iso2: ISO2;
       confidence: number;
       reason: string;
     }[];
@@ -55,12 +57,12 @@ export type CountryMatchingMap = Record<string, CountryMatchingData>;
 export interface PlaceWithCountry {
   original: string;
   country?: {
-    iso2: string;
+    iso2: ISO2;
     confidence: number;
     method: MatchMethod;
     matchedOn?: string;
     alternatives?: {
-      iso2: string;
+      iso2: ISO2;
       confidence: number;
       reason: string;
     }[];
@@ -90,7 +92,7 @@ export interface CountryColors {
 /**
  * Map of ISO2 codes to country colors
  */
-export type CountryColorMap = Record<string, CountryColors>;
+export type CountryColorMap = Record<ISO2, CountryColors>;
 
 /**
  * Processing metadata for country matching operations
@@ -119,7 +121,7 @@ export interface UnresolvedLocation {
     spouseBirth?: string;
   };
   bestGuess?: {
-    iso2: string;
+    iso2: ISO2;
     confidence: number;
   };
 }

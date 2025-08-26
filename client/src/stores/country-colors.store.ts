@@ -4,7 +4,11 @@
  */
 
 import { createStore } from '@xstate/store';
-import type { CountryColors, CountryColorMap } from '../../../shared/types';
+import type {
+  CountryColors,
+  CountryColorMap,
+  ISO2,
+} from '../../../shared/types';
 import countryColorsData from '../../../shared/data/country-colors.json';
 
 /**
@@ -21,7 +25,7 @@ export type CountryColorsState =
  */
 const initialState: CountryColorsState = {
   status: 'idle',
-  countryColors: {},
+  countryColors: {} as CountryColorMap,
   error: null,
 };
 
@@ -48,7 +52,7 @@ export const countryColorsStore = createStore({
       } catch (error) {
         return {
           status: 'error',
-          countryColors: {},
+          countryColors: {} as CountryColorMap,
           error:
             error instanceof Error
               ? error.message
@@ -74,41 +78,33 @@ export const countryColorsSelectors = {
    */
   getCountryColorsByIso2: (
     state: CountryColorsState,
-    iso2: string,
-  ): CountryColors | null => {
-    if (!iso2) return null;
-    const upperIso2 = iso2.toUpperCase();
-    return state.countryColors[upperIso2] ?? null;
+    iso2: ISO2,
+  ): CountryColors => {
+    // Country colors are keyed by ISO2 codes
+    return state.countryColors[iso2];
   },
 
   /**
    * Get primary color for a country
    */
-  getPrimaryColor: (state: CountryColorsState, iso2: string): string | null => {
+  getPrimaryColor: (state: CountryColorsState, iso2: ISO2): string => {
     const colors = countryColorsSelectors.getCountryColorsByIso2(state, iso2);
-    return colors?.primary.hex ?? null;
+    return colors.primary.hex;
   },
 
   /**
    * Get secondary color for a country (or fallback to darker primary)
    */
-  getSecondaryColor: (
-    state: CountryColorsState,
-    iso2: string,
-  ): string | null => {
+  getSecondaryColor: (state: CountryColorsState, iso2: ISO2): string => {
     const colors = countryColorsSelectors.getCountryColorsByIso2(state, iso2);
 
     // If there's a secondary color, use it
-    if (colors?.secondary?.hex) {
+    if (colors.secondary?.hex) {
       return colors.secondary.hex;
     }
 
     // If no secondary, create a darker shade of primary
-    if (colors?.primary.hex) {
-      return darkenColor(colors.primary.hex, 0.2);
-    }
-
-    return null;
+    return darkenColor(colors.primary.hex, 0.2);
   },
 
   /**

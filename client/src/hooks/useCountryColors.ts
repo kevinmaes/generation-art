@@ -5,7 +5,11 @@
 
 import { useEffect, useCallback } from 'react';
 import { useSelector } from '@xstate/store/react';
-import type { CountryColors, CountryColorMap } from '../../../shared/types';
+import type {
+  CountryColors,
+  CountryColorMap,
+  ISO2,
+} from '../../../shared/types';
 import {
   countryColorsStore,
   countryColorsSelectors,
@@ -13,9 +17,9 @@ import {
 
 interface UseCountryColorsReturn {
   countryColors: CountryColorMap;
-  getCountryColors: (iso2: string) => CountryColors | null;
-  getPrimaryColor: (iso2: string) => string | null;
-  getSecondaryColor: (iso2: string) => string | null;
+  getCountryColors: (iso2: ISO2) => CountryColors;
+  getPrimaryColor: (iso2: ISO2) => string;
+  getSecondaryColor: (iso2: ISO2) => string;
   isLoaded: boolean;
   error: string | null;
   status: 'idle' | 'loading' | 'loaded' | 'error';
@@ -36,7 +40,7 @@ export function useCountryColors(): UseCountryColorsReturn {
   }, [state.status]);
 
   // Get full color data for a country
-  const getCountryColors = useCallback((iso2: string): CountryColors | null => {
+  const getCountryColors = useCallback((iso2: ISO2): CountryColors => {
     return countryColorsSelectors.getCountryColorsByIso2(
       countryColorsStore.getSnapshot().context,
       iso2,
@@ -44,7 +48,7 @@ export function useCountryColors(): UseCountryColorsReturn {
   }, []);
 
   // Get primary color for a country
-  const getPrimaryColor = useCallback((iso2: string): string | null => {
+  const getPrimaryColor = useCallback((iso2: ISO2): string => {
     return countryColorsSelectors.getPrimaryColor(
       countryColorsStore.getSnapshot().context,
       iso2,
@@ -52,7 +56,7 @@ export function useCountryColors(): UseCountryColorsReturn {
   }, []);
 
   // Get secondary color for a country
-  const getSecondaryColor = useCallback((iso2: string): string | null => {
+  const getSecondaryColor = useCallback((iso2: ISO2): string => {
     return countryColorsSelectors.getSecondaryColor(
       countryColorsStore.getSnapshot().context,
       iso2,

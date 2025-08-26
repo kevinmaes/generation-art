@@ -10,3 +10,6 @@ export type {
   ProcessingMetadata,
   UnresolvedLocation,
 } from '../../shared/types/country.js';
+
+export type { ISO2 } from '../../shared/types/iso2.js';
+export { isISO2 } from '../../shared/types/iso2.js';

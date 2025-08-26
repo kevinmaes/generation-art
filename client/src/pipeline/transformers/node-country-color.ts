@@ -17,6 +17,7 @@ import type {
 import type {
   AugmentedIndividual,
   CountryColorMap,
+  ISO2,
 } from '../../../../shared/types';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
@@ -72,7 +73,7 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
 /**
  * Get primary color for a country ISO2 code
  */
-function getCountryPrimaryColor(iso2: string | null): string | null {
+function getCountryPrimaryColor(iso2: ISO2 | null): string | null {
   if (!iso2) return null;
 
   const countryData = (countryColors as unknown as CountryColorMap)[iso2];
@@ -83,7 +84,7 @@ function getCountryPrimaryColor(iso2: string | null): string | null {
 /**
  * Get secondary color for a country ISO2 code
  */
-function getCountrySecondaryColor(iso2: string | null): string | null {
+function getCountrySecondaryColor(iso2: ISO2 | null): string | null {
   if (!iso2) return null;
 
   const countryData = (countryColors as unknown as CountryColorMap)[iso2];

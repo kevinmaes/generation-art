@@ -3,16 +3,18 @@
  * These types represent the core data structures for GEDCOM parsing and processing
  */
 
+import type { ISO2 } from './iso2';
+
 /**
  * Country metadata for location matching
  */
 export interface CountryMetadata {
-  iso2: string;
+  iso2: ISO2;
   confidence: number;
   method: 'exact' | 'alias' | 'pattern' | 'region' | 'fuzzy' | 'historical';
   matchedOn?: string;
   alternatives?: {
-    iso2: string;
+    iso2: ISO2;
     confidence: number;
     reason: string;
   }[];

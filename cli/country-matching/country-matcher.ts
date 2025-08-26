@@ -6,7 +6,9 @@ import type {
   PlaceWithCountry,
   ProcessingMetadata,
   UnresolvedLocation,
+  ISO2,
 } from './types.js';
+import { isISO2 } from './types.js';
 
 export class CountryMatcher {
   private countryData: CountryMatchingMap;
@@ -15,6 +17,14 @@ export class CountryMatcher {
   private regionToIso2 = new Map<string, string>();
   private processingStats!: ProcessingMetadata;
   private unresolvedLocations: UnresolvedLocation[] = [];
+
+  /**
+   * Safely convert a string to ISO2 type, returning null if invalid
+   */
+  private toISO2(value: string | undefined): ISO2 | null {
+    if (!value) return null;
+    return isISO2(value) ? value : null;
+  }
 
   constructor(dataPath?: string) {
     const path =
@@ -142,7 +152,7 @@ export class CountryMatcher {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (this.countryData[upperInput]) {
       return {
-        iso2: upperInput,
+        iso2: this.toISO2(upperInput),
         confidence: 1.0,
         method: 'exact',
         details: {
@@ -156,7 +166,7 @@ export class CountryMatcher {
     const iso2FromIso3 = this.iso3ToIso2.get(input.toLowerCase());
     if (iso2FromIso3) {
       return {
-        iso2: iso2FromIso3,
+        iso2: this.toISO2(iso2FromIso3),
         confidence: 1.0,
         method: 'exact',
         details: {
@@ -175,7 +185,7 @@ export class CountryMatcher {
 
     if (iso2) {
       return {
-        iso2,
+        iso2: this.toISO2(iso2),
         confidence: 0.95,
         method: 'alias',
         details: {
@@ -242,7 +252,7 @@ export class CountryMatcher {
 
     if (bestMatch) {
       return {
-        iso2: bestMatch.iso2,
+        iso2: this.toISO2(bestMatch.iso2),
         confidence: 0.85,
         method: 'pattern',
         details: {
@@ -292,7 +302,7 @@ export class CountryMatcher {
         for (const pattern of data.patterns) {
           if (this.matchesPattern(input, pattern)) {
             return {
-              iso2,
+              iso2: this.toISO2(iso2),
               confidence: 0.9,
               method: 'pattern',
               details: {
@@ -325,7 +335,7 @@ export class CountryMatcher {
     const iso2 = this.regionToIso2.get(lowerInput);
     if (iso2) {
       return {
-        iso2,
+        iso2: this.toISO2(iso2),
         confidence: 0.85,
         method: 'region',
         details: {
@@ -341,7 +351,7 @@ export class CountryMatcher {
       const regionIso2 = this.regionToIso2.get(part.toLowerCase());
       if (regionIso2) {
         return {
-          iso2: regionIso2,
+          iso2: this.toISO2(regionIso2),
           confidence: 0.85,
           method: 'region',
           details: {
@@ -369,7 +379,7 @@ export class CountryMatcher {
             year <= endYear
           ) {
             return {
-              iso2,
+              iso2: this.toISO2(iso2),
               confidence: 0.75,
               method: 'historical',
               details: {
@@ -410,7 +420,7 @@ export class CountryMatcher {
     if (bestMatch && bestMatch.distance <= 3) {
       const confidence = Math.max(0.3, 0.6 - bestMatch.distance * 0.1);
       return {
-        iso2: bestMatch.iso2,
+        iso2: this.toISO2(bestMatch.iso2),
         confidence,
         method: 'fuzzy',
         details: {

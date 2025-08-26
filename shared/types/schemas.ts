@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ISO2_CODES } from './iso2';
 
 /**
  * Zod schemas for shared types
@@ -7,14 +8,21 @@ import { z } from 'zod';
 
 // Country metadata schema
 export const CountryMetadataSchema = z.object({
-  iso2: z.string(),
+  iso2: z.enum(ISO2_CODES),
   confidence: z.number(),
-  method: z.enum(['exact', 'alias', 'pattern', 'region', 'fuzzy', 'historical']),
+  method: z.enum([
+    'exact',
+    'alias',
+    'pattern',
+    'region',
+    'fuzzy',
+    'historical',
+  ]),
   matchedOn: z.string().optional(),
   alternatives: z
     .array(
       z.object({
-        iso2: z.string(),
+        iso2: z.enum(ISO2_CODES),
         confidence: z.number(),
         reason: z.string(),
       }),

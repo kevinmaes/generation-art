@@ -26,3 +26,7 @@ export type * from './shape';
 
 // Country-related types
 export type * from './country';
+
+// ISO2 country code types
+export type { ISO2 } from './iso2';
+export { ISO2_CODES, isISO2 } from './iso2';
