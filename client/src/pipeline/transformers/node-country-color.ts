@@ -1,9 +1,9 @@
 /**
  * Node Country Color Transformer
  *
- * Colors nodes based on the countries associated with individuals:
+ * Colors nodes based on the birth country of individuals:
  * - Fill color: Birth country's primary flag color
- * - Stroke color: Birth country's secondary flag color (or death country's primary if different)
+ * - Stroke color: Birth country's secondary flag color
  *
  * Uses country flag colors from the country-colors.json data.
  */
@@ -32,8 +32,8 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
   id: 'node-country-color',
   name: 'Node Country Color',
   description:
-    'Colors nodes with birth country flag colors - primary for fill, secondary for stroke.',
-  shortDescription: 'Country flag colors',
+    'Colors nodes based on birth country flag colors - primary for fill, secondary for stroke.',
+  shortDescription: 'Birth country flag colors',
   transform: nodeCountryColorTransform,
   categories: ['color', 'geographic'],
   availableDimensions: [],
@@ -46,7 +46,6 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
       defaultValue: 'secondary',
       options: [
         { value: 'secondary', label: 'Secondary flag color' },
-        { value: 'death', label: 'Death country color' },
         { value: 'darker', label: 'Darker shade of fill' },
         { value: 'none', label: 'No stroke' },
       ],
@@ -178,12 +177,11 @@ function calculateNodeColors(
   }
 
   // Get country ISO codes from pre-processed data (added by CLI)
+  // Only use birth country, ignore death country
   const birthCountryIso2 = individual.birth?.country?.iso2 || null;
-  const deathCountryIso2 = individual.death?.country?.iso2 || null;
 
-  // Get primary color from birth country (or death if no birth)
-  const countryIso2 = birthCountryIso2 || deathCountryIso2;
-  let fillColor = getCountryPrimaryColor(countryIso2);
+  // Get primary color from birth country only
+  let fillColor = getCountryPrimaryColor(birthCountryIso2);
 
   if (!fillColor) {
     return { color: fallbackColor };
@@ -192,25 +190,14 @@ function calculateNodeColors(
   // Apply color intensity to fill
   fillColor = applyColorIntensity(fillColor, colorIntensity);
 
-  // Determine stroke color based on mode
+  // Determine stroke color based on mode (only using birth country)
   let strokeColor: string | undefined;
 
   switch (strokeMode) {
     case 'secondary': {
-      // Use secondary color from birth country
+      // Use secondary color from birth country (default)
       const secondaryColor = getCountrySecondaryColor(birthCountryIso2);
       strokeColor = secondaryColor || undefined;
-      break;
-    }
-    case 'death': {
-      // Use primary color from death country if different from birth
-      if (deathCountryIso2 && deathCountryIso2 !== birthCountryIso2) {
-        const deathColor = getCountryPrimaryColor(deathCountryIso2);
-        strokeColor = deathColor || undefined;
-      } else {
-        const secondaryColor = getCountrySecondaryColor(birthCountryIso2);
-        strokeColor = secondaryColor || undefined;
-      }
       break;
     }
     case 'darker':
@@ -222,6 +209,7 @@ function calculateNodeColors(
       strokeColor = undefined;
       break;
     default: {
+      // Default to secondary color from birth country
       const defaultSecondary = getCountrySecondaryColor(birthCountryIso2);
       strokeColor = defaultSecondary || undefined;
     }
@@ -265,10 +253,9 @@ export async function nodeCountryColorTransform(
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals?.[individual.id] ?? {};
 
-    // Get country ISO codes
+    // Get country ISO code from birth location only
     const birthCountryIso2 = individual.birth?.country?.iso2 || null;
-    const deathCountryIso2 = individual.death?.country?.iso2 || null;
-    const countryIso2 = birthCountryIso2 || deathCountryIso2;
+    const countryIso2 = birthCountryIso2;
 
     // Get country colors
     const countryColorsData = getCountryColors(countryIso2);
