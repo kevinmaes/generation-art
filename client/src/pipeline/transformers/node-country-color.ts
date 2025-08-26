@@ -280,44 +280,85 @@ export async function nodeCountryColorTransform(
       // Ensure we have existing layers or create new ones
       const existingLayers = currentMetadata.nodeLayers || [];
 
-      // Get up to 4 flag colors
-      const flagColors = [
-        countryColorsData.primary?.hex,
-        countryColorsData.secondary?.hex,
-        countryColorsData.tertiary?.hex,
-        countryColorsData.quaternary?.hex,
-      ].filter(Boolean) as string[];
+      // Get flag colors with their proportions
+      // Order: largest to smallest for drawing (back to front)
+      const flagColorData = [
+        {
+          color: countryColorsData.primary?.hex,
+          proportion: (countryColorsData.primary?.proportion || 0.5) * 100,
+          name: 'primary',
+          order: 0,
+        },
+        {
+          color: countryColorsData.secondary?.hex,
+          proportion: (countryColorsData.secondary?.proportion || 0.3) * 100,
+          name: 'secondary',
+          order: 1,
+        },
+        {
+          color: countryColorsData.tertiary?.hex,
+          proportion: (countryColorsData.tertiary?.proportion || 0.2) * 100,
+          name: 'tertiary',
+          order: 2,
+        },
+      ].filter((item) => item.color) as Array<{
+        color: string;
+        proportion: number;
+        name: string;
+        order: number;
+      }>;
 
-      if (flagColors.length > 0) {
-        // If we have existing layers, update their colors
-        // Otherwise create new layers
-        const layerCount = Math.max(
-          existingLayers.length,
-          Math.min(flagColors.length, 3),
-        );
+      if (flagColorData.length > 0) {
+        // Sort by proportion ascending (smallest first for center position)
+        // This ensures smallest proportion is in center, largest is outer ring
+        flagColorData.sort((a, b) => a.proportion - b.proportion);
 
-        for (let i = 0; i < layerCount; i++) {
-          const existingLayer = existingLayers[i];
-          const flagColor = flagColors[i % flagColors.length];
-          const adjustedColor = applyColorIntensity(flagColor, colorIntensity);
-          const layerOpacity = 0.9 - i * 0.2; // More visible opacity differences
+        // Calculate radii to match visible area proportions
+        // For concentric circles, visible area of a ring = π(R_outer² - R_inner²)
+        // We need to solve for radii that give us the correct area proportions
+
+        const radii: number[] = [];
+        let cumulativeArea = 0;
+
+        // Calculate radius for each layer from inside out
+        for (let i = 0; i < flagColorData.length; i++) {
+          const colorData = flagColorData[i];
+          // Add this color's proportion to cumulative area
+          cumulativeArea += colorData.proportion / 100;
+          // Radius is sqrt of cumulative area (since area = πr²)
+          radii.push(Math.sqrt(cumulativeArea));
+        }
+
+        // Now draw layers from outside in (largest first)
+        for (let i = flagColorData.length - 1; i >= 0; i--) {
+          const colorData = flagColorData[i];
+          const existingLayer = existingLayers[flagColorData.length - 1 - i];
+          const scaleFactor = radii[i];
+
+          // Higher opacity for smaller/center layers for better visibility
+          const layerOpacity = 0.9 - i * 0.1; // Center gets highest opacity
 
           layers.push({
             shape: existingLayer?.shape || currentMetadata.shape,
             shapeProfile:
               existingLayer?.shapeProfile || currentMetadata.shapeProfile,
             fill: {
-              color: adjustedColor,
+              color: applyColorIntensity(colorData.color, colorIntensity),
               opacity: layerOpacity,
             },
             stroke:
-              i === 0 && existingLayer?.stroke
-                ? existingLayer.stroke
+              i === 0 // Only stroke the innermost (center) layer
+                ? {
+                    color: darkenColor(colorData.color, 0.2),
+                    weight: 1,
+                    opacity: 0.8,
+                  }
                 : undefined,
             offset: {
-              x: i * 8, // Increased offset for better visibility
-              y: i * 8, // Increased offset for better visibility
+              x: 0, // No offset - concentric circles
+              y: 0, // No offset - concentric circles
             },
+            scale: scaleFactor, // Scale based on color proportion
             source: 'node-country-color',
           });
         }
