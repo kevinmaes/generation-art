@@ -9,7 +9,7 @@ import { z } from 'zod';
 import type {
   TransformerContext,
   TransformerOutput,
-  VisualMetadata,
+  NodeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import type { SmartTransformerConfig } from '../smart-transformer-types';
@@ -327,7 +327,7 @@ function algorithmicFallback(context: TransformerContext): TransformerOutput {
   const layoutStyle = visual.layoutStyle as string;
   const individuals = Object.values(gedcomData.individuals);
 
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
   const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
   const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
 

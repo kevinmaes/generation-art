@@ -11,7 +11,8 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  NodeVisualMetadata,
+  EdgeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import { createTransformerInstance } from '../utils';
@@ -196,15 +197,15 @@ export async function varianceTransform(
   const wasChanged = (
     entityType: 'individuals' | 'edges' | 'families' | 'tree',
     id: string | undefined,
-    prop: keyof VisualMetadata,
+    prop: string,
   ): boolean => {
     if (!limitToPrevious || !context.previousChangeSet) return true;
     const cs = context.previousChangeSet;
     if (entityType === 'tree') {
-      return cs.tree ? cs.tree.includes(prop) : false;
+      return cs.tree ? cs.tree.includes(prop as any) : false;
     }
     const map = (cs as Record<string, unknown>)[entityType] as
-      | Record<string, (keyof VisualMetadata)[]>
+      | Record<string, string[]>
       | undefined;
     if (!map || !id) return false;
     const props = map[id];
@@ -212,8 +213,8 @@ export async function varianceTransform(
   };
 
   // Create updated visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
-  const updatedEdges: Record<string, VisualMetadata> = {};
+  const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
+  const updatedEdges: Record<string, EdgeVisualMetadata> = {};
 
   // Apply variance to individuals
   individuals.forEach((individual) => {
@@ -237,7 +238,7 @@ export async function varianceTransform(
     );
 
     // Start with existing metadata
-    const newMetadata: VisualMetadata = { ...currentMetadata };
+    const newMetadata: NodeVisualMetadata = { ...currentMetadata };
 
     // Apply variance to size
     if (

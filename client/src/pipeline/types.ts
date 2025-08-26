@@ -14,56 +14,150 @@ import type { TransformerId } from './transformers';
 import type { ShapeProfile } from '../../../shared/types';
 
 /**
- * Visual metadata represents the visual attributes of elements in the art
- * These are the properties that get transformed by the pipeline
+ * Stroke properties for visual elements
  */
-export interface VisualMetadata {
-  // Position attributes
+export interface StrokeProperties {
+  color?: string;
+  weight?: number; // Line thickness
+  opacity?: number; // 0-1
+  style?: 'solid' | 'dashed' | 'dotted';
+  dashArray?: number[]; // For custom dash patterns [dash, gap, dash, gap...]
+  cap?: 'butt' | 'round' | 'square';
+  join?: 'miter' | 'round' | 'bevel';
+}
+
+/**
+ * Fill properties for visual elements
+ */
+export interface FillProperties {
+  color?: string;
+  opacity?: number; // 0-1
+  // gradient?: GradientDefinition; // Future support
+}
+
+/**
+ * Shadow properties for visual elements
+ */
+export interface ShadowProperties {
+  color?: string;
+  blur?: number;
+  offsetX?: number;
+  offsetY?: number;
+}
+
+/**
+ * Point for coordinates
+ */
+export interface Point {
+  x: number;
+  y: number;
+}
+
+/**
+ * Size dimensions
+ */
+export interface Size {
+  width: number;
+  height: number;
+}
+
+/**
+ * Base visual metadata that all visual elements share
+ */
+export interface BaseVisualMetadata {
+  opacity?: number;
+  hidden?: boolean;
+  custom?: Record<string, unknown>;
+}
+
+/**
+ * Visual layer for nodes - represents a single drawable layer
+ */
+export interface NodeVisualLayer {
+  // Shape definition
+  shape?: 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'custom';
+  shapeProfile?: ShapeProfile;
+
+  // Position (relative to node center)
+  offset?: Point;
+
+  // Size
+  size?: Size;
+  scale?: number;
+
+  // Fill properties
+  fill?: FillProperties;
+
+  // Stroke properties
+  stroke?: StrokeProperties;
+
+  // Transform
+  rotation?: number;
+
+  // Effects
+  blur?: number;
+  shadow?: ShadowProperties;
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay';
+
+  // Metadata
+  source?: string; // Which transformer added this layer
+  zIndex?: number; // Override natural order if needed
+}
+
+/**
+ * Node visual metadata - for individuals and families
+ */
+export interface NodeVisualMetadata extends BaseVisualMetadata {
+  // Position (shared by all layers)
   x?: number;
   y?: number;
   z?: number;
 
-  // Size and scale attributes
+  // Node-specific layers
+  nodeLayers?: NodeVisualLayer[];
+
+  // Legacy properties for backward compatibility
+  color?: string;
+  backgroundColor?: string;
+  shape?: 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'custom';
+  shapeProfile?: ShapeProfile;
   size?: number;
   scale?: number;
   width?: number;
   height?: number;
 
-  // Color attributes
-  color?: string;
-  backgroundColor?: string;
+  // Legacy stroke properties
   strokeColor?: string;
-  opacity?: number;
-  alpha?: number;
-
-  // Shape and style attributes
-  shape?: 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'custom';
-  // New shape geometry profile; if present, renderer prefers this over legacy shape string
-  shapeProfile?: ShapeProfile;
   strokeWeight?: number;
   strokeOpacity?: number;
   strokeStyle?: 'solid' | 'dashed' | 'dotted';
 
-  // Layering parameters for depth effects
+  // New structured stroke (transformers should migrate to this)
+  stroke?: StrokeProperties;
+
+  // Legacy layering parameters
   layerCount?: number;
   layerOffset?: number;
   layerOpacityFalloff?: number;
 
-  // Animation and motion attributes
-  velocity?: { x: number; y: number };
-  acceleration?: { x: number; y: number };
+  // Animation and motion
+  velocity?: Point;
+  acceleration?: Point;
   rotation?: number;
   rotationSpeed?: number;
 
-  // Layout and grouping attributes
+  // Layout and grouping
   group?: string;
   layer?: number;
   priority?: number;
+  alpha?: number; // Legacy compatibility
+}
 
-  // Visibility
-  hidden?: boolean;
-
-  // Edge curve attributes
+/**
+ * Edge visual metadata
+ */
+export interface EdgeVisualMetadata extends BaseVisualMetadata {
+  // Edge path definition
   curveType?:
     | 'straight'
     | 'bezier-quad'
@@ -72,12 +166,41 @@ export interface VisualMetadata {
     | 'catenary'
     | 'step'
     | 's-curve';
-  controlPoints?: { x: number; y: number }[];
+  controlPoints?: Point[];
   arcRadius?: number;
   curveIntensity?: number;
 
-  // Custom attributes (for extensibility)
-  custom?: Record<string, unknown>;
+  // Edge stroke is primary visual element
+  stroke?: StrokeProperties;
+
+  // Legacy stroke properties
+  strokeColor?: string;
+  strokeWeight?: number;
+  strokeOpacity?: number;
+  strokeStyle?: 'solid' | 'dashed' | 'dotted';
+
+  // Optional decorations (future)
+  // startMarker?: MarkerDefinition;
+  // endMarker?: MarkerDefinition;
+
+  // Layout
+  layer?: number; // Legacy compatibility
+}
+
+/**
+ * Tree/Canvas visual metadata
+ */
+export interface TreeVisualMetadata extends BaseVisualMetadata {
+  backgroundColor?: string;
+  backgroundGradient?: unknown; // Future gradient support
+  width?: number;
+  height?: number;
+  padding?:
+    | number
+    | { top: number; right: number; bottom: number; left: number };
+  group?: string; // Legacy compatibility
+  layer?: number; // Legacy compatibility
+  priority?: number; // Legacy compatibility
 }
 
 /**
@@ -86,16 +209,16 @@ export interface VisualMetadata {
  */
 export interface CompleteVisualMetadata {
   // Visual metadata for each individual (keyed by individual ID)
-  individuals: Record<string, VisualMetadata>;
+  individuals: Record<string, NodeVisualMetadata>;
 
   // Visual metadata for each family (keyed by family ID)
-  families: Record<string, VisualMetadata>;
+  families: Record<string, NodeVisualMetadata>;
 
   // Visual metadata for each edge (keyed by edge ID)
-  edges: Record<string, VisualMetadata>;
+  edges: Record<string, EdgeVisualMetadata>;
 
   // Visual metadata for the overall tree/canvas
-  tree: VisualMetadata;
+  tree: TreeVisualMetadata;
 
   // Edge routing output for advanced edge rendering (orthogonal, curved, etc.)
   routing?: RoutingOutput;
@@ -109,8 +232,8 @@ export interface CompleteVisualMetadata {
     defaultEdgeWeight?: number;
     defaultNodeColor?: string;
     defaultEdgeColor?: string;
-    defaultNodeShape?: VisualMetadata['shape'];
-    defaultEdgeStyle?: VisualMetadata['strokeStyle'];
+    defaultNodeShape?: NodeVisualMetadata['shape'];
+    defaultEdgeStyle?: EdgeVisualMetadata['strokeStyle'];
   };
 }
 
@@ -317,8 +440,8 @@ export interface PipelineResult {
 
 // Records which properties were changed by a transformer, scoped by entity
 export interface ChangeSet {
-  individuals?: Record<string, (keyof VisualMetadata)[]>;
-  families?: Record<string, (keyof VisualMetadata)[]>;
-  edges?: Record<string, (keyof VisualMetadata)[]>;
-  tree?: (keyof VisualMetadata)[];
+  individuals?: Record<string, (keyof NodeVisualMetadata)[]>;
+  families?: Record<string, (keyof NodeVisualMetadata)[]>;
+  edges?: Record<string, (keyof EdgeVisualMetadata)[]>;
+  tree?: (keyof TreeVisualMetadata)[];
 }

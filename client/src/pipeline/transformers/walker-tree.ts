@@ -9,7 +9,8 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  NodeVisualMetadata,
+  EdgeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import type {
@@ -378,7 +379,7 @@ export async function walkerTreeTransform(
   }
 
   // Build visual metadata
-  const nodeMetadata: Record<string, VisualMetadata> = {};
+  const nodeMetadata: Record<string, NodeVisualMetadata> = {};
 
   Object.entries(positions).forEach(([individualId, position]) => {
     const individual = individuals.find((i) => i.id === individualId);
@@ -431,7 +432,7 @@ export async function walkerTreeTransform(
 
   // Generate routing output based on configuration
   let routingOutput: RoutingOutput | undefined;
-  let edgeMetadata: Record<string, VisualMetadata> = {};
+  let edgeMetadata: Record<string, EdgeVisualMetadata> = {};
 
   console.log('🔄 Edge routing configuration:', {
     useOrthogonalRouting: layoutConfig.useOrthogonalRouting,
@@ -1001,8 +1002,8 @@ function generateFamilyTreeEdges(
     { x: number; y: number; width: number; height: number }
   >,
   gedcomData: GedcomDataWithMetadata,
-): Record<string, VisualMetadata> {
-  const edges: Record<string, VisualMetadata> = {};
+): Record<string, EdgeVisualMetadata> {
+  const edges: Record<string, EdgeVisualMetadata> = {};
 
   // First, reset ALL existing edges to prevent curves/transforms from other transformers
   gedcomData.metadata.edges.forEach((edge) => {
@@ -1011,8 +1012,6 @@ function generateFamilyTreeEdges(
 
     if (sourcePos && targetPos) {
       edges[edge.id] = {
-        x: (sourcePos.x + targetPos.x) / 2,
-        y: (sourcePos.y + targetPos.y) / 2,
         strokeColor: edge.relationshipType === 'spouse' ? '#333333' : '#666666',
         strokeWeight: edge.relationshipType === 'spouse' ? 3 : 2,
         opacity: 0.8,
@@ -1027,6 +1026,9 @@ function generateFamilyTreeEdges(
           targetX: targetPos.x,
           targetY: targetPos.y,
           edgeType: edge.relationshipType,
+          // Store the midpoint for potential later use
+          midX: (sourcePos.x + targetPos.x) / 2,
+          midY: (sourcePos.y + targetPos.y) / 2,
         },
       };
     }
@@ -1053,8 +1055,6 @@ function generateFamilyTreeEdges(
           )
         ) {
           edges[edgeId] = {
-            x: (parentPos.x + childPos.x) / 2,
-            y: (parentPos.y + childPos.y) / 2,
             strokeColor: '#666666',
             strokeWeight: 2,
             opacity: 0.8,
@@ -1068,6 +1068,9 @@ function generateFamilyTreeEdges(
               targetX: childPos.x,
               targetY: childPos.y,
               edgeType: 'parent-child',
+              // Store the midpoint for potential later use
+              midX: (parentPos.x + childPos.x) / 2,
+              midY: (parentPos.y + childPos.y) / 2,
             },
           };
         }
@@ -1099,8 +1102,6 @@ function generateFamilyTreeEdges(
             )
           ) {
             edges[edgeId] = {
-              x: (node1Pos.x + node2Pos.x) / 2,
-              y: (node1Pos.y + node2Pos.y) / 2,
               strokeColor: '#333333',
               strokeWeight: 3,
               opacity: 0.9,
@@ -1114,6 +1115,9 @@ function generateFamilyTreeEdges(
                 targetX: node2Pos.x,
                 targetY: node2Pos.y,
                 edgeType: 'spouse',
+                // Store the midpoint for potential later use
+                midX: (node1Pos.x + node2Pos.x) / 2,
+                midY: (node1Pos.y + node2Pos.y) / 2,
               },
             };
           }
@@ -1545,7 +1549,7 @@ function generateDebugMetadata(
 ): Partial<CompleteVisualMetadata> {
   if (!config.enableDebugging) return {};
 
-  const debugElements: Record<string, VisualMetadata> = {};
+  const debugElements: Record<string, NodeVisualMetadata> = {};
 
   // Generate bounding boxes for each node
   nodes.forEach((node) => {
@@ -1702,7 +1706,7 @@ async function fallbackLayout(
   });
 
   // Generation-based tree layout as fallback (even without graph utilities)
-  const nodeMetadata: Record<string, VisualMetadata> = {};
+  const nodeMetadata: Record<string, NodeVisualMetadata> = {};
 
   // Group by generation
   let generationGroups: Record<number, AugmentedIndividual[]> = {};
@@ -2011,15 +2015,13 @@ async function fallbackLayout(
   });
 
   // Generate straight-line edges for fallback layout too
-  const edgeMetadata: Record<string, VisualMetadata> = {};
+  const edgeMetadata: Record<string, EdgeVisualMetadata> = {};
   gedcomData.metadata.edges.forEach((edge) => {
     const sourcePos = positions[edge.sourceId];
     const targetPos = positions[edge.targetId];
 
     if (sourcePos && targetPos) {
       edgeMetadata[edge.id] = {
-        x: (sourcePos.x + targetPos.x) / 2,
-        y: (sourcePos.y + targetPos.y) / 2,
         strokeColor: edge.relationshipType === 'spouse' ? '#333333' : '#666666',
         strokeWeight: edge.relationshipType === 'spouse' ? 3 : 2,
         opacity: 0.8,
@@ -2033,6 +2035,9 @@ async function fallbackLayout(
           targetX: targetPos.x,
           targetY: targetPos.y,
           edgeType: edge.relationshipType,
+          // Store the midpoint for potential later use
+          midX: (sourcePos.x + targetPos.x) / 2,
+          midY: (sourcePos.y + targetPos.y) / 2,
         },
       };
     }

@@ -1,0 +1,1802 @@
+{
+  "AD": {
+    "canonical": "Andorra",
+    "iso3": "AND",
+    "aliases": ["Principality of Andorra", "Principat d'Andorra"],
+    "patterns": ["*, Andorra", "*, AD"]
+  },
+  "AE": {
+    "canonical": "United Arab Emirates",
+    "iso3": "ARE",
+    "aliases": ["UAE", "Emirates", "الإمارات العربية المتحدة"],
+    "patterns": ["*, UAE", "*, United Arab Emirates", "*, AE"]
+  },
+  "AF": {
+    "canonical": "Afghanistan",
+    "iso3": "AFG",
+    "aliases": [
+      "Islamic Republic of Afghanistan",
+      "Islamic Emirate of Afghanistan",
+      "افغانستان"
+    ],
+    "patterns": ["*, Afghanistan", "*, AF"]
+  },
+  "AG": {
+    "canonical": "Antigua and Barbuda",
+    "iso3": "ATG",
+    "aliases": ["Antigua & Barbuda"],
+    "patterns": ["*, Antigua", "*, Barbuda", "*, AG"]
+  },
+  "AL": {
+    "canonical": "Albania",
+    "iso3": "ALB",
+    "aliases": ["Republic of Albania", "Shqipëria"],
+    "patterns": ["*, Albania", "*, AL"]
+  },
+  "AM": {
+    "canonical": "Armenia",
+    "iso3": "ARM",
+    "aliases": ["Republic of Armenia", "Հայաստան"],
+    "patterns": ["*, Armenia", "*, AM"]
+  },
+  "AO": {
+    "canonical": "Angola",
+    "iso3": "AGO",
+    "aliases": ["Republic of Angola", "República de Angola"],
+    "patterns": ["*, Angola", "*, AO"]
+  },
+  "AR": {
+    "canonical": "Argentina",
+    "iso3": "ARG",
+    "aliases": ["Argentine Republic", "República Argentina"],
+    "patterns": ["*, Argentina", "*, AR"]
+  },
+  "AT": {
+    "canonical": "Austria",
+    "iso3": "AUT",
+    "aliases": ["Republic of Austria", "Österreich"],
+    "patterns": ["*, Austria", "*, Österreich", "*, AT"],
+    "historicalNames": {
+      "Austria-Hungary": [1867, 1918],
+      "Austrian Empire": [1804, 1867]
+    }
+  },
+  "AU": {
+    "canonical": "Australia",
+    "iso3": "AUS",
+    "aliases": ["Commonwealth of Australia"],
+    "patterns": ["*, Australia", "*, AU"],
+    "regions": [
+      "New South Wales",
+      "Victoria",
+      "Queensland",
+      "Western Australia",
+      "South Australia",
+      "Tasmania",
+      "Northern Territory",
+      "Australian Capital Territory",
+      "Sydney",
+      "Melbourne",
+      "Brisbane",
+      "Perth",
+      "Adelaide",
+      "Canberra",
+      "Hobart",
+      "Darwin"
+    ]
+  },
+  "AZ": {
+    "canonical": "Azerbaijan",
+    "iso3": "AZE",
+    "aliases": ["Republic of Azerbaijan", "Azərbaycan"],
+    "patterns": ["*, Azerbaijan", "*, AZ"]
+  },
+  "BA": {
+    "canonical": "Bosnia and Herzegovina",
+    "iso3": "BIH",
+    "aliases": [
+      "Bosnia-Herzegovina",
+      "Bosnia & Herzegovina",
+      "Bosna i Hercegovina"
+    ],
+    "patterns": ["*, Bosnia", "*, Herzegovina", "*, BA"]
+  },
+  "BB": {
+    "canonical": "Barbados",
+    "iso3": "BRB",
+    "aliases": [],
+    "patterns": ["*, Barbados", "*, BB"]
+  },
+  "BD": {
+    "canonical": "Bangladesh",
+    "iso3": "BGD",
+    "aliases": ["People's Republic of Bangladesh", "বাংলাদেশ"],
+    "patterns": ["*, Bangladesh", "*, BD"],
+    "historicalNames": {
+      "East Pakistan": [1947, 1971]
+    }
+  },
+  "BE": {
+    "canonical": "Belgium",
+    "iso3": "BEL",
+    "aliases": [
+      "Kingdom of Belgium",
+      "België",
+      "Belgique",
+      "Belgien",
+      "Bélgica"
+    ],
+    "patterns": ["*, Belgium", "*, België", "*, Belgique", "*, BE"],
+    "regions": [
+      "Flanders",
+      "Wallonia",
+      "Brussels",
+      "Antwerp",
+      "Ghent",
+      "Charleroi",
+      "Liège",
+      "Bruges",
+      "Namur",
+      "Leuven",
+      "Mons",
+      "Mechelen",
+      "Aalst"
+    ]
+  },
+  "BF": {
+    "canonical": "Burkina Faso",
+    "iso3": "BFA",
+    "aliases": [],
+    "patterns": ["*, Burkina Faso", "*, BF"],
+    "historicalNames": {
+      "Upper Volta": [1958, 1984]
+    }
+  },
+  "BG": {
+    "canonical": "Bulgaria",
+    "iso3": "BGR",
+    "aliases": ["Republic of Bulgaria", "България"],
+    "patterns": ["*, Bulgaria", "*, BG"]
+  },
+  "BH": {
+    "canonical": "Bahrain",
+    "iso3": "BHR",
+    "aliases": ["Kingdom of Bahrain", "البحرين"],
+    "patterns": ["*, Bahrain", "*, BH"]
+  },
+  "BI": {
+    "canonical": "Burundi",
+    "iso3": "BDI",
+    "aliases": ["Republic of Burundi", "République du Burundi"],
+    "patterns": ["*, Burundi", "*, BI"]
+  },
+  "BJ": {
+    "canonical": "Benin",
+    "iso3": "BEN",
+    "aliases": ["Republic of Benin", "République du Bénin"],
+    "patterns": ["*, Benin", "*, BJ"],
+    "historicalNames": {
+      "Dahomey": [1600, 1975]
+    }
+  },
+  "BN": {
+    "canonical": "Brunei",
+    "iso3": "BRN",
+    "aliases": ["Brunei Darussalam", "Nation of Brunei"],
+    "patterns": ["*, Brunei", "*, BN"]
+  },
+  "BO": {
+    "canonical": "Bolivia",
+    "iso3": "BOL",
+    "aliases": [
+      "Plurinational State of Bolivia",
+      "Estado Plurinacional de Bolivia"
+    ],
+    "patterns": ["*, Bolivia", "*, BO"]
+  },
+  "BR": {
+    "canonical": "Brazil",
+    "iso3": "BRA",
+    "aliases": [
+      "Federative Republic of Brazil",
+      "Brasil",
+      "República Federativa do Brasil"
+    ],
+    "patterns": ["*, Brazil", "*, Brasil", "*, BR"],
+    "regions": [
+      "São Paulo",
+      "Rio de Janeiro",
+      "Brasília",
+      "Salvador",
+      "Belo Horizonte",
+      "Fortaleza",
+      "Manaus",
+      "Curitiba",
+      "Recife",
+      "Porto Alegre",
+      "Belém",
+      "Goiânia"
+    ]
+  },
+  "BS": {
+    "canonical": "Bahamas",
+    "iso3": "BHS",
+    "aliases": ["The Bahamas", "Commonwealth of the Bahamas"],
+    "patterns": ["*, Bahamas", "*, BS"]
+  },
+  "BT": {
+    "canonical": "Bhutan",
+    "iso3": "BTN",
+    "aliases": ["Kingdom of Bhutan", "འབྲུག་རྒྱལ་ཁབ"],
+    "patterns": ["*, Bhutan", "*, BT"]
+  },
+  "BW": {
+    "canonical": "Botswana",
+    "iso3": "BWA",
+    "aliases": ["Republic of Botswana"],
+    "patterns": ["*, Botswana", "*, BW"]
+  },
+  "BY": {
+    "canonical": "Belarus",
+    "iso3": "BLR",
+    "aliases": [
+      "Republic of Belarus",
+      "Беларусь",
+      "Byelorussia",
+      "White Russia"
+    ],
+    "patterns": ["*, Belarus", "*, BY"]
+  },
+  "BZ": {
+    "canonical": "Belize",
+    "iso3": "BLZ",
+    "aliases": ["British Honduras"],
+    "patterns": ["*, Belize", "*, BZ"]
+  },
+  "CA": {
+    "canonical": "Canada",
+    "iso3": "CAN",
+    "aliases": [],
+    "patterns": ["*, Canada", "*, CA"],
+    "regions": [
+      "Ontario",
+      "Quebec",
+      "British Columbia",
+      "Alberta",
+      "Manitoba",
+      "Saskatchewan",
+      "Nova Scotia",
+      "New Brunswick",
+      "Newfoundland and Labrador",
+      "Prince Edward Island",
+      "Northwest Territories",
+      "Yukon",
+      "Nunavut",
+      "Toronto",
+      "Montreal",
+      "Vancouver",
+      "Calgary",
+      "Edmonton",
+      "Ottawa",
+      "Winnipeg",
+      "Quebec City",
+      "Hamilton",
+      "Kitchener"
+    ]
+  },
+  "CD": {
+    "canonical": "Democratic Republic of the Congo",
+    "iso3": "COD",
+    "aliases": ["DRC", "DR Congo", "Congo-Kinshasa"],
+    "patterns": ["*, DRC", "*, Congo-Kinshasa", "*, CD"],
+    "historicalNames": {
+      "Zaire": [1971, 1997],
+      "Belgian Congo": [1908, 1960]
+    }
+  },
+  "CF": {
+    "canonical": "Central African Republic",
+    "iso3": "CAF",
+    "aliases": ["CAR", "République centrafricaine"],
+    "patterns": ["*, Central African Republic", "*, CAR", "*, CF"]
+  },
+  "CG": {
+    "canonical": "Congo",
+    "iso3": "COG",
+    "aliases": ["Republic of the Congo", "Congo-Brazzaville"],
+    "patterns": ["*, Congo", "*, Congo-Brazzaville", "*, CG"]
+  },
+  "CH": {
+    "canonical": "Switzerland",
+    "iso3": "CHE",
+    "aliases": [
+      "Swiss Confederation",
+      "Schweiz",
+      "Suisse",
+      "Svizzera",
+      "Svizra"
+    ],
+    "patterns": ["*, Switzerland", "*, Schweiz", "*, Suisse", "*, CH"]
+  },
+  "CI": {
+    "canonical": "Ivory Coast",
+    "iso3": "CIV",
+    "aliases": ["Côte d'Ivoire", "Republic of Côte d'Ivoire"],
+    "patterns": ["*, Ivory Coast", "*, Côte d'Ivoire", "*, CI"]
+  },
+  "CL": {
+    "canonical": "Chile",
+    "iso3": "CHL",
+    "aliases": ["Republic of Chile", "República de Chile"],
+    "patterns": ["*, Chile", "*, CL"]
+  },
+  "CM": {
+    "canonical": "Cameroon",
+    "iso3": "CMR",
+    "aliases": ["Republic of Cameroon", "République du Cameroun"],
+    "patterns": ["*, Cameroon", "*, Cameroun", "*, CM"]
+  },
+  "CN": {
+    "canonical": "China",
+    "iso3": "CHN",
+    "aliases": ["People's Republic of China", "PRC", "中国", "中华人民共和国"],
+    "patterns": ["*, China", "*, PRC", "*, CN"],
+    "regions": [
+      "Beijing",
+      "Shanghai",
+      "Guangzhou",
+      "Shenzhen",
+      "Tianjin",
+      "Wuhan",
+      "Hong Kong",
+      "Macau",
+      "Chongqing",
+      "Chengdu",
+      "Xi'an",
+      "Hangzhou",
+      "Nanjing",
+      "Shenyang",
+      "Harbin"
+    ]
+  },
+  "CO": {
+    "canonical": "Colombia",
+    "iso3": "COL",
+    "aliases": ["Republic of Colombia", "República de Colombia"],
+    "patterns": ["*, Colombia", "*, CO"]
+  },
+  "CR": {
+    "canonical": "Costa Rica",
+    "iso3": "CRI",
+    "aliases": ["Republic of Costa Rica", "República de Costa Rica"],
+    "patterns": ["*, Costa Rica", "*, CR"]
+  },
+  "CU": {
+    "canonical": "Cuba",
+    "iso3": "CUB",
+    "aliases": ["Republic of Cuba", "República de Cuba"],
+    "patterns": ["*, Cuba", "*, CU"]
+  },
+  "CV": {
+    "canonical": "Cape Verde",
+    "iso3": "CPV",
+    "aliases": ["Cabo Verde", "Republic of Cabo Verde"],
+    "patterns": ["*, Cape Verde", "*, Cabo Verde", "*, CV"]
+  },
+  "CY": {
+    "canonical": "Cyprus",
+    "iso3": "CYP",
+    "aliases": ["Republic of Cyprus", "Κύπρος"],
+    "patterns": ["*, Cyprus", "*, CY"]
+  },
+  "CZ": {
+    "canonical": "Czech Republic",
+    "iso3": "CZE",
+    "aliases": ["Czechia", "Česká republika"],
+    "patterns": ["*, Czech Republic", "*, Czechia", "*, CZ"],
+    "historicalNames": {
+      "Czechoslovakia": [1918, 1992]
+    }
+  },
+  "DE": {
+    "canonical": "Germany",
+    "iso3": "DEU",
+    "aliases": [
+      "Federal Republic of Germany",
+      "Deutschland",
+      "Allemagne",
+      "Alemania",
+      "Germania"
+    ],
+    "patterns": ["*, Germany", "*, Deutschland", "*, DE"],
+    "historicalNames": {
+      "East Germany": [1949, 1990],
+      "GDR": [1949, 1990],
+      "DDR": [1949, 1990],
+      "West Germany": [1949, 1990],
+      "FRG": [1949, 1990],
+      "BRD": [1949, 1990],
+      "Weimar Republic": [1919, 1933],
+      "German Empire": [1871, 1918],
+      "Prussia": [1525, 1947]
+    },
+    "regions": [
+      "Berlin",
+      "Hamburg",
+      "Munich",
+      "Cologne",
+      "Frankfurt",
+      "Stuttgart",
+      "Düsseldorf",
+      "Dortmund",
+      "Essen",
+      "Leipzig",
+      "Bremen",
+      "Dresden",
+      "Hanover",
+      "Nuremberg",
+      "Duisburg",
+      "Bavaria",
+      "Saxony",
+      "Brandenburg",
+      "Hesse",
+      "Thuringia",
+      "Rhineland",
+      "Westphalia",
+      "Baden-Württemberg"
+    ]
+  },
+  "DJ": {
+    "canonical": "Djibouti",
+    "iso3": "DJI",
+    "aliases": ["Republic of Djibouti", "République de Djibouti"],
+    "patterns": ["*, Djibouti", "*, DJ"]
+  },
+  "DK": {
+    "canonical": "Denmark",
+    "iso3": "DNK",
+    "aliases": ["Kingdom of Denmark", "Danmark"],
+    "patterns": ["*, Denmark", "*, Danmark", "*, DK"]
+  },
+  "DM": {
+    "canonical": "Dominica",
+    "iso3": "DMA",
+    "aliases": ["Commonwealth of Dominica"],
+    "patterns": ["*, Dominica", "*, DM"]
+  },
+  "DO": {
+    "canonical": "Dominican Republic",
+    "iso3": "DOM",
+    "aliases": ["República Dominicana"],
+    "patterns": ["*, Dominican Republic", "*, DO"]
+  },
+  "DZ": {
+    "canonical": "Algeria",
+    "iso3": "DZA",
+    "aliases": [
+      "People's Democratic Republic of Algeria",
+      "الجزائر",
+      "Algérie"
+    ],
+    "patterns": ["*, Algeria", "*, DZ"]
+  },
+  "EC": {
+    "canonical": "Ecuador",
+    "iso3": "ECU",
+    "aliases": ["Republic of Ecuador", "República del Ecuador"],
+    "patterns": ["*, Ecuador", "*, EC"]
+  },
+  "EE": {
+    "canonical": "Estonia",
+    "iso3": "EST",
+    "aliases": ["Republic of Estonia", "Eesti"],
+    "patterns": ["*, Estonia", "*, Eesti", "*, EE"]
+  },
+  "EG": {
+    "canonical": "Egypt",
+    "iso3": "EGY",
+    "aliases": ["Arab Republic of Egypt", "مصر", "Misr"],
+    "patterns": ["*, Egypt", "*, EG"]
+  },
+  "ER": {
+    "canonical": "Eritrea",
+    "iso3": "ERI",
+    "aliases": ["State of Eritrea", "ኤርትራ"],
+    "patterns": ["*, Eritrea", "*, ER"]
+  },
+  "ES": {
+    "canonical": "Spain",
+    "iso3": "ESP",
+    "aliases": ["Kingdom of Spain", "España", "Espagne", "Spanien", "Espanha"],
+    "patterns": ["*, Spain", "*, España", "*, ES"],
+    "regions": [
+      "Catalonia",
+      "Catalunya",
+      "Andalusia",
+      "Andalucía",
+      "Madrid",
+      "Valencia",
+      "Galicia",
+      "Castile and León",
+      "Basque Country",
+      "País Vasco",
+      "Euskadi",
+      "Canary Islands",
+      "Castilla-La Mancha",
+      "Murcia",
+      "Aragon",
+      "Extremadura",
+      "Balearic Islands",
+      "Asturias",
+      "Navarre",
+      "Cantabria",
+      "La Rioja",
+      "Barcelona",
+      "Seville",
+      "Bilbao",
+      "Málaga",
+      "Zaragoza"
+    ]
+  },
+  "ET": {
+    "canonical": "Ethiopia",
+    "iso3": "ETH",
+    "aliases": ["Federal Democratic Republic of Ethiopia", "ኢትዮጵያ"],
+    "patterns": ["*, Ethiopia", "*, ET"],
+    "historicalNames": {
+      "Abyssinia": [1270, 1974]
+    }
+  },
+  "FI": {
+    "canonical": "Finland",
+    "iso3": "FIN",
+    "aliases": ["Republic of Finland", "Suomi", "Suomen tasavalta"],
+    "patterns": ["*, Finland", "*, Suomi", "*, FI"]
+  },
+  "FJ": {
+    "canonical": "Fiji",
+    "iso3": "FJI",
+    "aliases": ["Republic of Fiji", "Viti"],
+    "patterns": ["*, Fiji", "*, FJ"]
+  },
+  "FM": {
+    "canonical": "Micronesia",
+    "iso3": "FSM",
+    "aliases": ["Federated States of Micronesia"],
+    "patterns": ["*, Micronesia", "*, FSM", "*, FM"]
+  },
+  "FR": {
+    "canonical": "France",
+    "iso3": "FRA",
+    "aliases": [
+      "French Republic",
+      "République française",
+      "Frankrijk",
+      "Frankreich",
+      "Francia"
+    ],
+    "patterns": ["*, France", "*, FR"],
+    "historicalNames": {
+      "Vichy France": [1940, 1944],
+      "Free France": [1940, 1944]
+    },
+    "regions": [
+      "Paris",
+      "Marseille",
+      "Lyon",
+      "Toulouse",
+      "Nice",
+      "Nantes",
+      "Strasbourg",
+      "Montpellier",
+      "Bordeaux",
+      "Lille",
+      "Rennes",
+      "Reims",
+      "Le Havre",
+      "Saint-Étienne",
+      "Toulon",
+      "Grenoble",
+      "Dijon",
+      "Angers",
+      "Nîmes",
+      "Île-de-France",
+      "Provence",
+      "Normandy",
+      "Brittany",
+      "Alsace",
+      "Aquitaine",
+      "Burgundy",
+      "Champagne"
+    ]
+  },
+  "GA": {
+    "canonical": "Gabon",
+    "iso3": "GAB",
+    "aliases": ["Gabonese Republic", "République gabonaise"],
+    "patterns": ["*, Gabon", "*, GA"]
+  },
+  "GB": {
+    "canonical": "United Kingdom",
+    "iso3": "GBR",
+    "aliases": [
+      "UK",
+      "U.K.",
+      "Great Britain",
+      "Britain",
+      "England",
+      "Scotland",
+      "Wales",
+      "Northern Ireland",
+      "United Kingdom of Great Britain and Northern Ireland"
+    ],
+    "patterns": [
+      "*, UK",
+      "*, U.K.",
+      "*, United Kingdom",
+      "*, England",
+      "*, Scotland",
+      "*, Wales",
+      "*, Britain"
+    ],
+    "regions": [
+      "London",
+      "Birmingham",
+      "Manchester",
+      "Leeds",
+      "Glasgow",
+      "Newcastle",
+      "Sheffield",
+      "Liverpool",
+      "Bristol",
+      "Edinburgh",
+      "Belfast",
+      "Cardiff",
+      "Nottingham",
+      "Leicester",
+      "Coventry",
+      "Kingston upon Hull",
+      "Bradford",
+      "Stoke-on-Trent",
+      "Wolverhampton",
+      "Plymouth",
+      "Southampton",
+      "Reading",
+      "Derby",
+      "Northampton"
+    ]
+  },
+  "GD": {
+    "canonical": "Grenada",
+    "iso3": "GRD",
+    "aliases": [],
+    "patterns": ["*, Grenada", "*, GD"]
+  },
+  "GE": {
+    "canonical": "Georgia",
+    "iso3": "GEO",
+    "aliases": ["საქართველო", "Sakartvelo"],
+    "patterns": ["*, Georgia", "*, GE"]
+  },
+  "GH": {
+    "canonical": "Ghana",
+    "iso3": "GHA",
+    "aliases": ["Republic of Ghana"],
+    "patterns": ["*, Ghana", "*, GH"],
+    "historicalNames": {
+      "Gold Coast": [1821, 1957]
+    }
+  },
+  "GM": {
+    "canonical": "Gambia",
+    "iso3": "GMB",
+    "aliases": ["The Gambia", "Republic of The Gambia"],
+    "patterns": ["*, Gambia", "*, GM"]
+  },
+  "GN": {
+    "canonical": "Guinea",
+    "iso3": "GIN",
+    "aliases": ["Republic of Guinea", "République de Guinée"],
+    "patterns": ["*, Guinea", "*, GN"]
+  },
+  "GQ": {
+    "canonical": "Equatorial Guinea",
+    "iso3": "GNQ",
+    "aliases": [
+      "Republic of Equatorial Guinea",
+      "República de Guinea Ecuatorial"
+    ],
+    "patterns": ["*, Equatorial Guinea", "*, GQ"]
+  },
+  "GR": {
+    "canonical": "Greece",
+    "iso3": "GRC",
+    "aliases": ["Hellenic Republic", "Ελλάδα", "Hellas"],
+    "patterns": ["*, Greece", "*, Hellas", "*, GR"]
+  },
+  "GT": {
+    "canonical": "Guatemala",
+    "iso3": "GTM",
+    "aliases": ["Republic of Guatemala", "República de Guatemala"],
+    "patterns": ["*, Guatemala", "*, GT"]
+  },
+  "GW": {
+    "canonical": "Guinea-Bissau",
+    "iso3": "GNB",
+    "aliases": ["Republic of Guinea-Bissau", "República da Guiné-Bissau"],
+    "patterns": ["*, Guinea-Bissau", "*, GW"]
+  },
+  "GY": {
+    "canonical": "Guyana",
+    "iso3": "GUY",
+    "aliases": ["Co-operative Republic of Guyana"],
+    "patterns": ["*, Guyana", "*, GY"]
+  },
+  "HN": {
+    "canonical": "Honduras",
+    "iso3": "HND",
+    "aliases": ["Republic of Honduras", "República de Honduras"],
+    "patterns": ["*, Honduras", "*, HN"]
+  },
+  "HR": {
+    "canonical": "Croatia",
+    "iso3": "HRV",
+    "aliases": ["Republic of Croatia", "Hrvatska"],
+    "patterns": ["*, Croatia", "*, Hrvatska", "*, HR"]
+  },
+  "HT": {
+    "canonical": "Haiti",
+    "iso3": "HTI",
+    "aliases": ["Republic of Haiti", "République d'Haïti", "Ayiti"],
+    "patterns": ["*, Haiti", "*, HT"]
+  },
+  "HU": {
+    "canonical": "Hungary",
+    "iso3": "HUN",
+    "aliases": ["Magyarország"],
+    "patterns": ["*, Hungary", "*, Magyarország", "*, HU"]
+  },
+  "ID": {
+    "canonical": "Indonesia",
+    "iso3": "IDN",
+    "aliases": ["Republic of Indonesia", "Republik Indonesia"],
+    "patterns": ["*, Indonesia", "*, ID"],
+    "historicalNames": {
+      "Dutch East Indies": [1800, 1942],
+      "Netherlands East Indies": [1800, 1942]
+    }
+  },
+  "IE": {
+    "canonical": "Ireland",
+    "iso3": "IRL",
+    "aliases": ["Republic of Ireland", "Éire", "Ierland", "Irland", "Irlanda"],
+    "patterns": ["*, Ireland", "*, Éire", "*, IE"],
+    "historicalNames": {
+      "Irish Free State": [1922, 1949]
+    },
+    "regions": [
+      "Dublin",
+      "Cork",
+      "Galway",
+      "Limerick",
+      "Waterford",
+      "County Cork",
+      "County Kerry",
+      "County Galway",
+      "County Mayo",
+      "County Donegal",
+      "County Dublin",
+      "County Kildare",
+      "County Wicklow",
+      "County Meath",
+      "County Clare",
+      "Leinster",
+      "Munster",
+      "Connacht",
+      "Ulster"
+    ]
+  },
+  "IL": {
+    "canonical": "Israel",
+    "iso3": "ISR",
+    "aliases": ["State of Israel", "מדינת ישראל", "Medinat Yisrael"],
+    "patterns": ["*, Israel", "*, IL"],
+    "historicalNames": {
+      "Palestine": [1920, 1948],
+      "British Palestine": [1920, 1948],
+      "Mandatory Palestine": [1920, 1948]
+    },
+    "regions": [
+      "Jerusalem",
+      "Tel Aviv",
+      "Haifa",
+      "Beer Sheva",
+      "Nazareth",
+      "Eilat",
+      "Netanya",
+      "Ashdod",
+      "Rishon LeZion"
+    ]
+  },
+  "IN": {
+    "canonical": "India",
+    "iso3": "IND",
+    "aliases": ["Republic of India", "भारत", "Bharat", "Hindustan"],
+    "patterns": ["*, India", "*, IN"],
+    "regions": [
+      "Delhi",
+      "Mumbai",
+      "Bangalore",
+      "Kolkata",
+      "Chennai",
+      "Hyderabad",
+      "Pune",
+      "Ahmedabad",
+      "Surat",
+      "Jaipur"
+    ]
+  },
+  "IQ": {
+    "canonical": "Iraq",
+    "iso3": "IRQ",
+    "aliases": ["Republic of Iraq", "العراق"],
+    "patterns": ["*, Iraq", "*, IQ"],
+    "historicalNames": {
+      "Mesopotamia": [-3500, 1920]
+    }
+  },
+  "IR": {
+    "canonical": "Iran",
+    "iso3": "IRN",
+    "aliases": ["Islamic Republic of Iran", "ایران"],
+    "patterns": ["*, Iran", "*, IR"],
+    "historicalNames": {
+      "Persia": [550, 1935]
+    }
+  },
+  "IS": {
+    "canonical": "Iceland",
+    "iso3": "ISL",
+    "aliases": ["Republic of Iceland", "Ísland"],
+    "patterns": ["*, Iceland", "*, Ísland", "*, IS"]
+  },
+  "IT": {
+    "canonical": "Italy",
+    "iso3": "ITA",
+    "aliases": [
+      "Italian Republic",
+      "Italia",
+      "République italienne",
+      "Italien",
+      "Itália"
+    ],
+    "patterns": ["*, Italy", "*, Italia", "*, IT"],
+    "regions": [
+      "Rome",
+      "Milan",
+      "Naples",
+      "Turin",
+      "Palermo",
+      "Genoa",
+      "Bologna",
+      "Florence",
+      "Bari",
+      "Catania",
+      "Venice",
+      "Verona",
+      "Messina",
+      "Padua",
+      "Trieste",
+      "Sicily",
+      "Sardinia",
+      "Lombardy",
+      "Veneto",
+      "Piedmont",
+      "Emilia-Romagna",
+      "Lazio",
+      "Tuscany",
+      "Campania",
+      "Puglia",
+      "Calabria",
+      "Liguria",
+      "Marche",
+      "Abruzzo"
+    ]
+  },
+  "JM": {
+    "canonical": "Jamaica",
+    "iso3": "JAM",
+    "aliases": [],
+    "patterns": ["*, Jamaica", "*, JM"]
+  },
+  "JO": {
+    "canonical": "Jordan",
+    "iso3": "JOR",
+    "aliases": ["Hashemite Kingdom of Jordan", "الأردن"],
+    "patterns": ["*, Jordan", "*, JO"]
+  },
+  "JP": {
+    "canonical": "Japan",
+    "iso3": "JPN",
+    "aliases": ["日本", "Nippon", "Nihon"],
+    "patterns": ["*, Japan", "*, JP"],
+    "regions": [
+      "Tokyo",
+      "Osaka",
+      "Kyoto",
+      "Yokohama",
+      "Nagoya",
+      "Sapporo",
+      "Kobe",
+      "Fukuoka",
+      "Kawasaki",
+      "Saitama"
+    ]
+  },
+  "KE": {
+    "canonical": "Kenya",
+    "iso3": "KEN",
+    "aliases": ["Republic of Kenya"],
+    "patterns": ["*, Kenya", "*, KE"]
+  },
+  "KG": {
+    "canonical": "Kyrgyzstan",
+    "iso3": "KGZ",
+    "aliases": ["Kyrgyz Republic", "Кыргызстан", "Kirghizia"],
+    "patterns": ["*, Kyrgyzstan", "*, KG"]
+  },
+  "KH": {
+    "canonical": "Cambodia",
+    "iso3": "KHM",
+    "aliases": ["Kingdom of Cambodia", "កម្ពុជា"],
+    "patterns": ["*, Cambodia", "*, KH"],
+    "historicalNames": {
+      "Kampuchea": [1975, 1989],
+      "Khmer Republic": [1970, 1975]
+    }
+  },
+  "KI": {
+    "canonical": "Kiribati",
+    "iso3": "KIR",
+    "aliases": ["Republic of Kiribati"],
+    "patterns": ["*, Kiribati", "*, KI"]
+  },
+  "KM": {
+    "canonical": "Comoros",
+    "iso3": "COM",
+    "aliases": ["Union of the Comoros", "Union des Comores"],
+    "patterns": ["*, Comoros", "*, KM"]
+  },
+  "KN": {
+    "canonical": "Saint Kitts and Nevis",
+    "iso3": "KNA",
+    "aliases": ["Federation of Saint Kitts and Nevis", "St. Kitts and Nevis"],
+    "patterns": ["*, Saint Kitts", "*, St. Kitts", "*, Nevis", "*, KN"]
+  },
+  "KP": {
+    "canonical": "North Korea",
+    "iso3": "PRK",
+    "aliases": [
+      "Democratic People's Republic of Korea",
+      "DPRK",
+      "조선민주주의인민공화국"
+    ],
+    "patterns": ["*, North Korea", "*, DPRK", "*, KP"]
+  },
+  "KR": {
+    "canonical": "South Korea",
+    "iso3": "KOR",
+    "aliases": ["Republic of Korea", "ROK", "대한민국", "Korea"],
+    "patterns": ["*, South Korea", "*, Korea", "*, ROK", "*, KR"]
+  },
+  "KW": {
+    "canonical": "Kuwait",
+    "iso3": "KWT",
+    "aliases": ["State of Kuwait", "الكويت"],
+    "patterns": ["*, Kuwait", "*, KW"]
+  },
+  "KZ": {
+    "canonical": "Kazakhstan",
+    "iso3": "KAZ",
+    "aliases": ["Republic of Kazakhstan", "Қазақстан"],
+    "patterns": ["*, Kazakhstan", "*, KZ"]
+  },
+  "LA": {
+    "canonical": "Laos",
+    "iso3": "LAO",
+    "aliases": ["Lao People's Democratic Republic", "Lao PDR", "ລາວ"],
+    "patterns": ["*, Laos", "*, LA"]
+  },
+  "LB": {
+    "canonical": "Lebanon",
+    "iso3": "LBN",
+    "aliases": ["Lebanese Republic", "لبنان", "Liban"],
+    "patterns": ["*, Lebanon", "*, Liban", "*, LB"]
+  },
+  "LC": {
+    "canonical": "Saint Lucia",
+    "iso3": "LCA",
+    "aliases": ["St. Lucia"],
+    "patterns": ["*, Saint Lucia", "*, St. Lucia", "*, LC"]
+  },
+  "LI": {
+    "canonical": "Liechtenstein",
+    "iso3": "LIE",
+    "aliases": ["Principality of Liechtenstein", "Fürstentum Liechtenstein"],
+    "patterns": ["*, Liechtenstein", "*, LI"]
+  },
+  "LK": {
+    "canonical": "Sri Lanka",
+    "iso3": "LKA",
+    "aliases": ["Democratic Socialist Republic of Sri Lanka", "ශ්‍රී ලංකා"],
+    "patterns": ["*, Sri Lanka", "*, LK"],
+    "historicalNames": {
+      "Ceylon": [1815, 1972]
+    }
+  },
+  "LR": {
+    "canonical": "Liberia",
+    "iso3": "LBR",
+    "aliases": ["Republic of Liberia"],
+    "patterns": ["*, Liberia", "*, LR"]
+  },
+  "LS": {
+    "canonical": "Lesotho",
+    "iso3": "LSO",
+    "aliases": ["Kingdom of Lesotho"],
+    "patterns": ["*, Lesotho", "*, LS"]
+  },
+  "LT": {
+    "canonical": "Lithuania",
+    "iso3": "LTU",
+    "aliases": ["Republic of Lithuania", "Lietuva"],
+    "patterns": ["*, Lithuania", "*, Lietuva", "*, LT"]
+  },
+  "LU": {
+    "canonical": "Luxembourg",
+    "iso3": "LUX",
+    "aliases": ["Grand Duchy of Luxembourg", "Luxemburg", "Lëtzebuerg"],
+    "patterns": ["*, Luxembourg", "*, Luxemburg", "*, LU"]
+  },
+  "LV": {
+    "canonical": "Latvia",
+    "iso3": "LVA",
+    "aliases": ["Republic of Latvia", "Latvija"],
+    "patterns": ["*, Latvia", "*, Latvija", "*, LV"]
+  },
+  "LY": {
+    "canonical": "Libya",
+    "iso3": "LBY",
+    "aliases": ["State of Libya", "ليبيا"],
+    "patterns": ["*, Libya", "*, LY"]
+  },
+  "MA": {
+    "canonical": "Morocco",
+    "iso3": "MAR",
+    "aliases": ["Kingdom of Morocco", "المغرب", "Al-Maghrib"],
+    "patterns": ["*, Morocco", "*, Maroc", "*, MA"]
+  },
+  "MC": {
+    "canonical": "Monaco",
+    "iso3": "MCO",
+    "aliases": ["Principality of Monaco", "Principauté de Monaco"],
+    "patterns": ["*, Monaco", "*, MC"]
+  },
+  "MD": {
+    "canonical": "Moldova",
+    "iso3": "MDA",
+    "aliases": ["Republic of Moldova", "Republica Moldova"],
+    "patterns": ["*, Moldova", "*, MD"]
+  },
+  "ME": {
+    "canonical": "Montenegro",
+    "iso3": "MNE",
+    "aliases": ["Crna Gora", "Црна Гора"],
+    "patterns": ["*, Montenegro", "*, ME"]
+  },
+  "MG": {
+    "canonical": "Madagascar",
+    "iso3": "MDG",
+    "aliases": ["Republic of Madagascar", "Madagasikara"],
+    "patterns": ["*, Madagascar", "*, MG"]
+  },
+  "MH": {
+    "canonical": "Marshall Islands",
+    "iso3": "MHL",
+    "aliases": ["Republic of the Marshall Islands"],
+    "patterns": ["*, Marshall Islands", "*, MH"]
+  },
+  "MK": {
+    "canonical": "North Macedonia",
+    "iso3": "MKD",
+    "aliases": [
+      "Republic of North Macedonia",
+      "Macedonia",
+      "FYROM",
+      "Македонија"
+    ],
+    "patterns": ["*, North Macedonia", "*, Macedonia", "*, MK"]
+  },
+  "ML": {
+    "canonical": "Mali",
+    "iso3": "MLI",
+    "aliases": ["Republic of Mali", "République du Mali"],
+    "patterns": ["*, Mali", "*, ML"],
+    "historicalNames": {
+      "French Sudan": [1880, 1960]
+    }
+  },
+  "MM": {
+    "canonical": "Myanmar",
+    "iso3": "MMR",
+    "aliases": ["Republic of the Union of Myanmar", "Burma", "မြန်မာ"],
+    "patterns": ["*, Myanmar", "*, Burma", "*, MM"]
+  },
+  "MN": {
+    "canonical": "Mongolia",
+    "iso3": "MNG",
+    "aliases": ["Монгол Улс"],
+    "patterns": ["*, Mongolia", "*, MN"]
+  },
+  "MR": {
+    "canonical": "Mauritania",
+    "iso3": "MRT",
+    "aliases": ["Islamic Republic of Mauritania", "موريتانيا"],
+    "patterns": ["*, Mauritania", "*, MR"]
+  },
+  "MT": {
+    "canonical": "Malta",
+    "iso3": "MLT",
+    "aliases": ["Republic of Malta"],
+    "patterns": ["*, Malta", "*, MT"]
+  },
+  "MU": {
+    "canonical": "Mauritius",
+    "iso3": "MUS",
+    "aliases": ["Republic of Mauritius"],
+    "patterns": ["*, Mauritius", "*, MU"]
+  },
+  "MV": {
+    "canonical": "Maldives",
+    "iso3": "MDV",
+    "aliases": ["Republic of Maldives", "ދިވެހިރާއްޖެ"],
+    "patterns": ["*, Maldives", "*, MV"]
+  },
+  "MW": {
+    "canonical": "Malawi",
+    "iso3": "MWI",
+    "aliases": ["Republic of Malawi"],
+    "patterns": ["*, Malawi", "*, MW"],
+    "historicalNames": {
+      "Nyasaland": [1907, 1964]
+    }
+  },
+  "MX": {
+    "canonical": "Mexico",
+    "iso3": "MEX",
+    "aliases": ["United Mexican States", "México", "Estados Unidos Mexicanos"],
+    "patterns": ["*, Mexico", "*, México", "*, MX"],
+    "regions": [
+      "Mexico City",
+      "Guadalajara",
+      "Monterrey",
+      "Puebla",
+      "Tijuana",
+      "León",
+      "Juárez",
+      "Zapopan",
+      "Mérida"
+    ]
+  },
+  "MY": {
+    "canonical": "Malaysia",
+    "iso3": "MYS",
+    "aliases": [],
+    "patterns": ["*, Malaysia", "*, MY"],
+    "historicalNames": {
+      "Malaya": [1957, 1963]
+    }
+  },
+  "MZ": {
+    "canonical": "Mozambique",
+    "iso3": "MOZ",
+    "aliases": ["Republic of Mozambique", "República de Moçambique"],
+    "patterns": ["*, Mozambique", "*, MZ"]
+  },
+  "NA": {
+    "canonical": "Namibia",
+    "iso3": "NAM",
+    "aliases": ["Republic of Namibia"],
+    "patterns": ["*, Namibia", "*, NA"],
+    "historicalNames": {
+      "South West Africa": [1915, 1990]
+    }
+  },
+  "NE": {
+    "canonical": "Niger",
+    "iso3": "NER",
+    "aliases": ["Republic of Niger", "République du Niger"],
+    "patterns": ["*, Niger", "*, NE"]
+  },
+  "NG": {
+    "canonical": "Nigeria",
+    "iso3": "NGA",
+    "aliases": ["Federal Republic of Nigeria"],
+    "patterns": ["*, Nigeria", "*, NG"]
+  },
+  "NI": {
+    "canonical": "Nicaragua",
+    "iso3": "NIC",
+    "aliases": ["Republic of Nicaragua", "República de Nicaragua"],
+    "patterns": ["*, Nicaragua", "*, NI"]
+  },
+  "NL": {
+    "canonical": "Netherlands",
+    "iso3": "NLD",
+    "aliases": [
+      "Kingdom of the Netherlands",
+      "Nederland",
+      "Holland",
+      "The Netherlands"
+    ],
+    "patterns": ["*, Netherlands", "*, Nederland", "*, Holland", "*, NL"],
+    "regions": [
+      "Amsterdam",
+      "Rotterdam",
+      "The Hague",
+      "Utrecht",
+      "Eindhoven",
+      "Groningen",
+      "Tilburg",
+      "Almere",
+      "Breda",
+      "Nijmegen"
+    ]
+  },
+  "NO": {
+    "canonical": "Norway",
+    "iso3": "NOR",
+    "aliases": ["Kingdom of Norway", "Norge", "Noreg"],
+    "patterns": ["*, Norway", "*, Norge", "*, NO"]
+  },
+  "NP": {
+    "canonical": "Nepal",
+    "iso3": "NPL",
+    "aliases": ["Federal Democratic Republic of Nepal", "नेपाल"],
+    "patterns": ["*, Nepal", "*, NP"]
+  },
+  "NR": {
+    "canonical": "Nauru",
+    "iso3": "NRU",
+    "aliases": ["Republic of Nauru"],
+    "patterns": ["*, Nauru", "*, NR"]
+  },
+  "NZ": {
+    "canonical": "New Zealand",
+    "iso3": "NZL",
+    "aliases": ["Aotearoa"],
+    "patterns": ["*, New Zealand", "*, NZ"]
+  },
+  "OM": {
+    "canonical": "Oman",
+    "iso3": "OMN",
+    "aliases": ["Sultanate of Oman", "عُمان"],
+    "patterns": ["*, Oman", "*, OM"]
+  },
+  "PA": {
+    "canonical": "Panama",
+    "iso3": "PAN",
+    "aliases": ["Republic of Panama", "República de Panamá"],
+    "patterns": ["*, Panama", "*, PA"]
+  },
+  "PE": {
+    "canonical": "Peru",
+    "iso3": "PER",
+    "aliases": ["Republic of Peru", "República del Perú"],
+    "patterns": ["*, Peru", "*, PE"]
+  },
+  "PG": {
+    "canonical": "Papua New Guinea",
+    "iso3": "PNG",
+    "aliases": ["Independent State of Papua New Guinea"],
+    "patterns": ["*, Papua New Guinea", "*, PNG", "*, PG"]
+  },
+  "PH": {
+    "canonical": "Philippines",
+    "iso3": "PHL",
+    "aliases": ["Republic of the Philippines", "Pilipinas"],
+    "patterns": ["*, Philippines", "*, PH"]
+  },
+  "PK": {
+    "canonical": "Pakistan",
+    "iso3": "PAK",
+    "aliases": ["Islamic Republic of Pakistan", "پاکستان"],
+    "patterns": ["*, Pakistan", "*, PK"],
+    "historicalNames": {
+      "West Pakistan": [1947, 1971]
+    }
+  },
+  "PL": {
+    "canonical": "Poland",
+    "iso3": "POL",
+    "aliases": ["Republic of Poland", "Polska"],
+    "patterns": ["*, Poland", "*, Polska", "*, PL"]
+  },
+  "PS": {
+    "canonical": "Palestine",
+    "iso3": "PSE",
+    "aliases": ["State of Palestine", "Palestinian Territories", "فلسطين"],
+    "patterns": ["*, Palestine", "*, PS"]
+  },
+  "PT": {
+    "canonical": "Portugal",
+    "iso3": "PRT",
+    "aliases": ["Portuguese Republic", "República Portuguesa"],
+    "patterns": ["*, Portugal", "*, PT"]
+  },
+  "PW": {
+    "canonical": "Palau",
+    "iso3": "PLW",
+    "aliases": ["Republic of Palau"],
+    "patterns": ["*, Palau", "*, PW"]
+  },
+  "PY": {
+    "canonical": "Paraguay",
+    "iso3": "PRY",
+    "aliases": ["Republic of Paraguay", "República del Paraguay"],
+    "patterns": ["*, Paraguay", "*, PY"]
+  },
+  "QA": {
+    "canonical": "Qatar",
+    "iso3": "QAT",
+    "aliases": ["State of Qatar", "قطر"],
+    "patterns": ["*, Qatar", "*, QA"]
+  },
+  "RO": {
+    "canonical": "Romania",
+    "iso3": "ROU",
+    "aliases": ["România", "Rumania", "Roumania"],
+    "patterns": ["*, Romania", "*, România", "*, RO"]
+  },
+  "RS": {
+    "canonical": "Serbia",
+    "iso3": "SRB",
+    "aliases": ["Republic of Serbia", "Србија", "Srbija"],
+    "patterns": ["*, Serbia", "*, Srbija", "*, RS"]
+  },
+  "RU": {
+    "canonical": "Russia",
+    "iso3": "RUS",
+    "aliases": ["Russian Federation", "Россия", "Rossiya"],
+    "patterns": ["*, Russia", "*, Russian Federation", "*, RU"],
+    "historicalNames": {
+      "Soviet Union": [1922, 1991],
+      "USSR": [1922, 1991],
+      "Russian Empire": [1721, 1917]
+    },
+    "regions": [
+      "Moscow",
+      "Saint Petersburg",
+      "Novosibirsk",
+      "Yekaterinburg",
+      "Nizhny Novgorod",
+      "Kazan",
+      "Chelyabinsk",
+      "Omsk",
+      "Samara",
+      "Rostov-on-Don",
+      "Ufa",
+      "Krasnoyarsk",
+      "Voronezh",
+      "Perm"
+    ]
+  },
+  "RW": {
+    "canonical": "Rwanda",
+    "iso3": "RWA",
+    "aliases": ["Republic of Rwanda", "République du Rwanda"],
+    "patterns": ["*, Rwanda", "*, RW"]
+  },
+  "SA": {
+    "canonical": "Saudi Arabia",
+    "iso3": "SAU",
+    "aliases": ["Kingdom of Saudi Arabia", "KSA", "المملكة العربية السعودية"],
+    "patterns": ["*, Saudi Arabia", "*, KSA", "*, SA"]
+  },
+  "SB": {
+    "canonical": "Solomon Islands",
+    "iso3": "SLB",
+    "aliases": [],
+    "patterns": ["*, Solomon Islands", "*, SB"]
+  },
+  "SC": {
+    "canonical": "Seychelles",
+    "iso3": "SYC",
+    "aliases": ["Republic of Seychelles"],
+    "patterns": ["*, Seychelles", "*, SC"]
+  },
+  "SD": {
+    "canonical": "Sudan",
+    "iso3": "SDN",
+    "aliases": ["Republic of the Sudan", "السودان"],
+    "patterns": ["*, Sudan", "*, SD"]
+  },
+  "SE": {
+    "canonical": "Sweden",
+    "iso3": "SWE",
+    "aliases": ["Kingdom of Sweden", "Sverige"],
+    "patterns": ["*, Sweden", "*, Sverige", "*, SE"]
+  },
+  "SG": {
+    "canonical": "Singapore",
+    "iso3": "SGP",
+    "aliases": ["Republic of Singapore", "新加坡", "Singapura"],
+    "patterns": ["*, Singapore", "*, SG"]
+  },
+  "SI": {
+    "canonical": "Slovenia",
+    "iso3": "SVN",
+    "aliases": ["Republic of Slovenia", "Slovenija"],
+    "patterns": ["*, Slovenia", "*, Slovenija", "*, SI"]
+  },
+  "SK": {
+    "canonical": "Slovakia",
+    "iso3": "SVK",
+    "aliases": ["Slovak Republic", "Slovensko"],
+    "patterns": ["*, Slovakia", "*, Slovensko", "*, SK"],
+    "historicalNames": {
+      "Czechoslovakia": [1918, 1992]
+    }
+  },
+  "SL": {
+    "canonical": "Sierra Leone",
+    "iso3": "SLE",
+    "aliases": ["Republic of Sierra Leone"],
+    "patterns": ["*, Sierra Leone", "*, SL"]
+  },
+  "SM": {
+    "canonical": "San Marino",
+    "iso3": "SMR",
+    "aliases": ["Republic of San Marino", "Repubblica di San Marino"],
+    "patterns": ["*, San Marino", "*, SM"]
+  },
+  "SN": {
+    "canonical": "Senegal",
+    "iso3": "SEN",
+    "aliases": ["Republic of Senegal", "République du Sénégal"],
+    "patterns": ["*, Senegal", "*, SN"]
+  },
+  "SO": {
+    "canonical": "Somalia",
+    "iso3": "SOM",
+    "aliases": ["Federal Republic of Somalia", "Soomaaliya"],
+    "patterns": ["*, Somalia", "*, SO"]
+  },
+  "SR": {
+    "canonical": "Suriname",
+    "iso3": "SUR",
+    "aliases": ["Republic of Suriname"],
+    "patterns": ["*, Suriname", "*, SR"],
+    "historicalNames": {
+      "Dutch Guiana": [1667, 1975]
+    }
+  },
+  "SS": {
+    "canonical": "South Sudan",
+    "iso3": "SSD",
+    "aliases": ["Republic of South Sudan"],
+    "patterns": ["*, South Sudan", "*, SS"]
+  },
+  "ST": {
+    "canonical": "Sao Tome and Principe",
+    "iso3": "STP",
+    "aliases": [
+      "São Tomé and Príncipe",
+      "República Democrática de São Tomé e Príncipe"
+    ],
+    "patterns": ["*, Sao Tome", "*, São Tomé", "*, ST"]
+  },
+  "SV": {
+    "canonical": "El Salvador",
+    "iso3": "SLV",
+    "aliases": ["Republic of El Salvador", "República de El Salvador"],
+    "patterns": ["*, El Salvador", "*, SV"]
+  },
+  "SY": {
+    "canonical": "Syria",
+    "iso3": "SYR",
+    "aliases": ["Syrian Arab Republic", "سوريا"],
+    "patterns": ["*, Syria", "*, SY"]
+  },
+  "SZ": {
+    "canonical": "Eswatini",
+    "iso3": "SWZ",
+    "aliases": ["Kingdom of Eswatini", "Swaziland"],
+    "patterns": ["*, Eswatini", "*, Swaziland", "*, SZ"]
+  },
+  "TD": {
+    "canonical": "Chad",
+    "iso3": "TCD",
+    "aliases": ["Republic of Chad", "Tchad"],
+    "patterns": ["*, Chad", "*, Tchad", "*, TD"]
+  },
+  "TG": {
+    "canonical": "Togo",
+    "iso3": "TGO",
+    "aliases": ["Togolese Republic", "République togolaise"],
+    "patterns": ["*, Togo", "*, TG"]
+  },
+  "TH": {
+    "canonical": "Thailand",
+    "iso3": "THA",
+    "aliases": ["Kingdom of Thailand", "ประเทศไทย"],
+    "patterns": ["*, Thailand", "*, TH"],
+    "historicalNames": {
+      "Siam": [1238, 1939]
+    }
+  },
+  "TJ": {
+    "canonical": "Tajikistan",
+    "iso3": "TJK",
+    "aliases": ["Republic of Tajikistan", "Тоҷикистон"],
+    "patterns": ["*, Tajikistan", "*, TJ"]
+  },
+  "TL": {
+    "canonical": "Timor-Leste",
+    "iso3": "TLS",
+    "aliases": ["East Timor", "Democratic Republic of Timor-Leste"],
+    "patterns": ["*, Timor-Leste", "*, East Timor", "*, TL"]
+  },
+  "TM": {
+    "canonical": "Turkmenistan",
+    "iso3": "TKM",
+    "aliases": ["Türkmenistan"],
+    "patterns": ["*, Turkmenistan", "*, TM"]
+  },
+  "TN": {
+    "canonical": "Tunisia",
+    "iso3": "TUN",
+    "aliases": ["Tunisian Republic", "تونس", "République tunisienne"],
+    "patterns": ["*, Tunisia", "*, Tunisie", "*, TN"]
+  },
+  "TO": {
+    "canonical": "Tonga",
+    "iso3": "TON",
+    "aliases": ["Kingdom of Tonga"],
+    "patterns": ["*, Tonga", "*, TO"]
+  },
+  "TR": {
+    "canonical": "Turkey",
+    "iso3": "TUR",
+    "aliases": ["Republic of Turkey", "Türkiye", "Turkiye"],
+    "patterns": ["*, Turkey", "*, Türkiye", "*, TR"],
+    "historicalNames": {
+      "Ottoman Empire": [1299, 1922]
+    }
+  },
+  "TT": {
+    "canonical": "Trinidad and Tobago",
+    "iso3": "TTO",
+    "aliases": ["Republic of Trinidad and Tobago", "Trinidad & Tobago"],
+    "patterns": ["*, Trinidad", "*, Tobago", "*, TT"]
+  },
+  "TV": {
+    "canonical": "Tuvalu",
+    "iso3": "TUV",
+    "aliases": [],
+    "patterns": ["*, Tuvalu", "*, TV"]
+  },
+  "TW": {
+    "canonical": "Taiwan",
+    "iso3": "TWN",
+    "aliases": ["Republic of China", "ROC", "中華民國", "Chinese Taipei"],
+    "patterns": ["*, Taiwan", "*, ROC", "*, TW"]
+  },
+  "TZ": {
+    "canonical": "Tanzania",
+    "iso3": "TZA",
+    "aliases": ["United Republic of Tanzania"],
+    "patterns": ["*, Tanzania", "*, TZ"],
+    "historicalNames": {
+      "Tanganyika": [1961, 1964],
+      "Zanzibar": [1963, 1964]
+    }
+  },
+  "UA": {
+    "canonical": "Ukraine",
+    "iso3": "UKR",
+    "aliases": ["Україна", "Ukraina"],
+    "patterns": ["*, Ukraine", "*, Ukraina", "*, UA"]
+  },
+  "UG": {
+    "canonical": "Uganda",
+    "iso3": "UGA",
+    "aliases": ["Republic of Uganda"],
+    "patterns": ["*, Uganda", "*, UG"]
+  },
+  "US": {
+    "canonical": "United States",
+    "iso3": "USA",
+    "aliases": [
+      "USA",
+      "U.S.A.",
+      "US",
+      "U.S.",
+      "United States of America",
+      "America",
+      "États-Unis",
+      "Estados Unidos",
+      "Stati Uniti",
+      "Vereinigte Staaten"
+    ],
+    "patterns": ["*, USA", "*, United States", "*, US", "*, America"],
+    "regions": [
+      "Alabama",
+      "Alaska",
+      "Arizona",
+      "Arkansas",
+      "California",
+      "Colorado",
+      "Connecticut",
+      "Delaware",
+      "Florida",
+      "Georgia",
+      "Hawaii",
+      "Idaho",
+      "Illinois",
+      "Indiana",
+      "Iowa",
+      "Kansas",
+      "Kentucky",
+      "Louisiana",
+      "Maine",
+      "Maryland",
+      "Massachusetts",
+      "Michigan",
+      "Minnesota",
+      "Mississippi",
+      "Missouri",
+      "Montana",
+      "Nebraska",
+      "Nevada",
+      "New Hampshire",
+      "New Jersey",
+      "New Mexico",
+      "New York",
+      "North Carolina",
+      "North Dakota",
+      "Ohio",
+      "Oklahoma",
+      "Oregon",
+      "Pennsylvania",
+      "Rhode Island",
+      "South Carolina",
+      "South Dakota",
+      "Tennessee",
+      "Texas",
+      "Utah",
+      "Vermont",
+      "Virginia",
+      "Washington",
+      "West Virginia",
+      "Wisconsin",
+      "Wyoming",
+      "Washington DC",
+      "District of Columbia",
+      "DC"
+    ]
+  },
+  "UY": {
+    "canonical": "Uruguay",
+    "iso3": "URY",
+    "aliases": [
+      "Oriental Republic of Uruguay",
+      "República Oriental del Uruguay"
+    ],
+    "patterns": ["*, Uruguay", "*, UY"]
+  },
+  "UZ": {
+    "canonical": "Uzbekistan",
+    "iso3": "UZB",
+    "aliases": ["Republic of Uzbekistan", "Oʻzbekiston"],
+    "patterns": ["*, Uzbekistan", "*, UZ"]
+  },
+  "VA": {
+    "canonical": "Vatican City",
+    "iso3": "VAT",
+    "aliases": ["Vatican City State", "Holy See", "Città del Vaticano"],
+    "patterns": ["*, Vatican", "*, Holy See", "*, VA"]
+  },
+  "VC": {
+    "canonical": "Saint Vincent and the Grenadines",
+    "iso3": "VCT",
+    "aliases": ["St. Vincent and the Grenadines"],
+    "patterns": ["*, Saint Vincent", "*, St. Vincent", "*, VC"]
+  },
+  "VE": {
+    "canonical": "Venezuela",
+    "iso3": "VEN",
+    "aliases": [
+      "Bolivarian Republic of Venezuela",
+      "República Bolivariana de Venezuela"
+    ],
+    "patterns": ["*, Venezuela", "*, VE"]
+  },
+  "VN": {
+    "canonical": "Vietnam",
+    "iso3": "VNM",
+    "aliases": [
+      "Viet Nam",
+      "Socialist Republic of Vietnam",
+      "Việt Nam",
+      "Cộng hòa Xã hội chủ nghĩa Việt Nam"
+    ],
+    "patterns": ["*, Vietnam", "*, Viet Nam"],
+    "historicalNames": {
+      "North Vietnam": [1945, 1976],
+      "South Vietnam": [1955, 1975],
+      "French Indochina": [1887, 1954],
+      "Indochine": [1887, 1954]
+    },
+    "regions": ["Hanoi", "Saigon", "Ho Chi Minh City", "Da Nang", "Haiphong"]
+  },
+  "VU": {
+    "canonical": "Vanuatu",
+    "iso3": "VUT",
+    "aliases": ["Republic of Vanuatu"],
+    "patterns": ["*, Vanuatu", "*, VU"],
+    "historicalNames": {
+      "New Hebrides": [1906, 1980]
+    }
+  },
+  "WS": {
+    "canonical": "Samoa",
+    "iso3": "WSM",
+    "aliases": ["Independent State of Samoa"],
+    "patterns": ["*, Samoa", "*, WS"],
+    "historicalNames": {
+      "Western Samoa": [1962, 1997]
+    }
+  },
+  "XK": {
+    "canonical": "Kosovo",
+    "iso3": "XKX",
+    "aliases": ["Republic of Kosovo", "Kosova"],
+    "patterns": ["*, Kosovo", "*, XK"]
+  },
+  "YE": {
+    "canonical": "Yemen",
+    "iso3": "YEM",
+    "aliases": ["Republic of Yemen", "اليمن"],
+    "patterns": ["*, Yemen", "*, YE"],
+    "historicalNames": {
+      "North Yemen": [1962, 1990],
+      "South Yemen": [1967, 1990]
+    }
+  },
+  "ZA": {
+    "canonical": "South Africa",
+    "iso3": "ZAF",
+    "aliases": ["Republic of South Africa", "RSA"],
+    "patterns": ["*, South Africa", "*, RSA", "*, ZA"]
+  },
+  "ZM": {
+    "canonical": "Zambia",
+    "iso3": "ZMB",
+    "aliases": ["Republic of Zambia"],
+    "patterns": ["*, Zambia", "*, ZM"],
+    "historicalNames": {
+      "Northern Rhodesia": [1911, 1964]
+    }
+  },
+  "ZW": {
+    "canonical": "Zimbabwe",
+    "iso3": "ZWE",
+    "aliases": ["Republic of Zimbabwe"],
+    "patterns": ["*, Zimbabwe", "*, ZW"],
+    "historicalNames": {
+      "Rhodesia": [1965, 1979],
+      "Southern Rhodesia": [1923, 1980]
+    }
+  }
+}

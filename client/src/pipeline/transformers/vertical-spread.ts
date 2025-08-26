@@ -8,7 +8,8 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  NodeVisualMetadata,
+  EdgeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
@@ -245,7 +246,7 @@ export async function verticalSpreadTransform(
   }
 
   // Create updated individual visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
 
   // Position each individual based on their generation
   const canvasWidth = visualMetadata.global.canvasWidth ?? 1200;
@@ -283,7 +284,7 @@ export async function verticalSpreadTransform(
   });
 
   // Create edge visual metadata
-  const updatedEdges: Record<string, VisualMetadata> = {};
+  const updatedEdges: Record<string, EdgeVisualMetadata> = {};
 
   gedcomData.metadata.edges.forEach((edge) => {
     const currentEdgeMetadata = visualMetadata.edges[edge.id] ?? {};

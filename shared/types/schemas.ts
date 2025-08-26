@@ -1,9 +1,34 @@
 import { z } from 'zod';
+import { ISO2_CODES } from './iso2';
 
 /**
  * Zod schemas for shared types
  * These provide runtime validation and can be used to derive TypeScript types
  */
+
+// Country metadata schema
+export const CountryMetadataSchema = z.object({
+  iso2: z.enum(ISO2_CODES),
+  confidence: z.number(),
+  method: z.enum([
+    'exact',
+    'alias',
+    'pattern',
+    'region',
+    'fuzzy',
+    'historical',
+  ]),
+  matchedOn: z.string().optional(),
+  alternatives: z
+    .array(
+      z.object({
+        iso2: z.enum(ISO2_CODES),
+        confidence: z.number(),
+        reason: z.string(),
+      }),
+    )
+    .optional(),
+});
 
 // Base schemas
 export const IndividualSchema = z.object({
@@ -14,12 +39,14 @@ export const IndividualSchema = z.object({
     .object({
       date: z.string().optional(),
       place: z.string().optional(),
+      country: CountryMetadataSchema.optional(),
     })
     .optional(),
   death: z
     .object({
       date: z.string().optional(),
       place: z.string().optional(),
+      country: CountryMetadataSchema.optional(),
     })
     .optional(),
   parents: z.array(z.string()),

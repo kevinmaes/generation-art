@@ -12,7 +12,7 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  EdgeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
@@ -196,7 +196,7 @@ export const edgeCurveConfig: VisualTransformerConfig = {
 function calculateCurveProperties(
   context: TransformerContext,
   edgeId: string,
-): Partial<VisualMetadata> {
+): Partial<EdgeVisualMetadata> {
   const { gedcomData, visualMetadata, dimensions, visual } = context;
 
   // Find the edge
@@ -399,7 +399,7 @@ function calculateCurveProperties(
   const arcRadius = distance * 0.5 * finalIntensity;
 
   return {
-    curveType: actualCurveType as VisualMetadata['curveType'],
+    curveType: actualCurveType as EdgeVisualMetadata['curveType'],
     controlPoints,
     arcRadius,
     curveIntensity: finalIntensity,
@@ -421,7 +421,7 @@ export async function edgeCurveTransform(
   }
 
   // Create updated edge visual metadata
-  const updatedEdges: Record<string, VisualMetadata> = {};
+  const updatedEdges: Record<string, EdgeVisualMetadata> = {};
 
   // Apply curve calculations to each edge
   edges.forEach((edge) => {

@@ -11,7 +11,7 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  EdgeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
@@ -278,7 +278,7 @@ export async function edgeOpacityTransform(
   }
 
   // Create updated edge visual metadata
-  const updatedEdges: Record<string, VisualMetadata> = {};
+  const updatedEdges: Record<string, EdgeVisualMetadata> = {};
 
   // Apply opacity and width calculations to each edge
   edges.forEach((edge) => {

@@ -9,7 +9,7 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  NodeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
@@ -338,7 +338,7 @@ export async function nodeScaleTransform(
   }
 
   // Create updated individual visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
 
   // Apply scale calculations to each individual
   individuals.forEach((individual) => {

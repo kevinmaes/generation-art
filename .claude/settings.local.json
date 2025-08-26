@@ -43,7 +43,8 @@
       "Bash(rm:*)",
       "Bash(tsx:*)",
       "mcp__ide__getDiagnostics",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

@@ -10,7 +10,7 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualTransformerConfig,
-  VisualMetadata,
+  EdgeVisualMetadata,
 } from '../types';
 import { createTransformerInstance } from '../utils';
 
@@ -359,7 +359,7 @@ export function fanChartTransform(
   // Filter edges to only show connections between adjacent generations
   // We need to explicitly hide edges rather than remove them due to how the pipeline merges
   const positionedIds = new Set(Object.keys(output.individuals));
-  const filteredEdges: Record<string, VisualMetadata> = {};
+  const filteredEdges: Record<string, EdgeVisualMetadata> = {};
   const largeGenDiffEdges: string[] = [];
 
   for (const edge of gedcomData.metadata.edges) {

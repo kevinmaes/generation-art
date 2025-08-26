@@ -4,7 +4,11 @@
  * Pure functions for extracting, merging, and building prompts for smart transformers
  */
 
-import type { TransformerContext, VisualMetadata } from '../pipeline/types';
+import type {
+  TransformerContext,
+  NodeVisualMetadata,
+  EdgeVisualMetadata,
+} from '../pipeline/types';
 import type {
   SmartTransformerConfig,
   GenericPromptData,
@@ -44,7 +48,7 @@ export function extractLLMProperties(
             props[prop] = meta.custom[child];
           }
         } else if (prop in meta) {
-          props[prop] = meta[prop as keyof VisualMetadata];
+          props[prop] = meta[prop as keyof NodeVisualMetadata];
         }
       });
 
@@ -71,7 +75,7 @@ export function extractLLMProperties(
             props[child] = meta.custom[child];
           }
         } else if (prop in meta) {
-          props[prop] = meta[prop as keyof VisualMetadata];
+          props[prop] = meta[prop as keyof EdgeVisualMetadata];
         }
       });
 

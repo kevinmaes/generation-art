@@ -10,7 +10,9 @@ import type {
   LLMReadyData,
 } from '../../../shared/types';
 import type {
-  VisualMetadata,
+  NodeVisualMetadata,
+  EdgeVisualMetadata,
+  TreeVisualMetadata,
   CompleteVisualMetadata,
   TransformerContext,
   PipelineResult,
@@ -51,7 +53,10 @@ import { getTransformerParameterKey } from '../utils/pipeline-index';
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
 } = {
-  TRANSFORMER_IDS: [TRANSFORMERS.GRID_LAYOUT.ID],
+  TRANSFORMER_IDS: [
+    TRANSFORMERS.GRID_LAYOUT.ID,
+    TRANSFORMERS.NODE_COUNTRY_COLOR.ID,
+  ],
 };
 
 /**
@@ -121,7 +126,7 @@ export interface PipelineError {
   step: number;
 }
 
-export const initialEntityVisualMetadata: VisualMetadata = {
+export const initialEntityVisualMetadata: NodeVisualMetadata = {
   x: DEFAULT_X,
   y: DEFAULT_Y,
   size: DEFAULT_SIZE,
@@ -147,7 +152,7 @@ export const initialEntityVisualMetadata: VisualMetadata = {
 /**
  * Create initial visual metadata for a single entity
  */
-function createInitialEntityVisualMetadata(): VisualMetadata {
+function createInitialEntityVisualMetadata(): NodeVisualMetadata {
   return initialEntityVisualMetadata;
 }
 
@@ -160,9 +165,9 @@ export function createInitialCompleteVisualMetadata(
   canvasWidth = 800,
   canvasHeight = 600,
 ): CompleteVisualMetadata {
-  const individuals: Record<string, VisualMetadata> = {};
-  const families: Record<string, VisualMetadata> = {};
-  const edges: Record<string, VisualMetadata> = {};
+  const individuals: Record<string, NodeVisualMetadata> = {};
+  const families: Record<string, NodeVisualMetadata> = {};
+  const edges: Record<string, EdgeVisualMetadata> = {};
 
   // Initialize visual metadata for each individual
   Object.keys(gedcomData.individuals).forEach((individualId) => {
@@ -195,15 +200,7 @@ export function createInitialCompleteVisualMetadata(
       strokeWeight: DEFAULT_STROKE_WEIGHT,
       strokeStyle: DEFAULT_STROKE_STYLE,
       opacity: 0.5, // More transparent initial edges
-      // Remove position attributes for edges (they're connections, not positioned entities)
-      x: undefined,
-      y: undefined,
-      size: undefined,
-      shape: undefined,
-      // Edge-specific grouping
-      group: 'edges',
       layer: 1, // Edges typically rendered below nodes
-      priority: 0,
     };
   });
 
@@ -322,23 +319,23 @@ function mergeVisualMetadata(
 // Build a compact change set from a transformer's partial visualMetadata
 function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
   changeSet: {
-    individuals?: Record<string, (keyof VisualMetadata)[]>;
-    families?: Record<string, (keyof VisualMetadata)[]>;
-    edges?: Record<string, (keyof VisualMetadata)[]>;
-    tree?: (keyof VisualMetadata)[];
+    individuals?: Record<string, (keyof NodeVisualMetadata)[]>;
+    families?: Record<string, (keyof NodeVisualMetadata)[]>;
+    edges?: Record<string, (keyof EdgeVisualMetadata)[]>;
+    tree?: (keyof TreeVisualMetadata)[];
   };
 } {
   const changeSet: {
-    individuals?: Record<string, (keyof VisualMetadata)[]>;
-    families?: Record<string, (keyof VisualMetadata)[]>;
-    edges?: Record<string, (keyof VisualMetadata)[]>;
-    tree?: (keyof VisualMetadata)[];
+    individuals?: Record<string, (keyof NodeVisualMetadata)[]>;
+    families?: Record<string, (keyof NodeVisualMetadata)[]>;
+    edges?: Record<string, (keyof EdgeVisualMetadata)[]>;
+    tree?: (keyof TreeVisualMetadata)[];
   } = {};
 
   if (updates.individuals) {
-    const individuals: Record<string, (keyof VisualMetadata)[]> = {};
+    const individuals: Record<string, (keyof NodeVisualMetadata)[]> = {};
     Object.entries(updates.individuals).forEach(([id, vm]) => {
-      const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+      const keys = Object.keys(vm) as (keyof NodeVisualMetadata)[];
       if (keys.length > 0) {
         individuals[id] = keys;
       }
@@ -349,9 +346,9 @@ function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
   }
 
   if (updates.families) {
-    const families: Record<string, (keyof VisualMetadata)[]> = {};
+    const families: Record<string, (keyof NodeVisualMetadata)[]> = {};
     Object.entries(updates.families).forEach(([id, vm]) => {
-      const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+      const keys = Object.keys(vm) as (keyof NodeVisualMetadata)[];
       if (keys.length > 0) {
         families[id] = keys;
       }
@@ -362,9 +359,9 @@ function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
   }
 
   if (updates.edges) {
-    const edges: Record<string, (keyof VisualMetadata)[]> = {};
+    const edges: Record<string, (keyof EdgeVisualMetadata)[]> = {};
     Object.entries(updates.edges).forEach(([id, vm]) => {
-      const keys = Object.keys(vm) as (keyof VisualMetadata)[];
+      const keys = Object.keys(vm) as (keyof EdgeVisualMetadata)[];
       if (keys.length > 0) {
         edges[id] = keys;
       }
@@ -375,7 +372,7 @@ function buildChangeSet(updates: Partial<CompleteVisualMetadata>): {
   }
 
   if (updates.tree) {
-    const keys = Object.keys(updates.tree) as (keyof VisualMetadata)[];
+    const keys = Object.keys(updates.tree) as (keyof TreeVisualMetadata)[];
     if (keys.length > 0) {
       changeSet.tree = keys;
     }

@@ -301,8 +301,12 @@ async function generateCompleteGedcomStream(): Promise<void> {
   const totalIndividuals = Math.pow(2, MAX_GENERATIONS) - 1;
   const totalFamilies = totalIndividuals - 1;
 
-  console.log(`📊 Total individuals to generate: ${String(totalIndividuals)}`);
-  console.log(`📊 Total families to generate: ${String(totalFamilies)}`);
+  console.log(
+    `📊 Total individuals to generate: ${totalIndividuals.toLocaleString()}`,
+  );
+  console.log(
+    `📊 Total families to generate: ${totalFamilies.toLocaleString()}`,
+  );
   console.log('─'.repeat(50));
 
   // Ensure directory exists

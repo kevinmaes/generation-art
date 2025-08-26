@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type p5 from 'p5';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
-import type { CompleteVisualMetadata, VisualMetadata } from '../pipeline/types';
+import type {
+  CompleteVisualMetadata,
+  EdgeVisualMetadata,
+} from '../pipeline/types';
 import { TRANSFORMERS, type TransformerId } from '../pipeline/transformers';
 import { PIPELINE_DEFAULTS } from '../pipeline/pipeline';
 import { DEFAULT_COLOR } from '../pipeline/constants';
@@ -43,7 +46,7 @@ type CurveDrawFn = (
   p: p5,
   start: Point,
   end: Point,
-  metadata: VisualMetadata,
+  metadata: EdgeVisualMetadata,
 ) => void;
 
 /**
@@ -186,7 +189,7 @@ function drawEdge(
   p: p5,
   start: Point,
   end: Point,
-  metadata: VisualMetadata,
+  metadata: EdgeVisualMetadata,
 ): void {
   const curveType = metadata.curveType ?? 'straight';
   const renderer = CURVE_RENDERERS[curveType] ?? CURVE_RENDERERS.straight;
@@ -438,6 +441,142 @@ function createSketch(props: SketchProps): (p: p5) => void {
           const finalWidth = size * width;
           const finalHeight = size * height;
 
+          // Check if we have layers to render
+          const nodeLayers =
+            'nodeLayers' in individualMetadata &&
+            Array.isArray(individualMetadata.nodeLayers)
+              ? individualMetadata.nodeLayers
+              : null;
+
+          if (nodeLayers && nodeLayers.length > 0) {
+            // NEW LAYER SYSTEM: Render each layer
+            p.push();
+            p.translate(x, y);
+            p.rotate(rotation);
+            p.scale(scale);
+
+            // Draw each layer in order (first = back, last = front)
+            for (const layer of nodeLayers) {
+              p.push();
+
+              // Apply layer offset
+              if (layer.offset) {
+                p.translate(layer.offset.x ?? 0, layer.offset.y ?? 0);
+              }
+
+              // Apply layer rotation
+              if (layer.rotation) {
+                p.rotate(layer.rotation);
+              }
+
+              // Apply layer scale
+              if (layer.scale) {
+                p.scale(layer.scale);
+              }
+
+              // Apply fill if defined
+              if (layer.fill && (layer.fill.opacity ?? 0) > 0) {
+                const fillColor = p.color(layer.fill.color ?? '#000000');
+                fillColor.setAlpha((layer.fill.opacity ?? 1) * 255);
+                p.fill(fillColor);
+              } else {
+                p.noFill();
+              }
+
+              // Apply stroke if defined
+              if (layer.stroke && (layer.stroke.weight ?? 0) > 0) {
+                const strokeCol = p.color(layer.stroke.color ?? '#000000');
+                strokeCol.setAlpha((layer.stroke.opacity ?? 1) * 255);
+                p.stroke(strokeCol);
+                p.strokeWeight(layer.stroke.weight ?? 1);
+
+                // TODO: Apply stroke style (dashed, dotted) if needed
+              } else {
+                p.noStroke();
+              }
+
+              // Determine dimensions for this layer
+              const layerWidth = layer.size?.width ?? finalWidth;
+              const layerHeight = layer.size?.height ?? finalHeight;
+
+              // Render the shape
+              if (layer.shapeProfile) {
+                // Use shape profile
+                try {
+                  const needsSize =
+                    !layer.shapeProfile.size ||
+                    (layer.shapeProfile.size.width ?? 0) <= 0 ||
+                    (layer.shapeProfile.size.height ?? 0) <= 0;
+                  const profile = {
+                    kind: layer.shapeProfile.kind ?? 'circle',
+                    size: needsSize
+                      ? { width: layerWidth, height: layerHeight }
+                      : layer.shapeProfile.size,
+                    seed: layer.shapeProfile.seed,
+                    params: layer.shapeProfile.params,
+                    detail: layer.shapeProfile.detail ?? { maxVertices: 128 },
+                  };
+                  const geometry = resolveShapeGeometry(profile);
+                  p.beginShape();
+                  const poly = geometry.polygon;
+                  for (let i = 0; i < poly.length; i += 2) {
+                    p.vertex(poly[i], poly[i + 1]);
+                  }
+                  p.endShape(p.CLOSE);
+                } catch {
+                  // Fallback to circle
+                  p.ellipse(0, 0, layerWidth, layerHeight);
+                }
+              } else if (layer.shape) {
+                // Use basic shape
+                if (layer.shape === 'circle') {
+                  p.ellipse(0, 0, layerWidth, layerHeight);
+                } else if (layer.shape === 'square') {
+                  p.rectMode(p.CENTER);
+                  p.rect(0, 0, layerWidth, layerHeight);
+                } else if (layer.shape === 'triangle') {
+                  p.triangle(
+                    0,
+                    -layerHeight / 2,
+                    -layerWidth / 2,
+                    layerHeight / 2,
+                    layerWidth / 2,
+                    layerHeight / 2,
+                  );
+                } else if (layer.shape === 'hexagon') {
+                  p.beginShape();
+                  for (let i = 0; i < 6; i++) {
+                    const angle = (p.TWO_PI / 6) * i;
+                    const vx = (layerWidth / 2) * p.cos(angle);
+                    const vy = (layerHeight / 2) * p.sin(angle);
+                    p.vertex(vx, vy);
+                  }
+                  p.endShape(p.CLOSE);
+                } else if (layer.shape === 'star') {
+                  p.beginShape();
+                  for (let i = 0; i < 10; i++) {
+                    const angle = (p.TWO_PI / 10) * i;
+                    const radius =
+                      i % 2 === 0 ? layerWidth / 2 : layerWidth / 4;
+                    const vx = radius * p.cos(angle);
+                    const vy = radius * p.sin(angle);
+                    p.vertex(vx, vy);
+                  }
+                  p.endShape(p.CLOSE);
+                }
+              }
+
+              p.pop();
+            }
+
+            p.pop();
+
+            // Count this individual as rendered
+            visibleIndividualsCount++;
+            continue; // Skip the legacy rendering
+          }
+
+          // LEGACY RENDERING: Use the original single-shape approach
           const pColor = p.color(color);
           pColor.setAlpha(opacity * 255);
           p.fill(pColor);
@@ -694,16 +833,14 @@ export function createWebSketch(
     visualMetadata ??
     (() => {
       // Initialize edge visual metadata from actual edge data
-      const edges: Record<string, VisualMetadata> = {};
+      const edges: Record<string, EdgeVisualMetadata> = {};
       gedcomData.metadata.edges.forEach((edge) => {
         edges[edge.id] = {
           strokeColor: '#ccc',
           strokeWeight: config.strokeWeight,
           strokeStyle: 'solid',
           opacity: 1.0,
-          group: 'edges',
           layer: 1,
-          priority: 0,
         };
       });
 

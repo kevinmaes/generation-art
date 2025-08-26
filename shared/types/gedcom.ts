@@ -3,6 +3,32 @@
  * These types represent the core data structures for GEDCOM parsing and processing
  */
 
+import type { ISO2 } from './iso2';
+
+/**
+ * Country metadata for location matching
+ */
+export interface CountryMetadata {
+  iso2: ISO2;
+  confidence: number;
+  method: 'exact' | 'alias' | 'pattern' | 'region' | 'fuzzy' | 'historical';
+  matchedOn?: string;
+  alternatives?: {
+    iso2: ISO2;
+    confidence: number;
+    reason: string;
+  }[];
+}
+
+/**
+ * Enhanced location with country metadata
+ */
+export interface LocationWithCountry {
+  date?: string;
+  place?: string;
+  country?: CountryMetadata;
+}
+
 /**
  * Base individual type - contains only raw GEDCOM data
  * All properties are directly extracted from GEDCOM tags
@@ -11,8 +37,8 @@ export interface Individual {
   id: string;
   name: string;
   gender?: 'M' | 'F' | 'U'; // M = Male, F = Female, U = Unknown
-  birth?: { date?: string; place?: string };
-  death?: { date?: string; place?: string };
+  birth?: LocationWithCountry;
+  death?: LocationWithCountry;
   parents: string[];
   spouses: string[];
   children: string[];
