@@ -265,6 +265,7 @@ export function PipelineProvider({
         canvasWidth,
         canvasHeight,
         activeTransformerIds,
+        transformerParameters,
       );
       externalOnVisualize?.();
     } finally {

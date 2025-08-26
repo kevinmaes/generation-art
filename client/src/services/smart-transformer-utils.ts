@@ -4,7 +4,11 @@
  * Pure functions for extracting, merging, and building prompts for smart transformers
  */
 
-import type { TransformerContext, NodeVisualMetadata, EdgeVisualMetadata } from '../pipeline/types';
+import type {
+  TransformerContext,
+  NodeVisualMetadata,
+  EdgeVisualMetadata,
+} from '../pipeline/types';
 import type {
   SmartTransformerConfig,
   GenericPromptData,

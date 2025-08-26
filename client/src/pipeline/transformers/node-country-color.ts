@@ -308,7 +308,7 @@ export async function nodeCountryColorTransform(
           const existingLayer = existingLayers[i];
           const flagColor = flagColors[i % flagColors.length];
           const adjustedColor = applyColorIntensity(flagColor, colorIntensity);
-          const layerOpacity = 0.8 * Math.pow(0.7, i); // Decrease opacity for each layer
+          const layerOpacity = 0.9 - i * 0.2; // More visible opacity differences
 
           layers.push({
             shape: existingLayer?.shape || currentMetadata.shape,
@@ -323,8 +323,8 @@ export async function nodeCountryColorTransform(
                 ? existingLayer.stroke
                 : undefined,
             offset: {
-              x: i * 4,
-              y: i * 4,
+              x: i * 8, // Increased offset for better visibility
+              y: i * 8, // Increased offset for better visibility
             },
             source: 'node-country-color',
           });
