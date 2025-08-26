@@ -301,12 +301,12 @@ export async function nodeCountryColorTransform(
           name: 'tertiary',
           order: 2,
         },
-      ].filter((item) => item.color) as Array<{
+      ].filter((item) => item.color) as {
         color: string;
         proportion: number;
         name: string;
         order: number;
-      }>;
+      }[];
 
       if (flagColorData.length > 0) {
         // Sort by proportion ascending (smallest first for center position)
@@ -321,8 +321,7 @@ export async function nodeCountryColorTransform(
         let cumulativeArea = 0;
 
         // Calculate radius for each layer from inside out
-        for (let i = 0; i < flagColorData.length; i++) {
-          const colorData = flagColorData[i];
+        for (const colorData of flagColorData) {
           // Add this color's proportion to cumulative area
           cumulativeArea += colorData.proportion / 100;
           // Radius is sqrt of cumulative area (since area = πr²)

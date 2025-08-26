@@ -4,7 +4,6 @@ import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type {
   CompleteVisualMetadata,
   EdgeVisualMetadata,
-  NodeVisualLayer,
 } from '../pipeline/types';
 import { TRANSFORMERS, type TransformerId } from '../pipeline/transformers';
 import { PIPELINE_DEFAULTS } from '../pipeline/pipeline';
@@ -445,8 +444,8 @@ function createSketch(props: SketchProps): (p: p5) => void {
           // Check if we have layers to render
           const nodeLayers =
             'nodeLayers' in individualMetadata &&
-            Array.isArray((individualMetadata as any).nodeLayers)
-              ? ((individualMetadata as any).nodeLayers as NodeVisualLayer[])
+            Array.isArray(individualMetadata.nodeLayers)
+              ? individualMetadata.nodeLayers
               : null;
 
           if (nodeLayers && nodeLayers.length > 0) {
@@ -524,7 +523,7 @@ function createSketch(props: SketchProps): (p: p5) => void {
                     p.vertex(poly[i], poly[i + 1]);
                   }
                   p.endShape(p.CLOSE);
-                } catch (error) {
+                } catch {
                   // Fallback to circle
                   p.ellipse(0, 0, layerWidth, layerHeight);
                 }
