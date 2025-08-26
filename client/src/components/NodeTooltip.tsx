@@ -7,6 +7,8 @@ interface NodeTooltipProps {
   canvasBounds: DOMRect;
   onSetPrimary?: (id: string) => void;
   isDevelopment?: boolean;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export const NodeTooltip: React.FC<NodeTooltipProps> = ({
@@ -15,6 +17,8 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
   canvasBounds,
   onSetPrimary,
   isDevelopment = false,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -86,6 +90,8 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
         minWidth: '200px',
         maxWidth: '300px',
       }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* Name */}
       <div className="font-semibold text-gray-900 text-sm mb-1 text-center">

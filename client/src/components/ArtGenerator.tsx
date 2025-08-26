@@ -55,10 +55,18 @@ export function ArtGenerator({
     position: { x: number; y: number };
   } | null>(null);
   const [canvasBounds, setCanvasBounds] = useState<DOMRect | null>(null);
+  const [isTooltipHovered, setIsTooltipHovered] = useState(false);
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle hover callback
   const handleNodeHover = useCallback(
     (nodeId: string | null, position: { x: number; y: number } | null) => {
+      // Clear any existing timeout
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+        tooltipTimeoutRef.current = null;
+      }
+
       if (nodeId && position && gedcomData) {
         const individual = gedcomData.individuals[nodeId];
         // individual check is necessary because nodeId might not exist in the data
@@ -66,13 +74,23 @@ export function ArtGenerator({
         if (individual) {
           setHoveredNode({ individual, position });
         } else {
-          setHoveredNode(null);
+          // Only hide if tooltip is not being hovered
+          if (!isTooltipHovered) {
+            tooltipTimeoutRef.current = setTimeout(() => {
+              setHoveredNode(null);
+            }, 200);
+          }
         }
       } else {
-        setHoveredNode(null);
+        // Only hide if tooltip is not being hovered
+        if (!isTooltipHovered) {
+          tooltipTimeoutRef.current = setTimeout(() => {
+            setHoveredNode(null);
+          }, 200);
+        }
       }
     },
-    [gedcomData],
+    [gedcomData, isTooltipHovered],
   );
 
   // Handle parameter updates without canvas recreation
@@ -235,6 +253,14 @@ export function ArtGenerator({
           canvasBounds={canvasBounds}
           isDevelopment={process.env.NODE_ENV === 'development'}
           onSetPrimary={onSetPrimaryIndividual}
+          onMouseEnter={() => setIsTooltipHovered(true)}
+          onMouseLeave={() => {
+            setIsTooltipHovered(false);
+            // Hide tooltip after a delay when mouse leaves
+            tooltipTimeoutRef.current = setTimeout(() => {
+              setHoveredNode(null);
+            }, 200);
+          }}
         />
       )}
     </div>
