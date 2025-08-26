@@ -312,6 +312,23 @@ function App(): React.ReactElement {
     }));
   };
 
+  // Auto-rerun pipeline when primary individual changes
+  useEffect(() => {
+    // Only auto-rerun if:
+    // 1. We have a pipeline result (meaning we've run at least once)
+    // 2. We're not currently visualizing
+    // 3. We have data loaded
+    if (
+      pipelineResult &&
+      !isVisualizing &&
+      isFamilyTreeSuccess &&
+      primaryIndividualId
+    ) {
+      void handleVisualize();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [primaryIndividualId]); // Only trigger on primaryIndividualId changes
+
   const handleVisualize = async () => {
     if (!isFamilyTreeSuccess) {
       console.error('Cannot visualize: data not loaded');
