@@ -58,6 +58,15 @@ export class SimpleGedcomParser {
         console.log('Processing line:', line);
       }
 
+      // Reset currentEvent when we encounter a level 0 or 1 tag that's not DATE or PLAC
+      // This prevents dates from unrelated tags from being associated with previous events
+      if (line.level <= 1 && line.tag !== 'DATE' && line.tag !== 'PLAC') {
+        // Only reset if it's not one of the event tags we're tracking
+        if (!['BIRT', 'DEAT', 'MARR'].includes(line.tag)) {
+          this.currentEvent = undefined;
+        }
+      }
+
       switch (line.tag) {
         case 'INDI':
           this.handleIndividual(line);
