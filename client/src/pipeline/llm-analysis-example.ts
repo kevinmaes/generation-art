@@ -1,4 +1,4 @@
-import type { TransformerContext, VisualMetadata } from './types';
+import type { TransformerContext, NodeVisualMetadata } from './types';
 
 /**
  * Example transformer that demonstrates PII stripping for LLM calls
@@ -10,7 +10,7 @@ import type { TransformerContext, VisualMetadata } from './types';
  */
 export function llmAnalysisExampleTransform(
   context: TransformerContext,
-): Promise<{ visualMetadata: Partial<VisualMetadata> }> {
+): Promise<{ visualMetadata: Partial<NodeVisualMetadata> }> {
   const { llmData } = context;
 
   console.log('🔍 LLM Analysis Example: Analyzing anonymized data...');
@@ -44,7 +44,7 @@ Tree Statistics:
       opacity: simulatedLLMResponse.opacity,
       strokeColor: '#2C3E50',
       strokeWeight: 2,
-      shape: 'circle' as VisualMetadata['shape'],
+      shape: 'circle' as NodeVisualMetadata['shape'],
     },
   });
 }
@@ -54,7 +54,7 @@ Tree Statistics:
  */
 export function advancedLLMAnalysisTransform(
   context: TransformerContext,
-): Promise<{ visualMetadata: Partial<VisualMetadata> }> {
+): Promise<{ visualMetadata: Partial<NodeVisualMetadata> }> {
   const { llmData, gedcomData } = context;
 
   console.log('🧠 Advanced LLM Analysis: Using both full and LLM data...');
@@ -85,7 +85,7 @@ Advanced family tree analysis:
     color: averageAge > 0.7 ? '#E74C3C' : '#27AE60', // Red for older trees, green for younger
     size: Math.max(8, Math.min(20, totalIndividuals / 10)), // Size based on tree size
     opacity: 0.75,
-    shape: 'square' as VisualMetadata['shape'],
+    shape: 'square' as NodeVisualMetadata['shape'],
   };
 
   return Promise.resolve({ visualMetadata: visualProperties });

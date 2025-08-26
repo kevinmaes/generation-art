@@ -11,7 +11,8 @@ import type {
   TransformerContext,
   CompleteVisualMetadata,
   VisualTransformerConfig,
-  VisualMetadata,
+  NodeVisualMetadata,
+  EdgeVisualMetadata,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
 import { createTransformerInstance } from '../utils';
@@ -480,15 +481,15 @@ function applySpiralGrid(
 }
 
 function buildEdges(
-  nodePositions: Record<string, VisualMetadata>,
+  nodePositions: Record<string, NodeVisualMetadata>,
   metadataEdges: {
     id: string;
     sourceId: string;
     targetId: string;
     relationshipType: string;
   }[],
-): Record<string, VisualMetadata> {
-  const edges: Record<string, VisualMetadata> = {};
+): Record<string, NodeVisualMetadata> {
+  const edges: Record<string, NodeVisualMetadata> = {};
   metadataEdges.forEach((edge) => {
     const s = nodePositions[edge.sourceId];
     const t = nodePositions[edge.targetId];
@@ -510,7 +511,7 @@ function buildEdges(
         targetY: t.y,
         edgeType: edge.relationshipType,
       },
-    } as VisualMetadata;
+    } as EdgeVisualMetadata;
   });
   return edges;
 }

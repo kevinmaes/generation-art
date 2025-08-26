@@ -11,12 +11,14 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  NodeVisualMetadata,
+  NodeVisualLayer,
   VisualTransformerConfig,
 } from '../types';
 import type {
   AugmentedIndividual,
   CountryColorMap,
+  CountryColors,
   ISO2,
 } from '../../../../shared/types';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
@@ -64,6 +66,24 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
       step: 0.1,
       defaultValue: 0.8,
     },
+    {
+      name: 'layerMode',
+      label: 'Layer Mode',
+      type: 'select',
+      defaultValue: 'single',
+      options: [
+        { value: 'single', label: 'Single layer (fill + stroke)' },
+        { value: 'multi', label: 'Multiple layers (flag colors)' },
+      ],
+      description: 'How to apply country colors',
+    },
+    {
+      name: 'useNewLayerSystem',
+      label: 'Use new layer system',
+      type: 'boolean',
+      defaultValue: false,
+      description: 'Use the new layer-based rendering system',
+    },
   ],
   createTransformerInstance: (params) =>
     createTransformerInstance(params, nodeCountryColorTransform, []),
@@ -99,6 +119,15 @@ function getCountrySecondaryColor(iso2: ISO2 | null): string | null {
   }
 
   return null;
+}
+
+/**
+ * Get all colors for a country ISO2 code
+ */
+function getCountryColors(iso2: ISO2 | null): CountryColors | null {
+  if (!iso2) return null;
+
+  return (countryColors as unknown as CountryColorMap)[iso2] || null;
 }
 
 /**
@@ -220,7 +249,13 @@ function calculateNodeColors(
 export async function nodeCountryColorTransform(
   context: TransformerContext,
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
-  const { gedcomData, visualMetadata } = context;
+  const { gedcomData, visualMetadata, visual } = context;
+
+  // Extract visual parameters
+  const layerMode = (visual.layerMode as string) || 'single';
+  const useNewLayerSystem = (visual.useNewLayerSystem as boolean) || false;
+  const colorIntensity = (visual.colorIntensity as number) || 0.8;
+  const fallbackColor = (visual.fallbackColor as string) || '#808080';
 
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual): individual is AugmentedIndividual =>
@@ -232,20 +267,132 @@ export async function nodeCountryColorTransform(
   }
 
   // Create updated individual visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
 
   // Apply color calculations to each individual
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals?.[individual.id] ?? {};
-    const calculatedColors = calculateNodeColors(context, individual.id);
 
-    // Preserve existing visual metadata and update colors
-    updatedIndividuals[individual.id] = {
-      ...currentMetadata,
-      color: calculatedColors.color,
-      strokeColor: calculatedColors.strokeColor,
-      strokeWeight: calculatedColors.strokeColor ? 2 : 0, // Add stroke weight if there's a stroke color
-    };
+    // Get country ISO codes
+    const birthCountryIso2 = individual.birth?.country?.iso2 || null;
+    const deathCountryIso2 = individual.death?.country?.iso2 || null;
+    const countryIso2 = birthCountryIso2 || deathCountryIso2;
+
+    // Get country colors
+    const countryColorsData = getCountryColors(countryIso2);
+
+    if (useNewLayerSystem && layerMode === 'multi' && countryColorsData) {
+      // Create multiple layers with different flag colors
+      const layers: NodeVisualLayer[] = [];
+
+      // Ensure we have existing layers or create new ones
+      const existingLayers = currentMetadata.nodeLayers || [];
+
+      // Get up to 4 flag colors
+      const flagColors = [
+        countryColorsData.primary?.hex,
+        countryColorsData.secondary?.hex,
+        countryColorsData.tertiary?.hex,
+        countryColorsData.quaternary?.hex,
+      ].filter(Boolean) as string[];
+
+      if (flagColors.length > 0) {
+        // If we have existing layers, update their colors
+        // Otherwise create new layers
+        const layerCount = Math.max(
+          existingLayers.length,
+          Math.min(flagColors.length, 3),
+        );
+
+        for (let i = 0; i < layerCount; i++) {
+          const existingLayer = existingLayers[i];
+          const flagColor = flagColors[i % flagColors.length];
+          const adjustedColor = applyColorIntensity(flagColor, colorIntensity);
+          const layerOpacity = 0.8 * Math.pow(0.7, i); // Decrease opacity for each layer
+
+          layers.push({
+            shape: existingLayer?.shape || currentMetadata.shape,
+            shapeProfile:
+              existingLayer?.shapeProfile || currentMetadata.shapeProfile,
+            fill: {
+              color: adjustedColor,
+              opacity: layerOpacity,
+            },
+            stroke:
+              i === 0 && existingLayer?.stroke
+                ? existingLayer.stroke
+                : undefined,
+            offset: {
+              x: i * 4,
+              y: i * 4,
+            },
+            source: 'node-country-color',
+          });
+        }
+      } else {
+        // No country colors, use fallback
+        layers.push({
+          shape: currentMetadata.shape,
+          shapeProfile: currentMetadata.shapeProfile,
+          fill: {
+            color: fallbackColor,
+            opacity: 0.8,
+          },
+          offset: { x: 0, y: 0 },
+          source: 'node-country-color',
+        });
+      }
+
+      updatedIndividuals[individual.id] = {
+        ...currentMetadata,
+        nodeLayers: layers,
+      };
+    } else {
+      // Use traditional single-layer approach
+      const calculatedColors = calculateNodeColors(context, individual.id);
+
+      if (useNewLayerSystem) {
+        // Create a single layer with the calculated colors
+        const layers: NodeVisualLayer[] = currentMetadata.nodeLayers || [];
+
+        // Update or add the country color layer
+        const countryColorLayer: NodeVisualLayer = {
+          shape: currentMetadata.shape,
+          shapeProfile: currentMetadata.shapeProfile,
+          fill: {
+            color: calculatedColors.color,
+            opacity: currentMetadata.opacity ?? 0.8,
+          },
+          stroke: calculatedColors.strokeColor
+            ? {
+                color: calculatedColors.strokeColor,
+                weight: 2,
+                opacity: 1,
+              }
+            : undefined,
+          offset: { x: 0, y: 0 },
+          source: 'node-country-color',
+        };
+
+        // Replace or add our layer
+        const otherLayers = layers.filter(
+          (l) => l.source !== 'node-country-color',
+        );
+
+        updatedIndividuals[individual.id] = {
+          ...currentMetadata,
+          nodeLayers: [...otherLayers, countryColorLayer],
+        };
+      } else {
+        // Legacy approach - just update color properties
+        updatedIndividuals[individual.id] = {
+          ...currentMetadata,
+          color: calculatedColors.color,
+          strokeColor: calculatedColors.strokeColor,
+          strokeWeight: calculatedColors.strokeColor ? 2 : 0,
+        };
+      }
+    }
   });
 
   // Small delay to simulate async work

@@ -9,7 +9,7 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  NodeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
@@ -294,7 +294,7 @@ export async function nodeRotationTransform(
   }
 
   // Create updated individual visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
 
   // Apply rotation calculations to each individual
   individuals.forEach((individual) => {

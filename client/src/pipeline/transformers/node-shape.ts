@@ -16,7 +16,8 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  NodeVisualMetadata,
+  NodeVisualLayer,
   VisualTransformerConfig,
 } from '../types';
 import { getIndividualSafe } from '../utils/safe-access';
@@ -81,6 +82,13 @@ export const nodeShapeConfig: VisualTransformerConfig = {
         { value: 'cascade', label: 'Cascade' },
       ],
       description: 'Pre-configured layer depth effects',
+    },
+    {
+      name: 'useLayerSystem',
+      label: 'Use new layer system',
+      type: 'boolean',
+      defaultValue: false,
+      description: 'Use the new layer-based rendering system (experimental)',
     },
   ],
   createTransformerInstance: (params) =>
@@ -337,6 +345,7 @@ export async function nodeShapeTransform(
   // Extract visual parameters
   const strokeOpacity = (visual.strokeOpacity ?? 1.0) as number; // Already in 0-1 range
   const layerPresetId = (visual.layerPreset ?? 'flat') as LayerPresetId;
+  const useLayerSystem = (visual.useLayerSystem ?? false) as boolean;
 
   // Get the layer preset configuration
   const preset = LAYER_PRESETS[layerPresetId] || LAYER_PRESETS.flat;
@@ -367,7 +376,7 @@ export async function nodeShapeTransform(
   console.log(`🔍 Processing ${String(individuals.length)} individuals`);
 
   // Create updated individual visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
 
   // Apply shape calculations to each individual
   individuals.forEach((individual, index) => {
@@ -415,19 +424,85 @@ export async function nodeShapeTransform(
           }),
     };
 
-    // Preserve existing visual metadata and update shape
-    updatedIndividuals[individual.id] = {
-      ...currentMetadata,
-      shape: calculatedShape,
-      shapeProfile: baseProfile,
-      // Add stroke control (0 opacity means no stroke)
-      strokeWeight: strokeOpacity > 0 ? (currentMetadata.strokeWeight ?? 1) : 0,
-      strokeOpacity: strokeOpacity,
-      // Store layer parameters for renderer
-      layerCount,
-      layerOffset,
-      layerOpacityFalloff,
-    };
+    // Build the metadata based on whether we're using the new layer system
+    if (useLayerSystem) {
+      // Create layers for the new system
+      const layers: NodeVisualLayer[] = [];
+
+      if (layerCount === 1) {
+        // Single layer
+        layers.push({
+          shape: calculatedShape,
+          shapeProfile: baseProfile,
+          fill: {
+            color: currentMetadata.color,
+            opacity: currentMetadata.opacity ?? 0.8,
+          },
+          stroke:
+            strokeOpacity > 0
+              ? {
+                  color: currentMetadata.strokeColor,
+                  weight: currentMetadata.strokeWeight ?? 1,
+                  opacity: strokeOpacity,
+                }
+              : undefined,
+          offset: { x: 0, y: 0 },
+          source: 'node-shape',
+        });
+      } else {
+        // Multiple layers for depth effect
+        for (let i = 0; i < layerCount; i++) {
+          const layerOpacity =
+            (currentMetadata.opacity ?? 0.8) *
+            Math.pow(1 - layerOpacityFalloff, i);
+
+          layers.push({
+            shape: calculatedShape,
+            shapeProfile: baseProfile,
+            fill: {
+              color: currentMetadata.color,
+              opacity: layerOpacity,
+            },
+            stroke:
+              i === 0 && strokeOpacity > 0
+                ? {
+                    color: currentMetadata.strokeColor,
+                    weight: currentMetadata.strokeWeight ?? 1,
+                    opacity: strokeOpacity,
+                  }
+                : undefined,
+            offset: {
+              x: i * layerOffset,
+              y: i * layerOffset,
+            },
+            source: 'node-shape',
+          });
+        }
+      }
+
+      updatedIndividuals[individual.id] = {
+        ...currentMetadata,
+        nodeLayers: layers,
+        // Keep legacy properties for compatibility
+        shape: calculatedShape,
+        shapeProfile: baseProfile,
+      };
+    } else {
+      // Use legacy system
+      updatedIndividuals[individual.id] = {
+        ...currentMetadata,
+        shape: calculatedShape,
+        shapeProfile: baseProfile,
+        // Add stroke control (0 opacity means no stroke)
+        strokeWeight:
+          strokeOpacity > 0 ? (currentMetadata.strokeWeight ?? 1) : 0,
+        strokeOpacity: strokeOpacity,
+        // Store layer parameters for renderer
+        layerCount,
+        layerOffset,
+        layerOpacityFalloff,
+      };
+    }
   });
 
   // Small delay to simulate async work

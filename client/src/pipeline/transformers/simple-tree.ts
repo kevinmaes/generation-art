@@ -9,7 +9,8 @@
 import type {
   TransformerContext,
   CompleteVisualMetadata,
-  VisualMetadata,
+  NodeVisualMetadata,
+  EdgeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
 import type {
@@ -513,7 +514,7 @@ export async function simpleTreeTransform(
   const positions = calculateTreeLayout(context, nodeSize);
 
   // Create updated individual visual metadata
-  const updatedIndividuals: Record<string, VisualMetadata> = {};
+  const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
 
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals[individual.id] ?? {};
@@ -539,7 +540,7 @@ export async function simpleTreeTransform(
   });
 
   // Create edge visual metadata
-  const updatedEdges: Record<string, VisualMetadata> = {};
+  const updatedEdges: Record<string, EdgeVisualMetadata> = {};
 
   gedcomData.metadata.edges.forEach((edge) => {
     const sourcePos = positions[edge.sourceId];
@@ -558,8 +559,6 @@ export async function simpleTreeTransform(
 
       updatedEdges[edge.id] = {
         ...currentEdgeMetadata,
-        x: edgeX,
-        y: edgeY,
         strokeColor,
         strokeWeight,
         strokeStyle: 'solid' as const,
@@ -571,6 +570,9 @@ export async function simpleTreeTransform(
           sourceY: sourcePos.y,
           targetX: targetPos.x,
           targetY: targetPos.y,
+          // Store the midpoint for potential later use
+          midX: edgeX,
+          midY: edgeY,
         },
       };
     }
