@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { SelectedIndividualContext } from '../contexts/SelectedIndividualContextValue';
+import { SelectedIndividualContext } from '../contexts/SelectedIndividualContext';
 
 export const useSelectedIndividual = () => {
   const context = useContext(SelectedIndividualContext);

@@ -1,5 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import { SelectedIndividualContext } from './SelectedIndividualContextValue';
+import React, { createContext, useState, useCallback } from 'react';
+
+interface SelectedIndividualContextType {
+  selectedIndividualId: string | null;
+  setSelectedIndividualId: (id: string | null) => void;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const SelectedIndividualContext = createContext<
+  SelectedIndividualContextType | undefined
+>(undefined);
 
 export const SelectedIndividualProvider: React.FC<{
   children: React.ReactNode;

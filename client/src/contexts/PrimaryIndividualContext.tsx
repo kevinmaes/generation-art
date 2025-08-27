@@ -1,5 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import { PrimaryIndividualContext } from './PrimaryIndividualContextValue';
+import React, { createContext, useState, useCallback } from 'react';
+
+interface PrimaryIndividualContextType {
+  primaryIndividualId: string | null;
+  setPrimaryIndividualId: (id: string | null) => void;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const PrimaryIndividualContext = createContext<
+  PrimaryIndividualContextType | undefined
+>(undefined);
 
 interface PrimaryIndividualProviderProps {
   children: React.ReactNode;
