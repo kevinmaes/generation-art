@@ -5,14 +5,16 @@ interface SelectedIndividualContextType {
   setSelectedIndividualId: (id: string | null) => void;
 }
 
-const SelectedIndividualContext = createContext<SelectedIndividualContextType | undefined>(
-  undefined
-);
+const SelectedIndividualContext = createContext<
+  SelectedIndividualContextType | undefined
+>(undefined);
 
-export const SelectedIndividualProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [selectedIndividualId, setSelectedIndividualId] = useState<string | null>(null);
+export const SelectedIndividualProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  const [selectedIndividualId, setSelectedIndividualId] = useState<
+    string | null
+  >(null);
 
   const handleSetSelectedIndividualId = useCallback((id: string | null) => {
     setSelectedIndividualId(id);
@@ -34,7 +36,7 @@ export const useSelectedIndividual = () => {
   const context = useContext(SelectedIndividualContext);
   if (context === undefined) {
     throw new Error(
-      'useSelectedIndividual must be used within a SelectedIndividualProvider'
+      'useSelectedIndividual must be used within a SelectedIndividualProvider',
     );
   }
   return context;

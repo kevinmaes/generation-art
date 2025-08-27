@@ -232,10 +232,10 @@ export function FramedArtwork({
         }
         exportState={shareState}
       />
-      
+
       {/* Side Panel for Selected Individual */}
       {selectedIndividualId && (
-        <SidePanel 
+        <SidePanel
           gedcomData={familyTreeData?.full ?? null}
           fanChartMode={fanChartMode}
           onFanChartModeChange={onFanChartModeChange}

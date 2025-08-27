@@ -5,20 +5,21 @@ interface PrimaryIndividualContextType {
   setPrimaryIndividualId: (id: string | null) => void;
 }
 
-const PrimaryIndividualContext = createContext<PrimaryIndividualContextType | undefined>(
-  undefined
-);
+const PrimaryIndividualContext = createContext<
+  PrimaryIndividualContextType | undefined
+>(undefined);
 
 interface PrimaryIndividualProviderProps {
   children: React.ReactNode;
   initialValue?: string | null;
 }
 
-export const PrimaryIndividualProvider: React.FC<PrimaryIndividualProviderProps> = ({
-  children,
-  initialValue = null,
-}) => {
-  const [primaryIndividualId, setPrimaryIndividualId] = useState<string | null>(initialValue);
+export const PrimaryIndividualProvider: React.FC<
+  PrimaryIndividualProviderProps
+> = ({ children, initialValue = null }) => {
+  const [primaryIndividualId, setPrimaryIndividualId] = useState<string | null>(
+    initialValue,
+  );
 
   const handleSetPrimaryIndividualId = useCallback((id: string | null) => {
     setPrimaryIndividualId(id);
@@ -40,7 +41,7 @@ export const usePrimaryIndividual = () => {
   const context = useContext(PrimaryIndividualContext);
   if (context === undefined) {
     throw new Error(
-      'usePrimaryIndividual must be used within a PrimaryIndividualProvider'
+      'usePrimaryIndividual must be used within a PrimaryIndividualProvider',
     );
   }
   return context;

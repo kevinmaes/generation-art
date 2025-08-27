@@ -9,7 +9,10 @@ import { PipelinePanel } from './components/pipeline/PipelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GedcomSelector } from './components/GedcomSelector';
 import { SelectedIndividualProvider } from './contexts/SelectedIndividualContext';
-import { PrimaryIndividualProvider, usePrimaryIndividual } from './contexts/PrimaryIndividualContext';
+import {
+  PrimaryIndividualProvider,
+  usePrimaryIndividual,
+} from './contexts/PrimaryIndividualContext';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import {
   validateFlexibleGedcomData,
@@ -85,22 +88,30 @@ function AppContent(): React.ReactElement {
       }
     >
   >({});
-  
+
   // Get fan chart mode from transformer parameters
   // This ensures buttons always reflect the current parameter state
   const getFanChartMode = (): 'ancestors' | 'descendants' => {
     // Find the fan-chart transformer index to get the correct parameter key
-    const fanChartIndex = activeTransformerIds.findIndex(id => id === 'fan-chart');
+    const fanChartIndex = activeTransformerIds.findIndex(
+      (id) => id === 'fan-chart',
+    );
     if (fanChartIndex === -1) {
       return 'ancestors'; // Default if transformer not active
     }
-    
+
     // Get the parameter key for this transformer instance
-    const parameterKey = getTransformerParameterKey(activeTransformerIds, fanChartIndex);
+    const parameterKey = getTransformerParameterKey(
+      activeTransformerIds,
+      fanChartIndex,
+    );
     const fanChartParams = transformerParameters[parameterKey];
-    
+
     // Return the current viewMode or default to 'ancestors'
-    return (fanChartParams?.visual?.viewMode as 'ancestors' | 'descendants') ?? 'ancestors';
+    return (
+      (fanChartParams?.visual?.viewMode as 'ancestors' | 'descendants') ??
+      'ancestors'
+    );
   };
   const fanChartMode = getFanChartMode();
   const [lastRunParameters, setLastRunParameters] = useState<
@@ -119,7 +130,8 @@ function AppContent(): React.ReactElement {
     total: number;
     transformerName: string;
   } | null>(null);
-  const { primaryIndividualId, setPrimaryIndividualId } = usePrimaryIndividual();
+  const { primaryIndividualId, setPrimaryIndividualId } =
+    usePrimaryIndividual();
 
   const [currentDataset, setCurrentDataset] = useState<string>('');
   const [availableDatasets, setAvailableDatasets] = useState<string[]>([]);
@@ -197,7 +209,12 @@ function AppContent(): React.ReactElement {
         setPrimaryIndividualId(targetId);
       }
     }
-  }, [isFamilyTreeSuccess, familyTreeData, primaryIndividualId, setPrimaryIndividualId]);
+  }, [
+    isFamilyTreeSuccess,
+    familyTreeData,
+    primaryIndividualId,
+    setPrimaryIndividualId,
+  ]);
 
   // Load manifest to get available datasets
   useEffect(() => {
@@ -329,21 +346,24 @@ function AppContent(): React.ReactElement {
       [transformerId]: parameters,
     }));
   };
-  
+
   // Handle fan chart mode changes
   const handleFanChartModeChange = (mode: 'ancestors' | 'descendants') => {
     console.log('Changing fan chart mode to:', mode);
-    
+
     // First check if Fan Chart transformer is in the pipeline
     if (!activeTransformerIds.includes('fan-chart')) {
       console.warn('Fan Chart transformer is not active in the pipeline');
       return;
     }
-    
+
     // Find the index of fan-chart in active transformers to get the right parameter key
     const fanChartIndex = activeTransformerIds.indexOf('fan-chart');
-    const parameterKey = getTransformerParameterKey(activeTransformerIds, fanChartIndex);
-    
+    const parameterKey = getTransformerParameterKey(
+      activeTransformerIds,
+      fanChartIndex,
+    );
+
     // Update the transformer parameters
     setTransformerParameters((prev) => ({
       ...prev,
@@ -377,7 +397,7 @@ function AppContent(): React.ReactElement {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [primaryIndividualId]); // Trigger on primaryIndividualId changes
-  
+
   // Auto-rerun pipeline when transformer parameters change (includes fan chart mode)
   useEffect(() => {
     const currentMode = getFanChartMode();
@@ -393,7 +413,7 @@ function AppContent(): React.ReactElement {
       console.log('Auto-regenerating for fan chart mode change');
       void handleVisualize();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transformerParameters['fan-chart']?.visual?.viewMode]); // Trigger on fan chart mode changes
 
   const handleVisualize = async () => {
@@ -543,7 +563,9 @@ function AppContent(): React.ReactElement {
                 isVisualizing={isVisualizing}
                 pipelineProgress={pipelineProgress}
                 primaryIndividualId={primaryIndividualId ?? undefined}
-                onSetPrimaryIndividual={(id: string) => setPrimaryIndividualId(id)}
+                onSetPrimaryIndividual={(id: string) =>
+                  setPrimaryIndividualId(id)
+                }
                 fanChartMode={fanChartMode}
                 onFanChartModeChange={handleFanChartModeChange}
                 hasFanChart={activeTransformerIds.includes('fan-chart')}
