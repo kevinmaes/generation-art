@@ -206,6 +206,9 @@ export interface EnhancedP5 extends p5 {
   setHoverCallback: (
     callback: (nodeId: string | null, position: Point | null) => void,
   ) => void;
+  setClickCallback: (
+    callback: (nodeId: string | null) => void,
+  ) => void;
 }
 
 /**
@@ -231,6 +234,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
     let visibleRelationsCount = 0;
     let hoverCallback:
       | ((nodeId: string | null, position: Point | null) => void)
+      | null = null;
+    let clickCallback:
+      | ((nodeId: string | null) => void)
       | null = null;
     let hoveredNodeId: string | null = null;
 
@@ -265,6 +271,12 @@ function createSketch(props: SketchProps): (p: p5) => void {
     ) => {
       hoverCallback = callback;
     };
+    
+    (p as EnhancedP5).setClickCallback = (
+      callback: (nodeId: string | null) => void,
+    ) => {
+      clickCallback = callback;
+    };
     p.setup = () => {
       p.createCanvas(width, height, p.P2D);
       p.pixelDensity(1);
@@ -272,6 +284,35 @@ function createSketch(props: SketchProps): (p: p5) => void {
       p.noLoop(); // Only redraw when explicitly called
     };
 
+    p.mousePressed = () => {
+      // Only handle clicks within canvas bounds
+      if (p.mouseX < 0 || p.mouseX > width || p.mouseY < 0 || p.mouseY > height) {
+        return;
+      }
+      
+      // Check for node click
+      let closestDistance = Infinity;
+      let closestNodeId: string | null = null;
+
+      // Check hit detection against stored node positions
+      nodePositions.forEach((node, id) => {
+        const distance = Math.sqrt(
+          Math.pow(p.mouseX - node.x, 2) + Math.pow(p.mouseY - node.y, 2),
+        );
+        // Check if mouse is within node radius
+        if (distance <= node.size / 2 && distance < closestDistance) {
+          closestDistance = distance;
+          closestNodeId = id;
+        }
+      });
+
+      // Trigger click callback
+      if (clickCallback) {
+        console.log('Canvas click detected, node:', closestNodeId);
+        clickCallback(closestNodeId);
+      }
+    };
+    
     p.mouseMoved = () => {
       // Check for node hover
       let foundHover = false;

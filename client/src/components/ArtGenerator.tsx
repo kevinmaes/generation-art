@@ -10,6 +10,7 @@ import type { PipelineResult } from '../pipeline/pipeline';
 import { TRANSFORMERS } from '../pipeline/transformers';
 import { GenerationProgress } from './GenerationProgress';
 import { NodeTooltip } from './NodeTooltip';
+import { useSelectedIndividual } from '../contexts/SelectedIndividualContext';
 import type { GedcomDataWithMetadata, Individual } from '../../../shared/types';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
@@ -55,10 +56,19 @@ export function ArtGenerator({
     position: { x: number; y: number };
   } | null>(null);
   const [canvasBounds, setCanvasBounds] = useState<DOMRect | null>(null);
-  const [isTooltipHovered, setIsTooltipHovered] = useState(false);
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { setSelectedIndividualId } = useSelectedIndividual();
 
-  // Handle hover callback
+  // Handle click callback
+  const handleNodeClick = useCallback(
+    (nodeId: string | null) => {
+      console.log('ArtGenerator handleNodeClick called with:', nodeId);
+      setSelectedIndividualId(nodeId);
+    },
+    [setSelectedIndividualId],
+  );
+
+  // Handle hover callback (simplified - just for showing tooltips)
   const handleNodeHover = useCallback(
     (nodeId: string | null, position: { x: number; y: number } | null) => {
       // Clear any existing timeout
@@ -73,24 +83,15 @@ export function ArtGenerator({
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (individual) {
           setHoveredNode({ individual, position });
-        } else {
-          // Only hide if tooltip is not being hovered
-          if (!isTooltipHovered) {
-            tooltipTimeoutRef.current = setTimeout(() => {
-              setHoveredNode(null);
-            }, 200);
-          }
         }
       } else {
-        // Only hide if tooltip is not being hovered
-        if (!isTooltipHovered) {
-          tooltipTimeoutRef.current = setTimeout(() => {
-            setHoveredNode(null);
-          }, 200);
-        }
+        // Hide tooltip after a short delay
+        tooltipTimeoutRef.current = setTimeout(() => {
+          setHoveredNode(null);
+        }, 300);
       }
     },
-    [gedcomData, isTooltipHovered],
+    [gedcomData],
   );
 
   // Handle parameter updates without canvas recreation
@@ -146,8 +147,9 @@ export function ArtGenerator({
     );
     p5InstanceRef.current = new p5(sketch, container) as EnhancedP5;
 
-    // Set up hover callback
+    // Set up callbacks
     p5InstanceRef.current.setHoverCallback(handleNodeHover);
+    p5InstanceRef.current.setClickCallback(handleNodeClick);
 
     // Update canvas bounds
     const bounds = container.getBoundingClientRect();
@@ -172,6 +174,7 @@ export function ArtGenerator({
     height,
     onExportReady,
     handleNodeHover,
+    handleNodeClick,
   ]);
 
   // Handle case where no data is provided
@@ -252,15 +255,6 @@ export function ArtGenerator({
           position={hoveredNode.position}
           canvasBounds={canvasBounds}
           isDevelopment={process.env.NODE_ENV === 'development'}
-          onSetPrimary={onSetPrimaryIndividual}
-          onMouseEnter={() => setIsTooltipHovered(true)}
-          onMouseLeave={() => {
-            setIsTooltipHovered(false);
-            // Hide tooltip after a delay when mouse leaves
-            tooltipTimeoutRef.current = setTimeout(() => {
-              setHoveredNode(null);
-            }, 200);
-          }}
         />
       )}
     </div>

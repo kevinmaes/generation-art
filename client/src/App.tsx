@@ -8,6 +8,8 @@ import { FramedArtwork } from './components/FramedArtwork';
 import { PipelinePanel } from './components/pipeline/PipelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GedcomSelector } from './components/GedcomSelector';
+import { SelectedIndividualProvider } from './contexts/SelectedIndividualContext';
+import { PrimaryIndividualProvider, usePrimaryIndividual } from './contexts/PrimaryIndividualContext';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import {
   validateFlexibleGedcomData,
@@ -44,7 +46,7 @@ interface GedcomManifest {
   }[];
 }
 
-function App(): React.ReactElement {
+function AppContent(): React.ReactElement {
   // Use family tree store for data state
   const [familyTreeState] = useFamilyTreeStore();
 
@@ -83,6 +85,24 @@ function App(): React.ReactElement {
       }
     >
   >({});
+  
+  // Get fan chart mode from transformer parameters
+  // This ensures buttons always reflect the current parameter state
+  const getFanChartMode = (): 'ancestors' | 'descendants' => {
+    // Find the fan-chart transformer index to get the correct parameter key
+    const fanChartIndex = activeTransformerIds.findIndex(id => id === 'fan-chart');
+    if (fanChartIndex === -1) {
+      return 'ancestors'; // Default if transformer not active
+    }
+    
+    // Get the parameter key for this transformer instance
+    const parameterKey = getTransformerParameterKey(activeTransformerIds, fanChartIndex);
+    const fanChartParams = transformerParameters[parameterKey];
+    
+    // Return the current viewMode or default to 'ancestors'
+    return (fanChartParams?.visual?.viewMode as 'ancestors' | 'descendants') ?? 'ancestors';
+  };
+  const fanChartMode = getFanChartMode();
   const [lastRunParameters, setLastRunParameters] = useState<
     Record<
       string,
@@ -99,9 +119,7 @@ function App(): React.ReactElement {
     total: number;
     transformerName: string;
   } | null>(null);
-  const [primaryIndividualId, setPrimaryIndividualId] = useState<
-    string | undefined
-  >(undefined);
+  const { primaryIndividualId, setPrimaryIndividualId } = usePrimaryIndividual();
 
   const [currentDataset, setCurrentDataset] = useState<string>('');
   const [availableDatasets, setAvailableDatasets] = useState<string[]>([]);
@@ -179,7 +197,7 @@ function App(): React.ReactElement {
         setPrimaryIndividualId(targetId);
       }
     }
-  }, [isFamilyTreeSuccess, familyTreeData, primaryIndividualId]);
+  }, [isFamilyTreeSuccess, familyTreeData, primaryIndividualId, setPrimaryIndividualId]);
 
   // Load manifest to get available datasets
   useEffect(() => {
@@ -258,7 +276,7 @@ function App(): React.ReactElement {
       // Clear any previous pipeline result when loading new data
       setPipelineResult(null);
       // Clear primary individual so the useEffect can auto-select
-      setPrimaryIndividualId(undefined);
+      setPrimaryIndividualId(null);
     } catch (err) {
       familyTreeStore.send({
         type: 'fetchFailed',
@@ -274,7 +292,7 @@ function App(): React.ReactElement {
     familyTreeStore.send({ type: 'fetchStarted' });
     setPipelineResult(null);
     // Clear primary individual when switching datasets so auto-select can work
-    setPrimaryIndividualId(undefined);
+    setPrimaryIndividualId(null);
     // The hook will automatically load the data
   };
 
@@ -311,23 +329,72 @@ function App(): React.ReactElement {
       [transformerId]: parameters,
     }));
   };
+  
+  // Handle fan chart mode changes
+  const handleFanChartModeChange = (mode: 'ancestors' | 'descendants') => {
+    console.log('Changing fan chart mode to:', mode);
+    
+    // First check if Fan Chart transformer is in the pipeline
+    if (!activeTransformerIds.includes('fan-chart')) {
+      console.warn('Fan Chart transformer is not active in the pipeline');
+      return;
+    }
+    
+    // Find the index of fan-chart in active transformers to get the right parameter key
+    const fanChartIndex = activeTransformerIds.indexOf('fan-chart');
+    const parameterKey = getTransformerParameterKey(activeTransformerIds, fanChartIndex);
+    
+    // Update the transformer parameters
+    setTransformerParameters((prev) => ({
+      ...prev,
+      [parameterKey]: {
+        ...prev[parameterKey],
+        dimensions: prev[parameterKey]?.dimensions ?? {},
+        visual: {
+          ...prev[parameterKey]?.visual,
+          viewMode: mode,
+        },
+      },
+    }));
+  };
 
   // Auto-rerun pipeline when primary individual changes
   useEffect(() => {
+    console.log('Primary individual changed:', primaryIndividualId);
     // Only auto-rerun if:
     // 1. We have a pipeline result (meaning we've run at least once)
     // 2. We're not currently visualizing
     // 3. We have data loaded
+    // 4. We have a primary individual selected
     if (
       pipelineResult &&
       !isVisualizing &&
       isFamilyTreeSuccess &&
       primaryIndividualId
     ) {
+      console.log('Auto-regenerating visualization');
       void handleVisualize();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [primaryIndividualId]); // Only trigger on primaryIndividualId changes
+  }, [primaryIndividualId]); // Trigger on primaryIndividualId changes
+  
+  // Auto-rerun pipeline when transformer parameters change (includes fan chart mode)
+  useEffect(() => {
+    const currentMode = getFanChartMode();
+    console.log('Fan chart mode from parameters:', currentMode);
+    // Only auto-rerun if we have a pipeline result and fan-chart parameters changed
+    if (
+      pipelineResult &&
+      !isVisualizing &&
+      isFamilyTreeSuccess &&
+      primaryIndividualId &&
+      transformerParameters['fan-chart']
+    ) {
+      console.log('Auto-regenerating for fan chart mode change');
+      void handleVisualize();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps  
+  }, [transformerParameters['fan-chart']?.visual?.viewMode]); // Trigger on fan chart mode changes
 
   const handleVisualize = async () => {
     if (!isFamilyTreeSuccess) {
@@ -475,8 +542,11 @@ function App(): React.ReactElement {
                 }}
                 isVisualizing={isVisualizing}
                 pipelineProgress={pipelineProgress}
-                primaryIndividualId={primaryIndividualId}
-                onSetPrimaryIndividual={setPrimaryIndividualId}
+                primaryIndividualId={primaryIndividualId ?? undefined}
+                onSetPrimaryIndividual={(id: string) => setPrimaryIndividualId(id)}
+                fanChartMode={fanChartMode}
+                onFanChartModeChange={handleFanChartModeChange}
+                hasFanChart={activeTransformerIds.includes('fan-chart')}
               />
             </>
           ) : (
@@ -571,8 +641,8 @@ function App(): React.ReactElement {
           }}
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
-          primaryIndividualId={primaryIndividualId}
-          onPrimaryIndividualChange={setPrimaryIndividualId}
+          primaryIndividualId={primaryIndividualId ?? undefined}
+          onPrimaryIndividualChange={(id: string) => setPrimaryIndividualId(id)}
           onTransformerSelect={handleTransformerSelect}
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}
@@ -587,6 +657,16 @@ function App(): React.ReactElement {
         />
       </ErrorBoundary>
     </div>
+  );
+}
+
+function App(): React.ReactElement {
+  return (
+    <PrimaryIndividualProvider>
+      <SelectedIndividualProvider>
+        <AppContent />
+      </SelectedIndividualProvider>
+    </PrimaryIndividualProvider>
   );
 }
 

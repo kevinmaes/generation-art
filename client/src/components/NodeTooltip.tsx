@@ -5,23 +5,18 @@ interface NodeTooltipProps {
   individual: Individual;
   position: { x: number; y: number };
   canvasBounds: DOMRect;
-  onSetPrimary?: (id: string) => void;
   isDevelopment?: boolean;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
 }
 
 export const NodeTooltip: React.FC<NodeTooltipProps> = ({
   individual,
   position,
   canvasBounds,
-  onSetPrimary,
   isDevelopment = false,
-  onMouseEnter,
-  onMouseLeave,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [arrowPosition, setArrowPosition] = useState({ x: 0, side: 'bottom' as 'top' | 'bottom' });
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,7 +33,8 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
 
     // Calculate initial position (centered above node)
     let x = position.x - tooltipRect.width / 2;
-    let y = position.y - tooltipRect.height - 20; // 20px above node
+    let y = position.y - tooltipRect.height - 15; // 15px above node (reduced gap for arrow)
+    let arrowSide: 'top' | 'bottom' = 'bottom'; // Arrow points down by default
 
     // Adjust if tooltip goes off screen
     // Check right boundary
@@ -53,7 +49,8 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
 
     // Check top boundary (flip to below node if needed)
     if (y < 10) {
-      y = position.y + 40; // Below node
+      y = position.y + 30; // Below node (reduced gap for arrow)
+      arrowSide = 'top'; // Arrow points up when tooltip is below
     }
 
     // Check bottom boundary
@@ -61,7 +58,14 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
       y = canvasBounds.height - tooltipRect.height - 10;
     }
 
+    // Calculate arrow position (should point to node center)
+    const arrowX = Math.min(
+      Math.max(position.x - x, 15), // At least 15px from left edge
+      tooltipRect.width - 15 // At least 15px from right edge
+    );
+
     setTooltipPosition({ x, y });
+    setArrowPosition({ x: arrowX, side: arrowSide });
   }, [position, canvasBounds, isVisible]);
 
   // Extract birth and death country information
@@ -80,19 +84,40 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
 
   return (
     <div
-      ref={tooltipRef}
-      className={`absolute z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-3 pointer-events-auto transition-opacity duration-200 ${
-        isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
-      style={{
-        left: `${String(tooltipPosition.x)}px`,
-        top: `${String(tooltipPosition.y)}px`,
-        minWidth: '200px',
-        maxWidth: '300px',
-      }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
+        ref={tooltipRef}
+        className={`absolute z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-3 pointer-events-auto transition-opacity duration-200 ${
+          isVisible ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{
+          left: `${String(tooltipPosition.x)}px`,
+          top: `${String(tooltipPosition.y)}px`,
+          minWidth: '200px',
+          maxWidth: '300px',
+        }}
+      >
+        {/* Arrow pointer */}
+        <div
+          className="absolute w-0 h-0 pointer-events-auto"
+          style={{
+            left: `${arrowPosition.x}px`,
+            ...(arrowPosition.side === 'bottom'
+              ? {
+                  bottom: '-8px',
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderTop: '8px solid white',
+                  filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))',
+                }
+              : {
+                  top: '-8px',
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderBottom: '8px solid white',
+                  filter: 'drop-shadow(0 -2px 2px rgba(0,0,0,0.1))',
+                }),
+            transform: 'translateX(-50%)',
+          }}
+        />
       {/* Name */}
       <div className="font-semibold text-gray-900 text-sm mb-1 text-center">
         {individual.name || 'Unknown'}
@@ -136,20 +161,15 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
 
       {/* Individual ID (development mode) */}
       {isDevelopment && (
-        <div className="text-xs text-gray-400 font-mono mb-2">
+        <div className="text-xs text-gray-400 font-mono">
           ID: {individual.id}
         </div>
       )}
-
-      {/* Set as Primary Button */}
-      {onSetPrimary && (
-        <button
-          onClick={() => onSetPrimary(individual.id)}
-          className="mt-2 w-full px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors"
-        >
-          Set as primary
-        </button>
-      )}
+      
+      {/* Hint text */}
+      <div className="text-xs text-gray-500 italic mt-2 text-center">
+        Click to select
+      </div>
     </div>
   );
 };
