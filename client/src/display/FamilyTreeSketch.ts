@@ -203,6 +203,10 @@ export interface EnhancedP5 extends p5 {
   setShowIndividuals: (show: boolean) => void;
   setShowRelations: (show: boolean) => void;
   getVisibleCounts: () => { individuals: number; relations: number };
+  setHoverCallback: (
+    callback: (nodeId: string | null, position: Point | null) => void,
+  ) => void;
+  setClickCallback: (callback: (nodeId: string | null) => void) => void;
 }
 
 /**
@@ -226,6 +230,17 @@ function createSketch(props: SketchProps): (p: p5) => void {
     let currentShowRelations = showRelations;
     let visibleIndividualsCount = 0;
     let visibleRelationsCount = 0;
+    let hoverCallback:
+      | ((nodeId: string | null, position: Point | null) => void)
+      | null = null;
+    let clickCallback: ((nodeId: string | null) => void) | null = null;
+    let hoveredNodeId: string | null = null;
+
+    // Store node positions for hit detection
+    const nodePositions = new Map<
+      string,
+      { x: number; y: number; size: number }
+    >();
 
     // Add update methods to the p5 instance
     (p as EnhancedP5).setShowIndividuals = (show: boolean) => {
@@ -246,6 +261,18 @@ function createSketch(props: SketchProps): (p: p5) => void {
         relations: visibleRelationsCount,
       };
     };
+
+    (p as EnhancedP5).setHoverCallback = (
+      callback: (nodeId: string | null, position: Point | null) => void,
+    ) => {
+      hoverCallback = callback;
+    };
+
+    (p as EnhancedP5).setClickCallback = (
+      callback: (nodeId: string | null) => void,
+    ) => {
+      clickCallback = callback;
+    };
     p.setup = () => {
       p.createCanvas(width, height, p.P2D);
       p.pixelDensity(1);
@@ -253,8 +280,80 @@ function createSketch(props: SketchProps): (p: p5) => void {
       p.noLoop(); // Only redraw when explicitly called
     };
 
+    p.mousePressed = () => {
+      // Only handle clicks within canvas bounds
+      if (
+        p.mouseX < 0 ||
+        p.mouseX > width ||
+        p.mouseY < 0 ||
+        p.mouseY > height
+      ) {
+        return;
+      }
+
+      // Check for node click
+      let closestDistance = Infinity;
+      let closestNodeId: string | null = null;
+
+      // Check hit detection against stored node positions
+      nodePositions.forEach((node, id) => {
+        const distance = Math.sqrt(
+          Math.pow(p.mouseX - node.x, 2) + Math.pow(p.mouseY - node.y, 2),
+        );
+        // Check if mouse is within node radius
+        if (distance <= node.size / 2 && distance < closestDistance) {
+          closestDistance = distance;
+          closestNodeId = id;
+        }
+      });
+
+      // Trigger click callback
+      if (clickCallback) {
+        console.log('Canvas click detected, node:', closestNodeId);
+        clickCallback(closestNodeId);
+      }
+    };
+
+    p.mouseMoved = () => {
+      // Check for node hover
+      let foundHover = false;
+      let closestDistance = Infinity;
+      let closestNodeId: string | null = null;
+      let closestPosition: Point | null = null;
+
+      // Check hit detection against stored node positions
+      nodePositions.forEach((node, id) => {
+        const distance = Math.sqrt(
+          Math.pow(p.mouseX - node.x, 2) + Math.pow(p.mouseY - node.y, 2),
+        );
+        // Check if mouse is within node radius (with a bit of padding)
+        if (distance <= node.size / 2 + 2 && distance < closestDistance) {
+          closestDistance = distance;
+          closestNodeId = id;
+          closestPosition = { x: node.x, y: node.y };
+          foundHover = true;
+        }
+      });
+
+      // Update hover state if changed
+      if (foundHover && closestNodeId !== hoveredNodeId) {
+        hoveredNodeId = closestNodeId;
+        if (hoverCallback) {
+          hoverCallback(closestNodeId, closestPosition);
+        }
+      } else if (!foundHover && hoveredNodeId !== null) {
+        hoveredNodeId = null;
+        if (hoverCallback) {
+          hoverCallback(null, null);
+        }
+      }
+    };
+
     p.draw = () => {
       p.background(255);
+
+      // Clear node positions for fresh hit detection
+      nodePositions.clear();
 
       // Debug logging
       console.log('Drawing with visual metadata:', {
@@ -398,6 +497,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
           // Count this individual as actually visible and drawn
           visibleIndividualsCount++;
+
+          // Store position for hit detection
+          nodePositions.set(ind.id, { x, y, size });
 
           // Debug first few visible individuals
           if (!debugLogged && visibleIndividualsCount <= 3) {
@@ -571,8 +673,9 @@ function createSketch(props: SketchProps): (p: p5) => void {
 
             p.pop();
 
-            // Count this individual as rendered
-            visibleIndividualsCount++;
+            // Store position for hit detection (for layer-based rendering)
+            nodePositions.set(ind.id, { x, y, size });
+
             continue; // Skip the legacy rendering
           }
 

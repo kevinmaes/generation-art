@@ -58,6 +58,15 @@ export class SimpleGedcomParser {
         console.log('Processing line:', line);
       }
 
+      // Reset currentEvent when we encounter a level 0 or 1 tag that's not DATE or PLAC
+      // This prevents dates from unrelated tags from being associated with previous events
+      if (line.level <= 1 && line.tag !== 'DATE' && line.tag !== 'PLAC') {
+        // Only reset if it's not one of the event tags we're tracking
+        if (!['BIRT', 'DEAT', 'MARR'].includes(line.tag)) {
+          this.currentEvent = undefined;
+        }
+      }
+
       switch (line.tag) {
         case 'INDI':
           this.handleIndividual(line);
@@ -177,6 +186,10 @@ export class SimpleGedcomParser {
   private handleDate(line: GedcomLine) {
     if (!line.value) return;
 
+    // Only process DATE tags at level 2 for events (BIRT, DEAT, MARR are at level 1)
+    // This prevents CHAN/DATE at level 3 from overwriting birth/death dates
+    if (line.level !== 2) return;
+
     if (this.currentIndividual) {
       if (this.currentEvent === 'BIRT') {
         if (this.debug) {
@@ -258,6 +271,10 @@ export class SimpleGedcomParser {
 
   private handlePlace(line: GedcomLine) {
     if (!line.value) return;
+
+    // Only process PLAC tags at level 2 for events (BIRT, DEAT, MARR are at level 1)
+    // This prevents nested PLAC tags from overwriting event places
+    if (line.level !== 2) return;
 
     if (this.currentIndividual) {
       if (this.currentEvent === 'BIRT') {

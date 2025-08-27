@@ -2,10 +2,12 @@ import React, { useRef, useCallback, useState } from 'react';
 import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
+import { SidePanel } from './SidePanel';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
 import type { PipelineResult } from '../pipeline/pipeline';
 import { useFamilyTreeData } from '../contexts/FamilyTreeContext';
+import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
 import type { EnhancedP5 } from '../display/FamilyTreeSketch';
 
 interface FramedArtworkProps {
@@ -24,6 +26,10 @@ interface FramedArtworkProps {
     transformerName: string;
   } | null;
   primaryIndividualId?: string;
+  onSetPrimaryIndividual?: (id: string) => void;
+  fanChartMode?: 'ancestors' | 'descendants';
+  onFanChartModeChange?: (mode: 'ancestors' | 'descendants') => void;
+  hasFanChart?: boolean;
 }
 
 export function FramedArtwork({
@@ -38,8 +44,12 @@ export function FramedArtwork({
   isVisualizing = false,
   pipelineProgress = null,
   primaryIndividualId,
+  onSetPrimaryIndividual,
+  fanChartMode,
+  onFanChartModeChange,
 }: FramedArtworkProps): React.ReactElement {
   const familyTreeData = useFamilyTreeData();
+  const { selectedIndividualId } = useSelectedIndividual();
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);
@@ -203,6 +213,7 @@ export function FramedArtwork({
             pipelineProgress={pipelineProgress}
             primaryIndividualId={primaryIndividualId}
             gedcomData={familyTreeData?.full}
+            onSetPrimaryIndividual={onSetPrimaryIndividual}
           />
         </div>
       </div>
@@ -221,6 +232,16 @@ export function FramedArtwork({
         }
         exportState={shareState}
       />
+
+      {/* Side Panel for Selected Individual */}
+      {selectedIndividualId && (
+        <SidePanel
+          gedcomData={familyTreeData?.full ?? null}
+          fanChartMode={fanChartMode}
+          onFanChartModeChange={onFanChartModeChange}
+          onVisualize={onVisualize}
+        />
+      )}
     </div>
   );
 }

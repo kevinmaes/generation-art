@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import p5 from 'p5';
 import {
   createWebSketch,
@@ -9,7 +9,9 @@ import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import type { PipelineResult } from '../pipeline/pipeline';
 import { TRANSFORMERS } from '../pipeline/transformers';
 import { GenerationProgress } from './GenerationProgress';
-import type { GedcomDataWithMetadata } from '../../../shared/types';
+import { NodeTooltip } from './NodeTooltip';
+import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
+import type { GedcomDataWithMetadata, Individual } from '../../../shared/types';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -30,6 +32,7 @@ interface ArtGeneratorProps {
   } | null;
   primaryIndividualId?: string;
   gedcomData?: GedcomDataWithMetadata | null;
+  onSetPrimaryIndividual?: (id: string) => void;
 }
 
 export function ArtGenerator({
@@ -44,9 +47,52 @@ export function ArtGenerator({
   pipelineProgress = null,
   primaryIndividualId,
   gedcomData,
+  onSetPrimaryIndividual: _onSetPrimaryIndividual,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<EnhancedP5 | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<{
+    individual: Individual;
+    position: { x: number; y: number };
+  } | null>(null);
+  const [canvasBounds, setCanvasBounds] = useState<DOMRect | null>(null);
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { setSelectedIndividualId } = useSelectedIndividual();
+
+  // Handle click callback
+  const handleNodeClick = useCallback(
+    (nodeId: string | null) => {
+      console.log('ArtGenerator handleNodeClick called with:', nodeId);
+      setSelectedIndividualId(nodeId);
+    },
+    [setSelectedIndividualId],
+  );
+
+  // Handle hover callback (simplified - just for showing tooltips)
+  const handleNodeHover = useCallback(
+    (nodeId: string | null, position: { x: number; y: number } | null) => {
+      // Clear any existing timeout
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+        tooltipTimeoutRef.current = null;
+      }
+
+      if (nodeId && position && gedcomData) {
+        const individual = gedcomData.individuals[nodeId];
+        // individual check is necessary because nodeId might not exist in the data
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (individual) {
+          setHoveredNode({ individual, position });
+        }
+      } else {
+        // Hide tooltip after a short delay
+        tooltipTimeoutRef.current = setTimeout(() => {
+          setHoveredNode(null);
+        }, 300);
+      }
+    },
+    [gedcomData],
+  );
 
   // Handle parameter updates without canvas recreation
   useEffect(() => {
@@ -101,6 +147,14 @@ export function ArtGenerator({
     );
     p5InstanceRef.current = new p5(sketch, container) as EnhancedP5;
 
+    // Set up callbacks
+    p5InstanceRef.current.setHoverCallback(handleNodeHover);
+    p5InstanceRef.current.setClickCallback(handleNodeClick);
+
+    // Update canvas bounds
+    const bounds = container.getBoundingClientRect();
+    setCanvasBounds(bounds);
+
     if (onExportReady) {
       onExportReady(p5InstanceRef.current);
     }
@@ -113,7 +167,15 @@ export function ArtGenerator({
       container.innerHTML = '';
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- showIndividuals and showRelations handled in separate useEffects
-  }, [pipelineResult, gedcomData, width, height, onExportReady]);
+  }, [
+    pipelineResult,
+    gedcomData,
+    width,
+    height,
+    onExportReady,
+    handleNodeHover,
+    handleNodeClick,
+  ]);
 
   // Handle case where no data is provided
   if (!gedcomData) {
@@ -186,6 +248,14 @@ export function ArtGenerator({
         <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
           <GenerationProgress progress={pipelineProgress} />
         </div>
+      )}
+      {hoveredNode && canvasBounds && !isVisualizing && (
+        <NodeTooltip
+          individual={hoveredNode.individual}
+          position={hoveredNode.position}
+          canvasBounds={canvasBounds}
+          isDevelopment={process.env.NODE_ENV === 'development'}
+        />
       )}
     </div>
   );
