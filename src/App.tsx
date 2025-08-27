@@ -15,12 +15,13 @@ function App(): React.ReactElement {
         </p>
 
         <FramedArtwork
-          title="Kennedy Family Tree"
-          subtitle="Generative visualization of family connections and generations"
+          title="Kennedy Family Tree - Spiral Layout"
+          subtitle="Generative visualization using spiral layout algorithms"
           width={CANVAS_DIMENSIONS.WEB.WIDTH}
           height={CANVAS_DIMENSIONS.WEB.HEIGHT}
           jsonFile={'generated/parsed/kennedy-augmented.json'}
           className="mb-8"
+          showSpiralControls={true}
         />
       </div>
     </div>

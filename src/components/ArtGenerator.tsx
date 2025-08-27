@@ -1,7 +1,9 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import p5 from 'p5';
 import { createWebSketch } from '../sketches/FamilyTreeSketch';
 import { useGedcomData } from '../hooks/useGedcomData';
+import { SpiralControls } from './SpiralControls';
+import type { SpiralType, LayoutMode } from '../utils/SpiralLayoutTransformer';
 
 const DEFAULT_WIDTH = 1000;
 const DEFAULT_HEIGHT = 800;
@@ -11,6 +13,7 @@ interface ArtGeneratorProps {
   height?: number;
   jsonFile?: string;
   onExportReady?: (p5Instance: p5) => void;
+  showControls?: boolean;
 }
 
 export function ArtGenerator({
@@ -18,9 +21,20 @@ export function ArtGenerator({
   height = DEFAULT_HEIGHT,
   jsonFile,
   onExportReady,
+  showControls = false,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
+  
+  // Spiral configuration state
+  const [spiralConfig, setSpiralConfig] = useState({
+    spiralType: 'archimedean' as SpiralType,
+    layoutMode: 'primary-center' as LayoutMode,
+    spiralTightness: 1.0,
+    nodeSpacing: 30,
+    spacingGrowth: 'linear' as 'linear' | 'exponential' | 'logarithmic',
+    primaryIndividualId: undefined as string | undefined,
+  });
 
   const handleError = useCallback((errorMessage: string) => {
     console.error('Failed to load family data:', errorMessage);
@@ -55,7 +69,12 @@ export function ArtGenerator({
         p5InstanceRef.current = null;
       }
     };
-  }, [width, height, data, onExportReady]);
+  }, [width, height, data, onExportReady, spiralConfig]); // Add spiralConfig dependency
+
+  // Handle spiral configuration changes
+  const handleSpiralConfigChange = useCallback((updates: any) => {
+    setSpiralConfig(prev => ({ ...prev, ...updates }));
+  }, []);
 
   if (!jsonFile) {
     return (
@@ -110,5 +129,25 @@ export function ArtGenerator({
     );
   }
 
-  return <div key={`p5-container-${jsonFile}`} ref={containerRef} />;
+  const availableIndividuals = data?.map(ind => ({ id: ind.id, name: ind.name })) || [];
+
+  return (
+    <div className="w-full">
+      {showControls && data && (
+        <div className="mb-4">
+          <SpiralControls
+            spiralType={spiralConfig.spiralType}
+            layoutMode={spiralConfig.layoutMode}
+            spiralTightness={spiralConfig.spiralTightness}
+            nodeSpacing={spiralConfig.nodeSpacing}
+            spacingGrowth={spiralConfig.spacingGrowth}
+            primaryIndividualId={spiralConfig.primaryIndividualId}
+            availableIndividuals={availableIndividuals}
+            onConfigChange={handleSpiralConfigChange}
+          />
+        </div>
+      )}
+      <div key={`p5-container-${jsonFile}`} ref={containerRef} />
+    </div>
+  );
 }

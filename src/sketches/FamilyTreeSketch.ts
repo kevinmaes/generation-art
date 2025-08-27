@@ -47,8 +47,8 @@ function createSketch(options: SketchOptions): (p: p5) => void {
       // Draw edges (lines between connected individuals)
       const edges = getUniqueEdges(familyData);
       for (const [id1, id2] of edges) {
-        const coord1 = getIndividualCoord(id1, width, height);
-        const coord2 = getIndividualCoord(id2, width, height);
+        const coord1 = getIndividualCoord(id1, width, height, familyData);
+        const coord2 = getIndividualCoord(id2, width, height, familyData);
 
         const strokeColor = p.color('#ccc');
         p.stroke(strokeColor);
@@ -58,7 +58,7 @@ function createSketch(options: SketchOptions): (p: p5) => void {
 
       // Draw nodes (individuals)
       for (const ind of familyData) {
-        const { x, y } = getIndividualCoord(ind.id, width, height);
+        const { x, y } = getIndividualCoord(ind.id, width, height, familyData);
 
         p.noStroke();
         const opacity = ind.relativeGenerationValue ?? 100;

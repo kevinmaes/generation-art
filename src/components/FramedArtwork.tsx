@@ -13,6 +13,7 @@ interface FramedArtworkProps {
   height?: number;
   jsonFile?: string;
   className?: string;
+  showSpiralControls?: boolean;
 }
 
 export function FramedArtwork({
@@ -22,6 +23,7 @@ export function FramedArtwork({
   height = CANVAS_DIMENSIONS.WEB.HEIGHT,
   jsonFile,
   className = '',
+  showSpiralControls = false,
 }: FramedArtworkProps): React.ReactElement {
   const p5InstanceRef = useRef<p5 | null>(null);
 
@@ -75,6 +77,7 @@ export function FramedArtwork({
             height={height}
             jsonFile={jsonFile}
             onExportReady={handleExport}
+            showControls={showSpiralControls}
           />
         </div>
       </div>
