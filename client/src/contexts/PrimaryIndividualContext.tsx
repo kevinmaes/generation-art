@@ -1,13 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-
-interface PrimaryIndividualContextType {
-  primaryIndividualId: string | null;
-  setPrimaryIndividualId: (id: string | null) => void;
-}
-
-const PrimaryIndividualContext = createContext<
-  PrimaryIndividualContextType | undefined
->(undefined);
+import React, { useState, useCallback } from 'react';
+import { PrimaryIndividualContext } from './PrimaryIndividualContextValue';
 
 interface PrimaryIndividualProviderProps {
   children: React.ReactNode;
@@ -35,14 +27,4 @@ export const PrimaryIndividualProvider: React.FC<
       {children}
     </PrimaryIndividualContext.Provider>
   );
-};
-
-export const usePrimaryIndividual = () => {
-  const context = useContext(PrimaryIndividualContext);
-  if (context === undefined) {
-    throw new Error(
-      'usePrimaryIndividual must be used within a PrimaryIndividualProvider',
-    );
-  }
-  return context;
 };

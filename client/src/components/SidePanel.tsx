@@ -1,6 +1,6 @@
 import React from 'react';
-import { useSelectedIndividual } from '../contexts/SelectedIndividualContext';
-import { usePrimaryIndividual } from '../contexts/PrimaryIndividualContext';
+import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
+import { usePrimaryIndividual } from '../hooks/usePrimaryIndividual';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 
 interface SidePanelProps {

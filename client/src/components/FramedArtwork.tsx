@@ -7,7 +7,7 @@ import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
 import type { PipelineResult } from '../pipeline/pipeline';
 import { useFamilyTreeData } from '../contexts/FamilyTreeContext';
-import { useSelectedIndividual } from '../contexts/SelectedIndividualContext';
+import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
 import type { EnhancedP5 } from '../display/FamilyTreeSketch';
 
 interface FramedArtworkProps {

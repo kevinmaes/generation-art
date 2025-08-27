@@ -10,7 +10,7 @@ import type { PipelineResult } from '../pipeline/pipeline';
 import { TRANSFORMERS } from '../pipeline/transformers';
 import { GenerationProgress } from './GenerationProgress';
 import { NodeTooltip } from './NodeTooltip';
-import { useSelectedIndividual } from '../contexts/SelectedIndividualContext';
+import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
 import type { GedcomDataWithMetadata, Individual } from '../../../shared/types';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
@@ -47,7 +47,7 @@ export function ArtGenerator({
   pipelineProgress = null,
   primaryIndividualId,
   gedcomData,
-  onSetPrimaryIndividual,
+  onSetPrimaryIndividual: _onSetPrimaryIndividual,
 }: ArtGeneratorProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<EnhancedP5 | null>(null);

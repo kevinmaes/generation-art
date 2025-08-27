@@ -9,10 +9,8 @@ import { PipelinePanel } from './components/pipeline/PipelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GedcomSelector } from './components/GedcomSelector';
 import { SelectedIndividualProvider } from './contexts/SelectedIndividualContext';
-import {
-  PrimaryIndividualProvider,
-  usePrimaryIndividual,
-} from './contexts/PrimaryIndividualContext';
+import { PrimaryIndividualProvider } from './contexts/PrimaryIndividualContext';
+import { usePrimaryIndividual } from './hooks/usePrimaryIndividual';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import {
   validateFlexibleGedcomData,
@@ -80,12 +78,14 @@ function AppContent(): React.ReactElement {
     TransformerId[]
   >(PIPELINE_DEFAULTS.TRANSFORMER_IDS);
   const [transformerParameters, setTransformerParameters] = useState<
-    Record<
-      string,
-      {
-        dimensions: { primary?: string; secondary?: string };
-        visual: VisualParameterValues;
-      }
+    Partial<
+      Record<
+        string,
+        {
+          dimensions: { primary?: string; secondary?: string };
+          visual: VisualParameterValues;
+        }
+      >
     >
   >({});
 
@@ -106,12 +106,15 @@ function AppContent(): React.ReactElement {
       fanChartIndex,
     );
     const fanChartParams = transformerParameters[parameterKey];
+    if (!fanChartParams) return 'ancestors';
 
     // Return the current viewMode or default to 'ancestors'
-    return (
-      (fanChartParams?.visual?.viewMode as 'ancestors' | 'descendants') ??
-      'ancestors'
-    );
+    const viewMode = fanChartParams.visual.viewMode as
+      | 'ancestors'
+      | 'descendants'
+      | undefined;
+    if (viewMode === 'descendants') return 'descendants';
+    return 'ancestors';
   };
   const fanChartMode = getFanChartMode();
   const [lastRunParameters, setLastRunParameters] = useState<
@@ -368,12 +371,11 @@ function AppContent(): React.ReactElement {
     setTransformerParameters((prev) => ({
       ...prev,
       [parameterKey]: {
-        ...prev[parameterKey],
         dimensions: prev[parameterKey]?.dimensions ?? {},
         visual: {
           ...prev[parameterKey]?.visual,
           viewMode: mode,
-        },
+        } as VisualParameterValues,
       },
     }));
   };
@@ -399,6 +401,10 @@ function AppContent(): React.ReactElement {
   }, [primaryIndividualId]); // Trigger on primaryIndividualId changes
 
   // Auto-rerun pipeline when transformer parameters change (includes fan chart mode)
+  const fanChartConfig = transformerParameters['fan-chart'];
+  const fanChartViewMode = fanChartConfig
+    ? fanChartConfig.visual.viewMode
+    : undefined;
   useEffect(() => {
     const currentMode = getFanChartMode();
     console.log('Fan chart mode from parameters:', currentMode);
@@ -408,13 +414,13 @@ function AppContent(): React.ReactElement {
       !isVisualizing &&
       isFamilyTreeSuccess &&
       primaryIndividualId &&
-      transformerParameters['fan-chart']
+      'fan-chart' in transformerParameters
     ) {
       console.log('Auto-regenerating for fan chart mode change');
       void handleVisualize();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transformerParameters['fan-chart']?.visual?.viewMode]); // Trigger on fan chart mode changes
+  }, [fanChartViewMode]); // Dependencies are for fan chart mode changes
 
   const handleVisualize = async () => {
     if (!isFamilyTreeSuccess) {
@@ -442,7 +448,13 @@ function AppContent(): React.ReactElement {
         canvasHeight: minHeight,
         temperature: 0.5,
         primaryIndividualId,
-        transformerParameters,
+        transformerParameters: transformerParameters as Record<
+          string,
+          {
+            dimensions: { primary?: string; secondary?: string };
+            visual: VisualParameterValues;
+          }
+        >,
       });
 
       const result = await runPipeline({
@@ -664,7 +676,9 @@ function AppContent(): React.ReactElement {
           pipelineResult={pipelineResult}
           activeTransformerIds={activeTransformerIds}
           primaryIndividualId={primaryIndividualId ?? undefined}
-          onPrimaryIndividualChange={(id: string) => setPrimaryIndividualId(id)}
+          onPrimaryIndividualChange={(id: string | undefined) =>
+            setPrimaryIndividualId(id ?? null)
+          }
           onTransformerSelect={handleTransformerSelect}
           onAddTransformer={handleAddTransformer}
           onRemoveTransformer={handleRemoveTransformer}

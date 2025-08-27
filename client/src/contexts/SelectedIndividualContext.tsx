@@ -1,13 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-
-interface SelectedIndividualContextType {
-  selectedIndividualId: string | null;
-  setSelectedIndividualId: (id: string | null) => void;
-}
-
-const SelectedIndividualContext = createContext<
-  SelectedIndividualContextType | undefined
->(undefined);
+import React, { useState, useCallback } from 'react';
+import { SelectedIndividualContext } from './SelectedIndividualContextValue';
 
 export const SelectedIndividualProvider: React.FC<{
   children: React.ReactNode;
@@ -30,14 +22,4 @@ export const SelectedIndividualProvider: React.FC<{
       {children}
     </SelectedIndividualContext.Provider>
   );
-};
-
-export const useSelectedIndividual = () => {
-  const context = useContext(SelectedIndividualContext);
-  if (context === undefined) {
-    throw new Error(
-      'useSelectedIndividual must be used within a SelectedIndividualProvider',
-    );
-  }
-  return context;
 };

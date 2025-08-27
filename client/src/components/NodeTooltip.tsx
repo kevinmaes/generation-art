@@ -102,7 +102,7 @@ export const NodeTooltip: React.FC<NodeTooltipProps> = ({
       <div
         className="absolute w-0 h-0 pointer-events-auto"
         style={{
-          left: `${arrowPosition.x}px`,
+          left: `${String(arrowPosition.x)}px`,
           ...(arrowPosition.side === 'bottom'
             ? {
                 bottom: '-8px',
