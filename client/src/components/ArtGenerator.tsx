@@ -184,7 +184,7 @@ export function ArtGenerator({
 
   // Handle case where no data is provided
   if (!gedcomData) {
-    const bgColor = backgroundColor || '#ffffff';
+    const bgColor = backgroundColor ?? '#ffffff';
     const textColor = getContrastColor(bgColor);
     const isLightBg = textColor === '#000000';
     
@@ -208,7 +208,7 @@ export function ArtGenerator({
   }
 
   if (!pipelineResult) {
-    const bgColor = backgroundColor || '#ffffff';
+    const bgColor = backgroundColor ?? '#ffffff';
     const textColor = getContrastColor(bgColor);
     const isLightBg = textColor === '#000000';
     

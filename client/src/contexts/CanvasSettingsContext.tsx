@@ -6,7 +6,7 @@
  * components and transformers have access to canvas settings.
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   CANVAS_COLORS,
   getContrastColor as getContrastColorUtil,
@@ -39,7 +39,8 @@ const defaultSettings: CanvasSettings = {
   padding: 0,
 };
 
-const CanvasSettingsContext = createContext<CanvasSettingsContextValue | null>(null);
+// eslint-disable-next-line react-refresh/only-export-components
+export const CanvasSettingsContext = createContext<CanvasSettingsContextValue | null>(null);
 
 export const CanvasSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Initialize settings from localStorage or defaults
@@ -139,13 +140,3 @@ export const CanvasSettingsProvider: React.FC<{ children: React.ReactNode }> = (
   );
 };
 
-// Hook to use canvas settings
-export const useCanvasSettings = () => {
-  const context = useContext(CanvasSettingsContext);
-  
-  if (!context) {
-    throw new Error('useCanvasSettings must be used within CanvasSettingsProvider');
-  }
-  
-  return context;
-};

@@ -7,7 +7,7 @@
  */
 
 import { useMemo, useCallback } from 'react';
-import { useCanvasSettings } from '../contexts/CanvasSettingsContext';
+import { useCanvasSettings } from './useCanvasSettings';
 import { CANVAS_COLORS, meetsWCAGAA, meetsWCAGAAA } from '../constants/colors';
 
 export interface UseCanvasBackgroundReturn {

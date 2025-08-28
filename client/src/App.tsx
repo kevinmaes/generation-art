@@ -12,7 +12,7 @@ import { SelectedIndividualProvider } from './contexts/SelectedIndividualContext
 import { PrimaryIndividualProvider } from './contexts/PrimaryIndividualContext';
 import { CanvasSettingsProvider } from './contexts/CanvasSettingsContext';
 import { usePrimaryIndividual } from './hooks/usePrimaryIndividual';
-import { useCanvasSettings } from './contexts/CanvasSettingsContext';
+import { useCanvasSettings } from './hooks/useCanvasSettings';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import {
   validateFlexibleGedcomData,
