@@ -484,7 +484,8 @@ export async function* runPipelineGenerator({
         canvas: {
           width: config.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH,
           height: config.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT,
-          backgroundColor: config.canvasSettings?.backgroundColor ?? CANVAS_COLORS.DEFAULT,
+          backgroundColor:
+            config.canvasSettings?.backgroundColor ?? CANVAS_COLORS.DEFAULT,
           contrastMode: config.canvasSettings?.contrastMode ?? 'auto',
         },
         // Provide previous change set if available

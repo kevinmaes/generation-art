@@ -1,6 +1,6 @@
 /**
  * BackgroundColorPicker Component
- * 
+ *
  * Provides UI for selecting canvas background color with presets,
  * custom color input, and contrast preview.
  */
@@ -32,34 +32,43 @@ export const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
   const [colorError, setColorError] = useState<string | null>(null);
 
   // Handle preset color selection
-  const handlePresetClick = useCallback((color: string) => {
-    setBackgroundColor(color);
-    setCustomColor(color);
-    setColorError(null);
-  }, [setBackgroundColor]);
+  const handlePresetClick = useCallback(
+    (color: string) => {
+      setBackgroundColor(color);
+      setCustomColor(color);
+      setColorError(null);
+    },
+    [setBackgroundColor],
+  );
 
   // Handle custom color input change
-  const handleCustomColorChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const color = e.target.value;
-    setCustomColor(color);
-    
-    if (color.startsWith('#')) {
-      if (isValidHexColor(color)) {
-        setBackgroundColor(color);
-        setColorError(null);
-      } else if (color.length > 1) {
-        setColorError('Invalid hex color format');
+  const handleCustomColorChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const color = e.target.value;
+      setCustomColor(color);
+
+      if (color.startsWith('#')) {
+        if (isValidHexColor(color)) {
+          setBackgroundColor(color);
+          setColorError(null);
+        } else if (color.length > 1) {
+          setColorError('Invalid hex color format');
+        }
       }
-    }
-  }, [setBackgroundColor, isValidHexColor]);
+    },
+    [setBackgroundColor, isValidHexColor],
+  );
 
   // Handle color picker change
-  const handleColorPickerChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const color = e.target.value;
-    setCustomColor(color);
-    setBackgroundColor(color);
-    setColorError(null);
-  }, [setBackgroundColor]);
+  const handleColorPickerChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const color = e.target.value;
+      setCustomColor(color);
+      setBackgroundColor(color);
+      setColorError(null);
+    },
+    [setBackgroundColor],
+  );
 
   // Get color name for accessibility
   const getColorName = useCallback((color: string): string => {
@@ -84,11 +93,18 @@ export const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
     const sampleForeground = '#333333'; // Sample text color
     const ratio = getContrastRatio(sampleForeground, backgroundColor);
     const meetsAA = meetsWCAGAA(sampleForeground, backgroundColor);
-    
+
     return {
       ratio: ratio.toFixed(2),
       meetsAA,
-      textColor: backgroundColor === '#000000' || backgroundColor === '#424242' || backgroundColor === '#1a237e' || backgroundColor === '#0f0f1e' || backgroundColor === '#2c2c2c' ? '#ffffff' : '#333333',
+      textColor:
+        backgroundColor === '#000000' ||
+        backgroundColor === '#424242' ||
+        backgroundColor === '#1a237e' ||
+        backgroundColor === '#0f0f1e' ||
+        backgroundColor === '#2c2c2c'
+          ? '#ffffff'
+          : '#333333',
     };
   }, [backgroundColor, showContrastInfo]);
 
@@ -96,8 +112,10 @@ export const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
     return (
       <div className={`flex items-center justify-between ${className}`}>
         <div className="flex items-center gap-3">
-          <label className="text-sm font-medium text-gray-700">Canvas Background</label>
-          
+          <label className="text-sm font-medium text-gray-700">
+            Canvas Background
+          </label>
+
           {/* Preset Colors */}
           <div className="flex gap-1.5">
             {Object.entries(presets).map(([key, color]) => (
@@ -105,8 +123,8 @@ export const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
                 key={key}
                 onClick={() => handlePresetClick(color)}
                 className={`w-7 h-7 rounded-md border-2 transition-all transform hover:scale-110 ${
-                  backgroundColor === color 
-                    ? 'border-blue-500 ring-2 ring-blue-200 scale-110' 
+                  backgroundColor === color
+                    ? 'border-blue-500 ring-2 ring-blue-200 scale-110'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
                 style={{ backgroundColor: color }}
@@ -158,7 +176,9 @@ export const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
   return (
     <div className={`bg-white rounded-lg shadow-sm p-4 ${className}`}>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-700">Canvas Background</h3>
+        <h3 className="text-sm font-semibold text-gray-700">
+          Canvas Background
+        </h3>
         {backgroundColor !== presets.WHITE && (
           <button
             onClick={resetBackground}
@@ -179,8 +199,8 @@ export const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
               key={key}
               onClick={() => handlePresetClick(color)}
               className={`relative h-10 rounded-lg border-2 transition-all transform hover:scale-105 ${
-                backgroundColor === color 
-                  ? 'border-blue-500 ring-2 ring-blue-200' 
+                backgroundColor === color
+                  ? 'border-blue-500 ring-2 ring-blue-200'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
               style={{ backgroundColor: color }}
@@ -189,8 +209,16 @@ export const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
             >
               {backgroundColor === color && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4 text-white drop-shadow-md"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
               )}
@@ -233,14 +261,16 @@ export const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
         <div className="border-t pt-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-600">Contrast Preview</span>
-            <span className={`font-medium ${contrastInfo.meetsAA ? 'text-green-600' : 'text-orange-600'}`}>
+            <span
+              className={`font-medium ${contrastInfo.meetsAA ? 'text-green-600' : 'text-orange-600'}`}
+            >
               {contrastInfo.meetsAA ? 'WCAG AA ✓' : 'Low Contrast'}
             </span>
           </div>
-          <div 
+          <div
             className="mt-2 p-3 rounded-md text-sm"
-            style={{ 
-              backgroundColor, 
+            style={{
+              backgroundColor,
               color: contrastInfo.textColor,
             }}
           >

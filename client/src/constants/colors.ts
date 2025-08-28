@@ -225,10 +225,7 @@ export function ensureStrokeContrast(
 
   // Check if this works
   const candidateFillContrast = getContrastRatio(candidateColor, fillColor);
-  const candidateBgContrast = getContrastRatio(
-    candidateColor,
-    backgroundColor,
-  );
+  const candidateBgContrast = getContrastRatio(candidateColor, backgroundColor);
 
   if (
     candidateFillContrast >= minContrast &&

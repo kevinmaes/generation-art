@@ -123,7 +123,6 @@ function getCountryColors(iso2: ISO2 | null): CountryColors | null {
   return (countryColors as unknown as CountryColorMap)[iso2] || null;
 }
 
-
 /**
  * Apply color intensity to a hex color
  */
@@ -158,7 +157,8 @@ function calculateNodeColors(
     'Node country color transformer',
   ) as AugmentedIndividual | null;
 
-  const fallbackColor = (visual.fallbackColor as string) || FALLBACK_COLORS.NODE;
+  const fallbackColor =
+    (visual.fallbackColor as string) || FALLBACK_COLORS.NODE;
   const strokeMode = (visual.strokeMode as string) || 'secondary';
   const colorIntensity = (visual.colorIntensity as number) || 0.8;
 
@@ -225,7 +225,8 @@ export async function nodeCountryColorTransform(
   // Extract visual parameters
   const layerMode = (visual.layerMode as string) || 'single';
   const colorIntensity = (visual.colorIntensity as number) || 0.8;
-  const fallbackColor = (visual.fallbackColor as string) || FALLBACK_COLORS.NODE;
+  const fallbackColor =
+    (visual.fallbackColor as string) || FALLBACK_COLORS.NODE;
 
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual): individual is AugmentedIndividual =>

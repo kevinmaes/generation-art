@@ -204,7 +204,9 @@ function calculateNodeColor(metadata: AugmentedIndividual['metadata']): string {
   }
 
   // Default color based on alive status
-  return metadata.isAlive ? NODE_STATUS_COLORS.ALIVE : NODE_STATUS_COLORS.DECEASED;
+  return metadata.isAlive
+    ? NODE_STATUS_COLORS.ALIVE
+    : NODE_STATUS_COLORS.DECEASED;
 }
 
 /**

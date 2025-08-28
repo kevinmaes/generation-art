@@ -1,6 +1,6 @@
 /**
  * useCanvasBackground Hook
- * 
+ *
  * Simplified hook for managing canvas background color.
  * Provides a focused API for background color management
  * while leveraging the broader CanvasSettingsContext.
@@ -30,12 +30,8 @@ export interface UseCanvasBackgroundReturn {
  * Hook for managing canvas background color with contrast utilities
  */
 export const useCanvasBackground = (): UseCanvasBackgroundReturn => {
-  const {
-    settings,
-    updateSettings,
-    ensureContrast,
-    checkContrast,
-  } = useCanvasSettings();
+  const { settings, updateSettings, ensureContrast, checkContrast } =
+    useCanvasSettings();
 
   // Validate hex color format
   const isValidHexColorInner = useCallback((color: string): boolean => {
@@ -43,14 +39,17 @@ export const useCanvasBackground = (): UseCanvasBackgroundReturn => {
   }, []);
 
   // Set background color
-  const setBackgroundColor = useCallback((color: string) => {
-    // Basic hex color validation
-    if (isValidHexColorInner(color)) {
-      updateSettings({ backgroundColor: color });
-    } else {
-      console.warn(`Invalid hex color: ${color}`);
-    }
-  }, [updateSettings, isValidHexColorInner]);
+  const setBackgroundColor = useCallback(
+    (color: string) => {
+      // Basic hex color validation
+      if (isValidHexColorInner(color)) {
+        updateSettings({ backgroundColor: color });
+      } else {
+        console.warn(`Invalid hex color: ${color}`);
+      }
+    },
+    [updateSettings, isValidHexColorInner],
+  );
 
   // Reset background to default
   const resetBackground = useCallback(() => {
@@ -58,40 +57,49 @@ export const useCanvasBackground = (): UseCanvasBackgroundReturn => {
   }, [updateSettings]);
 
   // Set contrast mode
-  const setContrastMode = useCallback((mode: 'auto' | 'high' | 'normal') => {
-    updateSettings({ contrastMode: mode });
-  }, [updateSettings]);
+  const setContrastMode = useCallback(
+    (mode: 'auto' | 'high' | 'normal') => {
+      updateSettings({ contrastMode: mode });
+    },
+    [updateSettings],
+  );
 
   // Check WCAG compliance for a foreground color
-  const checkWCAGCompliance = useCallback((foreground: string) => {
-    const ratio = checkContrast(foreground);
-    return {
-      aa: meetsWCAGAA(foreground, settings.backgroundColor),
-      aaa: meetsWCAGAAA(foreground, settings.backgroundColor),
-      ratio,
-    };
-  }, [settings.backgroundColor, checkContrast]);
+  const checkWCAGCompliance = useCallback(
+    (foreground: string) => {
+      const ratio = checkContrast(foreground);
+      return {
+        aa: meetsWCAGAA(foreground, settings.backgroundColor),
+        aaa: meetsWCAGAAA(foreground, settings.backgroundColor),
+        ratio,
+      };
+    },
+    [settings.backgroundColor, checkContrast],
+  );
 
-  return useMemo(() => ({
-    backgroundColor: settings.backgroundColor,
-    setBackgroundColor,
-    presets: CANVAS_COLORS.PRESETS,
-    resetBackground,
-    ensureContrast,
-    contrastMode: settings.contrastMode,
-    setContrastMode,
-    checkWCAGCompliance,
-    isValidHexColor: isValidHexColorInner,
-  }), [
-    settings.backgroundColor,
-    settings.contrastMode,
-    setBackgroundColor,
-    resetBackground,
-    ensureContrast,
-    setContrastMode,
-    checkWCAGCompliance,
-    isValidHexColorInner,
-  ]);
+  return useMemo(
+    () => ({
+      backgroundColor: settings.backgroundColor,
+      setBackgroundColor,
+      presets: CANVAS_COLORS.PRESETS,
+      resetBackground,
+      ensureContrast,
+      contrastMode: settings.contrastMode,
+      setContrastMode,
+      checkWCAGCompliance,
+      isValidHexColor: isValidHexColorInner,
+    }),
+    [
+      settings.backgroundColor,
+      settings.contrastMode,
+      setBackgroundColor,
+      resetBackground,
+      ensureContrast,
+      setContrastMode,
+      checkWCAGCompliance,
+      isValidHexColorInner,
+    ],
+  );
 };
 
 // Utility function exported separately for use outside of React components

@@ -187,7 +187,7 @@ export function ArtGenerator({
     const bgColor = backgroundColor ?? '#ffffff';
     const textColor = getContrastColor(bgColor);
     const isLightBg = textColor === '#000000';
-    
+
     return (
       <div
         className="flex items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200"
@@ -195,11 +195,16 @@ export function ArtGenerator({
           width: `${String(width)}px`,
           height: `${String(height)}px`,
           backgroundColor: bgColor,
-          borderColor: isLightBg ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)',
+          borderColor: isLightBg
+            ? 'rgba(0, 0, 0, 0.2)'
+            : 'rgba(255, 255, 255, 0.3)',
         }}
       >
         <div className="text-center">
-          <div className="text-lg font-medium" style={{ color: textColor, opacity: 0.6 }}>
+          <div
+            className="text-lg font-medium"
+            style={{ color: textColor, opacity: 0.6 }}
+          >
             No data available
           </div>
         </div>
@@ -211,7 +216,7 @@ export function ArtGenerator({
     const bgColor = backgroundColor ?? '#ffffff';
     const textColor = getContrastColor(bgColor);
     const isLightBg = textColor === '#000000';
-    
+
     return (
       <div
         className="flex items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200"
@@ -219,21 +224,28 @@ export function ArtGenerator({
           width: `${String(width)}px`,
           height: `${String(height)}px`,
           backgroundColor: bgColor,
-          borderColor: isLightBg ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)',
+          borderColor: isLightBg
+            ? 'rgba(0, 0, 0, 0.2)'
+            : 'rgba(255, 255, 255, 0.3)',
         }}
       >
         {isVisualizing ? (
           <GenerationProgress progress={pipelineProgress} />
         ) : !primaryIndividualId ? (
           <div className="text-center">
-            <p className="mb-3 font-medium" style={{ color: textColor, opacity: 0.7 }}>
+            <p
+              className="mb-3 font-medium"
+              style={{ color: textColor, opacity: 0.7 }}
+            >
               Please select a primary individual
             </p>
             <button
               disabled
               className="px-6 py-3 rounded-lg cursor-not-allowed font-medium transition-colors"
               style={{
-                backgroundColor: isLightBg ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: isLightBg
+                  ? 'rgba(0, 0, 0, 0.1)'
+                  : 'rgba(255, 255, 255, 0.1)',
                 color: textColor,
                 opacity: 0.5,
               }}

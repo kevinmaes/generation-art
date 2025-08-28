@@ -208,7 +208,7 @@ export function FramedArtwork({
           <div className="px-6 py-3 bg-gradient-to-b from-gray-50 to-white border-b border-gray-200">
             <BackgroundColorPicker compact className="w-full" />
           </div>
-          
+
           {/* Canvas Area */}
           <div className="p-6 bg-white">
             <ArtGenerator
