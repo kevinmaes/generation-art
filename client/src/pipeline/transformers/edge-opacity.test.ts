@@ -3,6 +3,7 @@ import { edgeOpacityTransform } from './edge-opacity';
 import { createInitialCompleteVisualMetadata } from '../pipeline';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { TransformerContext } from '../types';
+import { DEFAULT_TEST_CANVAS } from '../test-utils';
 
 // Test data
 const createTestData = (): GedcomDataWithMetadata => ({
@@ -249,6 +250,7 @@ const createTestContext = (
 
   return {
     gedcomData,
+    canvas: DEFAULT_TEST_CANVAS,
     llmData: {
       individuals: {},
       families: {},

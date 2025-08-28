@@ -687,7 +687,10 @@ describe('Horizontal Spread Transformer', () => {
           primaryColor: '#4CAF50',
         },
       });
-      const result = await runtimeTransformer(context);
+      const result = await runtimeTransformer({
+        ...context,
+        canvas: DEFAULT_TEST_CANVAS,
+      });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.visualMetadata.individuals).toBeDefined();

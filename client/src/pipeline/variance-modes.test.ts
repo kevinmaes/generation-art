@@ -3,6 +3,7 @@ import { varianceTransform, varianceConfig } from './transformers/variance';
 import type { TransformerContext, CompleteVisualMetadata } from './types';
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
+import { DEFAULT_TEST_CANVAS } from './test-utils';
 
 describe('Variance Modes Implementation', () => {
   let baseContext: TransformerContext;
@@ -87,6 +88,7 @@ describe('Variance Modes Implementation', () => {
       dimensions: { primary: 'generation' },
       visual: {},
       seed: 'test-seed', // Fixed seed for reproducibility
+      canvas: DEFAULT_TEST_CANVAS,
     };
   });
 

@@ -26,6 +26,7 @@ import type {
 } from '../pipeline/smart-transformer-types';
 import type { TransformerContext } from '../pipeline/types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
+import { DEFAULT_TEST_CANVAS } from '../pipeline/test-utils';
 
 // Mock data for testing
 const mockVisualMetadata = {
@@ -639,6 +640,7 @@ describe('Smart Transformer Utils', () => {
         spacing: 'normal',
       },
       temperature: 0.7,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     it('should build complete prompt using config', () => {
@@ -659,6 +661,7 @@ describe('Smart Transformer Utils', () => {
           ...mockVisualMetadata,
           global: {},
         },
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = buildSmartTransformerPrompt(
@@ -672,6 +675,7 @@ describe('Smart Transformer Utils', () => {
       const contextWithoutStyle = {
         ...mockContext,
         visual: {},
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const configWithoutStyle = {
@@ -693,6 +697,7 @@ describe('Smart Transformer Utils', () => {
       const contextWithoutTemp = {
         ...mockContext,
         temperature: undefined,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = buildSmartTransformerPrompt(

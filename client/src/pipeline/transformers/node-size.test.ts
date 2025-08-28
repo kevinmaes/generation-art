@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { nodeSizeTransform } from './node-size';
 import type { TransformerContext } from '../types';
+import { DEFAULT_TEST_CANVAS } from '../test-utils';
 
 // Mock GEDCOM data for testing
 const mockGedcomData = {
@@ -274,6 +275,7 @@ describe('Node Size Transformer', () => {
         dimensions: { primary: 'childrenCount' },
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
         temperature: 0.0, // No randomness for predictable testing
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await nodeSizeTransform(context);
@@ -320,6 +322,7 @@ describe('Node Size Transformer', () => {
         dimensions: { primary: 'lifespan' },
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await nodeSizeTransform(context);
@@ -353,6 +356,7 @@ describe('Node Size Transformer', () => {
           temperature: 0.3,
         },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // This should not throw an error and should use 'medium' as default
@@ -378,6 +382,7 @@ describe('Node Size Transformer', () => {
           temperature: 0.3,
         },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error and should use 'medium' as fallback
@@ -400,6 +405,7 @@ describe('Node Size Transformer', () => {
         // @ts-expect-error - Testing missing visual context
         visual: undefined,
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error due to missing visual context
@@ -418,6 +424,7 @@ describe('Node Size Transformer', () => {
         dimensions: undefined,
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error due to missing dimensions
@@ -457,6 +464,7 @@ describe('Node Size Transformer', () => {
         dimensions: { primary: 'lifespan' },
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error when there are no valid lifespans
@@ -480,6 +488,7 @@ describe('Node Size Transformer', () => {
         },
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error and should use default value
@@ -504,6 +513,7 @@ describe('Node Size Transformer', () => {
           // variationFactor and temperature intentionally undefined
         },
         // temperature also undefined at context level
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error with undefined temperature/variationFactor
@@ -539,6 +549,7 @@ describe('Node Size Transformer', () => {
             temperature: 0.0,
           },
           temperature: 0.0,
+          canvas: DEFAULT_TEST_CANVAS,
         };
 
         const result = await nodeSizeTransform(context);
@@ -562,6 +573,7 @@ describe('Node Size Transformer', () => {
         dimensions: { primary: 'childrenCount' },
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await nodeSizeTransform(context);
@@ -591,6 +603,7 @@ describe('Node Size Transformer', () => {
         dimensions: { primary: 'childrenCount' },
         visual: { nodeSize: 'medium', variationFactor: 0.1, temperature: 0.3 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await nodeSizeTransform(context);

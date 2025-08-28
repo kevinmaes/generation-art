@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { simpleTreeTransform } from './simple-tree';
 import type { TransformerContext } from '../types';
+import { DEFAULT_TEST_CANVAS } from '../test-utils';
 
 // Mock GEDCOM data for testing a simple tree structure
 const mockGedcomData = {
@@ -394,6 +395,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -421,6 +423,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -442,6 +445,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -482,6 +486,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -511,6 +516,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -601,6 +607,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -664,6 +671,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -692,6 +700,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -734,6 +743,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -776,6 +786,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -798,6 +809,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);
@@ -835,6 +847,7 @@ describe('Simple Tree Layout Transformer', () => {
         dimensions: { primary: 'generation' },
         visual: {},
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = await simpleTreeTransform(context);

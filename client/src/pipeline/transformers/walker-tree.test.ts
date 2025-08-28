@@ -10,6 +10,7 @@ import type {
   AugmentedIndividual,
   FamilyWithMetadata,
 } from '../../../../shared/types';
+import { DEFAULT_TEST_CANVAS } from '../test-utils';
 
 // Test data factory
 function createTestIndividual(
@@ -141,6 +142,7 @@ function createTestContext(
       familySpacing: 80,
       enableDebugging: false,
     },
+    canvas: DEFAULT_TEST_CANVAS,
   };
 }
 

@@ -3,6 +3,7 @@ import { varianceTransform, varianceConfig } from './variance';
 import type { TransformerContext, CompleteVisualMetadata } from '../types';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { LLMReadyData } from '../../../../shared/types/llm-data';
+import { DEFAULT_TEST_CANVAS } from '../test-utils';
 
 describe('Variance Transformer', () => {
   let baseContext: TransformerContext;
@@ -161,6 +162,7 @@ describe('Variance Transformer', () => {
         varyOpacity: false,
       },
       seed: 'test-seed',
+      canvas: DEFAULT_TEST_CANVAS,
     };
   });
 
