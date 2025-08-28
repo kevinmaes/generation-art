@@ -15,6 +15,7 @@ import { resolveShapeGeometry } from './shapes/resolve';
 export interface SketchConfig {
   width: number;
   height: number;
+  backgroundColor?: string;
   showNames?: boolean;
   strokeWeight?: number;
   textSize?: number;
@@ -276,7 +277,12 @@ function createSketch(props: SketchProps): (p: p5) => void {
     p.setup = () => {
       p.createCanvas(width, height, p.P2D);
       p.pixelDensity(1);
-      p.background(255);
+      // Use configured background color or default to white
+      if (config.backgroundColor) {
+        p.background(config.backgroundColor);
+      } else {
+        p.background(255);
+      }
       p.noLoop(); // Only redraw when explicitly called
     };
 
@@ -350,7 +356,12 @@ function createSketch(props: SketchProps): (p: p5) => void {
     };
 
     p.draw = () => {
-      p.background(255);
+      // Use configured background color or default to white
+      if (config.backgroundColor) {
+        p.background(config.backgroundColor);
+      } else {
+        p.background(255);
+      }
 
       // Clear node positions for fresh hit detection
       nodePositions.clear();

@@ -49,6 +49,8 @@ import {
   DEFAULT_CUSTOM,
 } from './constants';
 import { getTransformerParameterKey } from '../utils/pipeline-index';
+import { CANVAS_COLORS } from '../constants/colors';
+import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
@@ -75,6 +77,12 @@ export interface PipelineConfig {
   // Canvas dimensions for reference
   canvasWidth?: number;
   canvasHeight?: number;
+
+  // Canvas settings including background color
+  canvasSettings?: {
+    backgroundColor: string;
+    contrastMode?: 'auto' | 'high' | 'normal';
+  };
 
   // Primary individual ID for transformers that need a focal point
   primaryIndividualId?: string;
@@ -473,6 +481,12 @@ export async function* runPipelineGenerator({
             transformer.defaultSecondaryDimension,
         },
         visual: transformerInstance.visual,
+        canvas: {
+          width: config.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH,
+          height: config.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT,
+          backgroundColor: config.canvasSettings?.backgroundColor ?? CANVAS_COLORS.DEFAULT,
+          contrastMode: config.canvasSettings?.contrastMode ?? 'auto',
+        },
         // Provide previous change set if available
         previousChangeSet: lastChangeSet,
       };
@@ -673,6 +687,10 @@ export function createSimplePipeline(
     seed?: string;
     canvasWidth?: number;
     canvasHeight?: number;
+    canvasSettings?: {
+      backgroundColor: string;
+      contrastMode?: 'auto' | 'high' | 'normal';
+    };
     primaryIndividualId?: string;
     transformerParameters?: Record<
       string,
@@ -715,6 +733,7 @@ export function createSimplePipeline(
     seed: options?.seed,
     canvasWidth: options?.canvasWidth,
     canvasHeight: options?.canvasHeight,
+    canvasSettings: options?.canvasSettings,
     primaryIndividualId: options?.primaryIndividualId,
   };
 }

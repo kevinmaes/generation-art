@@ -10,6 +10,7 @@ import {
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { VisualParameterValues } from './visual-parameters';
 import { initialEntityVisualMetadata } from './pipeline';
+import { DEFAULT_TEST_CANVAS } from './test-utils';
 
 describe('Transformers Registry', () => {
   it('should export transformerConfigs object', () => {
@@ -238,6 +239,7 @@ describe('Horizontal Spread Transformer', () => {
         families: {},
         metadata: mockMetadata.metadata,
       },
+      canvas: DEFAULT_TEST_CANVAS,
       visualMetadata: {
         individuals: {
           I1: {
@@ -453,6 +455,7 @@ describe('Horizontal Spread Transformer', () => {
         families: {},
         metadata: mockMetadata.metadata,
       },
+      canvas: DEFAULT_TEST_CANVAS,
       visualMetadata: {
         individuals: {},
         families: {},

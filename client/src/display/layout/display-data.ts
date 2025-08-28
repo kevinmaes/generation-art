@@ -11,6 +11,13 @@ import type {
   AugmentedIndividual,
   GedcomDataWithMetadata,
 } from '../../../../shared/types';
+import {
+  NODE_STATUS_COLORS,
+  ZODIAC_COLORS,
+  MONTHLY_COLORS,
+  EDGE_COLORS,
+  FALLBACK_COLORS,
+} from '../../constants/colors';
 
 // Canvas-specific data structures
 export interface DisplayNode {
@@ -197,7 +204,7 @@ function calculateNodeColor(metadata: AugmentedIndividual['metadata']): string {
   }
 
   // Default color based on alive status
-  return metadata.isAlive ? '#4CAF50' : '#9E9E9E';
+  return metadata.isAlive ? NODE_STATUS_COLORS.ALIVE : NODE_STATUS_COLORS.DECEASED;
 }
 
 /**
@@ -244,7 +251,7 @@ function createParentChildEdge(childId: string, parentId: string): DisplayEdge {
     to: childId,
     type: 'parent-child',
     weight: 3,
-    color: '#2196F3',
+    color: EDGE_COLORS.PARENT_CHILD,
     opacity: 0.8,
   };
 }
@@ -258,7 +265,7 @@ function createSpouseEdge(individualId: string, spouseId: string): DisplayEdge {
     to: spouseId,
     type: 'spouse',
     weight: 2,
-    color: '#E91E63',
+    color: EDGE_COLORS.SPOUSE,
     opacity: 0.6,
   };
 }
@@ -275,7 +282,7 @@ function createSiblingEdge(
     to: siblingId,
     type: 'sibling',
     weight: 1,
-    color: '#FF9800',
+    color: EDGE_COLORS.SIBLING,
     opacity: 0.4,
   };
 }
@@ -304,44 +311,14 @@ function removeDuplicateEdges(edges: DisplayEdge[]): DisplayEdge[] {
  * Get color for zodiac sign
  */
 function getZodiacColor(zodiacSign: string): string {
-  const colors: Record<string, string> = {
-    Aries: '#FF5722',
-    Taurus: '#4CAF50',
-    Gemini: '#FFC107',
-    Cancer: '#2196F3',
-    Leo: '#FF9800',
-    Virgo: '#9C27B0',
-    Libra: '#E91E63',
-    Scorpio: '#795548',
-    Sagittarius: '#607D8B',
-    Capricorn: '#3F51B5',
-    Aquarius: '#00BCD4',
-    Pisces: '#8BC34A',
-  };
-
-  return colors[zodiacSign] || '#9E9E9E';
+  return ZODIAC_COLORS[zodiacSign] || FALLBACK_COLORS.NODE;
 }
 
 /**
  * Get color for birth month
  */
 function getMonthColor(month: number): string {
-  const colors = [
-    '#FF5722', // January
-    '#E91E63', // February
-    '#9C27B0', // March
-    '#673AB7', // April
-    '#3F51B5', // May
-    '#2196F3', // June
-    '#03A9F4', // July
-    '#00BCD4', // August
-    '#009688', // September
-    '#4CAF50', // October
-    '#8BC34A', // November
-    '#CDDC39', // December
-  ];
-
-  return colors[month - 1] || '#9E9E9E';
+  return MONTHLY_COLORS[month - 1] || FALLBACK_COLORS.NODE;
 }
 
 /**

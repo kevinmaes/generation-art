@@ -3,11 +3,13 @@ import type p5 from 'p5';
 import { ArtGenerator } from './ArtGenerator';
 import { Footer } from './Footer';
 import { SidePanel } from './SidePanel';
+import { BackgroundColorPicker } from './BackgroundColorPicker';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import { useShareArt } from '../hooks/useShareArt';
 import type { PipelineResult } from '../pipeline/pipeline';
 import { useFamilyTreeData } from '../contexts/FamilyTreeContext';
 import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
+import { useCanvasBackground } from '../hooks/useCanvasBackground';
 import type { EnhancedP5 } from '../display/FamilyTreeSketch';
 
 interface FramedArtworkProps {
@@ -50,6 +52,7 @@ export function FramedArtwork({
 }: FramedArtworkProps): React.ReactElement {
   const familyTreeData = useFamilyTreeData();
   const { selectedIndividualId } = useSelectedIndividual();
+  const { backgroundColor } = useCanvasBackground();
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);
@@ -200,21 +203,30 @@ export function FramedArtwork({
 
       {/* Canvas Container */}
       <div className="p-8 bg-gray-50">
-        <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
-          <ArtGenerator
-            width={width}
-            height={height}
-            pipelineResult={pipelineResult}
-            showIndividuals={showIndividuals}
-            showRelations={showRelations}
-            onExportReady={handleExport}
-            onVisualize={onVisualize}
-            isVisualizing={isVisualizing}
-            pipelineProgress={pipelineProgress}
-            primaryIndividualId={primaryIndividualId}
-            gedcomData={familyTreeData?.full}
-            onSetPrimaryIndividual={onSetPrimaryIndividual}
-          />
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+          {/* Background Color Controls - Part of frame, not canvas */}
+          <div className="px-6 py-3 bg-gradient-to-b from-gray-50 to-white border-b border-gray-200">
+            <BackgroundColorPicker compact className="w-full" />
+          </div>
+          
+          {/* Canvas Area */}
+          <div className="p-6 bg-white">
+            <ArtGenerator
+              width={width}
+              height={height}
+              backgroundColor={backgroundColor}
+              pipelineResult={pipelineResult}
+              showIndividuals={showIndividuals}
+              showRelations={showRelations}
+              onExportReady={handleExport}
+              onVisualize={onVisualize}
+              isVisualizing={isVisualizing}
+              pipelineProgress={pipelineProgress}
+              primaryIndividualId={primaryIndividualId}
+              gedcomData={familyTreeData?.full}
+              onSetPrimaryIndividual={onSetPrimaryIndividual}
+            />
+          </div>
         </div>
       </div>
 

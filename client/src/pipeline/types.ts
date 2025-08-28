@@ -270,6 +270,14 @@ export interface TransformerContext {
   // User-selected visual parameters (injected by createTransformerInstance)
   visual: VisualParameterValues;
 
+  // Canvas settings including background color and contrast preferences
+  canvas: {
+    width: number;
+    height: number;
+    backgroundColor: string;
+    contrastMode?: 'auto' | 'high' | 'normal';
+  };
+
   // Optional: Primary individual ID selected by the user for transformers that need a focal point
   primaryIndividualId?: string;
 

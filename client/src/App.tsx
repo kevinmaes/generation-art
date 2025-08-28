@@ -10,7 +10,9 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { GedcomSelector } from './components/GedcomSelector';
 import { SelectedIndividualProvider } from './contexts/SelectedIndividualContext';
 import { PrimaryIndividualProvider } from './contexts/PrimaryIndividualContext';
+import { CanvasSettingsProvider } from './contexts/CanvasSettingsContext';
 import { usePrimaryIndividual } from './hooks/usePrimaryIndividual';
+import { useCanvasSettings } from './contexts/CanvasSettingsContext';
 import { CANVAS_DIMENSIONS } from '../../shared/constants';
 import {
   validateFlexibleGedcomData,
@@ -50,6 +52,7 @@ interface GedcomManifest {
 function AppContent(): React.ReactElement {
   // Use family tree store for data state
   const [familyTreeState] = useFamilyTreeStore();
+  const { settings: canvasSettings } = useCanvasSettings();
 
   // Debug state changes
   useEffect(() => {
@@ -446,6 +449,10 @@ function AppContent(): React.ReactElement {
       const pipelineConfig = createSimplePipeline(activeTransformerIds, {
         canvasWidth: minWidth,
         canvasHeight: minHeight,
+        canvasSettings: {
+          backgroundColor: canvasSettings.backgroundColor,
+          contrastMode: canvasSettings.contrastMode,
+        },
         temperature: 0.5,
         primaryIndividualId,
         transformerParameters: transformerParameters as Record<
@@ -698,11 +705,13 @@ function AppContent(): React.ReactElement {
 
 function App(): React.ReactElement {
   return (
-    <PrimaryIndividualProvider>
-      <SelectedIndividualProvider>
-        <AppContent />
-      </SelectedIndividualProvider>
-    </PrimaryIndividualProvider>
+    <CanvasSettingsProvider>
+      <PrimaryIndividualProvider>
+        <SelectedIndividualProvider>
+          <AppContent />
+        </SelectedIndividualProvider>
+      </PrimaryIndividualProvider>
+    </CanvasSettingsProvider>
   );
 }
 
