@@ -80,16 +80,6 @@ export function SortableTransformerItem({
   const storageKey = parameterKey ?? transformer.id;
   const isActive = transformerActiveStates[storageKey] ?? true;
 
-  console.log(
-    `[DEBUG] SortableTransformerItem - transformer: ${transformer.id}`,
-    `| index: ${String(index)}`,
-    `| parameterKey: ${String(parameterKey)}`,
-    `| storageKey: ${storageKey}`,
-    `| isActive: ${String(isActive)}`,
-    `| activeState from context: ${String(transformerActiveStates[storageKey])}`,
-    `| all transformerActiveStates:`,
-    transformerActiveStates,
-  );
 
   const toggleVarianceAfter = () => {
     if (isVarianceFollowing) {
@@ -195,12 +185,7 @@ export function SortableTransformerItem({
             isVarianceFollowing={isVarianceFollowing}
             onToggleVariance={toggleVarianceAfter}
             isActive={isActive}
-            onToggleActive={() => {
-              console.log(
-                `[DEBUG] Calling toggleTransformerActive with storageKey: ${storageKey}`,
-              );
-              toggleTransformerActive(storageKey);
-            }}
+            onToggleActive={() => toggleTransformerActive(storageKey)}
           />
         </div>
       </div>

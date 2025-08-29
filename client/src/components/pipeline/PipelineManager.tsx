@@ -824,13 +824,6 @@ export function PipelineManager({
                       index,
                     );
 
-                    console.log(
-                      `[DEBUG] PipelineManager - mapping transformer ${String(index)}`,
-                      `| transformerId: ${transformerId}`,
-                      `| parameterKey from getTransformerParameterKey: ${parameterKey}`,
-                      `| activeTransformerIds:`,
-                      activeTransformerIds,
-                    );
 
                     return (
                       <SortableTransformerItem
@@ -901,13 +894,6 @@ export function PipelineManager({
                       index,
                     );
 
-                    console.log(
-                      `[DEBUG] PipelineManager - mapping transformer ${String(index)}`,
-                      `| transformerId: ${transformerId}`,
-                      `| parameterKey from getTransformerParameterKey: ${parameterKey}`,
-                      `| activeTransformerIds:`,
-                      activeTransformerIds,
-                    );
 
                     return (
                       <SortableTransformerItem
@@ -963,15 +949,6 @@ export function PipelineManager({
                   console.log(
                     '[DEBUG] Generate button clicked, calling handleVisualize',
                   );
-                  console.log(
-                    '[DEBUG] handleVisualize is: defined (from context)',
-                  );
-                  console.log('[DEBUG] contextOnVisualize is: defined');
-                  console.log(
-                    '[DEBUG] prop onVisualize is:',
-                    onVisualize ? 'defined' : 'undefined',
-                  );
-                  console.log('[DEBUG] Using: context version');
                   void handleVisualize();
                 }}
                 onMouseDown={(e) => e.stopPropagation()}
@@ -1022,15 +999,6 @@ export function PipelineManager({
                   console.log(
                     '[DEBUG] Generate button clicked, calling handleVisualize',
                   );
-                  console.log(
-                    '[DEBUG] handleVisualize is: defined (from context)',
-                  );
-                  console.log('[DEBUG] contextOnVisualize is: defined');
-                  console.log(
-                    '[DEBUG] prop onVisualize is:',
-                    onVisualize ? 'defined' : 'undefined',
-                  );
-                  console.log('[DEBUG] Using: context version');
                   void handleVisualize();
                 }}
                 onMouseDown={(e) => e.stopPropagation()}

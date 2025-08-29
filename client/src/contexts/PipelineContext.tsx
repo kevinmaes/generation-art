@@ -232,13 +232,6 @@ export function PipelineProvider({
         newIndex,
       );
 
-      console.log(
-        `[DEBUG] onAddTransformer - adding transformer: ${transformerId}`,
-        `| parameterKey: ${parameterKey}`,
-        `| defaultVisual:`,
-        defaultVisual,
-      );
-
       setTransformerParameters((prev) => ({
         ...prev,
         [parameterKey]: {
@@ -288,11 +281,6 @@ export function PipelineProvider({
 
   const onParameterChange = useCallback(
     (transformerId: TransformerId, parameters: TransformerParameterConfig) => {
-      console.log(
-        `[DEBUG] PipelineContext.onParameterChange - key: ${transformerId}`,
-        `| parameters:`,
-        parameters,
-      );
       setTransformerParameters((prev) => ({
         ...prev,
         [transformerId]: parameters,
@@ -310,69 +298,14 @@ export function PipelineProvider({
   }, []);
 
   const onVisualize = useCallback(async () => {
-    console.log('===== GENERATE BUTTON CLICKED =====');
-    console.log('[DEBUG] onVisualize called in PipelineContext');
-    console.log('[DEBUG] dualData:', dualData ? 'exists' : 'null');
-    if (dualData) {
-      console.log('[DEBUG] dualData type:', typeof dualData);
-      console.log('[DEBUG] dualData keys:', Object.keys(dualData));
-      console.log('[DEBUG] dualData structure:', {
-        hasFull: !!dualData.full,
-        hasLlm: !!dualData.llm,
-        fullIndividuals: Object.keys(dualData.full.individuals).length,
-        llmIndividuals: Object.keys(dualData.llm.individuals).length,
-      });
-    }
-    console.log('[DEBUG] activeTransformerIds:', activeTransformerIds);
-    console.log(
-      '[DEBUG] transformerActiveStates at Generate click:',
-      transformerActiveStates,
-    );
-
     if (!dualData || activeTransformerIds.length === 0) {
-      console.log('[DEBUG] Early return - missing data or no transformers', {
-        hasDualData: !!dualData,
-        hasFull: !!dualData?.full,
-        hasLlm: !!dualData?.llm,
-        transformerCount: activeTransformerIds.length,
-      });
       return;
     }
 
     setLastRunParameters({ ...transformerParameters });
     setIsVisualizing(true);
 
-    console.log(
-      '[DEBUG] onVisualize - activeTransformerIds:',
-      activeTransformerIds,
-    );
-    console.log(
-      '[DEBUG] onVisualize - transformerActiveStates:',
-      transformerActiveStates,
-    );
-
-    // Log the specific state for each transformer
-    activeTransformerIds.forEach((id, index) => {
-      const parameterKey = getTransformerParameterKey(
-        activeTransformerIds,
-        index,
-      );
-      console.log(
-        `[DEBUG] onVisualize - transformer ${String(index)}: ${id}`,
-        `| parameterKey: ${parameterKey}`,
-        `| isActive: ${String(transformerActiveStates[parameterKey] ?? true)}`,
-      );
-    });
-
     try {
-      console.log('[DEBUG] About to call executePipeline with:', {
-        activeTransformerIds,
-        transformerActiveStates,
-        transformerParameters,
-        canvasWidth,
-        canvasHeight,
-        primaryIndividualId,
-      });
 
       const result = await executePipeline(
         dualData.full,
@@ -385,7 +318,6 @@ export function PipelineProvider({
         primaryIndividualId,
       );
 
-      console.log('[DEBUG] Pipeline execution completed, result:', result);
       // Pass the result to the external callback if it exists
       // This allows App to update its state with the correct result
       if (externalOnVisualize && typeof externalOnVisualize === 'function') {
@@ -393,11 +325,10 @@ export function PipelineProvider({
         externalOnVisualize(result);
       }
     } catch (error) {
-      console.error('[DEBUG] Pipeline execution failed:', error);
+      console.error('Pipeline execution failed:', error);
       throw error;
     } finally {
       setIsVisualizing(false);
-      console.log('[DEBUG] Visualization complete');
     }
   }, [
     dualData,
@@ -424,13 +355,6 @@ export function PipelineProvider({
   const toggleTransformerActive = useCallback((transformerId: string) => {
     setTransformerActiveStates((prev) => {
       const newState = !(prev[transformerId] ?? true);
-      console.log(
-        `[DEBUG] toggleTransformerActive - transformerId: ${transformerId}`,
-        `| prevState: ${String(prev[transformerId])}`,
-        `| newState: ${String(newState)}`,
-        `| all states after:`,
-        { ...prev, [transformerId]: newState },
-      );
       // If toggling to inactive, also collapse the transformer
       if (!newState) {
         setExpandedTransformers((prevExpanded) => ({

@@ -72,18 +72,6 @@ export function createTransformerInstance(
       }
     }
 
-    console.log(
-      '[DEBUG] createTransformerInstance - creating enhanced context',
-      '| params.visual:',
-      params.visual,
-      '| params.visual keys:',
-      Object.keys(params.visual || {}),
-      '| transformerDefaults:',
-      transformerDefaults,
-      '| merged visual:',
-      { ...transformerDefaults, ...params.visual },
-    );
-
     // Merge parameters into the context with transformer defaults
     const enhancedContext = {
       ...context,
