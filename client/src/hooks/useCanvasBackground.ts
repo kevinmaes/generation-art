@@ -8,7 +8,12 @@
 
 import { useMemo, useCallback } from 'react';
 import { useCanvasSettings } from './useCanvasSettings';
-import { CANVAS_COLORS, meetsWCAGAA, meetsWCAGAAA } from '../constants/colors';
+import {
+  CANVAS_COLORS,
+  meetsWCAGAA,
+  meetsWCAGAAA,
+  type ContrastMode,
+} from '../constants/colors';
 
 export interface UseCanvasBackgroundReturn {
   backgroundColor: string;
@@ -16,8 +21,8 @@ export interface UseCanvasBackgroundReturn {
   presets: typeof CANVAS_COLORS.PRESETS;
   resetBackground: () => void;
   ensureContrast: (foreground: string, minRatio?: number) => string;
-  contrastMode: 'auto' | 'high' | 'normal';
-  setContrastMode: (mode: 'auto' | 'high' | 'normal') => void;
+  contrastMode: ContrastMode;
+  setContrastMode: (mode: ContrastMode) => void;
   checkWCAGCompliance: (foreground: string) => {
     aa: boolean;
     aaa: boolean;
@@ -58,7 +63,7 @@ export const useCanvasBackground = (): UseCanvasBackgroundReturn => {
 
   // Set contrast mode
   const setContrastMode = useCallback(
-    (mode: 'auto' | 'high' | 'normal') => {
+    (mode: ContrastMode) => {
       updateSettings({ contrastMode: mode });
     },
     [updateSettings],

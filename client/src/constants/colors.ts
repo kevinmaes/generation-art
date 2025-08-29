@@ -3,6 +3,9 @@
  * All colors used throughout the app should be defined here.
  */
 
+// Canvas contrast mode options
+export type ContrastMode = 'auto' | 'high' | 'normal';
+
 // Canvas background colors (ordered from lightest to darkest)
 export const CANVAS_COLORS = {
   DEFAULT: '#ffffff',

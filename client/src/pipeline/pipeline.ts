@@ -9,6 +9,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
+import type { ContrastMode } from '../constants/colors';
 import type {
   NodeVisualMetadata,
   EdgeVisualMetadata,
@@ -80,7 +81,7 @@ export interface PipelineConfig {
   // Canvas settings including background color
   canvasSettings?: {
     backgroundColor: string;
-    contrastMode?: 'auto' | 'high' | 'normal';
+    contrastMode?: ContrastMode;
   };
 
   // Primary individual ID for transformers that need a focal point
@@ -686,7 +687,7 @@ export function createSimplePipeline(
     canvasHeight?: number;
     canvasSettings?: {
       backgroundColor: string;
-      contrastMode?: 'auto' | 'high' | 'normal';
+      contrastMode?: ContrastMode;
     };
     primaryIndividualId?: string;
     transformerParameters?: Record<

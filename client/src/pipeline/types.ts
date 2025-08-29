@@ -12,6 +12,7 @@ import type { DimensionId } from './dimensions';
 import type { VisualParameterValues } from './visual-parameters';
 import type { TransformerId } from './transformers';
 import type { ShapeProfile } from '../../../shared/types';
+import type { ContrastMode } from '../constants/colors';
 
 /**
  * Stroke properties for visual elements
@@ -272,7 +273,7 @@ export interface TransformerContext {
     width: number;
     height: number;
     backgroundColor: string;
-    contrastMode?: 'auto' | 'high' | 'normal';
+    contrastMode?: ContrastMode;
   };
 
   // Optional: Primary individual ID selected by the user for transformers that need a focal point

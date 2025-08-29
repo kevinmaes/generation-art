@@ -19,11 +19,12 @@ import {
   adjustColorForBackground,
   ensureStrokeContrast,
   getContrastRatio,
+  type ContrastMode,
 } from '../constants/colors';
 
 export interface CanvasSettings {
   backgroundColor: string;
-  contrastMode: 'auto' | 'high' | 'normal';
+  contrastMode: ContrastMode;
   gridEnabled?: boolean;
   padding?: number;
 }
