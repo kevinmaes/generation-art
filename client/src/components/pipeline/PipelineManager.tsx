@@ -824,7 +824,6 @@ export function PipelineManager({
                       index,
                     );
 
-
                     return (
                       <SortableTransformerItem
                         key={`${transformerId}-${String(index)}`}
@@ -893,7 +892,6 @@ export function PipelineManager({
                       activeTransformerIds,
                       index,
                     );
-
 
                     return (
                       <SortableTransformerItem

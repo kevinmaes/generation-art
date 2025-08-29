@@ -306,7 +306,6 @@ export function PipelineProvider({
     setIsVisualizing(true);
 
     try {
-
       const result = await executePipeline(
         dualData.full,
         dualData.llm,

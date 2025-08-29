@@ -80,7 +80,6 @@ export function SortableTransformerItem({
   const storageKey = parameterKey ?? transformer.id;
   const isActive = transformerActiveStates[storageKey] ?? true;
 
-
   const toggleVarianceAfter = () => {
     if (isVarianceFollowing) {
       // Find all variance transformers and remove only the one after this transformer
