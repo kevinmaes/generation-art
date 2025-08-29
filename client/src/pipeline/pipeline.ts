@@ -523,6 +523,14 @@ export async function* runPipelineGenerator({
       };
 
       // Execute transformer using factory function to inject parameters
+      console.log(
+        `[DEBUG] Executing transformer ${transformerInstance.type}`,
+        `| visual params:`,
+        transformerInstance.visual,
+        `| dimensions:`,
+        transformerInstance.dimensions,
+      );
+
       const runtimeTransformer = transformer.createTransformerInstance({
         dimensions: {
           primary:
@@ -745,6 +753,19 @@ export function createSimplePipeline(
         visual: {},
       };
 
+      // Extra debug logging for node-country-color
+      if (transformerId === 'node-country-color') {
+        console.log(
+          '[DEBUG] node-country-color parameter lookup',
+          '| parameterKey:',
+          parameterKey,
+          '| found params:',
+          !!options?.transformerParameters?.[parameterKey],
+          '| params.visual:',
+          params.visual,
+        );
+      }
+
       const isActive = options?.transformerActiveStates?.[parameterKey] ?? true;
 
       console.log(
@@ -752,6 +773,10 @@ export function createSimplePipeline(
         `| parameterKey: ${parameterKey}`,
         `| isActive: ${String(isActive)}`,
         `| activeState from options: ${String(options?.transformerActiveStates?.[parameterKey])}`,
+        `| params found:`,
+        params,
+        `| all parameter keys:`,
+        Object.keys(options?.transformerParameters ?? {}),
         `| all activeStates keys:`,
         Object.keys(options?.transformerActiveStates ?? {}),
       );

@@ -93,6 +93,13 @@ export function TransformerItem({
     };
   });
 
+  // Sync local state when currentParameters changes
+  React.useEffect(() => {
+    if (currentParameters) {
+      setParameters(currentParameters);
+    }
+  }, [currentParameters]);
+
   // Separate state for slider values during dragging
   const [sliderValues, setSliderValues] = React.useState<
     Record<string, string | number | boolean | undefined>
@@ -152,6 +159,15 @@ export function TransformerItem({
     key: string,
     value: string | number | boolean,
   ) => {
+    console.log(
+      `[DEBUG] TransformerItem.handleVisualParameterChange`,
+      `| transformer: ${transformer.id}`,
+      `| parameterKey: ${String(parameterKey)}`,
+      `| storageKey: ${parameterKey ?? transformer.id}`,
+      `| key: ${key}`,
+      `| value:`,
+      value,
+    );
     const newParameters = {
       ...parameters,
       visual: {

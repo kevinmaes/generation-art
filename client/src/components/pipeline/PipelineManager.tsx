@@ -178,6 +178,9 @@ export function PipelineManager({
     setPreviewIndex,
     onVisualize: contextOnVisualize,
     setDualData,
+    transformerParameters,
+    onParameterChange: contextOnParameterChange,
+    onParameterReset: contextOnParameterReset,
   } = usePipelineContext();
 
   // Debug: Log what we're getting
@@ -243,23 +246,14 @@ export function PipelineManager({
   const [isActivePipelineCollapsed, setIsActivePipelineCollapsed] =
     useState(false); // Open by default
 
-  // Store parameters for all transformers (persistent across pipeline changes)
-  const [transformerParameters, setTransformerParameters] = React.useState<
-    Record<
-      string,
-      {
-        dimensions: { primary?: string; secondary?: string };
-        visual: VisualParameterValues;
-      }
-    >
-  >({});
+  // Using transformerParameters from context instead of local state
 
   // Store expanded state for available transformers (persistent across pipeline changes)
   const [expandedTransformers, setExpandedTransformers] = React.useState<
     Record<string, boolean>
   >({});
 
-  // Handle parameter changes (immediately apply to pipeline)
+  // Handle parameter changes (use context function)
   const handleParameterChange = (
     parameterKey: string,
     parameters: {
@@ -267,66 +261,30 @@ export function PipelineManager({
       visual: VisualParameterValues;
     },
   ) => {
-    // Extract the actual transformer ID from compound keys (e.g., 'variance-node-size' -> 'variance')
-    const transformerId = parameterKey.startsWith('variance-')
-      ? ('variance' as TransformerId)
-      : (parameterKey as TransformerId);
+    console.log(
+      '[DEBUG] PipelineManager.handleParameterChange called',
+      '| parameterKey:',
+      parameterKey,
+      '| parameters:',
+      parameters,
+    );
 
-    // Use type guard to ensure valid transformer ID
-    if (!isTransformerId(transformerId)) {
-      console.warn(
-        `Invalid transformer ID: ${String(transformerId)} (from key: ${parameterKey})`,
-      );
-      return;
-    }
+    // Use context's onParameterChange which stores in context state
+    contextOnParameterChange(parameterKey as TransformerId, parameters);
 
-    // Ensure we have valid parameters with defaults
-    const transformer = getTransformer(transformerId);
-    const validParameters = {
-      dimensions: {
-        primary:
-          parameters.dimensions.primary ?? transformer.defaultPrimaryDimension,
-        secondary:
-          parameters.dimensions.secondary ??
-          transformer.defaultSecondaryDimension,
-      },
-      visual: parameters.visual,
-    };
-
-    // Store using the parameter key (which may be a compound ID)
-    setTransformerParameters((prev) => ({
-      ...prev,
-      [parameterKey]: validParameters,
-    }));
-    onParameterChange?.(parameterKey, validParameters);
+    // Also call the prop if provided (for external tracking)
+    onParameterChange?.(parameterKey, parameters);
   };
 
   const handleParameterReset = (parameterKey: string) => {
-    // Extract the actual transformer ID from compound keys (e.g., 'variance-node-size' -> 'variance')
-    const transformerId = parameterKey.startsWith('variance-')
-      ? ('variance' as TransformerId)
-      : (parameterKey as TransformerId);
+    console.log(
+      '[DEBUG] PipelineManager.handleParameterReset called',
+      '| parameterKey:',
+      parameterKey,
+    );
 
-    if (!isTransformerId(transformerId)) {
-      console.warn(
-        `Invalid transformer ID: ${String(transformerId)} (from key: ${parameterKey})`,
-      );
-      return;
-    }
-
-    const transformer = getTransformer(transformerId);
-    const defaultParameters = {
-      dimensions: {
-        primary: transformer.defaultPrimaryDimension,
-        secondary: transformer.defaultSecondaryDimension,
-      },
-      visual: {},
-    };
-    setTransformerParameters((prev) => ({
-      ...prev,
-      [parameterKey]: defaultParameters,
-    }));
-    handleParameterChange(parameterKey, defaultParameters);
+    // Use context's onParameterReset
+    contextOnParameterReset(parameterKey as TransformerId);
   };
 
   const handleTransformerSelect = (transformerId: TransformerId) => {

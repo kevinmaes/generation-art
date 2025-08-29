@@ -78,7 +78,24 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
     },
   ],
   createTransformerInstance: (params) =>
-    createTransformerInstance(params, nodeCountryColorTransform, []),
+    createTransformerInstance(params, nodeCountryColorTransform, [
+      {
+        name: 'strokeMode',
+        defaultValue: 'secondary',
+      },
+      {
+        name: 'fallbackColor',
+        defaultValue: '#808080',
+      },
+      {
+        name: 'colorIntensity',
+        defaultValue: 0.8,
+      },
+      {
+        name: 'layerMode',
+        defaultValue: 'single',
+      },
+    ]),
   multiInstance: false,
 };
 
@@ -231,6 +248,12 @@ export async function nodeCountryColorTransform(
   context: TransformerContext,
 ): Promise<{ visualMetadata: Partial<CompleteVisualMetadata> }> {
   const { gedcomData, visualMetadata, visual } = context;
+
+  // Debug: Log what parameters we received
+  console.log(
+    '[NodeCountryColor] Transform called with visual params:',
+    visual,
+  );
 
   // Extract visual parameters
   const layerMode = (visual.layerMode as string) || 'single';

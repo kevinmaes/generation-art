@@ -34,24 +34,12 @@ export function getTransformerParameterKey(
     .slice(0, index)
     .filter((id) => id === transformerId).length;
 
-  console.log(
-    `[DEBUG] getTransformerParameterKey`,
-    `| index: ${String(index)}`,
-    `| transformerId: ${transformerId}`,
-    `| sameTypeCount before this: ${String(sameTypeCount)}`,
-    `| transformerIds:`,
-    transformerIds,
-  );
-
   if (sameTypeCount > 0) {
     // This is a duplicate - add index suffix to make it unique
-    const key = `${transformerId}-${String(index)}`;
-    console.log(`[DEBUG] Returning duplicate key: ${key}`);
-    return key;
+    return `${transformerId}-${String(index)}`;
   }
 
   // First instance of this transformer - use its own ID
-  console.log(`[DEBUG] Returning first instance key: ${transformerId}`);
   return transformerId;
 }
 

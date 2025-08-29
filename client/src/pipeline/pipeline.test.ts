@@ -201,8 +201,8 @@ describe('Pipeline', () => {
       const metadata = createInitialCompleteVisualMetadata(mockMetadata);
 
       // Test global settings
-      expect(metadata.global.canvasWidth).toBe(800);
-      expect(metadata.global.canvasHeight).toBe(600);
+      expect(metadata.global.canvasWidth).toBe(1000);
+      expect(metadata.global.canvasHeight).toBe(1000);
       expect(metadata.global.defaultNodeSize).toBe(DEFAULT_SIZE);
       expect(metadata.global.defaultNodeColor).toBe(DEFAULT_COLOR);
 

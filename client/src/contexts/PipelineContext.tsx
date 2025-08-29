@@ -2,6 +2,7 @@
 import React, { createContext, useState, useCallback, useMemo } from 'react';
 import type { PipelineResult } from '../pipeline/types';
 import type { TransformerId } from '../pipeline/transformers';
+import { getTransformer } from '../pipeline/transformers';
 import type {
   GedcomDataWithMetadata,
   LLMReadyData,
@@ -214,19 +215,64 @@ export function PipelineProvider({
 
   const onAddTransformer = useCallback(
     (transformerId: TransformerId) => {
-      setActiveTransformerIds([...activeTransformerIds, transformerId]);
+      const newTransformerIds = [...activeTransformerIds, transformerId];
+      setActiveTransformerIds(newTransformerIds);
+
+      // Initialize parameters with transformer defaults
+      const transformer = getTransformer(transformerId);
+      const defaultVisual: VisualParameterValues = {};
+      transformer.visualParameters.forEach((param) => {
+        defaultVisual[param.name] = param.defaultValue;
+      });
+
+      // Use the correct parameter key (handles duplicates and compound IDs)
+      const newIndex = newTransformerIds.length - 1;
+      const parameterKey = getTransformerParameterKey(
+        newTransformerIds,
+        newIndex,
+      );
+
+      console.log(
+        `[DEBUG] onAddTransformer - adding transformer: ${transformerId}`,
+        `| parameterKey: ${parameterKey}`,
+        `| defaultVisual:`,
+        defaultVisual,
+      );
+
+      setTransformerParameters((prev) => ({
+        ...prev,
+        [parameterKey]: {
+          dimensions: {
+            primary: transformer.defaultPrimaryDimension,
+            secondary: transformer.defaultSecondaryDimension,
+          },
+          visual: defaultVisual,
+        },
+      }));
     },
     [activeTransformerIds, setActiveTransformerIds],
   );
 
   const onRemoveTransformer = useCallback(
     (transformerId: TransformerId) => {
+      // Find the index of the transformer being removed
+      const indexToRemove = activeTransformerIds.findIndex(
+        (id) => id === transformerId,
+      );
+      if (indexToRemove === -1) return;
+
+      // Get the correct parameter key before removing
+      const parameterKey = getTransformerParameterKey(
+        activeTransformerIds,
+        indexToRemove,
+      );
+
       setActiveTransformerIds(
         activeTransformerIds.filter((id) => id !== transformerId),
       );
-      // Clear parameters for removed transformer
+      // Clear parameters for removed transformer using the correct key
       setTransformerParameters((prev) => {
-        const { [transformerId]: _, ...rest } = prev;
+        const { [parameterKey]: _, ...rest } = prev;
         return rest;
       });
     },
@@ -242,6 +288,11 @@ export function PipelineProvider({
 
   const onParameterChange = useCallback(
     (transformerId: TransformerId, parameters: TransformerParameterConfig) => {
+      console.log(
+        `[DEBUG] PipelineContext.onParameterChange - key: ${transformerId}`,
+        `| parameters:`,
+        parameters,
+      );
       setTransformerParameters((prev) => ({
         ...prev,
         [transformerId]: parameters,
@@ -317,6 +368,7 @@ export function PipelineProvider({
       console.log('[DEBUG] About to call executePipeline with:', {
         activeTransformerIds,
         transformerActiveStates,
+        transformerParameters,
         canvasWidth,
         canvasHeight,
         primaryIndividualId,
