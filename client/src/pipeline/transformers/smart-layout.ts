@@ -13,6 +13,7 @@ import type {
   VisualTransformerConfig,
 } from '../types';
 import type { SmartTransformerConfig } from '../smart-transformer-types';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import { createTransformerInstance } from '../utils';
 import {
   buildSmartTransformerPrompt,
@@ -197,8 +198,12 @@ Your goal is to create clear, readable layouts that:
     },
 
     getStyleInstructions: (style, context) => {
-      const width = context.visualMetadata.global.canvasWidth ?? 1000;
-      const height = context.visualMetadata.global.canvasHeight ?? 800;
+      const width =
+        context.visualMetadata.global.canvasWidth ??
+        CANVAS_DIMENSIONS.WEB.WIDTH;
+      const height =
+        context.visualMetadata.global.canvasHeight ??
+        CANVAS_DIMENSIONS.WEB.HEIGHT;
 
       switch (style) {
         case 'tree':
@@ -247,7 +252,7 @@ export async function smartLayoutTransform(
   const spacing = context.visual.spacing as string;
   const temperature = context.temperature ?? 0.5;
   const individualsCount = Object.keys(context.gedcomData.individuals).length;
-  const canvasSize = `${String(context.visualMetadata.global.canvasWidth ?? 1000)}x${String(context.visualMetadata.global.canvasHeight ?? 800)}`;
+  const canvasSize = `${String(context.visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH)}x${String(context.visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT)}`;
 
   console.log(
     `📐 Layout: ${layoutStyle}, Spacing: ${spacing}, Temp: ${String(temperature)}, Canvas: ${canvasSize}, Individuals: ${String(individualsCount)}`,
@@ -328,8 +333,10 @@ function algorithmicFallback(context: TransformerContext): TransformerOutput {
   const individuals = Object.values(gedcomData.individuals);
 
   const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+  const canvasWidth =
+    visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH;
+  const canvasHeight =
+    visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT;
 
   // Simple layout based on style
   individuals.forEach((individual, index) => {

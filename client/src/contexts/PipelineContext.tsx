@@ -130,7 +130,7 @@ export const PipelineContext = createContext<PipelineContextValue | undefined>(
 export function PipelineProvider({
   children,
   initialActiveTransformerIds = [],
-  canvasWidth = 800,
+  canvasWidth = CANVAS_DIMENSIONS.WEB.WIDTH,
   canvasHeight = CANVAS_DIMENSIONS.WEB.HEIGHT,
   temperature,
   seed,

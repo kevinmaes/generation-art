@@ -6,6 +6,7 @@ import type {
   VisualTransformerConfig,
 } from '../../pipeline/types';
 import { createInitialCompleteVisualMetadata } from '../../pipeline/pipeline';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import {
   transformerConfigs,
   type TransformerId,
@@ -518,8 +519,8 @@ export function PipelineManager({
       llmData: familyTreeData.llm,
       visualMetadata: createInitialCompleteVisualMetadata(
         familyTreeData.full,
-        800, // Default canvas width
-        600, // Default canvas height
+        CANVAS_DIMENSIONS.WEB.WIDTH, // Default canvas width
+        CANVAS_DIMENSIONS.WEB.HEIGHT, // Default canvas height
       ),
       config: {
         transformerIds: activeTransformerIds,

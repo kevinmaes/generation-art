@@ -9,6 +9,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
+import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 import type {
   NodeVisualMetadata,
   EdgeVisualMetadata,
@@ -163,8 +164,8 @@ function createInitialEntityVisualMetadata(): NodeVisualMetadata {
  */
 export function createInitialCompleteVisualMetadata(
   gedcomData: GedcomDataWithMetadata,
-  canvasWidth = 800,
-  canvasHeight = 600,
+  canvasWidth: number = CANVAS_DIMENSIONS.WEB.WIDTH,
+  canvasHeight: number = CANVAS_DIMENSIONS.WEB.HEIGHT,
 ): CompleteVisualMetadata {
   const individuals: Record<string, NodeVisualMetadata> = {};
   const families: Record<string, NodeVisualMetadata> = {};
