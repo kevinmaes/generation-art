@@ -13,6 +13,7 @@ import type {
   EdgeVisualMetadata,
 } from '../types';
 import { createTransformerInstance } from '../utils';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 
 /**
  * Async wrapper for the fan chart transform
@@ -133,8 +134,8 @@ export function fanChartTransform(
   const {
     gedcomData,
     visualMetadata,
-    canvasWidth = 1024,
-    canvasHeight = 1024,
+    canvasWidth = CANVAS_DIMENSIONS.WEB.WIDTH,
+    canvasHeight = CANVAS_DIMENSIONS.WEB.HEIGHT,
   } = context;
 
   // Get parameters

@@ -14,6 +14,7 @@ import type {
   GenericPromptData,
 } from '../pipeline/smart-transformer-types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
+import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 
 type ExtractedData = Record<string, Record<string, unknown>>;
 
@@ -329,8 +330,10 @@ export function buildSmartTransformerPrompt(
   config: SmartTransformerConfig,
 ): string {
   const { llmData, visualMetadata, temperature } = context;
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+  const canvasWidth =
+    visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH;
+  const canvasHeight =
+    visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT;
 
   // Extract only relevant properties for this transformer
   const extractedData = extractLLMProperties(visualMetadata, config);

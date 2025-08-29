@@ -54,7 +54,12 @@ export function SortableTransformerItem({
   lastRunParameters,
   parameterKey,
 }: SortableTransformerItemProps): React.ReactElement {
-  const { activeTransformerIds, onReorderTransformers } = usePipelineContext();
+  const {
+    activeTransformerIds,
+    onReorderTransformers,
+    transformerActiveStates,
+    toggleTransformerActive,
+  } = usePipelineContext();
 
   // Check if this is a variance transformer
   const isVarianceTransformer = transformer.id === 'variance';
@@ -70,6 +75,10 @@ export function SortableTransformerItem({
   }, [activeTransformerIds]);
 
   const displayIndex = displayIndices[index];
+
+  // Get the active state for this transformer (use parameterKey or transformer.id)
+  const storageKey = parameterKey ?? transformer.id;
+  const isActive = transformerActiveStates[storageKey] ?? true;
 
   const toggleVarianceAfter = () => {
     if (isVarianceFollowing) {
@@ -174,6 +183,8 @@ export function SortableTransformerItem({
             hasVarianceToggle={!isVarianceTransformer}
             isVarianceFollowing={isVarianceFollowing}
             onToggleVariance={toggleVarianceAfter}
+            isActive={isActive}
+            onToggleActive={() => toggleTransformerActive(storageKey)}
           />
         </div>
       </div>

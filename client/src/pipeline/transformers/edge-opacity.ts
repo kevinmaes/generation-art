@@ -15,6 +15,7 @@ import type {
   VisualTransformerConfig,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import {
   getIndividualOrWarn,
   validateEdgeReferences,
@@ -196,8 +197,10 @@ function calculateEdgeOpacity(
   const distance = Math.sqrt(
     (targetX - sourceX) ** 2 + (targetY - sourceY) ** 2,
   );
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+  const canvasWidth =
+    visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH;
+  const canvasHeight =
+    visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT;
   const maxDistance = Math.sqrt(canvasWidth ** 2 + canvasHeight ** 2);
   const distanceFactor = Math.max(0.5, 1 - (distance / maxDistance) * 0.3);
 

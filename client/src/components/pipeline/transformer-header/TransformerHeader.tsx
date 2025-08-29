@@ -2,6 +2,7 @@ import type { VisualTransformerConfig } from '../../../pipeline/types';
 import type { TransformerId } from '../../../pipeline/transformers';
 import { TransformerBadges } from './TransformerBadges';
 import { TransformerActions } from './TransformerActions';
+import { ActiveToggle } from './ActiveToggle';
 
 interface TransformerHeaderProps {
   transformer: VisualTransformerConfig;
@@ -11,10 +12,12 @@ interface TransformerHeaderProps {
   isExpanded?: boolean;
   hasBeenModified?: boolean;
   isDisabled: boolean;
+  isActive?: boolean;
   onTransformerSelect: (transformerId: TransformerId) => void;
   onToggleExpanded?: (transformerId: string) => void;
   onAddTransformer?: (transformerId: TransformerId) => void;
   onRemoveTransformer?: (transformerId: TransformerId) => void;
+  onToggleActive?: () => void;
   customActions?: {
     removeButton?: React.ReactNode;
   };
@@ -28,10 +31,12 @@ export function TransformerHeader({
   isExpanded = false,
   hasBeenModified = false,
   isDisabled,
+  isActive = true,
   onTransformerSelect,
   onToggleExpanded,
   onAddTransformer,
   onRemoveTransformer,
+  onToggleActive,
   customActions,
 }: TransformerHeaderProps) {
   return (
@@ -68,6 +73,9 @@ export function TransformerHeader({
           hasBeenModified={hasBeenModified}
         />
       </div>
+      {isInPipeline && onToggleActive && (
+        <ActiveToggle isActive={isActive} onToggle={onToggleActive} />
+      )}
       <TransformerActions
         isInPipeline={isInPipeline}
         isDisabled={isDisabled}

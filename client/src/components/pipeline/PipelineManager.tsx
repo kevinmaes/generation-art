@@ -6,6 +6,7 @@ import type {
   VisualTransformerConfig,
 } from '../../pipeline/types';
 import { createInitialCompleteVisualMetadata } from '../../pipeline/pipeline';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import {
   transformerConfigs,
   type TransformerId,
@@ -164,13 +165,65 @@ export function PipelineManager({
   lastRunParameters,
 }: PipelineManagerProps): React.ReactElement {
   const familyTreeData = useFamilyTreeData();
+
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
 
-  // Drag and drop state from context
-  const { draggedItem, setDraggedItem, previewIndex, setPreviewIndex } =
-    usePipelineContext();
+  // Drag and drop state and onVisualize from context
+  const {
+    draggedItem,
+    setDraggedItem,
+    previewIndex,
+    setPreviewIndex,
+    onVisualize: contextOnVisualize,
+    setDualData,
+    transformerParameters,
+    onParameterChange: contextOnParameterChange,
+    onParameterReset: contextOnParameterReset,
+  } = usePipelineContext();
+
+  // Debug: Log what we're getting
+  console.log('[DEBUG] PipelineManager - contextOnVisualize: defined');
+  console.log(
+    '[DEBUG] PipelineManager - prop onVisualize:',
+    onVisualize ? 'defined' : 'undefined',
+  );
+
+  // Use context's onVisualize (always defined)
+  const handleVisualize = contextOnVisualize;
+  console.log('[DEBUG] PipelineManager - using handleVisualize: from context');
+
+  // Set dual data in context when data becomes available
+  // Track the actual data references to avoid unnecessary updates
+  const prevDataRef = React.useRef<typeof familyTreeData>(null);
+  React.useEffect(() => {
+    // Only update if the actual data references have changed
+    if (
+      familyTreeData?.full !== prevDataRef.current?.full ||
+      familyTreeData?.llm !== prevDataRef.current?.llm
+    ) {
+      console.log(
+        '[DEBUG] PipelineManager - data references changed, updating context',
+      );
+      console.log('[DEBUG] PipelineManager - familyTreeData structure:', {
+        hasFull: !!familyTreeData?.full,
+        hasLlm: !!familyTreeData?.llm,
+        fullType: typeof familyTreeData?.full,
+        llmType: typeof familyTreeData?.llm,
+      });
+      if (familyTreeData) {
+        console.log('[DEBUG] Setting dualData with proper structure');
+        setDualData({
+          full: familyTreeData.full,
+          llm: familyTreeData.llm,
+        });
+      } else {
+        setDualData(null);
+      }
+      prevDataRef.current = familyTreeData;
+    }
+  }, [familyTreeData, setDualData]);
 
   // Configure sensors for drag and drop
   const sensors = useSensors(
@@ -193,23 +246,14 @@ export function PipelineManager({
   const [isActivePipelineCollapsed, setIsActivePipelineCollapsed] =
     useState(false); // Open by default
 
-  // Store parameters for all transformers (persistent across pipeline changes)
-  const [transformerParameters, setTransformerParameters] = React.useState<
-    Record<
-      string,
-      {
-        dimensions: { primary?: string; secondary?: string };
-        visual: VisualParameterValues;
-      }
-    >
-  >({});
+  // Using transformerParameters from context instead of local state
 
   // Store expanded state for available transformers (persistent across pipeline changes)
   const [expandedTransformers, setExpandedTransformers] = React.useState<
     Record<string, boolean>
   >({});
 
-  // Handle parameter changes (immediately apply to pipeline)
+  // Handle parameter changes (use context function)
   const handleParameterChange = (
     parameterKey: string,
     parameters: {
@@ -217,66 +261,30 @@ export function PipelineManager({
       visual: VisualParameterValues;
     },
   ) => {
-    // Extract the actual transformer ID from compound keys (e.g., 'variance-node-size' -> 'variance')
-    const transformerId = parameterKey.startsWith('variance-')
-      ? ('variance' as TransformerId)
-      : (parameterKey as TransformerId);
+    console.log(
+      '[DEBUG] PipelineManager.handleParameterChange called',
+      '| parameterKey:',
+      parameterKey,
+      '| parameters:',
+      parameters,
+    );
 
-    // Use type guard to ensure valid transformer ID
-    if (!isTransformerId(transformerId)) {
-      console.warn(
-        `Invalid transformer ID: ${String(transformerId)} (from key: ${parameterKey})`,
-      );
-      return;
-    }
+    // Use context's onParameterChange which stores in context state
+    contextOnParameterChange(parameterKey as TransformerId, parameters);
 
-    // Ensure we have valid parameters with defaults
-    const transformer = getTransformer(transformerId);
-    const validParameters = {
-      dimensions: {
-        primary:
-          parameters.dimensions.primary ?? transformer.defaultPrimaryDimension,
-        secondary:
-          parameters.dimensions.secondary ??
-          transformer.defaultSecondaryDimension,
-      },
-      visual: parameters.visual,
-    };
-
-    // Store using the parameter key (which may be a compound ID)
-    setTransformerParameters((prev) => ({
-      ...prev,
-      [parameterKey]: validParameters,
-    }));
-    onParameterChange?.(parameterKey, validParameters);
+    // Also call the prop if provided (for external tracking)
+    onParameterChange?.(parameterKey, parameters);
   };
 
   const handleParameterReset = (parameterKey: string) => {
-    // Extract the actual transformer ID from compound keys (e.g., 'variance-node-size' -> 'variance')
-    const transformerId = parameterKey.startsWith('variance-')
-      ? ('variance' as TransformerId)
-      : (parameterKey as TransformerId);
+    console.log(
+      '[DEBUG] PipelineManager.handleParameterReset called',
+      '| parameterKey:',
+      parameterKey,
+    );
 
-    if (!isTransformerId(transformerId)) {
-      console.warn(
-        `Invalid transformer ID: ${String(transformerId)} (from key: ${parameterKey})`,
-      );
-      return;
-    }
-
-    const transformer = getTransformer(transformerId);
-    const defaultParameters = {
-      dimensions: {
-        primary: transformer.defaultPrimaryDimension,
-        secondary: transformer.defaultSecondaryDimension,
-      },
-      visual: {},
-    };
-    setTransformerParameters((prev) => ({
-      ...prev,
-      [parameterKey]: defaultParameters,
-    }));
-    handleParameterChange(parameterKey, defaultParameters);
+    // Use context's onParameterReset
+    contextOnParameterReset(parameterKey as TransformerId);
   };
 
   const handleTransformerSelect = (transformerId: TransformerId) => {
@@ -469,8 +477,8 @@ export function PipelineManager({
       llmData: familyTreeData.llm,
       visualMetadata: createInitialCompleteVisualMetadata(
         familyTreeData.full,
-        800, // Default canvas width
-        600, // Default canvas height
+        CANVAS_DIMENSIONS.WEB.WIDTH, // Default canvas width
+        CANVAS_DIMENSIONS.WEB.HEIGHT, // Default canvas height
       ),
       config: {
         transformerIds: activeTransformerIds,
@@ -933,7 +941,15 @@ export function PipelineManager({
               </div>
               {/* Visualize Button */}
               <button
-                onClick={onVisualize}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  console.log(
+                    '[DEBUG] Generate button clicked, calling handleVisualize',
+                  );
+                  void handleVisualize();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
                 disabled={
                   !hasData ||
                   activeTransformerIds.length === 0 ||
@@ -975,7 +991,15 @@ export function PipelineManager({
               <div></div> {/* Empty spacer */}
               {/* Visualize Button */}
               <button
-                onClick={onVisualize}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  console.log(
+                    '[DEBUG] Generate button clicked, calling handleVisualize',
+                  );
+                  void handleVisualize();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
                 disabled={
                   !hasData ||
                   activeTransformerIds.length === 0 ||

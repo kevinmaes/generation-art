@@ -396,6 +396,9 @@ export interface TransformerInstance {
 
   // Visual parameter values for this instance
   visual: VisualParameterValues;
+
+  // Whether this transformer is active in the pipeline (default: true)
+  isActive?: boolean;
 }
 
 /**

@@ -665,7 +665,7 @@ describe('Smart Transformer Utils', () => {
         contextWithoutCanvas,
         mockConfig,
       );
-      expect(result).toContain('Canvas: 1000x800'); // Should use defaults
+      expect(result).toContain('Canvas: 1000x1000'); // Should use defaults from CANVAS_DIMENSIONS.WEB
     });
 
     it('should handle missing layout style', () => {

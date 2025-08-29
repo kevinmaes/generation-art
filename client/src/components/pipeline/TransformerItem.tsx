@@ -47,6 +47,8 @@ interface TransformerItemProps {
   isVarianceFollowing?: boolean;
   onToggleVariance?: () => void;
   parameterKey?: string;
+  isActive?: boolean;
+  onToggleActive?: () => void;
 }
 
 export function TransformerItem({
@@ -71,6 +73,8 @@ export function TransformerItem({
   isVarianceFollowing = false,
   onToggleVariance,
   parameterKey,
+  isActive = true,
+  onToggleActive,
 }: TransformerItemProps) {
   // Local parameter state
   const [parameters, setParameters] = React.useState<{
@@ -88,6 +92,13 @@ export function TransformerItem({
       visual: {},
     };
   });
+
+  // Sync local state when currentParameters changes
+  React.useEffect(() => {
+    if (currentParameters) {
+      setParameters(currentParameters);
+    }
+  }, [currentParameters]);
 
   // Separate state for slider values during dragging
   const [sliderValues, setSliderValues] = React.useState<
@@ -208,8 +219,11 @@ export function TransformerItem({
     onParameterReset?.(storageKey as TransformerId);
   };
 
-  // Disable controls during visualization
-  const isDisabled = isVisualizing;
+  // Disable controls during visualization or when inactive
+  const isDisabled = isVisualizing || !isActive;
+
+  // Auto-collapse when inactive
+  const effectiveExpanded = isActive ? isExpanded : false;
 
   const hasParameterControls =
     isInPipeline &&
@@ -223,7 +237,7 @@ export function TransformerItem({
         isInPipeline
           ? ''
           : 'px-2 py-1 rounded border transition-colors bg-gray-50 border-gray-200 hover:bg-gray-100'
-      } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
+      } ${!isActive && isInPipeline ? 'opacity-50' : ''} ${isVisualizing ? 'opacity-50 pointer-events-none' : ''}`}
     >
       {/* Header */}
       <TransformerHeader
@@ -231,13 +245,15 @@ export function TransformerItem({
         index={index}
         isInPipeline={isInPipeline}
         displayIndex={displayIndex}
-        isExpanded={isExpanded}
+        isExpanded={effectiveExpanded}
         hasBeenModified={hasBeenModified}
         isDisabled={isDisabled}
+        isActive={isActive}
         onTransformerSelect={handleTransformerSelect}
-        onToggleExpanded={onToggleExpanded}
+        onToggleExpanded={isActive ? onToggleExpanded : undefined}
         onAddTransformer={onAddTransformer}
         onRemoveTransformer={onRemoveTransformer}
+        onToggleActive={onToggleActive}
         customActions={customActions}
       />
 
@@ -245,18 +261,18 @@ export function TransformerItem({
       <TransformerDescription
         transformer={transformer}
         isInPipeline={isInPipeline}
-        isExpanded={isExpanded}
+        isExpanded={effectiveExpanded}
       />
 
       {/* Metadata (for available transformers when expanded) */}
       <TransformerMetadata
         transformer={transformer}
         isInPipeline={isInPipeline}
-        isExpanded={isExpanded}
+        isExpanded={effectiveExpanded}
       />
 
       {/* Parameter Controls (for pipeline transformers) */}
-      {hasParameterControls && (
+      {hasParameterControls && isActive && (
         <details
           className="mt-2 group"
           onClick={(e) => {

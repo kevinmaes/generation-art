@@ -13,6 +13,7 @@ import type {
   EdgeVisualMetadata,
   VisualTransformerConfig,
 } from '../types';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type {
   AugmentedIndividual,
   Family,
@@ -345,8 +346,10 @@ function calculateTreeLayout(
 ): Record<string, { x: number; y: number; nodeSize: number }> {
   const { gedcomData, visualMetadata } = context;
   const families = Object.values(gedcomData.families);
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 800;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 600;
+  const canvasWidth =
+    visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH;
+  const canvasHeight =
+    visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT;
   const positions: Record<string, { x: number; y: number; nodeSize: number }> =
     {};
 
@@ -499,8 +502,10 @@ export async function simpleTreeTransform(
   );
 
   // Calculate adaptive node size based on canvas dimensions
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 800;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 600;
+  const canvasWidth =
+    visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH;
+  const canvasHeight =
+    visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT;
 
   // Estimate reasonable node size based on space available
   const baseNodeSize = Math.min(canvasWidth, canvasHeight) * 0.02; // 2% of smaller dimension

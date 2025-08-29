@@ -13,6 +13,7 @@ import type {
   VisualTransformerConfig,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 
@@ -43,7 +44,8 @@ function calculateHorizontalPosition(
   individualId: string,
 ): number {
   const { gedcomData, visualMetadata, dimensions, visual } = context;
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
+  const canvasWidth =
+    visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH;
 
   // Find the individual with null check
   const individual = getIndividualOrWarn(
@@ -278,8 +280,10 @@ export async function horizontalSpreadTransform(
   const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
 
   // Position each individual based on their generation
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 1000;
+  const canvasHeight =
+    visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT;
+  const canvasWidth =
+    visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH;
 
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals[individual.id] ?? {};

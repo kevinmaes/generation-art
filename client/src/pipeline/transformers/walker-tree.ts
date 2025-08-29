@@ -20,6 +20,7 @@ import type {
   GedcomDataWithMetadata,
   Edge,
 } from '../../../../shared/types';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { RoutingOutput } from '../../display/types/edge-routing';
 import { createTransformerInstance } from '../utils';
 import {
@@ -237,8 +238,10 @@ export async function walkerTreeTransform(
     showLabels: (visual.showLabels as boolean) ?? false,
     minLabelSize: (visual.minLabelSize as number) ?? 12,
     useOrthogonalRouting: (visual.useOrthogonalRouting as boolean) ?? true,
-    canvasWidth: visualMetadata.global.canvasWidth ?? 800,
-    canvasHeight: visualMetadata.global.canvasHeight ?? 600,
+    canvasWidth:
+      visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH,
+    canvasHeight:
+      visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT,
   };
 
   // Check if we have enhanced graph data

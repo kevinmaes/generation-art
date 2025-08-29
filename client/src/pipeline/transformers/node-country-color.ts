@@ -78,7 +78,24 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
     },
   ],
   createTransformerInstance: (params) =>
-    createTransformerInstance(params, nodeCountryColorTransform, []),
+    createTransformerInstance(params, nodeCountryColorTransform, [
+      {
+        name: 'strokeMode',
+        defaultValue: 'secondary',
+      },
+      {
+        name: 'fallbackColor',
+        defaultValue: '#808080',
+      },
+      {
+        name: 'colorIntensity',
+        defaultValue: 0.8,
+      },
+      {
+        name: 'layerMode',
+        defaultValue: 'single',
+      },
+    ]),
   multiInstance: false,
 };
 

@@ -15,6 +15,7 @@ import type {
   EdgeVisualMetadata,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import { createTransformerInstance } from '../utils';
 
 type SortBy = 'birth-date' | 'death-date' | 'name' | 'generation';
@@ -154,9 +155,13 @@ export function gridLayoutTransform(
 ): CompleteVisualMetadata {
   const { gedcomData, visualMetadata } = context;
   const canvasWidth =
-    context.canvasWidth ?? visualMetadata.global.canvasWidth ?? 1024;
+    context.canvasWidth ??
+    visualMetadata.global.canvasWidth ??
+    CANVAS_DIMENSIONS.WEB.WIDTH;
   const canvasHeight =
-    context.canvasHeight ?? visualMetadata.global.canvasHeight ?? 1024;
+    context.canvasHeight ??
+    visualMetadata.global.canvasHeight ??
+    CANVAS_DIMENSIONS.WEB.HEIGHT;
 
   const padding = Number(context.visual.padding ?? 20);
   const layoutMode = (context.visual.layoutMode as LayoutMode) ?? 'linear';

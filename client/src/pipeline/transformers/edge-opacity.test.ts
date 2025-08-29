@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { edgeOpacityTransform } from './edge-opacity';
 import { createInitialCompleteVisualMetadata } from '../pipeline';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import type { GedcomDataWithMetadata } from '../../../../shared/types';
 import type { TransformerContext } from '../types';
 
@@ -226,8 +227,8 @@ const createTestContext = (
 ): TransformerContext => {
   const visualMetadata = createInitialCompleteVisualMetadata(
     gedcomData,
-    800,
-    600,
+    CANVAS_DIMENSIONS.WEB.WIDTH,
+    CANVAS_DIMENSIONS.WEB.HEIGHT,
   );
 
   // Add positions to individuals for distance calculations

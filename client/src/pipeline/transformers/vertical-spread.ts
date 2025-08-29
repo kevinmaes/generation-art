@@ -13,6 +13,7 @@ import type {
   VisualTransformerConfig,
 } from '../types';
 import type { AugmentedIndividual } from '../../../../shared/types';
+import { CANVAS_DIMENSIONS } from '../../../../shared/constants';
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 
@@ -43,7 +44,8 @@ function calculateVerticalPosition(
   individualId: string,
 ): number {
   const { gedcomData, visualMetadata, dimensions, visual } = context;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+  const canvasHeight =
+    visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT;
 
   // Find the individual with null check
   const individual = getIndividualOrWarn(
@@ -249,8 +251,10 @@ export async function verticalSpreadTransform(
   const updatedIndividuals: Record<string, NodeVisualMetadata> = {};
 
   // Position each individual based on their generation
-  const canvasWidth = visualMetadata.global.canvasWidth ?? 1200;
-  const canvasHeight = visualMetadata.global.canvasHeight ?? 800;
+  const canvasWidth =
+    visualMetadata.global.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH;
+  const canvasHeight =
+    visualMetadata.global.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT;
 
   individuals.forEach((individual) => {
     const currentMetadata = visualMetadata.individuals[individual.id] ?? {};

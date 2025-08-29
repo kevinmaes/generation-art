@@ -15,7 +15,7 @@ export function getVarianceCompoundId(
 /**
  * Get the parameter storage key for a transformer.
  * For variance transformers, returns a compound ID based on the parent.
- * For regular transformers, returns the transformer ID itself.
+ * For regular transformers, returns the transformer ID with index suffix if duplicates exist.
  */
 export function getTransformerParameterKey(
   transformerIds: TransformerId[],
@@ -29,7 +29,17 @@ export function getTransformerParameterKey(
     return getVarianceCompoundId(parentTransformerId);
   }
 
-  // Regular transformer: use its own ID
+  // For regular transformers, check if there are duplicates
+  const sameTypeCount = transformerIds
+    .slice(0, index)
+    .filter((id) => id === transformerId).length;
+
+  if (sameTypeCount > 0) {
+    // This is a duplicate - add index suffix to make it unique
+    return `${transformerId}-${String(index)}`;
+  }
+
+  // First instance of this transformer - use its own ID
   return transformerId;
 }
 
