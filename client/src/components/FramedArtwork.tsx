@@ -9,7 +9,6 @@ import { useShareArt } from '../hooks/useShareArt';
 import type { PipelineResult } from '../pipeline/pipeline';
 import { useFamilyTreeData } from '../contexts/FamilyTreeContext';
 import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
-import { useCanvasBackground } from '../hooks/useCanvasBackground';
 import type { EnhancedP5 } from '../display/FamilyTreeSketch';
 
 interface FramedArtworkProps {
@@ -52,7 +51,6 @@ export function FramedArtwork({
 }: FramedArtworkProps): React.ReactElement {
   const familyTreeData = useFamilyTreeData();
   const { selectedIndividualId } = useSelectedIndividual();
-  const { backgroundColor } = useCanvasBackground();
   const p5InstanceRef = useRef<p5 | null>(null);
   const [showIndividuals, setShowIndividuals] = useState(true);
   const [showRelations, setShowRelations] = useState(true);
@@ -214,7 +212,6 @@ export function FramedArtwork({
             <ArtGenerator
               width={width}
               height={height}
-              backgroundColor={backgroundColor}
               pipelineResult={pipelineResult}
               showIndividuals={showIndividuals}
               showRelations={showRelations}

@@ -75,7 +75,6 @@ const mockVisualMetadata = {
   global: {
     canvasWidth: 1000,
     canvasHeight: 800,
-    backgroundColor: '#ffffff',
   },
 };
 
@@ -328,9 +327,7 @@ describe('Smart Transformer Utils', () => {
       edges: {
         edge1: { controlPoints: [{ x: 100, y: 100 }] },
       },
-      global: {
-        backgroundColor: '#f0f0f0',
-      },
+      global: {},
     };
 
     it('should merge individual properties correctly', () => {

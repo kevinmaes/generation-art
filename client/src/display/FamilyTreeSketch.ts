@@ -963,7 +963,6 @@ export function createWebSketch(
         families: {},
         edges,
         tree: {
-          backgroundColor: '#ffffff',
           group: 'tree',
           layer: 0,
           priority: 0,
@@ -971,7 +970,6 @@ export function createWebSketch(
         global: {
           canvasWidth: width,
           canvasHeight: height,
-          backgroundColor: '#ffffff',
           defaultNodeSize: config.nodeSize,
           defaultEdgeWeight: config.strokeWeight,
           defaultNodeColor: config.colors?.[0] ?? '#0000ff',
@@ -1019,7 +1017,6 @@ export function createPrintSketch(
     families: {},
     edges: {},
     tree: {
-      backgroundColor: '#ffffff',
       group: 'tree',
       layer: 0,
       priority: 0,
@@ -1027,7 +1024,6 @@ export function createPrintSketch(
     global: {
       canvasWidth: width,
       canvasHeight: height,
-      backgroundColor: '#ffffff',
       defaultNodeSize: config.nodeSize,
       defaultEdgeWeight: config.strokeWeight,
       defaultNodeColor: config.colors?.[0] ?? '#000000',

@@ -13,6 +13,7 @@ import { NodeTooltip } from './NodeTooltip';
 import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
 import type { GedcomDataWithMetadata, Individual } from '../../../shared/types';
 import { getContrastColor } from '../constants/colors';
+import { useCanvasBackground } from '../hooks/useCanvasBackground';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -20,7 +21,6 @@ const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
 interface ArtGeneratorProps {
   width?: number;
   height?: number;
-  backgroundColor?: string;
   pipelineResult?: PipelineResult | null;
   showIndividuals?: boolean;
   showRelations?: boolean;
@@ -40,7 +40,6 @@ interface ArtGeneratorProps {
 export function ArtGenerator({
   width = DEFAULT_WIDTH,
   height = DEFAULT_HEIGHT,
-  backgroundColor,
   pipelineResult,
   showIndividuals = true,
   showRelations = true,
@@ -52,6 +51,7 @@ export function ArtGenerator({
   gedcomData,
   onSetPrimaryIndividual: _onSetPrimaryIndividual,
 }: ArtGeneratorProps): React.ReactElement {
+  const { backgroundColor } = useCanvasBackground();
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<EnhancedP5 | null>(null);
   const [hoveredNode, setHoveredNode] = useState<{
@@ -184,7 +184,7 @@ export function ArtGenerator({
 
   // Handle case where no data is provided
   if (!gedcomData) {
-    const bgColor = backgroundColor ?? '#ffffff';
+    const bgColor = backgroundColor;
     const textColor = getContrastColor(bgColor);
     const isLightBg = textColor === '#000000';
 
@@ -213,7 +213,7 @@ export function ArtGenerator({
   }
 
   if (!pipelineResult) {
-    const bgColor = backgroundColor ?? '#ffffff';
+    const bgColor = backgroundColor;
     const textColor = getContrastColor(bgColor);
     const isLightBg = textColor === '#000000';
 

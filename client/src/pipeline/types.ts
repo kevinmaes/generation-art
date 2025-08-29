@@ -118,7 +118,6 @@ export interface NodeVisualMetadata extends BaseVisualMetadata {
 
   // Legacy properties for backward compatibility
   color?: string;
-  backgroundColor?: string;
   shape?: 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'custom';
   shapeProfile?: ShapeProfile;
   size?: number;
@@ -191,7 +190,6 @@ export interface EdgeVisualMetadata extends BaseVisualMetadata {
  * Tree/Canvas visual metadata
  */
 export interface TreeVisualMetadata extends BaseVisualMetadata {
-  backgroundColor?: string;
   backgroundGradient?: unknown; // Future gradient support
   width?: number;
   height?: number;
@@ -227,7 +225,6 @@ export interface CompleteVisualMetadata {
   global: {
     canvasWidth?: number;
     canvasHeight?: number;
-    backgroundColor?: string;
     defaultNodeSize?: number;
     defaultEdgeWeight?: number;
     defaultNodeColor?: string;

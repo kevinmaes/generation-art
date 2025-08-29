@@ -32,7 +32,6 @@ import {
   DEFAULT_SIZE,
   DEFAULT_SCALE,
   DEFAULT_COLOR,
-  DEFAULT_BACKGROUND_COLOR,
   DEFAULT_STROKE_COLOR,
   DEFAULT_OPACITY,
   DEFAULT_ALPHA,
@@ -140,7 +139,6 @@ export const initialEntityVisualMetadata: NodeVisualMetadata = {
   size: DEFAULT_SIZE,
   scale: DEFAULT_SCALE,
   color: DEFAULT_COLOR,
-  backgroundColor: DEFAULT_BACKGROUND_COLOR,
   strokeColor: DEFAULT_STROKE_COLOR,
   opacity: DEFAULT_OPACITY,
   alpha: DEFAULT_ALPHA,
@@ -218,7 +216,6 @@ export function createInitialCompleteVisualMetadata(
     edges,
     tree: {
       // Tree-level visual settings
-      backgroundColor: DEFAULT_BACKGROUND_COLOR,
       group: 'tree',
       layer: 0,
       priority: 0,
@@ -226,7 +223,6 @@ export function createInitialCompleteVisualMetadata(
     global: {
       canvasWidth,
       canvasHeight,
-      backgroundColor: DEFAULT_BACKGROUND_COLOR,
       defaultNodeSize: DEFAULT_SIZE,
       defaultEdgeWeight: DEFAULT_STROKE_WEIGHT,
       defaultNodeColor: DEFAULT_COLOR,
