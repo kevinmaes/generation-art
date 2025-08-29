@@ -88,7 +88,7 @@ function AppContent(): React.ReactElement {
       >
     >
   >({});
-  
+
   // Active states for transformers are now managed in PipelineContext
   // Keeping empty object as fallback for backward compatibility
   const transformerActiveStates: Record<string, boolean> = {};
@@ -208,7 +208,10 @@ function AppContent(): React.ReactElement {
 
   // Development: Auto-select Rafi (I12406240) when data loads
   useEffect(() => {
-    console.log('[DEBUG] Auto-select useEffect running, primaryIndividualId:', primaryIndividualId);
+    console.log(
+      '[DEBUG] Auto-select useEffect running, primaryIndividualId:',
+      primaryIndividualId,
+    );
     if (isFamilyTreeSuccess && !primaryIndividualId && familyTreeData) {
       const targetId = 'I12406240';
 
@@ -430,11 +433,15 @@ function AppContent(): React.ReactElement {
   const handleVisualize = async (
     activeStatesFromContext?: Record<string, boolean>,
   ) => {
-    console.log('[DEBUG] App.handleVisualize called with activeStates:', activeStatesFromContext);
-    
+    console.log(
+      '[DEBUG] App.handleVisualize called with activeStates:',
+      activeStatesFromContext,
+    );
+
     // Use active states from context if provided, otherwise use local state
-    const activeStatesToUse = activeStatesFromContext ?? transformerActiveStates;
-    
+    const activeStatesToUse =
+      activeStatesFromContext ?? transformerActiveStates;
+
     if (!isFamilyTreeSuccess) {
       console.error('Cannot visualize: data not loaded');
       return;
@@ -698,7 +705,10 @@ function AppContent(): React.ReactElement {
           onReorderTransformers={handleReorderTransformers}
           onParameterChange={handleParameterChange}
           onVisualize={(result?: unknown) => {
-            console.log('[DEBUG] onVisualize callback with result:', result ? 'received' : 'no result');
+            console.log(
+              '[DEBUG] onVisualize callback with result:',
+              result ? 'received' : 'no result',
+            );
             if (result) {
               // Use the result from PipelineContext instead of running again
               setPipelineResult(result as PipelineResult);

@@ -268,20 +268,24 @@ export function PipelineProvider({
       console.log('[DEBUG] dualData structure:', {
         hasFull: !!dualData.full,
         hasLlm: !!dualData.llm,
-        fullIndividuals: dualData.full?.individuals ? Object.keys(dualData.full.individuals).length : 0,
+        fullIndividuals: dualData.full?.individuals
+          ? Object.keys(dualData.full.individuals).length
+          : 0,
         llmNodes: dualData.llm?.nodes ? dualData.llm.nodes.length : 0,
       });
     }
-    console.log(
-      '[DEBUG] activeTransformerIds:',
-      activeTransformerIds,
-    );
+    console.log('[DEBUG] activeTransformerIds:', activeTransformerIds);
     console.log(
       '[DEBUG] transformerActiveStates at Generate click:',
       transformerActiveStates,
     );
 
-    if (!dualData || !dualData.full || !dualData.llm || activeTransformerIds.length === 0) {
+    if (
+      !dualData ||
+      !dualData.full ||
+      !dualData.llm ||
+      activeTransformerIds.length === 0
+    ) {
       console.log('[DEBUG] Early return - missing data or no transformers', {
         hasDualData: !!dualData,
         hasFull: !!dualData?.full,
@@ -324,7 +328,7 @@ export function PipelineProvider({
         canvasHeight,
         primaryIndividualId,
       });
-      
+
       const result = await executePipeline(
         dualData.full,
         dualData.llm,
@@ -335,8 +339,11 @@ export function PipelineProvider({
         transformerActiveStates,
         primaryIndividualId,
       );
-      
-      console.log('[DEBUG] Pipeline execution completed, result:', result ? 'success' : 'null');
+
+      console.log(
+        '[DEBUG] Pipeline execution completed, result:',
+        result ? 'success' : 'null',
+      );
       // Pass the result to the external callback if it exists
       // This allows App to update its state with the correct result
       if (externalOnVisualize && typeof externalOnVisualize === 'function') {
