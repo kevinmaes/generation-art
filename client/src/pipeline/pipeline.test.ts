@@ -214,7 +214,6 @@ describe('Pipeline', () => {
       expect(metadata.individuals.I1.shape).toBe(DEFAULT_SHAPE);
 
       // Test tree metadata
-      // Tree visual metadata no longer includes backgroundColor (handled by canvas context)
       expect(metadata.tree.group).toBe('tree');
 
       // Test edges metadata
