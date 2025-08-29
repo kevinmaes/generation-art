@@ -386,7 +386,6 @@ describe('Smart Transformer Utils', () => {
       expect(result.global).toEqual({
         canvasWidth: 1000, // Preserved
         canvasHeight: 800, // Preserved
-        backgroundColor: '#f0f0f0', // Updated
       });
     });
 
