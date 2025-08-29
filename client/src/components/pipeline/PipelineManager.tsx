@@ -164,13 +164,62 @@ export function PipelineManager({
   lastRunParameters,
 }: PipelineManagerProps): React.ReactElement {
   const familyTreeData = useFamilyTreeData();
+
   const [showDiff, setShowDiff] = React.useState(false);
   const [selectedTransformerId, setSelectedTransformerId] =
     useState<TransformerId | null>(activeTransformerIds[0] ?? null);
 
-  // Drag and drop state from context
-  const { draggedItem, setDraggedItem, previewIndex, setPreviewIndex } =
-    usePipelineContext();
+  // Drag and drop state and onVisualize from context
+  const {
+    draggedItem,
+    setDraggedItem,
+    previewIndex,
+    setPreviewIndex,
+    onVisualize: contextOnVisualize,
+    setDualData,
+  } = usePipelineContext();
+
+  // Debug: Log what we're getting
+  console.log('[DEBUG] PipelineManager - contextOnVisualize: defined');
+  console.log(
+    '[DEBUG] PipelineManager - prop onVisualize:',
+    onVisualize ? 'defined' : 'undefined',
+  );
+
+  // Use context's onVisualize (always defined)
+  const handleVisualize = contextOnVisualize;
+  console.log('[DEBUG] PipelineManager - using handleVisualize: from context');
+
+  // Set dual data in context when data becomes available
+  // Track the actual data references to avoid unnecessary updates
+  const prevDataRef = React.useRef<typeof familyTreeData>(null);
+  React.useEffect(() => {
+    // Only update if the actual data references have changed
+    if (
+      familyTreeData?.full !== prevDataRef.current?.full ||
+      familyTreeData?.llm !== prevDataRef.current?.llm
+    ) {
+      console.log(
+        '[DEBUG] PipelineManager - data references changed, updating context',
+      );
+      console.log('[DEBUG] PipelineManager - familyTreeData structure:', {
+        hasFull: !!familyTreeData?.full,
+        hasLlm: !!familyTreeData?.llm,
+        fullType: typeof familyTreeData?.full,
+        llmType: typeof familyTreeData?.llm,
+      });
+      if (familyTreeData) {
+        console.log('[DEBUG] Setting dualData with proper structure');
+        setDualData({
+          full: familyTreeData.full,
+          llm: familyTreeData.llm,
+        });
+      } else {
+        setDualData(null);
+      }
+      prevDataRef.current = familyTreeData;
+    }
+  }, [familyTreeData, setDualData]);
 
   // Configure sensors for drag and drop
   const sensors = useSensors(
@@ -816,6 +865,14 @@ export function PipelineManager({
                       index,
                     );
 
+                    console.log(
+                      `[DEBUG] PipelineManager - mapping transformer ${String(index)}`,
+                      `| transformerId: ${transformerId}`,
+                      `| parameterKey from getTransformerParameterKey: ${parameterKey}`,
+                      `| activeTransformerIds:`,
+                      activeTransformerIds,
+                    );
+
                     return (
                       <SortableTransformerItem
                         key={`${transformerId}-${String(index)}`}
@@ -885,6 +942,14 @@ export function PipelineManager({
                       index,
                     );
 
+                    console.log(
+                      `[DEBUG] PipelineManager - mapping transformer ${String(index)}`,
+                      `| transformerId: ${transformerId}`,
+                      `| parameterKey from getTransformerParameterKey: ${parameterKey}`,
+                      `| activeTransformerIds:`,
+                      activeTransformerIds,
+                    );
+
                     return (
                       <SortableTransformerItem
                         key={`${transformerId}-${String(index)}`}
@@ -933,7 +998,24 @@ export function PipelineManager({
               </div>
               {/* Visualize Button */}
               <button
-                onClick={onVisualize}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  console.log(
+                    '[DEBUG] Generate button clicked, calling handleVisualize',
+                  );
+                  console.log(
+                    '[DEBUG] handleVisualize is: defined (from context)',
+                  );
+                  console.log('[DEBUG] contextOnVisualize is: defined');
+                  console.log(
+                    '[DEBUG] prop onVisualize is:',
+                    onVisualize ? 'defined' : 'undefined',
+                  );
+                  console.log('[DEBUG] Using: context version');
+                  void handleVisualize();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
                 disabled={
                   !hasData ||
                   activeTransformerIds.length === 0 ||
@@ -975,7 +1057,24 @@ export function PipelineManager({
               <div></div> {/* Empty spacer */}
               {/* Visualize Button */}
               <button
-                onClick={onVisualize}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  console.log(
+                    '[DEBUG] Generate button clicked, calling handleVisualize',
+                  );
+                  console.log(
+                    '[DEBUG] handleVisualize is: defined (from context)',
+                  );
+                  console.log('[DEBUG] contextOnVisualize is: defined');
+                  console.log(
+                    '[DEBUG] prop onVisualize is:',
+                    onVisualize ? 'defined' : 'undefined',
+                  );
+                  console.log('[DEBUG] Using: context version');
+                  void handleVisualize();
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
                 disabled={
                   !hasData ||
                   activeTransformerIds.length === 0 ||

@@ -22,13 +22,6 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   const { primaryIndividualId, setPrimaryIndividualId } =
     usePrimaryIndividual();
 
-  console.log(
-    'SidePanel render - selected:',
-    selectedIndividualId,
-    'primary:',
-    primaryIndividualId,
-  );
-
   if (!selectedIndividualId || !gedcomData) {
     return null;
   }

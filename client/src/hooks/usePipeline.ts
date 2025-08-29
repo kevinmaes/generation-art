@@ -34,6 +34,8 @@ interface UsePipelineReturn {
         visual: VisualParameterValues;
       }
     >,
+    transformerActiveStates?: Record<string, boolean>,
+    primaryIndividualId?: string,
   ) => Promise<PipelineResult>;
 }
 
@@ -58,19 +60,41 @@ export function usePipeline(
           visual: VisualParameterValues;
         }
       >,
+      transformerActiveStates?: Record<string, boolean>,
+      primaryIndividualId?: string,
     ): Promise<PipelineResult> => {
       setResult(null);
       setError(null);
       setIsRunning(true);
 
       try {
+        console.log(
+          '[DEBUG] usePipeline - transformerActiveStates:',
+          transformerActiveStates,
+        );
+        console.log(
+          '[DEBUG] usePipeline - primaryIndividualId:',
+          primaryIndividualId,
+        );
+
         const pipelineConfig = createSimplePipeline(transformerIds, {
           canvasWidth: width,
           canvasHeight: height,
           temperature: options.temperature ?? 0.5,
           seed: options.seed,
           transformerParameters,
+          transformerActiveStates,
+          primaryIndividualId,
         });
+
+        console.log(
+          '[DEBUG] usePipeline - created config:',
+          pipelineConfig.transformers.map((t) => ({
+            type: t.type,
+            instanceId: t.instanceId,
+            isActive: t.isActive,
+          })),
+        );
 
         const pipelineResult = await runPipeline({
           fullData,

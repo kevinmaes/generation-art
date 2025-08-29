@@ -55,7 +55,8 @@ export const PIPELINE_DEFAULTS: {
 } = {
   TRANSFORMER_IDS: [
     TRANSFORMERS.FAN_CHART.ID,
-    TRANSFORMERS.NODE_COUNTRY_COLOR.ID,
+    TRANSFORMERS.GRID_LAYOUT.ID,
+    // TRANSFORMERS.NODE_COUNTRY_COLOR.ID,
   ],
 };
 
@@ -396,6 +397,18 @@ export async function* runPipelineGenerator({
   try {
     console.log('🔍 Validating pipeline input data...');
 
+    // Debug: Log all transformer states at pipeline start
+    console.log(
+      '[DEBUG] Pipeline transformers at start:',
+      config.transformers.map((t, i) => ({
+        index: i,
+        type: t.type,
+        instanceId: t.instanceId,
+        isActive: t.isActive ?? true,
+        isActiveRaw: t.isActive,
+      })),
+    );
+
     // Validate full data structure
     const validatedFullData = GedcomDataWithMetadataSchema.parse(fullData);
     console.log(
@@ -434,6 +447,37 @@ export async function* runPipelineGenerator({
     try {
       // Get transformer configuration from registry
       const transformer = getTransformer(transformerInstance.type);
+
+      // Check if transformer is inactive and skip execution if so
+      const isActive = transformerInstance.isActive ?? true;
+
+      // Debug: Log individual transformer state
+      console.log(
+        `[DEBUG] Checking transformer ${String(i + 1)}/${String(config.transformers.length)}: ${transformer.name}`,
+        `| instanceId: ${transformerInstance.instanceId}`,
+        `| isActive: ${String(isActive)}`,
+        `| isActive property: ${String(transformerInstance.isActive)}`,
+      );
+
+      if (!isActive) {
+        console.log(
+          `⏩ TRANSFORMER SKIPPED: ${transformer.name} (${transformerInstance.type})`,
+          `| Position: ${String(i + 1)}/${String(config.transformers.length)}`,
+          `| instanceId: ${transformerInstance.instanceId}`,
+          `| isActive: false`,
+        );
+
+        // Still yield progress update for skipped transformers
+        yield {
+          type: 'progress',
+          current: i + 1,
+          total: config.transformers.length,
+          transformerName: `${transformer.name} (skipped)`,
+        };
+
+        // Continue to next transformer without applying changes
+        continue;
+      }
 
       console.log(
         `🔄 Executing transformer ${String(i + 1)}/${String(config.transformers.length)}: ${transformer.name} (${transformerInstance.type})`,
@@ -681,8 +725,14 @@ export function createSimplePipeline(
         visual: VisualParameterValues;
       }
     >;
+    transformerActiveStates?: Record<string, boolean>;
   },
 ): PipelineConfig {
+  console.log(
+    '[DEBUG] createSimplePipeline - transformerActiveStates:',
+    options?.transformerActiveStates,
+  );
+
   // Convert transformer IDs to transformer instances
   const transformers: TransformerInstance[] = transformerIds.map(
     (transformerId, index) => {
@@ -693,6 +743,17 @@ export function createSimplePipeline(
         dimensions: {},
         visual: {},
       };
+
+      const isActive = options?.transformerActiveStates?.[parameterKey] ?? true;
+
+      console.log(
+        `[DEBUG] createSimplePipeline - transformer ${String(index)}: ${transformerId}`,
+        `| parameterKey: ${parameterKey}`,
+        `| isActive: ${String(isActive)}`,
+        `| activeState from options: ${String(options?.transformerActiveStates?.[parameterKey])}`,
+        `| all activeStates keys:`,
+        Object.keys(options?.transformerActiveStates ?? {}),
+      );
 
       return {
         type: transformerId,
@@ -705,6 +766,7 @@ export function createSimplePipeline(
             transformer.defaultSecondaryDimension,
         },
         visual: params.visual,
+        isActive,
       };
     },
   );

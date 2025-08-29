@@ -197,6 +197,7 @@ export function PipelinePanel({
                 onTransformerIdsChange={onReorderTransformers}
                 onParameterChange={onParameterChange}
                 onVisualize={onVisualize}
+                primaryIndividualId={primaryIndividualId}
               >
                 <PipelineManager
                   pipelineResult={pipelineResult}

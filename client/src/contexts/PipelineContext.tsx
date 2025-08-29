@@ -9,6 +9,7 @@ import type {
 import type { VisualParameterValues } from '../pipeline/visual-parameters';
 import { usePipeline } from '../hooks/usePipeline';
 import { CANVAS_DIMENSIONS } from '../../../shared/constants';
+import { getTransformerParameterKey } from '../utils/pipeline-index';
 
 // Type for the complete dual-data structure
 export interface DualGedcomData {
@@ -58,6 +59,7 @@ export interface PipelineContextValue {
   transformerParameters: Record<string, TransformerParameterConfig>;
   lastRunParameters: Record<string, TransformerParameterConfig> | undefined;
   expandedTransformers: Record<string, boolean>;
+  transformerActiveStates: Record<string, boolean>;
 
   // Drag and drop state
   draggedItem: DraggedItem | null;
@@ -89,6 +91,7 @@ export interface PipelineContextValue {
 
   // Transformer UI actions
   setTransformerExpanded: (transformerId: string, expanded: boolean) => void;
+  toggleTransformerActive: (transformerId: string) => void;
 
   // Drag and drop actions
   setDraggedItem: (item: DraggedItem | null) => void;
@@ -109,6 +112,7 @@ export interface PipelineProviderProps {
   canvasHeight?: number;
   temperature?: number;
   seed?: string;
+  primaryIndividualId?: string;
   onVisualize?: () => void;
   onTransformerIdsChange?: (ids: TransformerId[]) => void;
   onParameterChange?: (
@@ -130,6 +134,7 @@ export function PipelineProvider({
   canvasHeight = CANVAS_DIMENSIONS.WEB.HEIGHT,
   temperature,
   seed,
+  primaryIndividualId,
   onVisualize: externalOnVisualize,
   onTransformerIdsChange,
   onParameterChange: externalOnParameterChange,
@@ -168,6 +173,9 @@ export function PipelineProvider({
     Record<string, TransformerParameterConfig> | undefined
   >();
   const [expandedTransformers, setExpandedTransformers] = useState<
+    Record<string, boolean>
+  >({});
+  const [transformerActiveStates, setTransformerActiveStates] = useState<
     Record<string, boolean>
   >({});
 
@@ -251,33 +259,106 @@ export function PipelineProvider({
   }, []);
 
   const onVisualize = useCallback(async () => {
-    if (!dualData || activeTransformerIds.length === 0) {
+    console.log('===== GENERATE BUTTON CLICKED =====');
+    console.log('[DEBUG] onVisualize called in PipelineContext');
+    console.log('[DEBUG] dualData:', dualData ? 'exists' : 'null');
+    if (dualData) {
+      console.log('[DEBUG] dualData type:', typeof dualData);
+      console.log('[DEBUG] dualData keys:', Object.keys(dualData));
+      console.log('[DEBUG] dualData structure:', {
+        hasFull: !!dualData.full,
+        hasLlm: !!dualData.llm,
+        fullIndividuals: dualData.full?.individuals ? Object.keys(dualData.full.individuals).length : 0,
+        llmNodes: dualData.llm?.nodes ? dualData.llm.nodes.length : 0,
+      });
+    }
+    console.log(
+      '[DEBUG] activeTransformerIds:',
+      activeTransformerIds,
+    );
+    console.log(
+      '[DEBUG] transformerActiveStates at Generate click:',
+      transformerActiveStates,
+    );
+
+    if (!dualData || !dualData.full || !dualData.llm || activeTransformerIds.length === 0) {
+      console.log('[DEBUG] Early return - missing data or no transformers', {
+        hasDualData: !!dualData,
+        hasFull: !!dualData?.full,
+        hasLlm: !!dualData?.llm,
+        transformerCount: activeTransformerIds.length,
+      });
       return;
     }
 
     setLastRunParameters({ ...transformerParameters });
     setIsVisualizing(true);
 
+    console.log(
+      '[DEBUG] onVisualize - activeTransformerIds:',
+      activeTransformerIds,
+    );
+    console.log(
+      '[DEBUG] onVisualize - transformerActiveStates:',
+      transformerActiveStates,
+    );
+
+    // Log the specific state for each transformer
+    activeTransformerIds.forEach((id, index) => {
+      const parameterKey = getTransformerParameterKey(
+        activeTransformerIds,
+        index,
+      );
+      console.log(
+        `[DEBUG] onVisualize - transformer ${String(index)}: ${id}`,
+        `| parameterKey: ${parameterKey}`,
+        `| isActive: ${String(transformerActiveStates[parameterKey] ?? true)}`,
+      );
+    });
+
     try {
-      await executePipeline(
+      console.log('[DEBUG] About to call executePipeline with:', {
+        activeTransformerIds,
+        transformerActiveStates,
+        canvasWidth,
+        canvasHeight,
+        primaryIndividualId,
+      });
+      
+      const result = await executePipeline(
         dualData.full,
         dualData.llm,
         canvasWidth,
         canvasHeight,
         activeTransformerIds,
         transformerParameters,
+        transformerActiveStates,
+        primaryIndividualId,
       );
-      externalOnVisualize?.();
+      
+      console.log('[DEBUG] Pipeline execution completed, result:', result ? 'success' : 'null');
+      // Pass the result to the external callback if it exists
+      // This allows App to update its state with the correct result
+      if (externalOnVisualize && typeof externalOnVisualize === 'function') {
+        // @ts-expect-error - We're passing the result even though the type doesn't expect it
+        externalOnVisualize(result);
+      }
+    } catch (error) {
+      console.error('[DEBUG] Pipeline execution failed:', error);
+      throw error;
     } finally {
       setIsVisualizing(false);
+      console.log('[DEBUG] Visualization complete');
     }
   }, [
     dualData,
     activeTransformerIds,
     transformerParameters,
+    transformerActiveStates,
     executePipeline,
     canvasWidth,
     canvasHeight,
+    primaryIndividualId,
     externalOnVisualize,
   ]);
 
@@ -290,6 +371,30 @@ export function PipelineProvider({
     },
     [],
   );
+
+  const toggleTransformerActive = useCallback((transformerId: string) => {
+    setTransformerActiveStates((prev) => {
+      const newState = !(prev[transformerId] ?? true);
+      console.log(
+        `[DEBUG] toggleTransformerActive - transformerId: ${transformerId}`,
+        `| prevState: ${String(prev[transformerId])}`,
+        `| newState: ${String(newState)}`,
+        `| all states after:`,
+        { ...prev, [transformerId]: newState },
+      );
+      // If toggling to inactive, also collapse the transformer
+      if (!newState) {
+        setExpandedTransformers((prevExpanded) => ({
+          ...prevExpanded,
+          [transformerId]: false,
+        }));
+      }
+      return {
+        ...prev,
+        [transformerId]: newState,
+      };
+    });
+  }, []);
 
   const togglePanel = useCallback((panel: keyof PanelCollapseStates) => {
     setPanelCollapseStates((prev) => ({
@@ -320,6 +425,7 @@ export function PipelineProvider({
       transformerParameters,
       lastRunParameters,
       expandedTransformers,
+      transformerActiveStates,
 
       // Drag and drop state
       draggedItem,
@@ -353,6 +459,7 @@ export function PipelineProvider({
 
       // Transformer UI actions
       setTransformerExpanded,
+      toggleTransformerActive,
 
       // Drag and drop actions
       setDraggedItem,
@@ -377,6 +484,7 @@ export function PipelineProvider({
       transformerParameters,
       lastRunParameters,
       expandedTransformers,
+      transformerActiveStates,
       draggedItem,
       previewIndex,
       panelCollapseStates,
@@ -390,6 +498,7 @@ export function PipelineProvider({
       onParameterReset,
       onVisualize,
       setTransformerExpanded,
+      toggleTransformerActive,
       togglePanel,
     ],
   );
