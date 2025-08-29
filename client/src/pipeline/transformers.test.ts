@@ -10,6 +10,7 @@ import {
 import type { GedcomDataWithMetadata } from '../../../shared/types';
 import type { VisualParameterValues } from './visual-parameters';
 import { initialEntityVisualMetadata } from './pipeline';
+import { DEFAULT_TEST_CANVAS } from './test-utils';
 
 describe('Transformers Registry', () => {
   it('should export transformerConfigs object', () => {
@@ -238,6 +239,7 @@ describe('Horizontal Spread Transformer', () => {
         families: {},
         metadata: mockMetadata.metadata,
       },
+      canvas: DEFAULT_TEST_CANVAS,
       visualMetadata: {
         individuals: {
           I1: {
@@ -246,7 +248,6 @@ describe('Horizontal Spread Transformer', () => {
             size: 20,
             scale: 1,
             color: initialEntityVisualMetadata.color,
-            backgroundColor: initialEntityVisualMetadata.backgroundColor,
             strokeColor: initialEntityVisualMetadata.strokeColor,
             opacity: initialEntityVisualMetadata.opacity,
             alpha: initialEntityVisualMetadata.alpha,
@@ -453,6 +454,7 @@ describe('Horizontal Spread Transformer', () => {
         families: {},
         metadata: mockMetadata.metadata,
       },
+      canvas: DEFAULT_TEST_CANVAS,
       visualMetadata: {
         individuals: {},
         families: {},
@@ -644,7 +646,6 @@ describe('Horizontal Spread Transformer', () => {
               size: 20,
               scale: 1,
               color: initialEntityVisualMetadata.color,
-              backgroundColor: initialEntityVisualMetadata.backgroundColor,
               strokeColor: initialEntityVisualMetadata.strokeColor,
               opacity: initialEntityVisualMetadata.opacity,
               alpha: initialEntityVisualMetadata.alpha,
@@ -684,7 +685,10 @@ describe('Horizontal Spread Transformer', () => {
           primaryColor: '#4CAF50',
         },
       });
-      const result = await runtimeTransformer(context);
+      const result = await runtimeTransformer({
+        ...context,
+        canvas: DEFAULT_TEST_CANVAS,
+      });
 
       expect(result.visualMetadata).toBeDefined();
       expect(result.visualMetadata.individuals).toBeDefined();

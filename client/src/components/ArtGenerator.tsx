@@ -12,6 +12,8 @@ import { GenerationProgress } from './GenerationProgress';
 import { NodeTooltip } from './NodeTooltip';
 import { useSelectedIndividual } from '../hooks/useSelectedIndividual';
 import type { GedcomDataWithMetadata, Individual } from '../../../shared/types';
+import { getContrastColor } from '../constants/colors';
+import { useCanvasBackground } from '../hooks/useCanvasBackground';
 
 const DEFAULT_WIDTH = CANVAS_DIMENSIONS.WEB.WIDTH;
 const DEFAULT_HEIGHT = CANVAS_DIMENSIONS.WEB.HEIGHT;
@@ -49,6 +51,7 @@ export function ArtGenerator({
   gedcomData,
   onSetPrimaryIndividual: _onSetPrimaryIndividual,
 }: ArtGeneratorProps): React.ReactElement {
+  const { backgroundColor } = useCanvasBackground();
   const containerRef = useRef<HTMLDivElement>(null);
   const p5InstanceRef = useRef<EnhancedP5 | null>(null);
   const [hoveredNode, setHoveredNode] = useState<{
@@ -133,6 +136,7 @@ export function ArtGenerator({
       transformerIds,
       temperature: pipelineResult?.config.temperature ?? 0.5,
       seed: pipelineResult?.config.seed,
+      backgroundColor,
       showIndividuals,
       showRelations,
     };
@@ -172,6 +176,7 @@ export function ArtGenerator({
     gedcomData,
     width,
     height,
+    backgroundColor,
     onExportReady,
     handleNodeHover,
     handleNodeClick,
@@ -179,40 +184,71 @@ export function ArtGenerator({
 
   // Handle case where no data is provided
   if (!gedcomData) {
+    const bgColor = backgroundColor;
+    const textColor = getContrastColor(bgColor);
+    const isLightBg = textColor === '#000000';
+
     return (
       <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+        className="flex items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200"
         style={{
           width: `${String(width)}px`,
           height: `${String(height)}px`,
+          backgroundColor: bgColor,
+          borderColor: isLightBg
+            ? 'rgba(0, 0, 0, 0.2)'
+            : 'rgba(255, 255, 255, 0.3)',
         }}
       >
         <div className="text-center">
-          <div className="text-gray-500 text-lg">No data available</div>
+          <div
+            className="text-lg font-medium"
+            style={{ color: textColor, opacity: 0.6 }}
+          >
+            No data available
+          </div>
         </div>
       </div>
     );
   }
 
   if (!pipelineResult) {
+    const bgColor = backgroundColor;
+    const textColor = getContrastColor(bgColor);
+    const isLightBg = textColor === '#000000';
+
     return (
       <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+        className="flex items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200"
         style={{
           width: `${String(width)}px`,
           height: `${String(height)}px`,
+          backgroundColor: bgColor,
+          borderColor: isLightBg
+            ? 'rgba(0, 0, 0, 0.2)'
+            : 'rgba(255, 255, 255, 0.3)',
         }}
       >
         {isVisualizing ? (
           <GenerationProgress progress={pipelineProgress} />
         ) : !primaryIndividualId ? (
           <div className="text-center">
-            <p className="text-gray-500 mb-3">
+            <p
+              className="mb-3 font-medium"
+              style={{ color: textColor, opacity: 0.7 }}
+            >
               Please select a primary individual
             </p>
             <button
               disabled
-              className="px-6 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium"
+              className="px-6 py-3 rounded-lg cursor-not-allowed font-medium transition-colors"
+              style={{
+                backgroundColor: isLightBg
+                  ? 'rgba(0, 0, 0, 0.1)'
+                  : 'rgba(255, 255, 255, 0.1)',
+                color: textColor,
+                opacity: 0.5,
+              }}
             >
               Generate art
             </button>
@@ -220,7 +256,7 @@ export function ArtGenerator({
         ) : (
           <button
             onClick={onVisualize}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium shadow-lg"
           >
             Generate art
           </button>

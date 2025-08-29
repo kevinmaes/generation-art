@@ -24,6 +24,7 @@ import type {
 import { getIndividualOrWarn } from '../utils/transformer-guards';
 import { createTransformerInstance } from '../utils';
 import countryColors from '../../../../shared/data/country-colors.json';
+import { FALLBACK_COLORS, darkenColor } from '../../constants/colors';
 
 /**
  * Configuration for the node country color transformer
@@ -54,7 +55,7 @@ export const nodeCountryColorConfig: VisualTransformerConfig = {
       name: 'fallbackColor',
       label: 'Fallback Color',
       type: 'color',
-      defaultValue: '#808080',
+      defaultValue: FALLBACK_COLORS.NODE,
     },
     {
       name: 'colorIntensity',
@@ -123,18 +124,6 @@ function getCountryColors(iso2: ISO2 | null): CountryColors | null {
 }
 
 /**
- * Darken a hex color by a percentage
- */
-function darkenColor(hex: string, percent: number): string {
-  const num = parseInt(hex.replace('#', ''), 16);
-  const r = Math.floor((num >> 16) * (1 - percent));
-  const g = Math.floor(((num >> 8) & 0x00ff) * (1 - percent));
-  const b = Math.floor((num & 0x0000ff) * (1 - percent));
-
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
-}
-
-/**
  * Apply color intensity to a hex color
  */
 function applyColorIntensity(color: string, intensity: number): string {
@@ -168,7 +157,8 @@ function calculateNodeColors(
     'Node country color transformer',
   ) as AugmentedIndividual | null;
 
-  const fallbackColor = (visual.fallbackColor as string) || '#808080';
+  const fallbackColor =
+    (visual.fallbackColor as string) || FALLBACK_COLORS.NODE;
   const strokeMode = (visual.strokeMode as string) || 'secondary';
   const colorIntensity = (visual.colorIntensity as number) || 0.8;
 
@@ -235,7 +225,8 @@ export async function nodeCountryColorTransform(
   // Extract visual parameters
   const layerMode = (visual.layerMode as string) || 'single';
   const colorIntensity = (visual.colorIntensity as number) || 0.8;
-  const fallbackColor = (visual.fallbackColor as string) || '#808080';
+  const fallbackColor =
+    (visual.fallbackColor as string) || FALLBACK_COLORS.NODE;
 
   const individuals = Object.values(gedcomData.individuals).filter(
     (individual): individual is AugmentedIndividual =>

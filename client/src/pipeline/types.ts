@@ -12,6 +12,7 @@ import type { DimensionId } from './dimensions';
 import type { VisualParameterValues } from './visual-parameters';
 import type { TransformerId } from './transformers';
 import type { ShapeProfile } from '../../../shared/types';
+import type { ContrastMode } from '../constants/colors';
 
 /**
  * Stroke properties for visual elements
@@ -118,7 +119,6 @@ export interface NodeVisualMetadata extends BaseVisualMetadata {
 
   // Legacy properties for backward compatibility
   color?: string;
-  backgroundColor?: string;
   shape?: 'circle' | 'square' | 'triangle' | 'hexagon' | 'star' | 'custom';
   shapeProfile?: ShapeProfile;
   size?: number;
@@ -191,7 +191,6 @@ export interface EdgeVisualMetadata extends BaseVisualMetadata {
  * Tree/Canvas visual metadata
  */
 export interface TreeVisualMetadata extends BaseVisualMetadata {
-  backgroundColor?: string;
   backgroundGradient?: unknown; // Future gradient support
   width?: number;
   height?: number;
@@ -227,7 +226,6 @@ export interface CompleteVisualMetadata {
   global: {
     canvasWidth?: number;
     canvasHeight?: number;
-    backgroundColor?: string;
     defaultNodeSize?: number;
     defaultEdgeWeight?: number;
     defaultNodeColor?: string;
@@ -269,6 +267,14 @@ export interface TransformerContext {
 
   // User-selected visual parameters (injected by createTransformerInstance)
   visual: VisualParameterValues;
+
+  // Canvas settings including background color and contrast preferences
+  canvas: {
+    width: number;
+    height: number;
+    backgroundColor: string;
+    contrastMode?: ContrastMode;
+  };
 
   // Optional: Primary individual ID selected by the user for transformers that need a focal point
   primaryIndividualId?: string;

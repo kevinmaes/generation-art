@@ -16,6 +16,7 @@ import type {
   LegacyEdgeFormat,
 } from './types/edge-routing';
 import { convertLegacyEdge } from './types/edge-routing';
+import { EDGE_COLORS } from '../constants/colors';
 
 // Module-level cache for performance optimization (optional)
 const segmentPathCache = new Map<string, Path2D>();
@@ -111,7 +112,7 @@ function drawSegment(segment: EdgeSegment, style: SegmentStyle, p5: P5): void {
   // Apply style
   p5.push(); // Save current style
 
-  const strokeColor = style.strokeColor ?? '#000000';
+  const strokeColor = style.strokeColor ?? EDGE_COLORS.DEFAULT_STROKE;
   const strokeWeight = style.strokeWeight ?? 1;
   const opacity = style.opacity ?? 1;
 

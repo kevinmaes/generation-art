@@ -15,6 +15,7 @@ import { resolveShapeGeometry } from './shapes/resolve';
 export interface SketchConfig {
   width: number;
   height: number;
+  backgroundColor?: string;
   showNames?: boolean;
   strokeWeight?: number;
   textSize?: number;
@@ -276,7 +277,12 @@ function createSketch(props: SketchProps): (p: p5) => void {
     p.setup = () => {
       p.createCanvas(width, height, p.P2D);
       p.pixelDensity(1);
-      p.background(255);
+      // Use configured background color or default to white
+      if (config.backgroundColor) {
+        p.background(config.backgroundColor);
+      } else {
+        p.background(255);
+      }
       p.noLoop(); // Only redraw when explicitly called
     };
 
@@ -350,7 +356,12 @@ function createSketch(props: SketchProps): (p: p5) => void {
     };
 
     p.draw = () => {
-      p.background(255);
+      // Use configured background color or default to white
+      if (config.backgroundColor) {
+        p.background(config.backgroundColor);
+      } else {
+        p.background(255);
+      }
 
       // Clear node positions for fresh hit detection
       nodePositions.clear();
@@ -952,7 +963,6 @@ export function createWebSketch(
         families: {},
         edges,
         tree: {
-          backgroundColor: '#ffffff',
           group: 'tree',
           layer: 0,
           priority: 0,
@@ -960,7 +970,6 @@ export function createWebSketch(
         global: {
           canvasWidth: width,
           canvasHeight: height,
-          backgroundColor: '#ffffff',
           defaultNodeSize: config.nodeSize,
           defaultEdgeWeight: config.strokeWeight,
           defaultNodeColor: config.colors?.[0] ?? '#0000ff',
@@ -1008,7 +1017,6 @@ export function createPrintSketch(
     families: {},
     edges: {},
     tree: {
-      backgroundColor: '#ffffff',
       group: 'tree',
       layer: 0,
       priority: 0,
@@ -1016,7 +1024,6 @@ export function createPrintSketch(
     global: {
       canvasWidth: width,
       canvasHeight: height,
-      backgroundColor: '#ffffff',
       defaultNodeSize: config.nodeSize,
       defaultEdgeWeight: config.strokeWeight,
       defaultNodeColor: config.colors?.[0] ?? '#000000',

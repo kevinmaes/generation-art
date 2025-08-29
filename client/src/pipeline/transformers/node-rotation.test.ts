@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { nodeRotationTransform } from './node-rotation';
 import type { TransformerContext } from '../types';
 import type { LLMReadyData } from '../../../../shared/types/llm-data';
+import { DEFAULT_TEST_CANVAS } from '../test-utils';
 
 // Mock GEDCOM data for testing
 const mockGedcomData = {
@@ -273,6 +274,7 @@ const mockVisualMetadata = {
 describe('nodeRotationTransform', () => {
   it('should assign rotation based on birth year dimension', async () => {
     const context: TransformerContext = {
+      canvas: DEFAULT_TEST_CANVAS,
       gedcomData: mockGedcomData,
       llmData: mockLLMData,
       visualMetadata: mockVisualMetadata,
@@ -315,6 +317,7 @@ describe('nodeRotationTransform', () => {
 
   it('should assign rotation based on generation dimension', async () => {
     const context: TransformerContext = {
+      canvas: DEFAULT_TEST_CANVAS,
       gedcomData: mockGedcomData,
       llmData: mockLLMData,
       visualMetadata: mockVisualMetadata,
@@ -341,6 +344,7 @@ describe('nodeRotationTransform', () => {
 
   it('should assign rotation based on children count dimension', async () => {
     const context: TransformerContext = {
+      canvas: DEFAULT_TEST_CANVAS,
       gedcomData: mockGedcomData,
       llmData: mockLLMData,
       visualMetadata: mockVisualMetadata,
@@ -377,6 +381,7 @@ describe('nodeRotationTransform', () => {
 
   it('should assign rotation based on name length dimension', async () => {
     const context: TransformerContext = {
+      canvas: DEFAULT_TEST_CANVAS,
       gedcomData: mockGedcomData,
       llmData: mockLLMData,
       visualMetadata: mockVisualMetadata,
@@ -405,6 +410,7 @@ describe('nodeRotationTransform', () => {
 
   it('should preserve existing visual metadata while adding rotation', async () => {
     const context: TransformerContext = {
+      canvas: DEFAULT_TEST_CANVAS,
       gedcomData: mockGedcomData,
       llmData: mockLLMData,
       visualMetadata: mockVisualMetadata,
@@ -434,6 +440,7 @@ describe('nodeRotationTransform', () => {
     };
 
     const context: TransformerContext = {
+      canvas: DEFAULT_TEST_CANVAS,
       gedcomData: emptyGedcomData,
       llmData: mockLLMData,
       visualMetadata: { ...mockVisualMetadata, individuals: {} },
@@ -450,6 +457,7 @@ describe('nodeRotationTransform', () => {
 
   it('should apply variation with temperature', async () => {
     const context: TransformerContext = {
+      canvas: DEFAULT_TEST_CANVAS,
       gedcomData: mockGedcomData,
       llmData: mockLLMData,
       visualMetadata: mockVisualMetadata,
@@ -473,6 +481,7 @@ describe('nodeRotationTransform', () => {
 
   it('should handle secondary dimension', async () => {
     const context: TransformerContext = {
+      canvas: DEFAULT_TEST_CANVAS,
       gedcomData: mockGedcomData,
       llmData: mockLLMData,
       visualMetadata: mockVisualMetadata,

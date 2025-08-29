@@ -13,7 +13,6 @@ import {
   DEFAULT_SIZE,
   DEFAULT_SCALE,
   DEFAULT_COLOR,
-  DEFAULT_BACKGROUND_COLOR,
   DEFAULT_STROKE_COLOR,
   DEFAULT_OPACITY,
   DEFAULT_ALPHA,
@@ -215,7 +214,6 @@ describe('Pipeline', () => {
       expect(metadata.individuals.I1.shape).toBe(DEFAULT_SHAPE);
 
       // Test tree metadata
-      expect(metadata.tree.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
       expect(metadata.tree.group).toBe('tree');
 
       // Test edges metadata
@@ -233,7 +231,6 @@ describe('Pipeline', () => {
       expect(individualMetadata.size).toBe(DEFAULT_SIZE);
       expect(individualMetadata.scale).toBe(DEFAULT_SCALE);
       expect(individualMetadata.color).toBe(DEFAULT_COLOR);
-      expect(individualMetadata.backgroundColor).toBe(DEFAULT_BACKGROUND_COLOR);
       expect(individualMetadata.strokeColor).toBe(DEFAULT_STROKE_COLOR);
       expect(individualMetadata.opacity).toBe(DEFAULT_OPACITY);
       expect(individualMetadata.alpha).toBe(DEFAULT_ALPHA);

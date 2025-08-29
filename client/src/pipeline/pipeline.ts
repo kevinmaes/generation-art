@@ -9,6 +9,7 @@ import type {
   GedcomDataWithMetadata,
   LLMReadyData,
 } from '../../../shared/types';
+import type { ContrastMode } from '../constants/colors';
 import type {
   NodeVisualMetadata,
   EdgeVisualMetadata,
@@ -32,7 +33,6 @@ import {
   DEFAULT_SIZE,
   DEFAULT_SCALE,
   DEFAULT_COLOR,
-  DEFAULT_BACKGROUND_COLOR,
   DEFAULT_STROKE_COLOR,
   DEFAULT_OPACITY,
   DEFAULT_ALPHA,
@@ -49,6 +49,8 @@ import {
   DEFAULT_CUSTOM,
 } from './constants';
 import { getTransformerParameterKey } from '../utils/pipeline-index';
+import { CANVAS_COLORS } from '../constants/colors';
+import { CANVAS_DIMENSIONS } from '../../../shared/constants';
 
 export const PIPELINE_DEFAULTS: {
   TRANSFORMER_IDS: TransformerId[];
@@ -75,6 +77,12 @@ export interface PipelineConfig {
   // Canvas dimensions for reference
   canvasWidth?: number;
   canvasHeight?: number;
+
+  // Canvas settings including background color
+  canvasSettings?: {
+    backgroundColor: string;
+    contrastMode?: ContrastMode;
+  };
 
   // Primary individual ID for transformers that need a focal point
   primaryIndividualId?: string;
@@ -132,7 +140,6 @@ export const initialEntityVisualMetadata: NodeVisualMetadata = {
   size: DEFAULT_SIZE,
   scale: DEFAULT_SCALE,
   color: DEFAULT_COLOR,
-  backgroundColor: DEFAULT_BACKGROUND_COLOR,
   strokeColor: DEFAULT_STROKE_COLOR,
   opacity: DEFAULT_OPACITY,
   alpha: DEFAULT_ALPHA,
@@ -210,7 +217,6 @@ export function createInitialCompleteVisualMetadata(
     edges,
     tree: {
       // Tree-level visual settings
-      backgroundColor: DEFAULT_BACKGROUND_COLOR,
       group: 'tree',
       layer: 0,
       priority: 0,
@@ -218,7 +224,6 @@ export function createInitialCompleteVisualMetadata(
     global: {
       canvasWidth,
       canvasHeight,
-      backgroundColor: DEFAULT_BACKGROUND_COLOR,
       defaultNodeSize: DEFAULT_SIZE,
       defaultEdgeWeight: DEFAULT_STROKE_WEIGHT,
       defaultNodeColor: DEFAULT_COLOR,
@@ -473,6 +478,13 @@ export async function* runPipelineGenerator({
             transformer.defaultSecondaryDimension,
         },
         visual: transformerInstance.visual,
+        canvas: {
+          width: config.canvasWidth ?? CANVAS_DIMENSIONS.WEB.WIDTH,
+          height: config.canvasHeight ?? CANVAS_DIMENSIONS.WEB.HEIGHT,
+          backgroundColor:
+            config.canvasSettings?.backgroundColor ?? CANVAS_COLORS.DEFAULT,
+          contrastMode: config.canvasSettings?.contrastMode ?? 'auto',
+        },
         // Provide previous change set if available
         previousChangeSet: lastChangeSet,
       };
@@ -673,6 +685,10 @@ export function createSimplePipeline(
     seed?: string;
     canvasWidth?: number;
     canvasHeight?: number;
+    canvasSettings?: {
+      backgroundColor: string;
+      contrastMode?: ContrastMode;
+    };
     primaryIndividualId?: string;
     transformerParameters?: Record<
       string,
@@ -715,6 +731,7 @@ export function createSimplePipeline(
     seed: options?.seed,
     canvasWidth: options?.canvasWidth,
     canvasHeight: options?.canvasHeight,
+    canvasSettings: options?.canvasSettings,
     primaryIndividualId: options?.primaryIndividualId,
   };
 }

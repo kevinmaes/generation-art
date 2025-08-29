@@ -26,6 +26,7 @@ import type {
 } from '../pipeline/smart-transformer-types';
 import type { TransformerContext } from '../pipeline/types';
 import type { LLMReadyData } from '../../../shared/types/llm-data';
+import { DEFAULT_TEST_CANVAS } from '../pipeline/test-utils';
 
 // Mock data for testing
 const mockVisualMetadata = {
@@ -74,7 +75,6 @@ const mockVisualMetadata = {
   global: {
     canvasWidth: 1000,
     canvasHeight: 800,
-    backgroundColor: '#ffffff',
   },
 };
 
@@ -327,9 +327,7 @@ describe('Smart Transformer Utils', () => {
       edges: {
         edge1: { controlPoints: [{ x: 100, y: 100 }] },
       },
-      global: {
-        backgroundColor: '#f0f0f0',
-      },
+      global: {},
     };
 
     it('should merge individual properties correctly', () => {
@@ -388,7 +386,6 @@ describe('Smart Transformer Utils', () => {
       expect(result.global).toEqual({
         canvasWidth: 1000, // Preserved
         canvasHeight: 800, // Preserved
-        backgroundColor: '#f0f0f0', // Updated
       });
     });
 
@@ -639,6 +636,7 @@ describe('Smart Transformer Utils', () => {
         spacing: 'normal',
       },
       temperature: 0.7,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     it('should build complete prompt using config', () => {
@@ -659,6 +657,7 @@ describe('Smart Transformer Utils', () => {
           ...mockVisualMetadata,
           global: {},
         },
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = buildSmartTransformerPrompt(
@@ -672,6 +671,7 @@ describe('Smart Transformer Utils', () => {
       const contextWithoutStyle = {
         ...mockContext,
         visual: {},
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const configWithoutStyle = {
@@ -693,6 +693,7 @@ describe('Smart Transformer Utils', () => {
       const contextWithoutTemp = {
         ...mockContext,
         temperature: undefined,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       const result = buildSmartTransformerPrompt(

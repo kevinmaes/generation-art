@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { nodeShapeTransform } from './node-shape';
 import type { TransformerContext } from '../types';
 import type { LLMReadyData } from '../../../../shared/types/llm-data';
+import { DEFAULT_TEST_CANVAS } from '../test-utils';
 
 // Mock GEDCOM data for testing
 const mockGedcomData = {
@@ -439,6 +440,7 @@ describe('nodeShapeTransform', () => {
       dimensions: { primary: 'generation' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0, // No randomness for predictable testing
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeShapeTransform(context);
@@ -470,6 +472,7 @@ describe('nodeShapeTransform', () => {
       dimensions: { primary: 'childrenCount' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeShapeTransform(context);
@@ -495,6 +498,7 @@ describe('nodeShapeTransform', () => {
       dimensions: { primary: 'generation' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeShapeTransform(context);
@@ -524,6 +528,7 @@ describe('nodeShapeTransform', () => {
       dimensions: { primary: 'generation' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeShapeTransform(context);
@@ -540,6 +545,7 @@ describe('nodeShapeTransform', () => {
       dimensions: { primary: 'generation' },
       visual: { variationFactor: 0.5 },
       temperature: 1.0, // Maximum randomness
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeShapeTransform(context);
@@ -561,6 +567,7 @@ describe('nodeShapeTransform', () => {
       dimensions: { primary: 'generation', secondary: 'lifespan' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeShapeTransform(context);
@@ -587,6 +594,7 @@ describe('nodeShapeTransform', () => {
       dimensions: { primary: 'generation' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeShapeTransform(context);

@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import { nodeScaleTransform } from './node-scale';
 import type { TransformerContext } from '../types';
+import { DEFAULT_TEST_CANVAS } from '../test-utils';
 
 // Mock GEDCOM data for testing
 const mockGedcomData = {
@@ -278,6 +279,7 @@ describe('nodeScaleTransform', () => {
       dimensions: { primary: 'lifespan' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0, // No randomness for predictable testing
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeScaleTransform(context);
@@ -324,6 +326,7 @@ describe('nodeScaleTransform', () => {
       dimensions: { primary: 'childrenCount' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeScaleTransform(context);
@@ -356,6 +359,7 @@ describe('nodeScaleTransform', () => {
       dimensions: { primary: 'lifespan', secondary: 'childrenCount' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeScaleTransform(context);
@@ -391,6 +395,7 @@ describe('nodeScaleTransform', () => {
       dimensions: { primary: 'lifespan' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeScaleTransform(context);
@@ -426,6 +431,7 @@ describe('nodeScaleTransform', () => {
       dimensions: { primary: 'lifespan' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeScaleTransform(context);
@@ -442,6 +448,7 @@ describe('nodeScaleTransform', () => {
       dimensions: { primary: 'lifespan' },
       visual: { variationFactor: 0.5 },
       temperature: 1.0, // Maximum randomness
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeScaleTransform(context);
@@ -471,6 +478,7 @@ describe('nodeScaleTransform', () => {
       dimensions: { primary: 'generation' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeScaleTransform(context);
@@ -496,6 +504,7 @@ describe('nodeScaleTransform', () => {
       dimensions: { primary: 'nameLength' },
       visual: { variationFactor: 0.1 },
       temperature: 0.0,
+      canvas: DEFAULT_TEST_CANVAS,
     };
 
     const result = await nodeScaleTransform(context);
@@ -550,6 +559,7 @@ describe('nodeScaleTransform', () => {
         },
         visual: { variationFactor: 0.1 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error and should use default value (0.5)
@@ -576,6 +586,7 @@ describe('nodeScaleTransform', () => {
         },
         visual: { variationFactor: 0.1 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error and should use default secondary value (0.5)
@@ -622,6 +633,7 @@ describe('nodeScaleTransform', () => {
         dimensions: { primary: 'generation', secondary: 'lifespan' },
         visual: { variationFactor: 0.1 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error and should use safe defaults
@@ -648,6 +660,7 @@ describe('nodeScaleTransform', () => {
           // variationFactor intentionally undefined
         },
         // temperature also undefined at context level
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw an error with undefined temperature/variationFactor
@@ -696,6 +709,7 @@ describe('nodeScaleTransform', () => {
         dimensions: { primary: 'lifespan', secondary: 'marriageCount' },
         visual: { variationFactor: 0.1 },
         temperature: 0.0,
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not throw errors when arrays are empty (no lifespans, no marriages)
@@ -722,6 +736,7 @@ describe('nodeScaleTransform', () => {
           variationFactor: Number.NaN, // NaN variation factor
         },
         temperature: Number.NaN, // NaN temperature
+        canvas: DEFAULT_TEST_CANVAS,
       };
 
       // Should not return NaN values even with NaN inputs
